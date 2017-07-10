@@ -1,0 +1,117 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net47</TargetFramework>
+    <RuntimeIdentifier>win7-x86</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="wwwroot\**" />
+    <Content Remove="wwwroot\**" />
+    <EmbeddedResource Remove="wwwroot\**" />
+    <None Remove="wwwroot\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Email\Templates\AccountConfirmation_HTML.html" />
+    <None Remove="Email\Templates\AssignmentChangedEvent_HTML.html" />
+    <None Remove="Email\Templates\BeginPasswordReset_HTML.html" />
+    <None Remove="Email\Templates\CompletedAccountRegistration_HTML.html" />
+    <None Remove="Email\Templates\FailedAccountLogin_HTML.html" />
+    <None Remove="Email\Templates\FatalError_HTML.html" />
+    <None Remove="Email\Templates\Feedback_HTML.html" />
+    <None Remove="Email\Templates\FinishPasswordReset_HTML.html" />
+    <None Remove="Email\Templates\ForgotUsername_HTML.html" />
+    <None Remove="Email\Templates\NameChangedEvent_HTML.html" />
+    <None Remove="Email\Templates\NewPersonChangeEvent_HTML.html" />
+    <None Remove="Email\Templates\PasswordChanged_HTML.html" />
+    <None Remove="Email\Templates\ReregistrationError_HTML.html" />
+    <None Remove="Email\Templates\UpcomingWatch_HTML.html" />
+    <None Remove="Email\Templates\WatchAssigned_HTML.html" />
+    <None Remove="Email\Templates\WatchbillClosedForInputs_HTML.html" />
+    <None Remove="Email\Templates\WatchbillInputRequired_HTML.html" />
+    <None Remove="Email\Templates\WatchbillOpenForInputs_HTML.html" />
+    <None Remove="Email\Templates\WatchbillPublished_HTML.html" />
+    <None Remove="Email\Templates\WatchbillUnderReview_HTML.html" />
+    <None Remove="Email\Templates\WatchInputRequirements_HTML.html" />
+    <None Remove="Email\Templates\WatchReassignedAdded_HTML.html" />
+    <None Remove="Email\Templates\WatchReassignedRemoved_HTML.html" />
+    <None Remove="PreDefs\Def_AccountHistoryTypes.cc" />
+    <None Remove="PreDefs\Def_DutyStatuses.cc" />
+    <None Remove="PreDefs\Def_MusterStatuses.cc" />
+    <None Remove="PreDefs\Def_Paygrades.cc" />
+    <None Remove="PreDefs\Def_PhoneNumberTypes.cc" />
+    <None Remove="PreDefs\Def_Sexes.cc" />
+    <None Remove="PreDefs\Def_WatchAssignmentStates.cc" />
+    <None Remove="PreDefs\Def_WatchbillStatuses.cc" />
+    <None Remove="PreDefs\Def_WatchEligibilityGroups.cc" />
+    <None Remove="PreDefs\Def_WatchQualifications.cc" />
+    <None Remove="PreDefs\Def_WatchShiftTypes.cc" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Authorization\Rules\" />
+    <Folder Include="ChangeEvents\" />
+    <Folder Include="Authentication\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="1.9.71" />
+    <PackageReference Include="FluentNHibernate" Version="2.0.3" />
+    <PackageReference Include="FluentScheduler" Version="5.3.0" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="7.1.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="1.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="1.1.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="1.1.2" />
+    <PackageReference Include="MySql.Data" Version="6.9.9" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="NHibernate.Caches.SysCache" Version="4.0.0.4000" />
+    <PackageReference Include="Polly" Version="5.2.0" />
+    <PackageReference Include="RazorEngine" Version="3.10.0" />
+    <PackageReference Include="TimePeriodLibrary.NET" Version="2.1.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Email\Templates\AccountConfirmation_HTML.html" />
+    <EmbeddedResource Include="Email\Templates\AssignmentChangedEvent_HTML.html" />
+    <EmbeddedResource Include="Email\Templates\BeginPasswordReset_HTML.html" />
+    <EmbeddedResource Include="Email\Templates\CompletedAccountRegistration_HTML.html" />
+    <EmbeddedResource Include="Email\Templates\FailedAccountLogin_HTML.html" />
+    <EmbeddedResource Include="Email\Templates\FatalError_HTML.html" />
+    <EmbeddedResource Include="Email\Templates\Feedback_HTML.html" />
+    <EmbeddedResource Include="Email\Templates\FinishPasswordReset_HTML.html" />
+    <EmbeddedResource Include="Email\Templates\ForgotUsername_HTML.html" />
+    <EmbeddedResource Include="Email\Templates\NameChangedEvent_HTML.html" />
+    <EmbeddedResource Include="Email\Templates\NewPersonChangeEvent_HTML.html" />
+    <EmbeddedResource Include="Email\Templates\PasswordChanged_HTML.html" />
+    <EmbeddedResource Include="Email\Templates\ReregistrationError_HTML.html" />
+    <EmbeddedResource Include="Email\Templates\UpcomingWatch_HTML.html" />
+    <EmbeddedResource Include="Email\Templates\WatchAssigned_HTML.html" />
+    <EmbeddedResource Include="Email\Templates\WatchbillClosedForInputs_HTML.html" />
+    <EmbeddedResource Include="Email\Templates\WatchbillInputRequired_HTML.html" />
+    <EmbeddedResource Include="Email\Templates\WatchbillOpenForInputs_HTML.html" />
+    <EmbeddedResource Include="Email\Templates\WatchbillPublished_HTML.html" />
+    <EmbeddedResource Include="Email\Templates\WatchbillUnderReview_HTML.html" />
+    <EmbeddedResource Include="Email\Templates\WatchInputRequirements_HTML.html" />
+    <EmbeddedResource Include="Email\Templates\WatchReassignedAdded_HTML.html" />
+    <EmbeddedResource Include="Email\Templates\WatchReassignedRemoved_HTML.html" />
+    <EmbeddedResource Include="PreDefs\Def_AccountHistoryTypes.cc" />
+    <EmbeddedResource Include="PreDefs\Def_DutyStatuses.cc" />
+    <EmbeddedResource Include="PreDefs\Def_MusterStatuses.cc" />
+    <EmbeddedResource Include="PreDefs\Def_Paygrades.cc" />
+    <EmbeddedResource Include="PreDefs\Def_PhoneNumberTypes.cc" />
+    <EmbeddedResource Include="PreDefs\Def_Sexes.cc" />
+    <EmbeddedResource Include="PreDefs\Def_WatchAssignmentStates.cc" />
+    <EmbeddedResource Include="PreDefs\Def_WatchbillStatuses.cc" />
+    <EmbeddedResource Include="PreDefs\Def_WatchEligibilityGroups.cc" />
+    <EmbeddedResource Include="PreDefs\Def_WatchQualifications.cc" />
+    <EmbeddedResource Include="PreDefs\Def_WatchShiftTypes.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Web" />
+  </ItemGroup>
+
+</Project>
