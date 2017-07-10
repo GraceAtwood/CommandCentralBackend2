@@ -94,7 +94,6 @@ namespace CommandCentral.Authorization.Groups.Definitions
                     x => x.PermissionGroupNames,
                     x => x.AccountHistory,
                     x => x.Changes,
-                    x => x.UserPreferences,
                     x => x.DoDId))
                     .IfSelf()
                 .And.CanEdit(PropertySelector.SelectPropertiesFrom<Entities.Person>(
@@ -108,7 +107,6 @@ namespace CommandCentral.Authorization.Groups.Definitions
                     x => x.PhysicalAddresses,
                     x => x.EmergencyContactInstructions,
                     x => x.ContactRemarks,
-                    x => x.UserPreferences,
                     x => x.SubscribedEvents))
                     .IfSelf();
         }

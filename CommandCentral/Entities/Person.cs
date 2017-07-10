@@ -15,13 +15,14 @@ using CommandCentral.Framework.Data;
 using CommandCentral.Utilities;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
+using CommandCentral.Utilities.Types;
 
 namespace CommandCentral.Entities
 {
     /// <summary>
     /// Describes a single person and all their properties and data access methods.
     /// </summary>
-    public class Person
+    public class Person : ICommentable, IEntity
     {
 
         #region Properties
@@ -32,18 +33,7 @@ namespace CommandCentral.Entities
         public virtual Guid Id { get; set; }
 
         #region Main Properties
-
-        /// <summary>
-        /// Returns this.ToString()
-        /// </summary>
-        public virtual string FriendlyName
-        {
-            get
-            {
-                return this.ToString();
-            }
-        }
-
+        
         /// <summary>
         /// The person's last name.
         /// </summary>
@@ -161,11 +151,6 @@ namespace CommandCentral.Entities
         public virtual bool HasCompletedAWARE { get; set; }
 
         /// <summary>
-        /// The user's preferences.
-        /// </summary>
-        public virtual IDictionary<string, string> UserPreferences { get; set; }
-
-        /// <summary>
         /// A collection of all the watch assignments this person has ever been assigned.
         /// </summary>
         public virtual IList<Watchbill.WatchAssignment> WatchAssignments { get; set; }
@@ -252,7 +237,6 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The type of billet this person is assigned to.
         /// </summary>
-        [IgnoreDataMember]
         public virtual BilletAssignment BilletAssignment { get; set; }
 
         #endregion
@@ -262,31 +246,26 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The email addresses of this person.
         /// </summary>
-        [IgnoreDataMember]
         public virtual IList<EmailAddress> EmailAddresses { get; set; }
 
         /// <summary>
         /// The Phone Numbers of this person.
         /// </summary>
-        [IgnoreDataMember]
         public virtual IList<PhoneNumber> PhoneNumbers { get; set; }
 
         /// <summary>
         /// The Physical Addresses of this person
         /// </summary>
-        [IgnoreDataMember]
         public virtual IList<PhysicalAddress> PhysicalAddresses { get; set; }
 
         /// <summary>
         /// Instructions from the user on what avenues of contact to follow in the case of an emergency.
         /// </summary>
-        [IgnoreDataMember]
         public virtual string EmergencyContactInstructions { get; set; }
 
         /// <summary>
         /// A free form text field intended to allow the user to make comments about their contact fields.
         /// </summary>
-        [IgnoreDataMember]
         public virtual string ContactRemarks { get; set; }
 
         #endregion
@@ -296,50 +275,47 @@ namespace CommandCentral.Entities
         /// <summary>
         /// A boolean indicating whether or not this account has been claimed.
         /// </summary>
-        [IgnoreDataMember]
         public virtual bool IsClaimed { get; set; }
 
         /// <summary>
         /// The client's username.
         /// </summary>
-        [IgnoreDataMember]
         public virtual string Username { get; set; }
 
         /// <summary>
         /// The client's hashed password.
         /// </summary>
-        [IgnoreDataMember]
         public virtual string PasswordHash { get; set; }
 
         /// <summary>
         /// The list of the person's permissions.  This is not persisted in the database.  Only the names are.
         /// </summary>
-        [IgnoreDataMember]
         public virtual List<Authorization.Groups.PermissionGroup> PermissionGroups { get; set; }
 
         /// <summary>
         /// The list of the person's permissions as they are stored in the database.
         /// </summary>
-        [IgnoreDataMember]
         public virtual IList<string> PermissionGroupNames { get; set; }
 
         /// <summary>
         /// A list containing account history events, these are events that track things like login, password reset, etc.
         /// </summary>
-        [IgnoreDataMember]
         public virtual IList<AccountHistoryEvent> AccountHistory { get; set; }
 
         /// <summary>
         /// A list containing all changes that have every occurred to the profile.
         /// </summary>
-        [IgnoreDataMember]
         public virtual IList<Change> Changes { get; set; }
 
         /// <summary>
         /// The list of those events to which this person is subscribed.
         /// </summary>
-        [IgnoreDataMember]
         public virtual IDictionary<Guid, ChainOfCommandLevels> SubscribedEvents { get; set; }
+
+        /// <summary>
+        /// Comments
+        /// </summary>
+        public virtual IList<Comment> Comments { get; set; }
 
         #endregion
 
@@ -354,18 +330,6 @@ namespace CommandCentral.Entities
         public override string ToString()
         {
             return string.Format("{0}, {1} {2}", LastName, FirstName, MiddleName);
-        }
-
-        #endregion
-
-        #region ctors
-
-        /// <summary>
-        /// Creates a new person.
-        /// </summary>
-        public Person()
-        {
-            UserPreferences = new Dictionary<string, string>();
         }
 
         #endregion
@@ -608,12 +572,6 @@ namespace CommandCentral.Entities
                         element.Column("Level").Type<ChainOfCommandLevels>())
                     .Cascade.All();
 
-                HasMany(x => x.UserPreferences)
-                    .AsMap<string>(index =>
-                        index.Column("PreferenceKey").Type<string>(), element =>
-                        element.Column("PreferenceValue").Type<string>())
-                    .Cascade.All();
-
                 Cache.ReadWrite();
             }
         }
@@ -773,16 +731,6 @@ namespace CommandCentral.Entities
                     .WithMessage("The UIC was invalid.");
                 RuleFor(x => x.JobTitle).Length(0, 40)
                     .WithMessage("The job title may not be longer than 40 characters.");
-                RuleFor(x => x.UserPreferences).Must((person, x) =>
-                    {
-                        return x.Keys.Count <= 20;
-                    })
-                    .WithMessage("You may not submit more than 20 preference keys.");
-                RuleForEach(x => x.UserPreferences).Must((person, x) =>
-                    {
-                        return x.Value.Length <= 1000;
-                    })
-                    .WithMessage("No preference value may be more than 1000 characters.");
 
                 When(x => x.IsClaimed, () =>
                 {

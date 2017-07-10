@@ -13,7 +13,7 @@ namespace CommandCentral.Entities.ReferenceLists
     /// <summary>
     /// Describes a single Division.
     /// </summary>
-    public class Division : IValidatable
+    public class Division : IValidatable, IEntity
     {
 
         #region Properties
@@ -59,7 +59,7 @@ namespace CommandCentral.Entities.ReferenceLists
                 Map(x => x.Value).Not.Nullable().Unique();
                 Map(x => x.Description);
 
-                References(x => x.Department).LazyLoad(Laziness.False);
+                References(x => x.Department);
 
                 Cache.ReadWrite();
             }

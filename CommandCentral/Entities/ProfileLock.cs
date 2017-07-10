@@ -9,7 +9,7 @@ namespace CommandCentral.Entities
     /// <summary>
     /// Describes a single profile lock.
     /// </summary>
-    public class ProfileLock
+    public class ProfileLock : IEntity
     {
         /// <summary>
         /// The maximum age, as a timespan, after which a profile lock should be considered invalid.

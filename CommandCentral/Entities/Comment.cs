@@ -12,7 +12,7 @@ namespace CommandCentral.Entities
     /// <summary>
     /// A comment.  It's assigned to an object where users can comment on it.
     /// </summary>
-    public class Comment
+    public class Comment : IEntity
     {
 
         #region Properties

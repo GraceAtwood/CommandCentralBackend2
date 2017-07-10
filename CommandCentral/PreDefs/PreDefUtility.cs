@@ -47,7 +47,6 @@ namespace CommandCentral.PreDefs
 
         public static void PersistPreDef<T>() where T : class
         {
-
             var predef = (PreDefOf<T>)Predefs.FirstOrDefault(x => x.TypeFullName == typeof(T).FullName) ??
                 throw new Exception($"{typeof(T).FullName} does not exist.");
 
@@ -56,19 +55,14 @@ namespace CommandCentral.PreDefs
 
         public static void PersistPreDef<T>(PreDefOf<T> preDef) where T : class
         {
-            using (var session = DataProvider.CurrentSession)
+            using (var transaction = DataProvider.CurrentSession.BeginTransaction())
             {
-                using (var transaction = session.BeginTransaction())
+                foreach (var item in preDef.Definitions)
                 {
-                    foreach (var item in preDef.Definitions)
-                    {
-                        session.Save(item);
-                    }
-
-                    transaction.Commit();
+                    DataProvider.CurrentSession.Save(item);
                 }
 
-                //TODO Logging.Log.Info("Persisted {0} defs for PreDef {1}.".With(preDef.Definitions.Count, typeof(T).Name));
+                transaction.Commit();
             }
         }
     }

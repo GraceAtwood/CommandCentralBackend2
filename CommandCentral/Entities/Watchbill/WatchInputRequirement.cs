@@ -12,7 +12,7 @@ namespace CommandCentral.Entities.Watchbill
     /// <summary>
     /// This is how a person is told they must provide input on a watchbill.  A requirement may be answered by as few (even 0) watch inputs as the person wants.
     /// </summary>
-    public class WatchInputRequirement
+    public class WatchInputRequirement : IEntity
     {
 
         #region Properties

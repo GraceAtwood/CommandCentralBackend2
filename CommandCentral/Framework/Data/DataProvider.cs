@@ -33,9 +33,7 @@ namespace CommandCentral.Framework.Data
         {
             Config = Fluently.Configure()
                 .Database(MySQLConfiguration.Standard.ConnectionString(ConnectionString)
-                #if DEBUG
-                .ShowSql()
-                #endif
+                //.ShowSql()
                 )
                 .Cache(x => x.UseSecondLevelCache().UseQueryCache()
                 .ProviderClass<SysCacheProvider>())
@@ -57,6 +55,14 @@ namespace CommandCentral.Framework.Data
             .ToDictionary(x => x.Type, x => x.MetaData));
 
             return factory;
+        }
+
+        public static void ForceFactoryInitialization()
+        {
+            if (SessionFactory == null)
+                SessionFactory = HttpContext.Current != null
+                                ? GetFactory<WebSessionContext>()
+                                : GetFactory<ThreadStaticSessionContext>();
         }
         
         public static ISession CurrentSession

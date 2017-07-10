@@ -7,7 +7,7 @@ namespace CommandCentral.Entities
     /// <summary>
     /// Describes a single account confirmation.  This is created when a client attempts to register an account.
     /// </summary>
-    public class PendingAccountConfirmation
+    public class PendingAccountConfirmation : IEntity
     {
 
         /// <summary>

@@ -11,7 +11,7 @@ namespace CommandCentral.Entities
     /// <summary>
     /// Describes a single Phone number along with its data access members and properties
     /// </summary>
-    public class PhoneNumber
+    public class PhoneNumber : IEntity
     {
         #region Properties
 

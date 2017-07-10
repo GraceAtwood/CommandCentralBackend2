@@ -13,7 +13,7 @@ namespace CommandCentral.Entities.ReferenceLists
     /// <summary>
     /// Provides abstracted access to a reference list such as Ranks or Rates.
     /// </summary>
-    public abstract class ReferenceListItemBase
+    public abstract class ReferenceListItemBase : IEntity
     {
         #region Properties
 

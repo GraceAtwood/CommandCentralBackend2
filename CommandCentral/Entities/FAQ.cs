@@ -11,7 +11,7 @@ namespace CommandCentral.Entities
     /// <summary>
     /// A single frequently asked question.
     /// </summary>
-    public class FAQ
+    public class FAQ : IEntity
     {
         #region Properties
 

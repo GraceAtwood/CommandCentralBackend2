@@ -13,7 +13,7 @@ namespace CommandCentral.Entities.ReferenceLists
     /// <summary>
     /// Describes a single Department and all of its divisions.
     /// </summary>
-    public class Department : IValidatable
+    public class Department : IValidatable, IEntity
     {
         #region Properties
         
@@ -31,7 +31,7 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <summary>
         /// A list of those divisions that belong to this department.
         /// </summary>
-        public virtual IList<Division> Divisions { get; set; }
+        public virtual IList<Division> Divisions { get; set; } = new List<Division>();
 
         #endregion
 
@@ -63,9 +63,9 @@ namespace CommandCentral.Entities.ReferenceLists
                 Map(x => x.Value).Not.Nullable().Unique();
                 Map(x => x.Description);
 
-                HasMany(x => x.Divisions).Not.LazyLoad().Cascade.DeleteOrphan();
+                HasMany(x => x.Divisions).Cascade.All();
 
-                References(x => x.Command).LazyLoad(Laziness.False);
+                References(x => x.Command);
 
                 Cache.ReadWrite();
             }

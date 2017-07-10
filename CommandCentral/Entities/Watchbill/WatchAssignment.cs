@@ -17,7 +17,7 @@ namespace CommandCentral.Entities.Watchbill
     /// <summary>
     /// A watch assignment which ties a person to a watch shift and indicates if the assignment has been completed, or what status it is in.
     /// </summary>
-    public class WatchAssignment
+    public class WatchAssignment : IEntity
     {
 
         #region Properties
@@ -108,15 +108,12 @@ namespace CommandCentral.Entities.Watchbill
             /// </summary>
             public static void UpdateForeignKeyRule()
             {
-                using (var session = DataProvider.CurrentSession)
+                using (var command = DataProvider.CurrentSession.Connection.CreateCommand())
                 {
-                    using (var command = session.Connection.CreateCommand())
-                    {
-                        command.CommandText = $"ALTER TABLE `{nameof(WatchAssignment)}` DROP FOREIGN KEY `{WatchAssignmentToWatchShiftForeignKeyName}`;  ALTER TABLE `{nameof(WatchAssignment)}` " +
-                            $"ADD CONSTRAINT `{WatchAssignmentToWatchShiftForeignKeyName}` FOREIGN KEY (`{nameof(WatchShift)}_id`) REFERENCES `{nameof(WatchShift)}` (`Id`) ON DELETE CASCADE";
+                    command.CommandText = $"ALTER TABLE `{nameof(WatchAssignment)}` DROP FOREIGN KEY `{WatchAssignmentToWatchShiftForeignKeyName}`;  ALTER TABLE `{nameof(WatchAssignment)}` " +
+                        $"ADD CONSTRAINT `{WatchAssignmentToWatchShiftForeignKeyName}` FOREIGN KEY (`{nameof(WatchShift)}_id`) REFERENCES `{nameof(WatchShift)}` (`Id`) ON DELETE CASCADE";
 
-                        command.ExecuteNonQuery();
-                    }
+                    command.ExecuteNonQuery();
                 }
             }
 

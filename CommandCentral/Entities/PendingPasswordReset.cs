@@ -7,7 +7,7 @@ namespace CommandCentral.Entities
     /// <summary>
     /// Defines a single attempt to reset a password.  The Id of this class is the key that unlocks the Finish Password Reset endpoint.
     /// </summary>
-    public class PendingPasswordReset
+    public class PendingPasswordReset : IEntity
     {
 
         /// <summary>

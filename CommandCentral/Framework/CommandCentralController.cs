@@ -12,6 +12,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using CommandCentral.Entities;
 using NHibernate;
+using CommandCentral.Authentication;
 
 namespace CommandCentral.Framework
 {
@@ -57,16 +58,26 @@ namespace CommandCentral.Framework
         {
             HttpContext.Items["CallTime"] = DateTime.UtcNow;
 
-            //Handle Authentication first.  Do we require authentication?
+            //Pull out the api key too.
+            if (!Request.Headers.TryGetValue("apikey", out Microsoft.Extensions.Primitives.StringValues apiKeyHeader)
+                || !Guid.TryParse(apiKeyHeader.FirstOrDefault(), out Guid apiKey)
+                || DBSession.Get<APIKey>(apiKey) == null)
+            {
+                context.Result = Unauthorized();
+                return;
+            }
+
+            //Handle Authentication.  Do we require authentication?
             if (((ControllerActionDescriptor)context.ActionDescriptor).MethodInfo.GetCustomAttribute<RequireAuthenticationAttribute>() != null)
             {
-                if (!Request.Headers.TryGetValue("sessionid", out Microsoft.Extensions.Primitives.StringValues sessionId))
+                if (!Request.Headers.TryGetValue("sessionid", out Microsoft.Extensions.Primitives.StringValues sessionIdHeader)
+                    || !Guid.TryParse(sessionIdHeader.FirstOrDefault(), out Guid sessionId))
                 {
                     context.Result = Unauthorized();
                     return;
                 }
 
-                var authSession = DBSession.Get<Authentication.AuthenticationSession>(sessionId);
+                var authSession = DBSession.Get<AuthenticationSession>(sessionId);
 
                 if (authSession == null || !authSession.IsValid())
                 {
@@ -86,33 +97,37 @@ namespace CommandCentral.Framework
             if (context.ActionDescriptor.Parameters.Count == 1)
             {
                 var parameter = context.ActionDescriptor.Parameters.First();
-                var value = context.ActionArguments.First().Value;
 
-                //First, if the model is required, let's check to see if its value is null.
-                if (((ControllerParameterDescriptor)parameter).ParameterInfo.GetCustomAttribute<RequiredModelAttribute>() != null && value == null)
+                if (parameter.ParameterType.GetCustomAttribute<FromBodyAttribute>() != null)
                 {
-                    //So the value is null.  In this case, let's tell the client how to call this endpoint.
-                    context.ModelState.AddModelError(parameter.Name, "Please send the request properly.");
-                }
+                    var value = context.ActionArguments.First().Value;
 
-                //If the model is not null, let's call the validator for the dto if possible.
-                if (value is IValidatable validatableDTO)
-                {
-                    var result = validatableDTO.Validate();
-
-                    if (!result.IsValid)
+                    //First, if the model is required, let's check to see if its value is null.
+                    if (((ControllerParameterDescriptor)parameter).ParameterInfo.GetCustomAttribute<RequiredModelAttribute>() != null && value == null)
                     {
-                        foreach (var error in result.Errors)
-                        {
-                            context.ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
-                        }
+                        //So the value is null.  In this case, let's tell the client how to call this endpoint.
+                        context.ModelState.AddModelError(parameter.Name, "Please send the request properly.");
                     }
 
-                    if (!context.ModelState.IsValid)
+                    //If the model is not null, let's call the validator for the dto if possible.
+                    if (value is IValidatable validatableDTO)
                     {
-                        context.Result = BadRequest(context.ModelState.Values.Where(x => x.ValidationState == Microsoft.AspNetCore.Mvc.ModelBinding.ModelValidationState.Invalid)
-                            .SelectMany(x => x.Errors.Select(y => y.ErrorMessage)).ToList());
-                        return;
+                        var result = validatableDTO.Validate();
+
+                        if (!result.IsValid)
+                        {
+                            foreach (var error in result.Errors)
+                            {
+                                context.ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                            }
+                        }
+
+                        if (!context.ModelState.IsValid)
+                        {
+                            context.Result = BadRequest(context.ModelState.Values.Where(x => x.ValidationState == Microsoft.AspNetCore.Mvc.ModelBinding.ModelValidationState.Invalid)
+                                .SelectMany(x => x.Errors.Select(y => y.ErrorMessage)).ToList());
+                            return;
+                        }
                     }
                 }
             }
@@ -122,9 +137,9 @@ namespace CommandCentral.Framework
 
         public override void OnActionExecuted(ActionExecutedContext context)
         {
-            Data.DataProvider.CloseSession();
-
             base.OnActionExecuted(context);
+
+            Data.DataProvider.CloseSession();
         }
 
         #endregion

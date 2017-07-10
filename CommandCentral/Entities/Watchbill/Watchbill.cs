@@ -20,7 +20,7 @@ namespace CommandCentral.Entities.Watchbill
     /// <summary>
     /// Describes a single watchbill, which is a collection of watch days, shifts in those days, and inputs.
     /// </summary>
-    public class Watchbill
+    public class Watchbill : IEntity
     {
 
         #region Properties

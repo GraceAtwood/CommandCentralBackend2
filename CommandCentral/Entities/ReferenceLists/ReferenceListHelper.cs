@@ -22,10 +22,7 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <returns></returns>
         public static bool Exists(string value)
         {
-            using (var session = DataProvider.CurrentSession)
-            {
-                return session.QueryOver<T>().Where(x => x.Value.IsInsensitiveLike(value)).RowCount() != 0;
-            }
+            return DataProvider.CurrentSession.QueryOver<T>().Where(x => x.Value.IsInsensitiveLike(value)).RowCount() != 0;
         }
 
         /// <summary>
@@ -36,10 +33,7 @@ namespace CommandCentral.Entities.ReferenceLists
         public static bool AllExist(params string[] values)
         {
             var array = values.Distinct().ToArray();
-            using (var session = DataProvider.CurrentSession)
-            {
-                return session.QueryOver<T>().Where(x => x.Value.IsIn(array)).RowCount() == values.Length;
-            }
+            return DataProvider.CurrentSession.QueryOver<T>().Where(x => x.Value.IsIn(array)).RowCount() == values.Length;
         }
 
         /// <summary>
@@ -50,10 +44,7 @@ namespace CommandCentral.Entities.ReferenceLists
         public static bool AllExist(IEnumerable<string> values)
         {
             var array = values.Distinct().ToArray();
-            using (var session = DataProvider.CurrentSession)
-            {
-                return session.QueryOver<T>().Where(x => x.Value.IsIn(array)).RowCount() == array.Length;
-            }
+            return DataProvider.CurrentSession.QueryOver<T>().Where(x => x.Value.IsIn(array)).RowCount() == array.Length;
         }
 
         /// <summary>
@@ -62,10 +53,7 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <returns></returns>
         public static List<T> All()
         {
-            using (var session = DataProvider.CurrentSession)
-            {
-                return (List<T>)session.QueryOver<T>().List();
-            }
+            return (List<T>)DataProvider.CurrentSession.QueryOver<T>().List();
         }
 
         /// <summary>
@@ -75,13 +63,10 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <returns></returns>
         public static T Find(string value)
         {
-            using (var session = DataProvider.CurrentSession)
-            {
-                return session.QueryOver<T>().Where(x => x.Value.IsInsensitiveLike(value))
-                    .Cacheable()
-                    .SingleOrDefault() ??
-                    throw new Exception($"Failed to find reference list {value} of type {typeof(T).Name}");
-            }
+            return DataProvider.CurrentSession.QueryOver<T>().Where(x => x.Value.IsInsensitiveLike(value))
+                .Cacheable()
+                .SingleOrDefault() ??
+                throw new Exception($"Failed to find reference list {value} of type {typeof(T).Name}");
         }
 
         /// <summary>
@@ -107,10 +92,7 @@ namespace CommandCentral.Entities.ReferenceLists
             if (!Guid.TryParse(id, out Guid result))
                 return null;
 
-            using (var session = DataProvider.CurrentSession)
-            {
-                return session.Get<T>(result);
-            }
+            return DataProvider.CurrentSession.Get<T>(result);
         }
 
         /// <summary>
@@ -120,10 +102,7 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <returns></returns>
         public static T Get(Guid id)
         {
-            using (var session = DataProvider.CurrentSession)
-            {
-                return session.Get<T>(id);
-            }
+            return DataProvider.CurrentSession.Get<T>(id);
         }
 
         /// <summary>
@@ -133,15 +112,12 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <returns></returns>
         public static IEnumerable<T> Random(int count)
         {
-            using (var session = DataProvider.CurrentSession)
-            {
-                var list = session.QueryOver<T>().List();
+            var list = DataProvider.CurrentSession.QueryOver<T>().List();
 
-                if (count > list.Count)
-                    count = list.Count;
+            if (count > list.Count)
+                count = list.Count;
 
-                return list.Shuffle().Take(count);
-            }
+            return list.Shuffle().Take(count);
         }
     }
 }

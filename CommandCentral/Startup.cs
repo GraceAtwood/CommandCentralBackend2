@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using CommandCentral.Enums;
+using Microsoft.AspNetCore.Mvc.Cors.Internal;
 
 namespace CommandCentral
 {
@@ -37,6 +38,7 @@ namespace CommandCentral
         {
             // Add framework services.
             services.AddMvc();
+            services.AddCors();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -46,6 +48,7 @@ namespace CommandCentral
             loggerFactory.AddDebug();
 
             app.UseMvc();
+            app.UseCors(builder => builder.WithOrigins("*").AllowAnyHeader());
         }
     }
 }

@@ -79,10 +79,40 @@ namespace CommandCentral.Controllers
                         EventTime = CallTime
                     });
 
-                    Response.Headers.Add("sessionId", new Microsoft.Extensions.Primitives.StringValues(ses.Id.ToString()));
+                    Response.Headers.Add("Set-Cookie", new Microsoft.Extensions.Primitives.StringValues($"sessionid={ses.Id.ToString()}"));
 
                     transaction.Commit();
 
+                    return Ok();
+                }
+                catch (Exception e)
+                {
+                    LogException(e);
+                    transaction.Rollback();
+                    return StatusCode(500);
+                }
+            }
+        }
+
+        [HttpPost("[action]")]
+        [RequireAuthentication]
+        public IActionResult Logout([FromHeader] string sessionId)
+        {
+            using (var transaction = DBSession.BeginTransaction())
+            {
+                try
+                {
+
+                    var authSession = DBSession.Get<AuthenticationSession>(Guid.Parse(sessionId));
+
+                    if (authSession == null)
+                        throw new Exception("Authentication session was null.");
+
+                    authSession.IsActive = false;
+                    authSession.LogoutTime = CallTime;
+                    DBSession.Update(authSession);
+
+                    transaction.Commit();
                     return Ok();
                 }
                 catch (Exception e)

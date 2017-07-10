@@ -10,7 +10,7 @@ namespace CommandCentral.Entities
     /// <summary>
     /// Describes a single email address along with its data access methods
     /// </summary>
-    public class EmailAddress
+    public class EmailAddress : IEntity
     {
 
         #region Properties

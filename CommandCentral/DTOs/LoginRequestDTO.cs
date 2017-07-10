@@ -24,8 +24,8 @@ namespace CommandCentral.DTOs
         {
             public Validator()
             {
-                RuleFor(x => x.Username).NotEmpty().MinimumLength(8);
-                RuleFor(x => x.Password).NotEmpty().MinimumLength(8);
+                RuleFor(x => x.Username).NotEmpty().MinimumLength(1);
+                RuleFor(x => x.Password).NotEmpty().MinimumLength(1);
             }
         }
     }

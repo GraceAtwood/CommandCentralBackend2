@@ -12,7 +12,7 @@ namespace CommandCentral.Entities
     /// <summary>
     /// Describes a single change
     /// </summary>
-    public class Change
+    public class Change : IEntity
     {
         #region Properties
 

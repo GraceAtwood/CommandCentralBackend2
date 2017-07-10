@@ -13,7 +13,7 @@ namespace CommandCentral.Entities.ReferenceLists
     /// <summary>
     /// Describes a single command, such as NIOC GA and all of its departments and divisions.
     /// </summary>
-    public class Command : IValidatable
+    public class Command : IValidatable, IEntity
     {
         #region Properties
 
@@ -26,7 +26,7 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <summary>
         /// The departments of the command
         /// </summary>
-        public virtual IList<Department> Departments { get; set; }
+        public virtual IList<Department> Departments { get; set; } = new List<Department>();
 
         #endregion
 
@@ -58,7 +58,7 @@ namespace CommandCentral.Entities.ReferenceLists
                 Map(x => x.Value).Not.Nullable().Unique();
                 Map(x => x.Description);
 
-                HasMany(x => x.Departments).Not.LazyLoad().Cascade.DeleteOrphan();
+                HasMany(x => x.Departments).Cascade.All();
 
                 Cache.ReadWrite();
             }

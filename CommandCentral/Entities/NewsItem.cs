@@ -11,7 +11,7 @@ namespace CommandCentral.Entities
     /// <summary>
     /// Describes a single News Item and its members, including its DB access members.
     /// </summary>
-    public class NewsItem
+    public class NewsItem : IEntity
     {
 
         #region Properties

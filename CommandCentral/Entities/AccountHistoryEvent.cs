@@ -11,7 +11,7 @@ namespace CommandCentral.Entities
     /// <summary>
     /// Describes a single account history event.
     /// </summary>
-    public class AccountHistoryEvent
+    public class AccountHistoryEvent : IEntity
     {
 
         #region Properties

@@ -12,7 +12,7 @@ namespace CommandCentral.Entities
     /// <summary>
     /// Describes a single physical address
     /// </summary>
-    public class PhysicalAddress
+    public class PhysicalAddress : IEntity
     {
 
         #region Properties
