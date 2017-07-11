@@ -33,13 +33,9 @@ namespace CommandCentral.DTOs
         public DateTime? GTCTrainingDate { get; set; }
         public DateTime? ADAMSTrainingDate { get; set; }
         public bool? HasCompletedAWARE { get; set; }
-        public IEnumerable<Guid> WatchAssignments { get; set; }
         public Guid? PrimaryNEC { get; set; }
-        public IEnumerable<Guid> SecondaryNECs { get; set; }
         public string Supervisor { get; set; }
         public string WorkCenter { get; set; }
-
-        [JsonProperty]
         public string WorkRoom { get; set; }
         public string Shift { get; set; }
         public string WorkRemarks { get; set; }
@@ -50,17 +46,8 @@ namespace CommandCentral.DTOs
         public DateTime? EAOS { get; set; }
         public DateTime? PRD { get; set; }
         public DateTime? DateOfDeparture { get; set; }
-        public IEnumerable<Guid> WatchQualifications { get; set; }
         public Guid? BilletAssignment { get; set; }
-        public IEnumerable<Guid> EmailAddresses { get; set; }
-        public IEnumerable<Guid> PhoneNumbers { get; set; }
-        public IEnumerable<Guid> PhysicalAddresses { get; set; }
         public string EmergencyContactInstructions { get; set; }
         public string ContactRemarks { get; set; }
-        public IEnumerable<string> PermissionGroupNames { get; set; }
-        public IEnumerable<Guid> AccountHistory { get; set; }
-        public IEnumerable<Guid> Changes { get; set; }
-        public IEnumerable<Guid> Comments { get; set; }
-        public Dictionary<Guid, ChainOfCommandLevels> SubscribedEvents { get; set; }
     }
 }

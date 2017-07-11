@@ -1,4 +1,5 @@
-﻿using CommandCentral.Enums;
+﻿using CommandCentral.Entities;
+using CommandCentral.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,37 +16,35 @@ namespace CommandCentral.Authorization
         /// <summary>
         /// The list of permission groups' names that went into this resolved permission.
         /// </summary>
-        public List<string> PermissionGroupNames { get; set; } = new List<string>();
-
+        public HashSet<PermissionGroup> PermissionGroups { get; set; } = new HashSet<PermissionGroup>();
+        
         /// <summary>
-        /// The time at which this resolved permission was built.
+        /// The client for whom this resolved permission was made.
         /// </summary>
-        public DateTime TimeResolved { get; set; }
-
-        /// <summary>
-        /// The Id of the client for whom this resolved permission was made.
-        /// </summary>
-        public string ClientId { get; set; }
+        public Person Client { get; set; }
 
         /// <summary>
         /// The person against which these permissions were resolved.
         /// </summary>
-        public string PersonId { get; set; }
+        public Person PersonResolvedAgainst { get; set; }
 
         /// <summary>
         /// The list of editable fields, broken down by what type they belong to.  The key is case insensitive.
         /// </summary>
-        public Dictionary<string, List<string>> EditableFields { get; set; } = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<Type, HashSet<string>> EditableFields { get; set; } 
+            = new Dictionary<Type, HashSet<string>>();
 
         /// <summary>
         /// The list of returnable fields, broken down by what module and type they belong to.  The key is case insensitive.
         /// </summary>
-        public Dictionary<string, List<string>> ReturnableFields { get; set; } = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<Type, HashSet<string>> ReturnableFields { get; set; }
+            = new Dictionary<Type, HashSet<string>>();
 
         /// <summary>
         /// The list of fields that the client can return, with stipulations.
         /// </summary>
-        public Dictionary<ChainOfCommandLevels, Dictionary<string, List<string>>> PrivelegedReturnableFields { get; set; } = ((ChainOfCommandLevels[])Enum.GetValues(typeof(ChainOfCommandLevels))).ToDictionary(x => x, x => new Dictionary<string, List<string>>());
+        public Dictionary<ChainOfCommandLevels, Dictionary<Type, HashSet<string>>> ReturnableFieldsAtLevel { get; set; } = 
+            ((ChainOfCommandLevels[])Enum.GetValues(typeof(ChainOfCommandLevels))).ToDictionary(x => x, x => new Dictionary<Type, HashSet<string>>());
 
         /// <summary>
         /// The highest levels in each of the chains of command that this client has.  The key is case insensitive.
@@ -55,19 +54,27 @@ namespace CommandCentral.Authorization
         /// <summary>
         /// A dictionary where the key is a chain of command and the boolean indicates if the client is in that chain of command for the given person.
         /// <para/>
-        /// Guarenteed to contain all chains of command.
+        /// Guaranteed to contain all chains of command.
         /// </summary>
         public Dictionary<ChainsOfCommand, bool> IsInChainOfCommand { get; set; } = ((ChainsOfCommand[])Enum.GetValues(typeof(ChainsOfCommand))).ToDictionary(x => x, x => false);
 
         /// <summary>
         /// The list of those permission groups' names that this client can edit the membership of.
         /// </summary>
-        public List<string> EditablePermissionGroups { get; set; } = new List<string>();
+        public HashSet<PermissionGroup> EditablePermissionGroups { get; set; } = new HashSet<PermissionGroup>();
 
         /// <summary>
         /// The list of all submodules this client can access.
         /// </summary>
-        public List<string> AccessibleSubmodules { get; set; } = new List<string>();
+        public HashSet<SubModules> AccessibleSubmodules { get; set; } = new HashSet<SubModules>();
+
+        public ResolvedPermissions(Person person, Person personResolvedAgainst)
+        {
+            foreach (var group in person.PermissionGroups)
+            {
+
+            }
+        }
 
     }
 }

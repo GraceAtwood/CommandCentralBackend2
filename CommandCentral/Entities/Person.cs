@@ -16,6 +16,7 @@ using CommandCentral.Utilities;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
 using CommandCentral.Utilities.Types;
+using CommandCentral.Authorization;
 
 namespace CommandCentral.Entities
 {
@@ -290,12 +291,7 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The list of the person's permissions.  This is not persisted in the database.  Only the names are.
         /// </summary>
-        public virtual List<Authorization.Groups.PermissionGroup> PermissionGroups { get; set; }
-
-        /// <summary>
-        /// The list of the person's permissions as they are stored in the database.
-        /// </summary>
-        public virtual IList<string> PermissionGroupNames { get; set; }
+        public virtual List<PermissionGroup> PermissionGroups { get; set; }
 
         /// <summary>
         /// A list containing account history events, these are events that track things like login, password reset, etc.
@@ -374,129 +370,7 @@ namespace CommandCentral.Entities
 
             return IsInSameDepartmentAs(person) && this.Division.Id == person.Division.Id;
         }
-
-        /// <summary>
-        /// Gets this person's chain of command.
-        /// </summary>
-        /// <returns></returns>
-        public virtual Dictionary<ChainsOfCommand, Dictionary<ChainOfCommandLevels, List<Person>>> GetChainOfCommand()
-        {
-            //Our result
-            var result = new Dictionary<ChainsOfCommand, Dictionary<ChainOfCommandLevels, List<Person>>>();
-
-            //Populate the dictionary
-            foreach (var chainOfCommand in Enum.GetValues(typeof(ChainsOfCommand)).Cast<ChainsOfCommand>())
-            {
-                result.Add(chainOfCommand, new Dictionary<ChainOfCommandLevels, List<Person>>());
-                foreach (var level in Enum.GetValues(typeof(ChainOfCommandLevels)).Cast<ChainOfCommandLevels>())
-                {
-                    result[chainOfCommand].Add(level, new List<Person>());
-                }
-            }
-
-            var permissionGroupNamesProperty = PropertySelector.SelectPropertiesFrom<Person>(x => x.PermissionGroupNames).First();
-
-            foreach (var groupLevel in new[] { ChainOfCommandLevels.Command, 
-                                          ChainOfCommandLevels.Department, 
-                                          ChainOfCommandLevels.Division })
-            {
-                var permissionGroups = Authorization.Groups.PermissionGroup.AllPermissionGroups
-                                        .Where(x => x.AccessLevel == groupLevel)
-                                        .ToList();
-
-                using (var session = DataProvider.CurrentSession)
-                {
-                    var queryString = "from Person as person where (";
-                    for (var x = 0; x < permissionGroups.Count(); x++)
-                    {
-                        queryString += $" '{permissionGroups[x].GroupName}' in elements(person.{permissionGroupNamesProperty.Name}) ";
-                        if (x + 1 != permissionGroups.Count)
-                            queryString += " or ";
-                    }
-                    queryString += " ) ";
-
-                    NHibernate.IQuery query;
-
-                    switch (groupLevel)
-                    {
-                        case ChainOfCommandLevels.Command:
-                            {
-                                if (this.Command == null)
-                                    continue;
-
-                                queryString += " and person.Command = :command";
-                                query = session.CreateQuery(queryString)
-                                    .SetParameter("command", this.Command);
-                                break;
-                            }
-                        case ChainOfCommandLevels.Department:
-                            {
-                                if (this.Command == null || this.Department == null)
-                                    continue;
-
-                                queryString += " and person.Command = :command and person.Department = :department";
-                                query = session.CreateQuery(queryString)
-                                    .SetParameter("command", this.Command)
-                                    .SetParameter("department", this.Department);
-                                break;
-                            }
-                        case ChainOfCommandLevels.Division:
-                            {
-                                if (this.Command == null || this.Department == null || this.Division == null)
-                                    continue;
-
-                                queryString += " and person.Command = :command and person.Department = :department and person.Division = :division";
-                                query = session.CreateQuery(queryString)
-                                    .SetParameter("command", this.Command)
-                                    .SetParameter("department", this.Department)
-                                    .SetParameter("division", this.Division);
-                                break;
-                            }
-                        default:
-                            {
-                                throw new NotImplementedException("Hit default in the chain of command switch.");
-                            }
-                    }
-
-                    var persons = query.List<Person>();
-                    
-                    //Go through all the results.
-                    foreach (var person in persons)
-                    {
-                        //Collect the person's highest level permission in each chain of command.
-                        var highestLevels = new Dictionary<ChainsOfCommand, ChainOfCommandLevels>();
-
-                        //Here, let's make sure to ignore the developers permission group and the admin permission group.
-                        foreach (var group in permissionGroups.Where(x => person.PermissionGroupNames.Contains(x.GroupName, StringComparer.CurrentCultureIgnoreCase)))
-                        {
-                            if (group.GetType() != typeof(Authorization.Groups.Definitions.Developers) && group.GetType() != typeof(Authorization.Groups.Definitions.Admin))
-                            {
-                                foreach (var chainOfCommand in group.ChainsOfCommandParts)
-                                {
-                                    //This is just a check to make sure we're doing this right.
-                                    if (group.AccessLevel != groupLevel)
-                                        throw new Exception("During the GetChaindOfCommand check, we accessed a group level that was unintended.");
-
-                                    //Now here we need to ask "Is the person in the same access level as the person in question?"
-                                    //Meaning, if the access level is division, are they in the same division?
-                                    highestLevels[chainOfCommand.ChainOfCommand] = group.AccessLevel;
-                                }
-                            }
-
-                        }
-
-                        //Now just add them to the corresponding lists.
-                        foreach (var highestLevel in highestLevels)
-                        {
-                            result[highestLevel.Key][highestLevel.Value].Add(person);
-                        }
-                    }
-                }
-            }
-
-            return result;
-        }
-
+       
         #endregion
 
         /// <summary>
@@ -562,17 +436,11 @@ namespace CommandCentral.Entities
 
                 HasManyToMany(x => x.WatchQualifications);
 
-                HasMany(x => x.PermissionGroupNames)
-                    .KeyColumn("PersonId")
-                    .Element("PermissionGroupName");
-
                 HasMany(x => x.SubscribedEvents)
                     .AsMap<string>(index =>
                         index.Column("ChangeEventId").Type<Guid>(), element =>
                         element.Column("Level").Type<ChainOfCommandLevels>())
                     .Cascade.All();
-
-                Cache.ReadWrite();
             }
         }
 

@@ -17,8 +17,6 @@ namespace CommandCentral.PreDefs
 
         static PreDefUtility()
         {
-            var test = Assembly.GetExecutingAssembly().GetName().Name;
-
             var preDefNames = Assembly.GetExecutingAssembly()
                 .GetManifestResourceNames()
                 .Where(x => x.StartsWith($"{Assembly.GetExecutingAssembly().GetName().Name}.PreDefs") && x.EndsWith(".cc"));

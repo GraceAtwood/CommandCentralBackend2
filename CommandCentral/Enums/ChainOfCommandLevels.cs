@@ -17,20 +17,16 @@ namespace CommandCentral.Enums
         /// </summary>
         None = 0,
         /// <summary>
-        /// A person with this is considered to be in its own chain of command with control over itself only.
-        /// </summary>
-        Self = 1,
-        /// <summary>
         /// The smallest grouping of personnel.
         /// </summary>
-        Division = 2,
+        Division = 1,
         /// <summary>
         /// Above a division and below a department.
         /// </summary>
-        Department = 3,
+        Department = 2,
         /// <summary>
         /// The largest grouping.
         /// </summary>
-        Command = 4
+        Command = 3
     }
 }
