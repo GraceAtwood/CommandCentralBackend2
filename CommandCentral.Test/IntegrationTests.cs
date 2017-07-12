@@ -20,7 +20,7 @@ namespace CommandCentral.Test
     [TestFixture]
     public class IntegrationTests
     {
-        [TestCase("localhost", "test_database", "anguslmm", "applew", true)]
+        [TestCase("localhost", "test_database", "root", "password", true)]
         public void MainIntegrationTest(string server, string database, string username, string password, bool rebuild)
         {
             var connectionStringWithDatabase = $"server={server};database={database};user={username};password={password};";
