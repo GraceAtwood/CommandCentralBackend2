@@ -91,6 +91,11 @@ namespace CommandCentral.Entities
             }
         }
 
+        internal Dictionary<ChainsOfCommand, Dictionary<ChainOfCommandLevels, List<Person>>> GetChainOfCommand()
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// The person's sex.
         /// </summary>

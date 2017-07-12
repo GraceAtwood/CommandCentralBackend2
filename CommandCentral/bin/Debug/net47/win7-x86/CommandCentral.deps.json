@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETFramework,Version=v4.7/win7-x86",
-    "signature": "dafb267b20d28c2043b1d60560b54a5ee6f9454b"
+    "signature": "885667728100cc13a6ef750530e0f7c103d70669"
   },
   "compilationOptions": {
     "defines": [
@@ -34,6 +34,7 @@
           "Microsoft.Extensions.Configuration.CommandLine": "1.1.2",
           "Microsoft.Extensions.Logging.Debug": "1.1.2",
           "MySql.Data": "6.9.9",
+          "NHibernate": "4.1.1.4000",
           "NHibernate.Caches.SysCache": "4.0.0.4000",
           "Newtonsoft.Json": "10.0.3",
           "Polly": "5.2.0",
@@ -346,7 +347,7 @@
       },
       "fluentnhibernate/2.0.3": {
         "dependencies": {
-          "NHibernate": "4.0.0.4000"
+          "NHibernate": "4.1.1.4000"
         },
         "compile": {
           "lib/net40/FluentNHibernate.dll": {}
@@ -1346,7 +1347,7 @@
           "lib/net45/Newtonsoft.Json.dll": {}
         }
       },
-      "nhibernate/4.0.0.4000": {
+      "nhibernate/4.1.1.4000": {
         "dependencies": {
           "Iesi.Collections": "4.0.0.4000"
         },
@@ -1356,7 +1357,7 @@
       },
       "nhibernate.caches.syscache/4.0.0.4000": {
         "dependencies": {
-          "NHibernate": "4.0.0.4000"
+          "NHibernate": "4.1.1.4000"
         },
         "compile": {
           "lib/net40/NHibernate.Caches.SysCache.dll": {}
@@ -1631,6 +1632,7 @@
           "Microsoft.Extensions.Configuration.CommandLine": "1.1.2",
           "Microsoft.Extensions.Logging.Debug": "1.1.2",
           "MySql.Data": "6.9.9",
+          "NHibernate": "4.1.1.4000",
           "NHibernate.Caches.SysCache": "4.0.0.4000",
           "Newtonsoft.Json": "10.0.3",
           "Polly": "5.2.0",
@@ -1648,7 +1650,7 @@
       },
       "fluentnhibernate/2.0.3": {
         "dependencies": {
-          "NHibernate": "4.0.0.4000"
+          "NHibernate": "4.1.1.4000"
         },
         "runtime": {
           "lib/net40/FluentNHibernate.dll": {}
@@ -2651,7 +2653,7 @@
           "lib/net45/Newtonsoft.Json.dll": {}
         }
       },
-      "nhibernate/4.0.0.4000": {
+      "nhibernate/4.1.1.4000": {
         "dependencies": {
           "Iesi.Collections": "4.0.0.4000"
         },
@@ -2661,7 +2663,7 @@
       },
       "nhibernate.caches.syscache/4.0.0.4000": {
         "dependencies": {
-          "NHibernate": "4.0.0.4000"
+          "NHibernate": "4.1.1.4000"
         },
         "runtime": {
           "lib/net40/NHibernate.Caches.SysCache.dll": {}
@@ -3621,12 +3623,12 @@
       "path": "newtonsoft.json/10.0.3",
       "hashPath": "newtonsoft.json.10.0.3.nupkg.sha512"
     },
-    "nhibernate/4.0.0.4000": {
+    "nhibernate/4.1.1.4000": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-zHwxTNHQM+ilc6/vKuFYjmRms+Iw6wCL0LsOiR9Imu+Z1sK0MO0gmSlaeR6gTy4cUNjqPZrU8ym5KPBwTp4Ebg==",
-      "path": "nhibernate/4.0.0.4000",
-      "hashPath": "nhibernate.4.0.0.4000.nupkg.sha512"
+      "sha512": "sha512-fkEXDonHwL8hbvIn+FlGNKaPnk1OQT+adsAGVlua9EQ8Ba+lNedCkfrWA9D1g5X95DLjFpO4A1iqQHVwDVLayA==",
+      "path": "nhibernate/4.1.1.4000",
+      "hashPath": "nhibernate.4.1.1.4000.nupkg.sha512"
     },
     "nhibernate.caches.syscache/4.0.0.4000": {
       "type": "package",

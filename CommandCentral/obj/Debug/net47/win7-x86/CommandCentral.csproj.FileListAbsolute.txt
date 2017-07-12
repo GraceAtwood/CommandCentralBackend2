@@ -294,3 +294,9 @@ C:\Users\Angus\Source\Repos\CommandCentralBackend2\CommandCentral\obj\Debug\net4
 C:\Users\Angus\Source\Repos\CommandCentralBackend2\CommandCentral\obj\Debug\net47\win7-x86\CommandCentral.AssemblyInfo.cs
 C:\Users\Angus\Source\Repos\CommandCentralBackend2\CommandCentral\obj\Debug\net47\win7-x86\CommandCentral.exe
 C:\Users\Angus\Source\Repos\CommandCentralBackend2\CommandCentral\obj\Debug\net47\win7-x86\CommandCentral.pdb
+C:\Users\Daniel Atwood\Source\Repos\CommandCentralBackend2\CommandCentral\bin\Debug\net47\win7-x86\CommandCentral.deps.json
+C:\Users\Daniel Atwood\Source\Repos\CommandCentralBackend2\CommandCentral\bin\Debug\net47\win7-x86\CommandCentral.runtimeconfig.json
+C:\Users\Daniel Atwood\Source\Repos\CommandCentralBackend2\CommandCentral\bin\Debug\net47\win7-x86\CommandCentral.runtimeconfig.dev.json
+C:\Users\Daniel Atwood\Source\Repos\CommandCentralBackend2\CommandCentral\obj\Debug\net47\win7-x86\CommandCentral.csprojResolveAssemblyReference.cache
+C:\Users\Daniel Atwood\Source\Repos\CommandCentralBackend2\CommandCentral\obj\Debug\net47\win7-x86\CommandCentral.csproj.CommandCentral.exe.config
+C:\Users\Daniel Atwood\Source\Repos\CommandCentralBackend2\CommandCentral\obj\Debug\net47\win7-x86\CommandCentral.AssemblyInfo.cs

@@ -1448,7 +1448,7 @@
           "lib/net45/Newtonsoft.Json.dll": {}
         }
       },
-      "NHibernate/4.0.0.4000": {
+      "NHibernate/4.1.1.4000": {
         "type": "package",
         "dependencies": {
           "Iesi.Collections": "[4.0.0, 5.0.0)"
@@ -3799,7 +3799,7 @@
           "lib/net45/Newtonsoft.Json.dll": {}
         }
       },
-      "NHibernate/4.0.0.4000": {
+      "NHibernate/4.1.1.4000": {
         "type": "package",
         "dependencies": {
           "Iesi.Collections": "[4.0.0, 5.0.0)"
@@ -5949,10 +5949,10 @@
         "tools/install.ps1"
       ]
     },
-    "NHibernate/4.0.0.4000": {
-      "sha512": "zHwxTNHQM+ilc6/vKuFYjmRms+Iw6wCL0LsOiR9Imu+Z1sK0MO0gmSlaeR6gTy4cUNjqPZrU8ym5KPBwTp4Ebg==",
+    "NHibernate/4.1.1.4000": {
+      "sha512": "fkEXDonHwL8hbvIn+FlGNKaPnk1OQT+adsAGVlua9EQ8Ba+lNedCkfrWA9D1g5X95DLjFpO4A1iqQHVwDVLayA==",
       "type": "package",
-      "path": "nhibernate/4.0.0.4000",
+      "path": "nhibernate/4.1.1.4000",
       "files": [
         "ConfigurationTemplates/FireBird.cfg.xml",
         "ConfigurationTemplates/MSSQL.cfg.xml",
@@ -5969,7 +5969,7 @@
         "lib/net40/NHibernate.xml",
         "nhibernate-configuration.xsd",
         "nhibernate-mapping.xsd",
-        "nhibernate.4.0.0.4000.nupkg.sha512",
+        "nhibernate.4.1.1.4000.nupkg.sha512",
         "nhibernate.nuspec"
       ]
     },
@@ -9401,6 +9401,7 @@
       "Microsoft.Extensions.Configuration.CommandLine >= 1.1.2",
       "Microsoft.Extensions.Logging.Debug >= 1.1.2",
       "MySql.Data >= 6.9.9",
+      "NHibernate >= 4.1.1.4000",
       "NHibernate.Caches.SysCache >= 4.0.0.4000",
       "Newtonsoft.Json >= 10.0.3",
       "Polly >= 5.2.0",
@@ -9454,6 +9455,10 @@
           "RazorEngine": {
             "target": "Package",
             "version": "3.10.0"
+          },
+          "NHibernate": {
+            "target": "Package",
+            "version": "4.1.1.4000"
           },
           "NHibernate.Caches.SysCache": {
             "target": "Package",

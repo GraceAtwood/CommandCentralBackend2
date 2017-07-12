@@ -105,10 +105,10 @@ namespace CommandCentral.Entities.Watchbill
         /// <returns></returns>
         public virtual IEnumerable<WatchInputRequirement> GetInputRequirementsPersonIsResponsibleFor(Person person)
         {
-            if (!person.PermissionGroupNames.Any())
+            if (!person.PermissionGroups.Any())
                 return new List<WatchInputRequirement>();
 
-            var resolvedPermissions = person.ResolvePermissions(null);
+            var resolvedPermissions = new ResolvedPermissions(person, null);
 
             var highestLevelForWatchbill = resolvedPermissions.HighestLevels[this.EligibilityGroup.OwningChainOfCommand];
 
