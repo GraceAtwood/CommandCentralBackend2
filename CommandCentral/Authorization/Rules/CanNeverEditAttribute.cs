@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace CommandCentral.Authorization.Rules
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
-    public class CanReturnIfSelfAttribute : Attribute
+    public class CanNeverEditAttribute : Attribute
     {
     }
 }

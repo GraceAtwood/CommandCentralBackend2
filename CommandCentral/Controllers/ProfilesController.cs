@@ -17,17 +17,16 @@ namespace CommandCentral.Controllers
     public class ProfilesController : CommandCentralController
     {
         // GET api/values/5
-        [HttpGet]
         [HttpGet("{id}")]
         [RequireAuthentication]
-        public IActionResult Get(Guid id)
+        public IActionResult Get(Guid? id = null)
         {
 
             Person person;
-            if (id == Guid.Empty)
+            if (!id.HasValue)
                 person = User;
             else
-                person = DBSession.Get<Person>(id);
+                person = DBSession.Get<Person>(id.Value);
 
             if (person == null)
                 return NotFound();

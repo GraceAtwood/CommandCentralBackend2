@@ -13,14 +13,16 @@ namespace CommandCentral.Authorization
 
         public PropertyInfo Property { get; private set; }
         public Dictionary<ChainsOfCommand, ChainOfCommandLevels> LevelsRequiredToEditForChainOfCommand { get; private set; }
-            = ((ChainsOfCommand[])Enum.GetValues(typeof(ChainsOfCommand))).ToDictionary(x => x, x => ChainOfCommandLevels.None);
+            = ((ChainsOfCommand[])Enum.GetValues(typeof(ChainsOfCommand))).ToDictionary(x => x, x => ChainOfCommandLevels.Command);
         public Dictionary<ChainsOfCommand, ChainOfCommandLevels> LevelsRequiredToReturnForChainOfCommand { get; private set; }
-            = ((ChainsOfCommand[])Enum.GetValues(typeof(ChainsOfCommand))).ToDictionary(x => x, x => ChainOfCommandLevels.None);
+            = ((ChainsOfCommand[])Enum.GetValues(typeof(ChainsOfCommand))).ToDictionary(x => x, x => ChainOfCommandLevels.Command);
 
         public bool CanReturnIfSelf { get; private set; }
         public bool CanEditIfSelf { get; private set; }
 
         public bool HiddenFromPermission { get; private set; }
+
+        public bool CanNeverEdit { get; private set; }
 
         public PropertyPermissionsCollection(Type type, string propertyName) :
             this(type.GetProperty(propertyName))
@@ -29,13 +31,13 @@ namespace CommandCentral.Authorization
 
         public PropertyPermissionsCollection(PropertyInfo property)
         {
-            Property = Property;
+            Property = property;
             var canReturnIfInChainOfCommand = property.GetCustomAttributes<CanReturnIfInChainOfCommandAttribute>();
             var canEditIfInChainOfCommand = property.GetCustomAttributes<CanEditIfInChainOfCommandAttribute>();
 
             if (!canReturnIfInChainOfCommand.Any())
             {
-                LevelsRequiredToReturnForChainOfCommand = LevelsRequiredToReturnForChainOfCommand.ToDictionary(x => x.Key, x => ChainOfCommandLevels.Command);
+                LevelsRequiredToReturnForChainOfCommand = LevelsRequiredToReturnForChainOfCommand.ToDictionary(x => x.Key, x => ChainOfCommandLevels.None);
             }
             else
             {
@@ -56,6 +58,8 @@ namespace CommandCentral.Authorization
             CanReturnIfSelf = property.GetCustomAttribute<CanReturnIfSelfAttribute>() != null;
 
             HiddenFromPermission = property.GetCustomAttribute<HiddenFromPermissionsAttribute>() != null;
+
+            CanNeverEdit = property.GetCustomAttribute<CanNeverEditAttribute>() != null;
         }
 
         public override int GetHashCode()

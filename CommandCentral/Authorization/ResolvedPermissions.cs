@@ -18,7 +18,7 @@ namespace CommandCentral.Authorization
         /// The list of permission groups' names that went into this resolved permission.
         /// </summary>
         public HashSet<PermissionGroup> PermissionGroups { get; set; } = new HashSet<PermissionGroup>();
-        
+
         /// <summary>
         /// The client for whom this resolved permission was made.
         /// </summary>
@@ -46,7 +46,7 @@ namespace CommandCentral.Authorization
         /// <summary>
         /// The list of fields that the client can return, with stipulations.
         /// </summary>
-        public Dictionary<ChainOfCommandLevels, Dictionary<Type, HashSet<PropertyInfo>>> ReturnableFieldsAtLevel { get; set; } = 
+        public Dictionary<ChainOfCommandLevels, Dictionary<Type, HashSet<PropertyInfo>>> ReturnableFieldsAtLevel { get; set; } =
             ((ChainOfCommandLevels[])Enum.GetValues(typeof(ChainOfCommandLevels))).ToDictionary(x => x, x => new Dictionary<Type, HashSet<PropertyInfo>>());
 
         /// <summary>
@@ -100,14 +100,14 @@ namespace CommandCentral.Authorization
             foreach (var pair in PermissionsCache.PermissionTypesCache)
             {
                 var permissions = new Dictionary<string, PropertyPermissionsDescriptor>();
-                
+
                 foreach (var property in pair.Value)
                 {
 
                     if (!property.HiddenFromPermission)
                     {
                         var descriptor = new PropertyPermissionsDescriptor();
-                        
+
                         if (property.CanEditIfSelf && IsSelf)
                         {
                             descriptor.CanEdit = true;
@@ -128,7 +128,7 @@ namespace CommandCentral.Authorization
                                     {
                                         case ChainOfCommandLevels.Command:
                                             {
-                                                if (person.IsInSameCommandAs(personResolvedAgainst));
+                                                if (person.IsInSameCommandAs(personResolvedAgainst))
                                                     descriptor.CanEdit = true;
 
                                                 break;
@@ -150,6 +150,12 @@ namespace CommandCentral.Authorization
 
                                                 break;
                                             }
+                                        case ChainOfCommandLevels.None:
+                                            {
+                                                //If the level required to edit this property is none, then anyone can edit it.
+                                                descriptor.CanEdit = true;
+                                                break;
+                                            }
                                         default:
                                             {
                                                 throw new NotImplementedException();
@@ -159,56 +165,67 @@ namespace CommandCentral.Authorization
                             }
                         }
 
-                        if (property.CanReturnIfSelf && IsSelf)
+                        if (!property.CanNeverEdit)
                         {
-                            descriptor.CanReturn = true;
-                        }
-                        else
-                        {
-                            foreach (var accessLevel in property.LevelsRequiredToReturnForChainOfCommand)
+
+                            if (property.CanReturnIfSelf && IsSelf)
                             {
-                                //The property will start off as false.  If it ever gets set to true, then break.
-                                if (descriptor.CanReturn)
-                                    break;
-
-                                if (HighestLevels[accessLevel.Key] >= accessLevel.Value)
+                                descriptor.CanReturn = true;
+                            }
+                            else
+                            {
+                                foreach (var accessLevel in property.LevelsRequiredToReturnForChainOfCommand)
                                 {
-                                    //Here we know that the person has an access level that is high enough.
-                                    //Now we need to make sure they're in the same div, dep, or command.
-                                    switch (accessLevel.Value)
+                                    //The property will start off as false.  If it ever gets set to true, then break.
+                                    if (descriptor.CanReturn)
+                                        break;
+
+                                    if (HighestLevels[accessLevel.Key] >= accessLevel.Value)
                                     {
-                                        case ChainOfCommandLevels.Command:
-                                            {
-                                                if (person.IsInSameCommandAs(personResolvedAgainst));
-                                                descriptor.CanReturn = true;
-
-                                                break;
-                                            }
-                                        case ChainOfCommandLevels.Department:
-                                            {
-                                                if (person.IsInSameDepartmentAs(personResolvedAgainst) ||
-                                                    person.IsInSameCommandAs(personResolvedAgainst))
+                                        //Here we know that the person has an access level that is high enough.
+                                        //Now we need to make sure they're in the same div, dep, or command.
+                                        switch (accessLevel.Value)
+                                        {
+                                            case ChainOfCommandLevels.Command:
+                                                {
+                                                    if (person.IsInSameCommandAs(personResolvedAgainst)) ;
                                                     descriptor.CanReturn = true;
 
-                                                break;
-                                            }
-                                        case ChainOfCommandLevels.Division:
-                                            {
-                                                if (person.IsInSameDivisionAs(personResolvedAgainst) ||
-                                                    person.IsInSameDepartmentAs(personResolvedAgainst) ||
-                                                    person.IsInSameCommandAs(PersonResolvedAgainst))
-                                                    descriptor.CanReturn = true;
+                                                    break;
+                                                }
+                                            case ChainOfCommandLevels.Department:
+                                                {
+                                                    if (person.IsInSameDepartmentAs(personResolvedAgainst) ||
+                                                        person.IsInSameCommandAs(personResolvedAgainst))
+                                                        descriptor.CanReturn = true;
 
-                                                break;
-                                            }
-                                        default:
-                                            {
-                                                throw new NotImplementedException();
-                                            }
+                                                    break;
+                                                }
+                                            case ChainOfCommandLevels.Division:
+                                                {
+                                                    if (person.IsInSameDivisionAs(personResolvedAgainst) ||
+                                                        person.IsInSameDepartmentAs(personResolvedAgainst) ||
+                                                        person.IsInSameCommandAs(PersonResolvedAgainst))
+                                                        descriptor.CanReturn = true;
+
+                                                    break;
+                                                }
+                                            case ChainOfCommandLevels.None:
+                                                {
+                                                    //If the level required to return this property is none, then anyone can return it.
+                                                    descriptor.CanReturn = true;
+                                                    break;
+                                                }
+                                            default:
+                                                {
+                                                    throw new NotImplementedException();
+                                                }
+                                        }
                                     }
                                 }
                             }
                         }
+
 
                         permissions[property.Property.Name] = descriptor;
                     }

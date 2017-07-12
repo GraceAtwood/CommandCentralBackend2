@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CommandCentral.Authorization.Rules
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class CanEditIfSelfAttribute : Attribute
     {
     }
