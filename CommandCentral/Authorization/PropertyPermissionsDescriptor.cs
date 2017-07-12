@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 
 namespace CommandCentral.Authorization
 {
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public class HiddenFromPermissionsAttribute : Attribute
+    public class PropertyPermissionsDescriptor
     {
+        public bool CanEdit { get; set; }
+        public bool CanReturn { get; set; }
     }
 }

@@ -45,9 +45,24 @@ namespace CommandCentral.Framework
 
         #region Error Handling
 
+        [NonAction]
         public void LogException(Exception e)
         {
 
+        }
+
+        #endregion
+
+        #region Return Actions
+
+        /// <summary>
+        /// Returns an unauthorized (401) result with a value.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public IActionResult Unauthorized(object value)
+        {
+            return StatusCode(401, value);
         }
 
         #endregion
@@ -63,7 +78,7 @@ namespace CommandCentral.Framework
                 || !Guid.TryParse(apiKeyHeader.FirstOrDefault(), out Guid apiKey)
                 || DBSession.Get<APIKey>(apiKey) == null)
             {
-                context.Result = Unauthorized();
+                context.Result = Unauthorized("Your api key was not valid.");
                 return;
             }
 
@@ -73,7 +88,7 @@ namespace CommandCentral.Framework
                 if (!Request.Headers.TryGetValue("sessionid", out Microsoft.Extensions.Primitives.StringValues sessionIdHeader)
                     || !Guid.TryParse(sessionIdHeader.FirstOrDefault(), out Guid sessionId))
                 {
-                    context.Result = Unauthorized();
+                    context.Result = Unauthorized("Your sesion id was not valid.");
                     return;
                 }
 
@@ -81,7 +96,7 @@ namespace CommandCentral.Framework
 
                 if (authSession == null || !authSession.IsValid())
                 {
-                    context.Result = Unauthorized();
+                    context.Result = Unauthorized("Your session has timed out.");
                     return;
                 }
 

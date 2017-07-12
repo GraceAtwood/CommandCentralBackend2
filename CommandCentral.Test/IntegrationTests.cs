@@ -186,10 +186,11 @@ namespace CommandCentral.Test
                 PRD = new DateTime(Utilities.GetRandomNumber(1970, 2000), Utilities.GetRandomNumber(1, 12), Utilities.GetRandomNumber(1, 28)),
                 Paygrade = paygrade,
                 DutyStatus = ReferenceListHelper<DutyStatus>.Random(1).First(),
-                WatchQualifications = watchQuals.ToList()
+                WatchQualifications = watchQuals.ToList(),
+                PermissionGroups = permissionGroups.ToList()
             };
 
-            var resolvedPermissions = new Authorization.ResolvedPermissions(person, null);
+            var resolvedPermissions = new ResolvedPermissions(person, null);
             person.FirstName = String.Join("__", resolvedPermissions.HighestLevels.Select(x => $"{x.Key.ToString().Substring(0, 2)}_{x.Value.ToString().Substring(0, 3)}"));
 
             var emailAddress = $"{person.FirstName}.{person.MiddleName[0]}.{person.LastName}.mil@mail.mil";
@@ -237,7 +238,7 @@ namespace CommandCentral.Test
                 var eligibilityGroup = ReferenceListHelper<WatchEligibilityGroup>.Find("Quarterdeck");
 
                 var person = CreatePerson(command, department, division, uic, "developer", "dev",
-                    new[] { Authorization.PermissionsCache.PermissionGroupsCache["Developers"] },
+                    new[] { PermissionsCache.PermissionGroupsCache["Developers"] },
                     ReferenceListHelper<WatchQualification>.All(), ReferenceListHelper<Paygrade>.Find("E5"));
 
                 DataProvider.CurrentSession.Save(person);
