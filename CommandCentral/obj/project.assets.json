@@ -9409,15 +9409,15 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Angus\\.nuget\\packages\\": {}
+    "C:\\Users\\Daniel Atwood\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Angus\\Source\\Repos\\CommandCentralBackend2\\CommandCentral\\CommandCentral.csproj",
+      "projectUniqueName": "C:\\Users\\Daniel Atwood\\Source\\Repos\\CommandCentralBackend2\\CommandCentral\\CommandCentral.csproj",
       "projectName": "CommandCentral",
-      "projectPath": "C:\\Users\\Angus\\Source\\Repos\\CommandCentralBackend2\\CommandCentral\\CommandCentral.csproj",
-      "outputPath": "C:\\Users\\Angus\\Source\\Repos\\CommandCentralBackend2\\CommandCentral\\obj\\",
+      "projectPath": "C:\\Users\\Daniel Atwood\\Source\\Repos\\CommandCentralBackend2\\CommandCentral\\CommandCentral.csproj",
+      "outputPath": "C:\\Users\\Daniel Atwood\\Source\\Repos\\CommandCentralBackend2\\CommandCentral\\obj\\",
       "projectStyle": "PackageReference",
       "originalTargetFrameworks": [
         "net47"
