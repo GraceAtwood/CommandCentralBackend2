@@ -19,90 +19,95 @@ namespace CommandCentral.Controllers
         // GET api/values/5
         [HttpGet("{id}")]
         [RequireAuthentication]
-        public IActionResult Get(Guid id)
+        public IActionResult Get(Guid? id = null)
         {
-            var person = DBSession.Get<Person>(id);
+
+            Person person;
+            if (!id.HasValue)
+                person = User;
+            else
+                person = DBSession.Get<Person>(id.Value);
 
             if (person == null)
                 return NotFound();
 
-            var returnableFields = new Authorization.ResolvedPermissions(User, person).ReturnableFields[typeof(Person)];
+            var fieldPermissions = new Authorization.ResolvedPermissions(User, person).FieldPermissions[typeof(Person)];
 
-            DTOs.GetPersonResponseDTO dto = new DTOs.GetPersonResponseDTO()
+            DTOs.GetPersonResponseDTO dto = new DTOs.GetPersonResponseDTO
             {
-                ADAMSTrainingDate = returnableFields.Contains(nameof(Person.AccountHistory))
+                ADAMSTrainingDate = fieldPermissions[nameof(Person.AccountHistory)].CanReturn
                 ? person.ADAMSTrainingDate : null,
-                Age = returnableFields.Contains(nameof(Person.Age))
+                Age = fieldPermissions[nameof(Person.Age)].CanReturn
                 ? (int?)person.Age : null,
-                BilletAssignment = returnableFields.Contains(nameof(person.BilletAssignment))
+                BilletAssignment = fieldPermissions[nameof(person.BilletAssignment)].CanReturn
                 ? person.BilletAssignment?.Id : null,
-                Command = returnableFields.Contains(nameof(person.Command))
+                Command = fieldPermissions[nameof(person.Command)].CanReturn
                 ? person.Command?.Id : null,
-                ContactRemarks = returnableFields.Contains(nameof(Person.ContactRemarks))
+                ContactRemarks = fieldPermissions[nameof(Person.ContactRemarks)].CanReturn
                 ? person.ContactRemarks : null,
-                DateOfArrival = returnableFields.Contains(nameof(Person.DateOfArrival))
+                DateOfArrival = fieldPermissions[nameof(Person.DateOfArrival)].CanReturn
                 ? person.DateOfArrival : null,
-                DateOfBirth = returnableFields.Contains(nameof(Person.DateOfBirth))
+                DateOfBirth = fieldPermissions[nameof(Person.DateOfBirth)].CanReturn
                 ? person.DateOfBirth : null,
-                DateOfDeparture = returnableFields.Contains(nameof(Person.DateOfDeparture))
+                DateOfDeparture = fieldPermissions[nameof(Person.DateOfDeparture)].CanReturn
                 ? person.DateOfDeparture : null,
-                Department = returnableFields.Contains(nameof(Person.Department))
+                Department = fieldPermissions[nameof(Person.Department)].CanReturn
                 ? person.Department?.Id : null,
-                Designation = returnableFields.Contains(nameof(Person.Designation))
+                Designation = fieldPermissions[nameof(Person.Designation)].CanReturn
                 ? person.Designation?.Id : null,
-                Division = returnableFields.Contains(nameof(Person.Division))
+                Division = fieldPermissions[nameof(Person.Division)].CanReturn
                 ? person.Division?.Id : null,
-                DoDId = returnableFields.Contains(nameof(Person.DoDId))
+                DoDId = fieldPermissions[nameof(Person.DoDId)].CanReturn
                 ? person.DoDId : null,
-                DutyStatus = returnableFields.Contains(nameof(Person.DutyStatus))
+                DutyStatus = fieldPermissions[nameof(Person.DutyStatus)].CanReturn
                 ? person.DutyStatus?.Id : null,
-                EAOS = returnableFields.Contains(nameof(Person.EAOS))
+                EAOS = fieldPermissions[nameof(Person.EAOS)].CanReturn
                 ? person.EAOS : null,
-                EmergencyContactInstructions = returnableFields.Contains(nameof(Person.EmergencyContactInstructions))
+                EmergencyContactInstructions = fieldPermissions[nameof(Person.EmergencyContactInstructions)].CanReturn
                 ? person.EmergencyContactInstructions : null,
-                Ethnicity = returnableFields.Contains(nameof(Person.Ethnicity))
+                Ethnicity = fieldPermissions[nameof(Person.Ethnicity)].CanReturn
                 ? person.Ethnicity?.Id : null,
-                FirstName = returnableFields.Contains(nameof(Person.FirstName))
+                FirstName = fieldPermissions[nameof(Person.FirstName)].CanReturn
                 ? person.FirstName : null,
-                GTCTrainingDate = returnableFields.Contains(nameof(Person.GTCTrainingDate))
+                GTCTrainingDate = fieldPermissions[nameof(Person.GTCTrainingDate)].CanReturn
                 ? person.GTCTrainingDate : null,
-                HasCompletedAWARE = returnableFields.Contains(nameof(Person.HasCompletedAWARE))
+                HasCompletedAWARE = fieldPermissions[nameof(Person.HasCompletedAWARE)].CanReturn
                 ? (bool?)person.HasCompletedAWARE : null,
-                Id = returnableFields.Contains(nameof(Person.Id))
+                Id = fieldPermissions[nameof(Person.Id)].CanReturn
                 ? person?.Id : null,
-                JobTitle = returnableFields.Contains(nameof(Person.JobTitle))
+                JobTitle = fieldPermissions[nameof(Person.JobTitle)].CanReturn
                 ? person.JobTitle : null,
-                LastName = returnableFields.Contains(nameof(Person.LastName))
+                LastName = fieldPermissions[nameof(Person.LastName)].CanReturn
                 ? person.LastName : null,
-                MiddleName = returnableFields.Contains(nameof(Person.MiddleName))
+                MiddleName = fieldPermissions[nameof(Person.MiddleName)].CanReturn
                 ? person.MiddleName : null,
-                Paygrade = returnableFields.Contains(nameof(Person.Paygrade))
+                Paygrade = fieldPermissions[nameof(Person.Paygrade)].CanReturn
                 ? person.Paygrade?.Id : null,
-                PRD = returnableFields.Contains(nameof(Person.PRD))
+                PRD = fieldPermissions[nameof(Person.PRD)].CanReturn
                 ? person.PRD : null,
-                PrimaryNEC = returnableFields.Contains(nameof(Person.PrimaryNEC))
+                PrimaryNEC = fieldPermissions[nameof(Person.PrimaryNEC)].CanReturn
                 ? person.PrimaryNEC?.Id : null,
-                ReligiousPreference = returnableFields.Contains(nameof(Person.ReligiousPreference))
+                ReligiousPreference = fieldPermissions[nameof(Person.ReligiousPreference)].CanReturn
                 ? person.ReligiousPreference?.Id : null,
-                Remarks = returnableFields.Contains(nameof(Person.Remarks))
+                Remarks = fieldPermissions[nameof(Person.Remarks)].CanReturn
                 ? person.Remarks : null,
-                Sex = returnableFields.Contains(nameof(Person.Sex))
+                Sex = fieldPermissions[nameof(Person.Sex)].CanReturn
                 ? person.Sex?.Id : null,
-                Shift = returnableFields.Contains(nameof(Person.Shift))
+                Shift = fieldPermissions[nameof(Person.Shift)].CanReturn
                 ? person.Shift : null,
-                SSN = returnableFields.Contains(nameof(Person.SSN))
+                SSN = fieldPermissions[nameof(Person.SSN)].CanReturn
                 ? person.SSN : null,
-                Suffix = returnableFields.Contains(nameof(Person.Suffix))
+                Suffix = fieldPermissions[nameof(Person.Suffix)].CanReturn
                 ? person.Suffix : null,
-                Supervisor = returnableFields.Contains(nameof(Person.Supervisor))
+                Supervisor = fieldPermissions[nameof(Person.Supervisor)].CanReturn
                 ? person.Supervisor : null,
-                UIC = returnableFields.Contains(nameof(Person.UIC))
+                UIC = fieldPermissions[nameof(Person.UIC)].CanReturn
                 ? person.UIC?.Id : null,
-                WorkCenter = returnableFields.Contains(nameof(Person.WorkCenter))
+                WorkCenter = fieldPermissions[nameof(Person.WorkCenter)].CanReturn
                 ? person.WorkCenter : null,
-                WorkRemarks = returnableFields.Contains(nameof(Person.WorkRemarks))
+                WorkRemarks = fieldPermissions[nameof(Person.WorkRemarks)].CanReturn
                 ? person.WorkRemarks : null,
-                WorkRoom = returnableFields.Contains(nameof(Person.WorkRoom))
+                WorkRoom = fieldPermissions[nameof(Person.WorkRoom)].CanReturn
                 ? person.WorkRoom : null
             };
 

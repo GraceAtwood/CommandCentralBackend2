@@ -17,12 +17,14 @@ using CommandCentral.Enums;
 using CommandCentral.Framework;
 using CommandCentral.Utilities.Types;
 using CommandCentral.Authorization;
+using CommandCentral.Authorization.Rules;
 
 namespace CommandCentral.Entities
 {
     /// <summary>
     /// Describes a single person and all their properties and data access methods.
     /// </summary>
+    [HasPermissions]
     public class Person : ICommentable, IEntity
     {
 
@@ -31,6 +33,7 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The person's unique Id.
         /// </summary>
+        [CanNeverEdit]
         public virtual Guid Id { get; set; }
 
         #region Main Properties
@@ -38,6 +41,8 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The person's last name.
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
+        [CanEditIfSelf]
         public virtual string LastName { get; set; }
 
         /// <summary>
@@ -446,6 +451,11 @@ namespace CommandCentral.Entities
                         index.Column("ChangeEventId").Type<Guid>(), element =>
                         element.Column("Level").Type<ChainOfCommandLevels>())
                     .Cascade.All();
+
+                HasMany(x => x.PermissionGroups).Table("persontopermissiongroups").Component(x =>
+                {
+                    x.Map(y => y.Name);
+                });
             }
         }
 

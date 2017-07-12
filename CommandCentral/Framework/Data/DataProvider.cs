@@ -39,6 +39,7 @@ namespace CommandCentral.Framework.Data
                 .ProviderClass<SysCacheProvider>())
                 .Mappings(x => x.FluentMappings.AddFromAssembly(Assembly.GetExecutingAssembly()))
                 .CurrentSessionContext<T>()
+                .ExposeConfiguration(x => x.EventListeners.PostLoadEventListeners = new[] { new MyPostLoadListener() })
                 .BuildConfiguration();
 
 

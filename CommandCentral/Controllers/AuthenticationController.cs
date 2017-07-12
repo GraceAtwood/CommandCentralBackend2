@@ -12,10 +12,10 @@ using CommandCentral.Authentication;
 
 namespace CommandCentral.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/")]
     public class AuthenticationController : CommandCentralController
     {
-        [HttpPost("[action]")]
+        [HttpPost("Authenticate")]
         public IActionResult Login([FromBody] DTOs.LoginRequestDTO dto)
         {
             using (var transaction = DBSession.BeginTransaction())
@@ -94,8 +94,7 @@ namespace CommandCentral.Controllers
             }
         }
 
-        [HttpPost("[action]")]
-        [RequireAuthentication]
+        [HttpDelete("Authenticate")]
         public IActionResult Logout([FromHeader] string sessionId)
         {
             using (var transaction = DBSession.BeginTransaction())

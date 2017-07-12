@@ -17,9 +17,6 @@ namespace CommandCentral.Controllers
 
             var person = DBSession.Get<Person>(id);
 
-            if (person == null)
-                return BadRequest("That person id was not valid.");
-
             var resolvedPermissions = new Authorization.ResolvedPermissions(User, person);
 
             return Ok(resolvedPermissions);
