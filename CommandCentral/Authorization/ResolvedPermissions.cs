@@ -70,10 +70,12 @@ namespace CommandCentral.Authorization
 
         public ResolvedPermissions(Person person, Person personResolvedAgainst)
         {
-            foreach (var group in person.PermissionGroups)
-            {
+            Client = person;
+            PersonResolvedAgainst = personResolvedAgainst;
 
-            }
+            PermissionGroups = new HashSet<PermissionGroup>(person.PermissionGroups);
+
+
         }
 
     }

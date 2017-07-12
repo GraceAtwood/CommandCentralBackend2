@@ -17,8 +17,8 @@
     },
     "CommandCentral": {
       "commandName": "Executable",
-      "executablePath": "C:\\Users\\Angus\\Source\\Repos\\CommandCentralBackend2\\CommandCentral\\bin\\Debug\\net47\\win7-x86\\CommandCentral.exe",
-      "commandLineArgs": "-u anguslmm -p applew -d test_database -s localhost --smtphosts=",
+      "executablePath": "C:\\Users\\Daniel Atwood\\Source\\Repos\\CommandCentralBackend2\\CommandCentral\\bin\\Debug\\net47\\win7-x86\\CommandCentral.exe",
+      "commandLineArgs": "-u root -p password -d test_database -s localhost --smtphosts=",
       "launchUrl": "api/values",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

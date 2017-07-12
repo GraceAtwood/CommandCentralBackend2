@@ -79,7 +79,7 @@ namespace CommandCentral.Controllers
                         EventTime = CallTime
                     });
 
-                    Response.Headers.Add("Set-Cookie", new Microsoft.Extensions.Primitives.StringValues($"sessionid={ses.Id.ToString()}"));
+                    Response.Headers.Add("sessionid", new Microsoft.Extensions.Primitives.StringValues(ses.Id.ToString()));
 
                     transaction.Commit();
 

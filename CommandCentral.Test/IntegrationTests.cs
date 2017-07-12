@@ -1,5 +1,5 @@
 ﻿using CommandCentral.Authentication;
-using CommandCentral.Authorization.Groups;
+using CommandCentral.Authorization;
 using CommandCentral.Entities;
 using CommandCentral.Entities.ReferenceLists;
 using CommandCentral.Entities.ReferenceLists.Watchbill;
@@ -186,11 +186,10 @@ namespace CommandCentral.Test
                 PRD = new DateTime(Utilities.GetRandomNumber(1970, 2000), Utilities.GetRandomNumber(1, 12), Utilities.GetRandomNumber(1, 28)),
                 Paygrade = paygrade,
                 DutyStatus = ReferenceListHelper<DutyStatus>.Random(1).First(),
-                PermissionGroupNames = permissionGroups.Select(x => x.GroupName).ToList(),
                 WatchQualifications = watchQuals.ToList()
             };
 
-            var resolvedPermissions = person.ResolvePermissions(null);
+            var resolvedPermissions = new Authorization.ResolvedPermissions(person, null);
             person.FirstName = String.Join("__", resolvedPermissions.HighestLevels.Select(x => $"{x.Key.ToString().Substring(0, 2)}_{x.Value.ToString().Substring(0, 3)}"));
 
             var emailAddress = $"{person.FirstName}.{person.MiddleName[0]}.{person.LastName}.mil@mail.mil";
@@ -238,7 +237,7 @@ namespace CommandCentral.Test
                 var eligibilityGroup = ReferenceListHelper<WatchEligibilityGroup>.Find("Quarterdeck");
 
                 var person = CreatePerson(command, department, division, uic, "developer", "dev",
-                    new[] { new Authorization.Groups.Definitions.Developers() },
+                    new[] { Authorization.PermissionsCache.PermissionGroupsCache["Developers"] },
                     ReferenceListHelper<WatchQualification>.All(), ReferenceListHelper<Paygrade>.Find("E5"));
 
                 DataProvider.CurrentSession.Save(person);
@@ -260,9 +259,12 @@ namespace CommandCentral.Test
 
                 var eligibilityGroup = ReferenceListHelper<WatchEligibilityGroup>.Find("Quarterdeck");
 
-                var divPermGroups = PermissionGroup.AllPermissionGroups.Where(y => y.AccessLevel == ChainOfCommandLevels.Division).ToList();
-                var depPermGroups = PermissionGroup.AllPermissionGroups.Where(y => y.AccessLevel == ChainOfCommandLevels.Department).ToList();
-                var comPermGroups = PermissionGroup.AllPermissionGroups.Where(y => y.AccessLevel == ChainOfCommandLevels.Command).ToList();
+                var divPermGroups = Authorization.PermissionsCache.PermissionGroupsCache.Values
+                    .Where(x => x.AccessLevels.Values.Any(y => y == ChainOfCommandLevels.Division) && x.IsMemberOfChainOfCommand).ToList();
+                var depPermGroups = Authorization.PermissionsCache.PermissionGroupsCache.Values
+                    .Where(x => x.AccessLevels.Values.Any(y => y == ChainOfCommandLevels.Department) && x.IsMemberOfChainOfCommand).ToList();
+                var comPermGroups = Authorization.PermissionsCache.PermissionGroupsCache.Values
+                    .Where(x => x.AccessLevels.Values.Any(y => y == ChainOfCommandLevels.Command) && x.IsMemberOfChainOfCommand).ToList();
 
                 foreach (var command in DataProvider.CurrentSession.QueryOver<Command>().List())
                 {
@@ -305,7 +307,7 @@ namespace CommandCentral.Test
                                     }
                                     else if (permChance >= 95 && permChance <= 100)
                                     {
-                                        permGroups.Add(new Authorization.Groups.Definitions.Admin());
+                                        permGroups.Add(Authorization.PermissionsCache.PermissionGroupsCache["Admin"]);
                                     }
                                 }
 

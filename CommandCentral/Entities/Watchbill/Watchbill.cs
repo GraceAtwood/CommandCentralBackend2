@@ -129,10 +129,6 @@ namespace CommandCentral.Entities.Watchbill
                     {
                         return this.InputRequirements.Where(x => x.Person.IsInSameDivisionAs(person));
                     }
-                case ChainOfCommandLevels.Self:
-                    {
-                        return this.InputRequirements.Where(x => x.Person.Id == person.Id);
-                    }
                 case ChainOfCommandLevels.None:
                     {
                         return new List<WatchInputRequirement>();

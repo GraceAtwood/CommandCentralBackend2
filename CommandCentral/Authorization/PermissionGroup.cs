@@ -9,15 +9,17 @@ namespace CommandCentral.Authorization
 {
     public class PermissionGroup
     {
-        public virtual string Name { get; set; }
+        public string Name { get; set; }
 
-        public virtual bool IsMemberOfChainOfCommand { get; set; }
+        public string Description { get; set; }
 
-        public virtual Dictionary<ChainsOfCommand, ChainOfCommandLevels> AccessLevels { get; set; } 
+        public bool IsMemberOfChainOfCommand { get; set; }
 
-        public virtual HashSet<SubModules> AccessibleSubmodules { get; set; }
+        public Dictionary<ChainsOfCommand, ChainOfCommandLevels> AccessLevels { get; set; }
 
-        public virtual HashSet<Guid> EditablePermissionGroups { get; set; }
+        public HashSet<SubModules> AccessibleSubmodules { get; set; }
+
+        public HashSet<string> EditablePermissionGroups { get; set; }
 
         public override int GetHashCode()
         {

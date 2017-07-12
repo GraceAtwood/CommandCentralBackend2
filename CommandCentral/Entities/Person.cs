@@ -91,7 +91,7 @@ namespace CommandCentral.Entities
             }
         }
 
-        internal Dictionary<ChainsOfCommand, Dictionary<ChainOfCommandLevels, List<Person>>> GetChainOfCommand()
+        public virtual Dictionary<ChainsOfCommand, Dictionary<ChainOfCommandLevels, List<Person>>> GetChainOfCommand()
         {
             throw new NotImplementedException();
         }
@@ -296,7 +296,7 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The list of the person's permissions.  This is not persisted in the database.  Only the names are.
         /// </summary>
-        public virtual List<PermissionGroup> PermissionGroups { get; set; }
+        public virtual IList<PermissionGroup> PermissionGroups { get; set; } = new List<PermissionGroup> ();
 
         /// <summary>
         /// A list containing account history events, these are events that track things like login, password reset, etc.
@@ -438,7 +438,7 @@ namespace CommandCentral.Entities
                 HasMany(x => x.PhoneNumbers).Cascade.All();
                 HasMany(x => x.PhysicalAddresses).Cascade.All();
                 HasMany(x => x.WatchAssignments).Cascade.All();
-
+                
                 HasManyToMany(x => x.WatchQualifications);
 
                 HasMany(x => x.SubscribedEvents)
