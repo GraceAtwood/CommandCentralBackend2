@@ -17,6 +17,7 @@ namespace CommandCentral.Controllers
     public class ProfilesController : CommandCentralController
     {
         // GET api/values/5
+        [HttpGet]
         [HttpGet("{id}")]
         [RequireAuthentication]
         public IActionResult Get(Guid id)
