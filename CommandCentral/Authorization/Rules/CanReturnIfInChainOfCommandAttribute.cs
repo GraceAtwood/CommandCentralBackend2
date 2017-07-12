@@ -4,15 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CommandCentral.Authorization
+namespace CommandCentral.Authorization.Rules
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class, AllowMultiple = true)]
-    public class CanReturnAttribute : Attribute
+    public class CanReturnIfInChainOfCommandAttribute : Attribute
     {
         public ChainsOfCommand ChainOfCommand { get; private set; }
         public ChainOfCommandLevels Level { get; private set; }
 
-        public CanReturnAttribute(ChainsOfCommand coc, ChainOfCommandLevels level)
+        public CanReturnIfInChainOfCommandAttribute(ChainsOfCommand coc, ChainOfCommandLevels level)
         {
             ChainOfCommand = coc;
             Level = level;

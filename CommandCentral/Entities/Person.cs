@@ -17,6 +17,7 @@ using CommandCentral.Enums;
 using CommandCentral.Framework;
 using CommandCentral.Utilities.Types;
 using CommandCentral.Authorization;
+using CommandCentral.Authorization.Rules;
 
 namespace CommandCentral.Entities
 {
@@ -38,6 +39,8 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The person's last name.
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
+        [CanEditIfSelf]
         public virtual string LastName { get; set; }
 
         /// <summary>

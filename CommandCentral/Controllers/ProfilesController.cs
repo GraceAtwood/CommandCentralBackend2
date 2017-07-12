@@ -21,16 +21,21 @@ namespace CommandCentral.Controllers
         [RequireAuthentication]
         public IActionResult Get(Guid id)
         {
-            var person = DBSession.Get<Person>(id);
+
+            Person person;
+            if (id == Guid.Empty)
+                person = User;
+            else
+                person = DBSession.Get<Person>(id);
 
             if (person == null)
                 return NotFound();
 
-            var returnableFields = new Authorization.ResolvedPermissions(User, person).ReturnableFields[typeof(Person)];
+            var fieldPermissions = new Authorization.ResolvedPermissions(User, person).FieldPermissions[typeof(Person)]
 
             DTOs.GetPersonResponseDTO dto = new DTOs.GetPersonResponseDTO()
             {
-                ADAMSTrainingDate = returnableFields.Contains(nameof(Person.AccountHistory))
+                ADAMSTrainingDate = fieldPermissions[nameof(Person.AccountHistory)].CanReturn
                 ? person.ADAMSTrainingDate : null,
                 Age = returnableFields.Contains(nameof(Person.Age))
                 ? (int?)person.Age : null,

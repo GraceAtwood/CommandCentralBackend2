@@ -1,4 +1,5 @@
-﻿using CommandCentral.Enums;
+﻿using CommandCentral.Authorization.Rules;
+using CommandCentral.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +12,15 @@ namespace CommandCentral.Authorization
     {
 
         public PropertyInfo Property { get; private set; }
-        public Dictionary<ChainsOfCommand, ChainOfCommandLevels> LevelsRequiredToEdit { get; private set; }
+        public Dictionary<ChainsOfCommand, ChainOfCommandLevels> LevelsRequiredToEditForChainOfCommand { get; private set; }
             = ((ChainsOfCommand[])Enum.GetValues(typeof(ChainsOfCommand))).ToDictionary(x => x, x => ChainOfCommandLevels.None);
-        public Dictionary<ChainsOfCommand, ChainOfCommandLevels> LevelsRequiredToReturn { get; private set; }
+        public Dictionary<ChainsOfCommand, ChainOfCommandLevels> LevelsRequiredToReturnForChainOfCommand { get; private set; }
             = ((ChainsOfCommand[])Enum.GetValues(typeof(ChainsOfCommand))).ToDictionary(x => x, x => ChainOfCommandLevels.None);
+
+        public bool CanReturnIfSelf { get; private set; }
+        public bool CanEditIfSelf { get; private set; }
+
+        public bool HiddenFromPermission { get; private set; }
 
         public PropertyPermissionsCollection(Type type, string propertyName) :
             this(type.GetProperty(propertyName))
@@ -24,25 +30,32 @@ namespace CommandCentral.Authorization
         public PropertyPermissionsCollection(PropertyInfo property)
         {
             Property = Property;
-            var canReturn = property.GetCustomAttributes<CanReturnAttribute>();
-            var canEdit = property.GetCustomAttributes<CanEditAttribute>();
+            var canReturnIfInChainOfCommand = property.GetCustomAttributes<CanReturnIfInChainOfCommandAttribute>();
+            var canEditIfInChainOfCommand = property.GetCustomAttributes<CanEditIfInChainOfCommandAttribute>();
 
-            if (!canReturn.Any())
+            if (!canReturnIfInChainOfCommand.Any())
             {
-                LevelsRequiredToReturn = LevelsRequiredToReturn.ToDictionary(x => x.Key, x => ChainOfCommandLevels.Command);
+                LevelsRequiredToReturnForChainOfCommand = LevelsRequiredToReturnForChainOfCommand.ToDictionary(x => x.Key, x => ChainOfCommandLevels.Command);
             }
             else
             {
-                foreach (var value in canReturn)
+                foreach (var value in canReturnIfInChainOfCommand)
                 {
-                    LevelsRequiredToReturn[value.ChainOfCommand] = value.Level;
+                    if (value.Level < LevelsRequiredToReturnForChainOfCommand[value.ChainOfCommand])
+                        LevelsRequiredToReturnForChainOfCommand[value.ChainOfCommand] = value.Level;
                 }
             }
             
-            foreach (var value in canEdit)
+            foreach (var value in canEditIfInChainOfCommand)
             {
-                LevelsRequiredToEdit[value.ChainOfCommand] = value.Level;
+                if (value.Level < LevelsRequiredToEditForChainOfCommand[value.ChainOfCommand])
+                LevelsRequiredToEditForChainOfCommand[value.ChainOfCommand] = value.Level;
             }
+
+            CanEditIfSelf = property.GetCustomAttribute<CanEditIfSelfAttribute>() != null;
+            CanReturnIfSelf = property.GetCustomAttribute<CanReturnIfSelfAttribute>() != null;
+
+            HiddenFromPermission = property.GetCustomAttribute<HiddenFromPermissionsAttribute>() != null;
         }
 
         public override int GetHashCode()
