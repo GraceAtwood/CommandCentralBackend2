@@ -22,7 +22,7 @@ namespace CommandCentral.Authorization
         /// <summary>
         /// The client for whom this resolved permission was made.
         /// </summary>
-        public Person Client { get; set; }
+        public Person Person { get; set; }
 
         /// <summary>
         /// The person against which these permissions were resolved.
@@ -33,14 +33,14 @@ namespace CommandCentral.Authorization
         {
             get
             {
-                return Client.Id == PersonResolvedAgainst.Id;
+                return Person.Id == PersonResolvedAgainst.Id;
             }
         }
 
         /// <summary>
         /// The list of editable fields, broken down by what type they belong to.  The key is case insensitive.
         /// </summary>
-        public Dictionary<Type, Dictionary<string, PropertyPermissionsDescriptor>> FieldPermissions
+        public Dictionary<Type, Dictionary<string, PropertyPermissionsDescriptor>> FieldPermissions { get; set; }
             = new Dictionary<Type, Dictionary<string, PropertyPermissionsDescriptor>>();
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace CommandCentral.Authorization
 
         public ResolvedPermissions(Person person, Person personResolvedAgainst)
         {
-            Client = person;
+            Person = person;
             PersonResolvedAgainst = personResolvedAgainst;
 
             PermissionGroups = new HashSet<PermissionGroup>(person.PermissionGroups);
