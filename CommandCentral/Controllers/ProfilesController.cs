@@ -43,8 +43,6 @@ namespace CommandCentral.Controllers
                 ? person.BilletAssignment?.Id : null,
                 Command = fieldPermissions[nameof(person.Command)].CanReturn
                 ? person.Command?.Id : null,
-                ContactRemarks = fieldPermissions[nameof(Person.ContactRemarks)].CanReturn
-                ? person.ContactRemarks : null,
                 DateOfArrival = fieldPermissions[nameof(Person.DateOfArrival)].CanReturn
                 ? person.DateOfArrival : null,
                 DateOfBirth = fieldPermissions[nameof(Person.DateOfBirth)].CanReturn
@@ -63,8 +61,6 @@ namespace CommandCentral.Controllers
                 ? person.DutyStatus?.Id : null,
                 EAOS = fieldPermissions[nameof(Person.EAOS)].CanReturn
                 ? person.EAOS : null,
-                EmergencyContactInstructions = fieldPermissions[nameof(Person.EmergencyContactInstructions)].CanReturn
-                ? person.EmergencyContactInstructions : null,
                 Ethnicity = fieldPermissions[nameof(Person.Ethnicity)].CanReturn
                 ? person.Ethnicity?.Id : null,
                 FirstName = fieldPermissions[nameof(Person.FirstName)].CanReturn
@@ -89,8 +85,6 @@ namespace CommandCentral.Controllers
                 ? person.PrimaryNEC?.Id : null,
                 ReligiousPreference = fieldPermissions[nameof(Person.ReligiousPreference)].CanReturn
                 ? person.ReligiousPreference?.Id : null,
-                Remarks = fieldPermissions[nameof(Person.Remarks)].CanReturn
-                ? person.Remarks : null,
                 Sex = fieldPermissions[nameof(Person.Sex)].CanReturn
                 ? person.Sex?.Id : null,
                 Shift = fieldPermissions[nameof(Person.Shift)].CanReturn
@@ -105,8 +99,6 @@ namespace CommandCentral.Controllers
                 ? person.UIC?.Id : null,
                 WorkCenter = fieldPermissions[nameof(Person.WorkCenter)].CanReturn
                 ? person.WorkCenter : null,
-                WorkRemarks = fieldPermissions[nameof(Person.WorkRemarks)].CanReturn
-                ? person.WorkRemarks : null,
                 WorkRoom = fieldPermissions[nameof(Person.WorkRoom)].CanReturn
                 ? person.WorkRoom : null
             };

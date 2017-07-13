@@ -48,36 +48,53 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The person's first name.
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
+        [CanEditIfSelf]
         public virtual string FirstName { get; set; }
 
         /// <summary>
         /// The person's middle name.
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
+        [CanEditIfSelf]
         public virtual string MiddleName { get; set; }
 
         /// <summary>
         /// The person's SSN.
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
+        [CanReturnIfSelf]
+        [CanReturnIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual string SSN { get; set; }
 
         /// <summary>
         /// The person's DoD Id which allows us to communicate with other systems about this person.
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
+        [CanReturnIfSelf]
+        [CanReturnIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual string DoDId { get; set; }
 
         /// <summary>
         /// The person's suffix.
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
+        [CanEditIfSelf]
         public virtual string Suffix { get; set; }
 
         /// <summary>
         /// The person's date of birth.
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
+        [CanEditIfSelf]
+        [CanReturnIfSelf]
+        [CanReturnIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual DateTime? DateOfBirth { get; set; }
 
         /// <summary>
         /// The person's age.  0 if the date of birth isn't set.
         /// </summary>
+        [CanNeverEdit]
         public virtual int Age
         {
             get
@@ -96,74 +113,81 @@ namespace CommandCentral.Entities
             }
         }
 
-        public virtual Dictionary<ChainsOfCommand, Dictionary<ChainOfCommandLevels, List<Person>>> GetChainOfCommand()
-        {
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         /// The person's sex.
         /// </summary>
+        [CanEditIfSelf]
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual Sex Sex { get; set; }
-
-        /// <summary>
-        /// The person's remarks.  This is the primary comments section
-        /// </summary>
-        public virtual string Remarks { get; set; }
 
         /// <summary>
         /// Stores the person's ethnicity.
         /// </summary>
+        [CanEditIfSelf]
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual Ethnicity Ethnicity { get; set; }
 
         /// <summary>
         /// The person's religious preference
         /// </summary>
+        [CanEditIfSelf]
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
+        [CanReturnIfSelf]
+        [CanReturnIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual ReligiousPreference ReligiousPreference { get; set; }
 
         /// <summary>
         /// The person's paygrade (e5, O1, O5, CWO2, GS1,  etc.)
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual Paygrade Paygrade { get; set; }
 
         /// <summary>
         /// The person's Designation (CTI2, CTR1, 1114, Job title)
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual Designation Designation { get; set; }
 
         /// <summary>
         /// The person's division
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual Division Division { get; set; }
 
         /// <summary>
         /// The person's department
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual Department Department { get; set; }
 
         /// <summary>
         /// The person's command
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual Command Command { get; set; }
 
         /// <summary>
         /// The date this person received government travel card training.  Temporary and should be implemented in the training module.
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual DateTime? GTCTrainingDate { get; set; }
 
         /// <summary>
         /// The date on which ADAMS training was completed.  Temporary and should be implemented in the training module.
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual DateTime? ADAMSTrainingDate { get; set; }
 
         /// <summary>
         /// The date on which AWARE training was completed.  Temporary and should be implemented in the training module.
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual bool HasCompletedAWARE { get; set; }
 
         /// <summary>
         /// A collection of all the watch assignments this person has ever been assigned.
         /// </summary>
+        [HiddenFromPermissions]
         public virtual IList<Watchbill.WatchAssignment> WatchAssignments { get; set; }
 
         #endregion
@@ -173,81 +197,96 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The person's primary NEC.
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual NEC PrimaryNEC { get; set; }
 
         /// <summary>
         /// The list of the client's secondary NECs.
         /// </summary>
+        [HiddenFromPermissions]
         public virtual IList<NEC> SecondaryNECs { get; set; }
 
         /// <summary>
         /// The person's supervisor
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
+        [CanEditIfSelf]
         public virtual string Supervisor { get; set; }
 
         /// <summary>
         /// The person's work center.
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
+        [CanEditIfSelf]
         public virtual string WorkCenter { get; set; }
 
         /// <summary>
         /// The room in which the person works.
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
+        [CanEditIfSelf]
         public virtual string WorkRoom { get; set; }
 
         /// <summary>
         /// A free form text field intended to let the client store the shift of a person - however the client wants to do that.
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
+        [CanEditIfSelf]
         public virtual string Shift { get; set; }
-
-        /// <summary>
-        /// The comments section for the work page
-        /// </summary>
-        public virtual string WorkRemarks { get; set; }
 
         /// <summary>
         /// The person's duty status
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual DutyStatus DutyStatus { get; set; }
 
         /// <summary>
         /// The person's UIC
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual UIC UIC { get; set; }
 
         /// <summary>
         /// The date/time that the person arrived at the command.
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual DateTime? DateOfArrival { get; set; }
 
         /// <summary>
         /// The client's job title.
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
+        [CanEditIfSelf]
         public virtual string JobTitle { get; set; }
 
         /// <summary>
         /// The date/time of the end of active obligatory service (EAOS) for the person.
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual DateTime? EAOS { get; set; }
 
         /// <summary>
         /// The member's projected rotation date.
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual DateTime? PRD { get; set; }
 
         /// <summary>
         /// The date/time that the client left/will leave the command.
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual DateTime? DateOfDeparture { get; set; }
-        
+
         /// <summary>
         /// The person's watch qualification.
         /// </summary>
+        [HiddenFromPermissions]
         public virtual IList<WatchQualification> WatchQualifications { get; set; }
 
         /// <summary>
         /// The type of billet this person is assigned to.
         /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual BilletAssignment BilletAssignment { get; set; }
 
         #endregion
@@ -257,27 +296,20 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The email addresses of this person.
         /// </summary>
+        [HiddenFromPermissions]
         public virtual IList<EmailAddress> EmailAddresses { get; set; }
 
         /// <summary>
         /// The Phone Numbers of this person.
         /// </summary>
+        [HiddenFromPermissions]
         public virtual IList<PhoneNumber> PhoneNumbers { get; set; }
 
         /// <summary>
         /// The Physical Addresses of this person
         /// </summary>
+        [HiddenFromPermissions]
         public virtual IList<PhysicalAddress> PhysicalAddresses { get; set; }
-
-        /// <summary>
-        /// Instructions from the user on what avenues of contact to follow in the case of an emergency.
-        /// </summary>
-        public virtual string EmergencyContactInstructions { get; set; }
-
-        /// <summary>
-        /// A free form text field intended to allow the user to make comments about their contact fields.
-        /// </summary>
-        public virtual string ContactRemarks { get; set; }
 
         #endregion
 
@@ -286,41 +318,50 @@ namespace CommandCentral.Entities
         /// <summary>
         /// A boolean indicating whether or not this account has been claimed.
         /// </summary>
+        [HiddenFromPermissions]
         public virtual bool IsClaimed { get; set; }
 
         /// <summary>
         /// The client's username.
         /// </summary>
+        [CanReturnIfSelf]
+        [CanEditIfSelf]
         public virtual string Username { get; set; }
 
         /// <summary>
         /// The client's hashed password.
         /// </summary>
+        [HiddenFromPermissions]
         public virtual string PasswordHash { get; set; }
 
         /// <summary>
         /// The list of the person's permissions.  This is not persisted in the database.  Only the names are.
         /// </summary>
+        [HiddenFromPermissions]
         public virtual IList<PermissionGroup> PermissionGroups { get; set; } = new List<PermissionGroup> ();
 
         /// <summary>
         /// A list containing account history events, these are events that track things like login, password reset, etc.
         /// </summary>
+        [HiddenFromPermissions]
         public virtual IList<AccountHistoryEvent> AccountHistory { get; set; }
 
         /// <summary>
         /// A list containing all changes that have every occurred to the profile.
         /// </summary>
+        [HiddenFromPermissions]
         public virtual IList<Change> Changes { get; set; }
 
         /// <summary>
         /// The list of those events to which this person is subscribed.
         /// </summary>
+        [HiddenFromPermissions]
         public virtual IDictionary<Guid, ChainOfCommandLevels> SubscribedEvents { get; set; }
 
         /// <summary>
         /// Comments
         /// </summary>
+        [HiddenFromPermissions]
         public virtual IList<Comment> Comments { get; set; }
 
         #endregion
@@ -341,7 +382,12 @@ namespace CommandCentral.Entities
         #endregion
 
         #region Helper Methods
-        
+
+        public virtual Dictionary<ChainsOfCommand, Dictionary<ChainOfCommandLevels, List<Person>>> GetChainOfCommand()
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Returns a boolean indicating if this person is in the same command as the given person.
         /// </summary>
@@ -413,19 +459,15 @@ namespace CommandCentral.Entities
                 Map(x => x.SSN).Not.Nullable().Length(40).Unique();
                 Map(x => x.DoDId).Unique();
                 Map(x => x.DateOfBirth).Not.Nullable();
-                Map(x => x.Remarks).Nullable().Length(150);
                 Map(x => x.Supervisor).Nullable().Length(40);
                 Map(x => x.WorkCenter).Nullable().Length(40);
                 Map(x => x.WorkRoom).Nullable().Length(40);
                 Map(x => x.Shift).Nullable().Length(40);
-                Map(x => x.WorkRemarks).Nullable().Length(150);
                 Map(x => x.DateOfArrival).Not.Nullable();
                 Map(x => x.JobTitle).Nullable().Length(40);
                 Map(x => x.EAOS).CustomType<UtcDateTimeType>();
                 Map(x => x.PRD).CustomType<UtcDateTimeType>();
                 Map(x => x.DateOfDeparture).Nullable().CustomType<UtcDateTimeType>();
-                Map(x => x.EmergencyContactInstructions).Nullable().Length(150);
-                Map(x => x.ContactRemarks).Nullable().Length(150);
                 Map(x => x.IsClaimed).Not.Nullable().Default(false.ToString());
                 Map(x => x.Username).Nullable().Length(40).Unique();
                 Map(x => x.PasswordHash).Nullable().Length(100);
@@ -445,6 +487,11 @@ namespace CommandCentral.Entities
                 HasMany(x => x.WatchAssignments).Cascade.All();
                 
                 HasManyToMany(x => x.WatchQualifications);
+
+                HasMany(x => x.Comments)
+                    .Cascade.AllDeleteOrphan()
+                    .KeyColumn("EntityOwner_id")
+                    .ForeignKeyConstraintName("none");
 
                 HasMany(x => x.SubscribedEvents)
                     .AsMap<string>(index =>
@@ -486,8 +533,6 @@ namespace CommandCentral.Entities
                     .WithMessage("The DOB must not be left blank.");
                 RuleFor(x => x.Sex).NotNull()
                     .WithMessage("The sex must not be left blank.");
-                RuleFor(x => x.Remarks).Length(0, 150)
-                    .WithMessage("Remarks must not exceed 150 characters.");
                 RuleFor(x => x.Command).NotEmpty().WithMessage("A person must have a command.  If you are trying to indicate this person left the command, please set his or her duty status to 'LOSS'.");
                 RuleFor(x => x.Department).NotEmpty().WithMessage("A person must have a department.  If you are trying to indicate this person left the command, please set his or her duty status to 'LOSS'.");
                 RuleFor(x => x.Division).NotEmpty().WithMessage("A person must have a division.  If you are trying to indicate this person left the command, please set his or her duty status to 'LOSS'.");
@@ -597,8 +642,6 @@ namespace CommandCentral.Entities
                     .WithMessage("The work room field may not be longer than 40 characters.");
                 RuleFor(x => x.Shift).Length(0, 40)
                     .WithMessage("The shift field may not be longer than 40 characters.");
-                RuleFor(x => x.WorkRemarks).Length(0, 150)
-                    .WithMessage("The work remarks field may not be longer than 150 characters.");
                 RuleFor(x => x.UIC).Must(x =>
                     {
                         if (x == null)
@@ -674,15 +717,11 @@ namespace CommandCentral.Entities
                 ForProperties(
                     x => x.SSN,
                     x => x.Suffix,
-                    x => x.Remarks,
                     x => x.Supervisor,
                     x => x.WorkCenter,
                     x => x.WorkRoom,
                     x => x.Shift,
-                    x => x.WorkRemarks,
                     x => x.JobTitle,
-                    x => x.EmergencyContactInstructions,
-                    x => x.ContactRemarks,
                     x => x.DoDId)
                 .AsType(SearchDataTypes.String)
                 .CanBeUsedIn(QueryTypes.Advanced)

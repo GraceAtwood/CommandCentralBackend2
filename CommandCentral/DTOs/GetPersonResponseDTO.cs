@@ -22,7 +22,6 @@ namespace CommandCentral.DTOs
         public DateTime? DateOfBirth { get; set; }
         public int? Age { get; set; }
         public Guid? Sex { get; set; }
-        public string Remarks { get; set; }
         public Guid? Ethnicity { get; set; }
         public Guid? ReligiousPreference { get; set; }
         public Guid? Paygrade { get; set; }
@@ -38,7 +37,6 @@ namespace CommandCentral.DTOs
         public string WorkCenter { get; set; }
         public string WorkRoom { get; set; }
         public string Shift { get; set; }
-        public string WorkRemarks { get; set; }
         public Guid? DutyStatus { get; set; }
         public Guid? UIC { get; set; }
         public DateTime? DateOfArrival { get; set; }
@@ -47,7 +45,5 @@ namespace CommandCentral.DTOs
         public DateTime? PRD { get; set; }
         public DateTime? DateOfDeparture { get; set; }
         public Guid? BilletAssignment { get; set; }
-        public string EmergencyContactInstructions { get; set; }
-        public string ContactRemarks { get; set; }
     }
 }

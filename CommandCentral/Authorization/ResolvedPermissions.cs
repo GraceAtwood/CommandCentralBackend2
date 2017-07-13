@@ -188,7 +188,7 @@ namespace CommandCentral.Authorization
                                         {
                                             case ChainOfCommandLevels.Command:
                                                 {
-                                                    if (person.IsInSameCommandAs(personResolvedAgainst)) ;
+                                                    if (person.IsInSameCommandAs(personResolvedAgainst))
                                                     descriptor.CanReturn = true;
 
                                                     break;
