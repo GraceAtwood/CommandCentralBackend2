@@ -8,14 +8,12 @@ using CommandCentral.Entities;
 using CommandCentral.Entities.ReferenceLists;
 using CommandCentral.Authentication;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace CommandCentral.Controllers
 {
     [Route("api/[controller]")]
     public class AuthenticationController : CommandCentralController
     {
-        [HttpPost("[action]")]
+        [HttpPost]
         public IActionResult Login([FromBody] DTOs.LoginRequestDTO dto)
         {
             using (var transaction = DBSession.BeginTransaction())
@@ -94,7 +92,7 @@ namespace CommandCentral.Controllers
             }
         }
 
-        [HttpDelete("Authenticate")]
+        [HttpDelete]
         public IActionResult Logout([FromHeader] string sessionId)
         {
             using (var transaction = DBSession.BeginTransaction())
