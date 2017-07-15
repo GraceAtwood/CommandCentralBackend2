@@ -11,11 +11,12 @@ namespace CommandCentral.Controllers
     [Route("api/[controller]")]
     public class AuthorizationController : CommandCentralController
     {
-        [HttpGet("permissions/{id}")]
-        IActionResult Get(Guid id)
+        [HttpGet("{id}")]
+        IActionResult Get(Guid? id = null)
         {
-
-            var person = DBSession.Get<Person>(id);
+            Person person = null;
+            if (id.HasValue)
+                person = DBSession.Get<Person>(id.Value);
 
             var resolvedPermissions = new Authorization.ResolvedPermissions(User, person);
 
