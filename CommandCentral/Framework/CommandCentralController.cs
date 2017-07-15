@@ -75,6 +75,11 @@ namespace CommandCentral.Framework
             return StatusCode(401, value);
         }
 
+        [NonAction]
+        public IActionResult InternalServerError(object value = null)
+        {
+            return StatusCode(500, value);
+        }
         #endregion
 
         #region On Actions

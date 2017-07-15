@@ -32,9 +32,9 @@ namespace CommandCentral.Entities
         public virtual string Title { get; set; }
 
         /// <summary>
-        /// The paragraphs contained in this news item.
+        /// The body of the news item.
         /// </summary>
-        public virtual IList<string> Paragraphs { get; set; }
+        public virtual string Body { get; set; }
 
         /// <summary>
         /// The time this news item was created.
@@ -53,17 +53,13 @@ namespace CommandCentral.Entities
             /// </summary>
             public NewsItemMapping()
             {
-                Id(x => x.Id).GeneratedBy.Guid();
+                Id(x => x.Id).GeneratedBy.Assigned();
 
-                References(x => x.Creator).LazyLoad(Laziness.False);
+                References(x => x.Creator).Not.Nullable();
 
-                Map(x => x.Title).Not.Nullable().Length(50).Not.LazyLoad();
-                HasMany(x => x.Paragraphs)
-                    .Table("newsitemparagraphs")
-                    .KeyColumn("NewsItemID")
-                    .Element("Paragraph", x => x.Length(10000))
-                    .Not.LazyLoad();
-                Map(x => x.CreationTime).Not.Nullable().Not.LazyLoad();
+                Map(x => x.Title).Not.Nullable().Length(50);
+                Map(x => x.Body).Not.Nullable().Length(3500);
+                Map(x => x.CreationTime).Not.Nullable();
             }
         }
 
@@ -80,9 +76,7 @@ namespace CommandCentral.Entities
                 RuleFor(x => x.CreationTime).NotEmpty();
                 RuleFor(x => x.Creator).NotEmpty();
                 RuleFor(x => x.Id).NotEmpty();
-                RuleFor(x => x.Paragraphs)
-                    .Must(x => x.Sum(y => y.Length) <= 4096)
-                    .WithMessage("The total text in the paragraphs must not exceed 4096 characters.");
+                RuleFor(x => x.Body).Length(10, 3500);
                 RuleFor(x => x.Title).NotEmpty().Length(3, 50).WithMessage("The title must not be blank and must be between 3 and 50 characters.");
             }
         }

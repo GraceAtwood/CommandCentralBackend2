@@ -100,11 +100,13 @@ namespace CommandCentral.Controllers
             {
                 try
                 {
+                    if (string.IsNullOrWhiteSpace(sessionId))
+                        return BadRequest();
 
                     var authSession = DBSession.Get<AuthenticationSession>(Guid.Parse(sessionId));
 
                     if (authSession == null)
-                        throw new Exception("Authentication session was null.");
+                        return BadRequest();
 
                     authSession.IsActive = false;
                     authSession.LogoutTime = CallTime;
