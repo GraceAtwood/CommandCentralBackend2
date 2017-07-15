@@ -11,8 +11,16 @@ namespace CommandCentral.Controllers
     [Route("api/[controller]")]
     public class AuthorizationController : CommandCentralController
     {
+        [HttpGet]
+        [RequireAuthentication]
+        public IActionResult Get()
+        {
+            return Get(null);
+        }
+
         [HttpGet("{id}")]
-        IActionResult Get(Guid? id = null)
+        [RequireAuthentication]
+        public IActionResult Get(Guid? id = null)
         {
             Person person = null;
             if (id.HasValue)
@@ -29,7 +37,7 @@ namespace CommandCentral.Controllers
                 IsInChainOfCommand = resolvedPermissions.IsInChainOfCommand,
                 PermissionGroupNames = resolvedPermissions.PermissionGroups.Select(x => x.Name).ToList(),
                 PersonId = resolvedPermissions.Person.Id,
-                PersonResolvedAgainstId = resolvedPermissions.PersonResolvedAgainst.Id,
+                PersonResolvedAgainstId = resolvedPermissions.PersonResolvedAgainst?.Id,
                 ReturnableFieldsAtLevel = resolvedPermissions.ReturnableFieldsAtLevel
                     .ToDictionary(x => x.Key, x => x.Value.ToDictionary(y => y.Key.Name, y => y.Value.Select(z => z.Name).ToList()))          
             };

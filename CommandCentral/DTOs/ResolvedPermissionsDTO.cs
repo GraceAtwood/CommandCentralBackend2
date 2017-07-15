@@ -12,7 +12,7 @@ namespace CommandCentral.DTOs
 
         public List<string> PermissionGroupNames { get; set; }
         public Guid PersonId { get; set; }
-        public Guid PersonResolvedAgainstId { get; set; }
+        public Guid? PersonResolvedAgainstId { get; set; }
         public bool IsSelf { get; set; }
         public Dictionary<string, Dictionary<string, PropertyPermissionsDescriptor>> FieldPermissions { get; set; }
         public Dictionary<ChainOfCommandLevels, Dictionary<string, List<string>>> ReturnableFieldsAtLevel { get; set; }
