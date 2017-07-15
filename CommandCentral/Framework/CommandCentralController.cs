@@ -122,22 +122,21 @@ namespace CommandCentral.Framework
                 DBSession.Update(authSession);
             }
 
-            if (context.ActionDescriptor.Parameters.Count > 1)
-                throw new Exception("Why do we have more than one parameter?  HAVE WE LEARNED SOMETHING NEW?!");
-
-            if (context.ActionDescriptor.Parameters.Count == 1)
+            var fromBodyParameter = context.ActionDescriptor.Parameters
+                .FirstOrDefault(x => x.ParameterType.GetCustomAttribute<FromBodyAttribute>() != null);
+            
+            if (fromBodyParameter != null)
             {
-                var parameter = context.ActionDescriptor.Parameters.First();
-
-                if (parameter.ParameterType.GetCustomAttribute<FromBodyAttribute>() != null)
+                if (fromBodyParameter.ParameterType.GetCustomAttribute<FromBodyAttribute>() != null)
                 {
                     var value = context.ActionArguments.First().Value;
 
                     //First, if the model is required, let's check to see if its value is null.
-                    if (((ControllerParameterDescriptor)parameter).ParameterInfo.GetCustomAttribute<RequiredModelAttribute>() != null && value == null)
+                    if (((ControllerParameterDescriptor)fromBodyParameter).ParameterInfo
+                        .GetCustomAttribute<RequiredModelAttribute>() != null && value == null)
                     {
                         //So the value is null.  In this case, let's tell the client how to call this endpoint.
-                        context.ModelState.AddModelError(parameter.Name, "Please send the request properly.");
+                        context.ModelState.AddModelError(fromBodyParameter.Name, "Please send the request properly.");
                     }
 
                     //If the model is not null, let's call the validator for the dto if possible.
