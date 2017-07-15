@@ -25,5 +25,15 @@ namespace CommandCentral.Utilities
             return culture.CompareInfo.IndexOf(str, other, CompareOptions.IgnoreCase) >= 0;
         }
 
+        public static void ToConsole(this object obj)
+        {
+            Console.WriteLine(obj);
+        }
+
+        public static void ToConsole(this string str, params object[] args)
+        {
+            Console.WriteLine(str, args);
+        }
+
     }
 }

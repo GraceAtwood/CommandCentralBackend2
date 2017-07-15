@@ -108,7 +108,7 @@ namespace CommandCentral.Entities.Watchbill
             /// </summary>
             public static void UpdateForeignKeyRule()
             {
-                using (var command = DataProvider.CurrentSession.Connection.CreateCommand())
+                using (var command = SessionManager.CurrentSession.Connection.CreateCommand())
                 {
                     command.CommandText = $"ALTER TABLE `{nameof(WatchAssignment)}` DROP FOREIGN KEY `{WatchAssignmentToWatchShiftForeignKeyName}`;  ALTER TABLE `{nameof(WatchAssignment)}` " +
                         $"ADD CONSTRAINT `{WatchAssignmentToWatchShiftForeignKeyName}` FOREIGN KEY (`{nameof(WatchShift)}_id`) REFERENCES `{nameof(WatchShift)}` (`Id`) ON DELETE CASCADE";

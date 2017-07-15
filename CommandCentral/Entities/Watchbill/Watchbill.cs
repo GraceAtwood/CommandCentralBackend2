@@ -156,7 +156,7 @@ namespace CommandCentral.Entities.Watchbill
         /// </summary>
         public static void SendWatchInputRequirementsAlertEmail(Guid watchbillId)
         {
-            using (var session = DataProvider.CurrentSession)
+            using (var session = SessionManager.CurrentSession)
             {
                 var watchbill = session.Get<Watchbill>(watchbillId) ??
                     throw new Exception("A watchbill was loaded that no longer exists.");
@@ -201,7 +201,7 @@ namespace CommandCentral.Entities.Watchbill
             FluentScheduler.JobManager.AddJob(() => SendWatchAlerts(), s => s.ToRunEvery(1).Hours().At(0));
 
             //Here, we're also going to set up any watch input requirements alerts we need for each watchbill that is in the open for inputs state.
-            using (var session = DataProvider.CurrentSession)
+            using (var session = SessionManager.CurrentSession)
             {
                 var watchbills = session.QueryOver<Watchbill>().Where(x => x.CurrentState.Id == ReferenceLists.ReferenceListHelper<WatchbillStatus>.Find("Open for Inputs").Id).List();
 
@@ -218,7 +218,7 @@ namespace CommandCentral.Entities.Watchbill
         /// </summary>
         private static void SendWatchAlerts()
         {
-            using (var session = DataProvider.CurrentSession)
+            using (var session = SessionManager.CurrentSession)
             {
                 using (var transaction = session.BeginTransaction())
                 {

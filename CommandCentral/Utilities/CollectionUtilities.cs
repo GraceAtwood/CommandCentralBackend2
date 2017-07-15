@@ -45,13 +45,12 @@ namespace CommandCentral.Utilities
         public static List<T> Shuffle<T>(this IEnumerable<T> source)
         {
             var list = source.ToList();
-            var random = new Random(DateTime.Now.Millisecond);
 
             int n = list.Count;
             while (n > 1)
             {
                 n--;
-                int k = random.Next(n + 1);
+                int k = Random.Instance.Next(n + 1);
 
                 T t = list[k];
                 list[k] = list[n];
