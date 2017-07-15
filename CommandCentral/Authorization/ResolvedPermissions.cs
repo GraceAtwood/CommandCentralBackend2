@@ -33,6 +33,9 @@ namespace CommandCentral.Authorization
         {
             get
             {
+                if (PersonResolvedAgainst == null)
+                    return false;
+
                 return Person.Id == PersonResolvedAgainst.Id;
             }
         }

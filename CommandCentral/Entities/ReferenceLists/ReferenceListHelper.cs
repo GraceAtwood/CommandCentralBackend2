@@ -22,7 +22,7 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <returns></returns>
         public static bool Exists(string value)
         {
-            return DataProvider.CurrentSession.QueryOver<T>().Where(x => x.Value.IsInsensitiveLike(value)).RowCount() != 0;
+            return SessionManager.CurrentSession.QueryOver<T>().Where(x => x.Value.IsInsensitiveLike(value)).RowCount() != 0;
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace CommandCentral.Entities.ReferenceLists
         public static bool AllExist(params string[] values)
         {
             var array = values.Distinct().ToArray();
-            return DataProvider.CurrentSession.QueryOver<T>().Where(x => x.Value.IsIn(array)).RowCount() == values.Length;
+            return SessionManager.CurrentSession.QueryOver<T>().Where(x => x.Value.IsIn(array)).RowCount() == values.Length;
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace CommandCentral.Entities.ReferenceLists
         public static bool AllExist(IEnumerable<string> values)
         {
             var array = values.Distinct().ToArray();
-            return DataProvider.CurrentSession.QueryOver<T>().Where(x => x.Value.IsIn(array)).RowCount() == array.Length;
+            return SessionManager.CurrentSession.QueryOver<T>().Where(x => x.Value.IsIn(array)).RowCount() == array.Length;
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <returns></returns>
         public static List<T> All()
         {
-            return (List<T>)DataProvider.CurrentSession.QueryOver<T>().List();
+            return (List<T>)SessionManager.CurrentSession.QueryOver<T>().List();
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <returns></returns>
         public static T Find(string value)
         {
-            return DataProvider.CurrentSession.QueryOver<T>().Where(x => x.Value.IsInsensitiveLike(value))
+            return SessionManager.CurrentSession.QueryOver<T>().Where(x => x.Value.IsInsensitiveLike(value))
                 .Cacheable()
                 .SingleOrDefault() ??
                 throw new Exception($"Failed to find reference list {value} of type {typeof(T).Name}");
@@ -92,7 +92,7 @@ namespace CommandCentral.Entities.ReferenceLists
             if (!Guid.TryParse(id, out Guid result))
                 return null;
 
-            return DataProvider.CurrentSession.Get<T>(result);
+            return SessionManager.CurrentSession.Get<T>(result);
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <returns></returns>
         public static T Get(Guid id)
         {
-            return DataProvider.CurrentSession.Get<T>(id);
+            return SessionManager.CurrentSession.Get<T>(id);
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <returns></returns>
         public static IEnumerable<T> Random(int count)
         {
-            var list = DataProvider.CurrentSession.QueryOver<T>().List();
+            var list = SessionManager.CurrentSession.QueryOver<T>().List();
 
             if (count > list.Count)
                 count = list.Count;

@@ -541,7 +541,7 @@ namespace CommandCentral.Entities
                         if (x == null)
                             return true;
 
-                        Ethnicity ethnicity = DataProvider.CurrentSession.Get<Ethnicity>(x.Id);
+                        Ethnicity ethnicity = SessionManager.CurrentSession.Get<Ethnicity>(x.Id);
 
                         if (ethnicity == null)
                             return false;
@@ -554,7 +554,7 @@ namespace CommandCentral.Entities
                         if (x == null)
                             return true;
 
-                        ReligiousPreference pref = DataProvider.CurrentSession.Get<ReligiousPreference>(x.Id);
+                        ReligiousPreference pref = SessionManager.CurrentSession.Get<ReligiousPreference>(x.Id);
 
                         if (pref == null)
                             return false;
@@ -567,7 +567,7 @@ namespace CommandCentral.Entities
                         if (x == null)
                             return true;
 
-                        Designation designation = DataProvider.CurrentSession.Get<Designation>(x.Id);
+                        Designation designation = SessionManager.CurrentSession.Get<Designation>(x.Id);
 
                         if (designation == null)
                             return false;
@@ -580,7 +580,7 @@ namespace CommandCentral.Entities
                         if (x == null)
                             return true;
 
-                        Division division = DataProvider.CurrentSession.Get<Division>(x.Id);
+                        Division division = SessionManager.CurrentSession.Get<Division>(x.Id);
 
                         if (division == null)
                             return false;
@@ -593,7 +593,7 @@ namespace CommandCentral.Entities
                         if (x == null)
                             return true;
 
-                        Department department = DataProvider.CurrentSession.Get<Department>(x.Id);
+                        Department department = SessionManager.CurrentSession.Get<Department>(x.Id);
 
                         if (department == null)
                             return false;
@@ -606,7 +606,7 @@ namespace CommandCentral.Entities
                         if (x == null)
                             return true;
 
-                        Command command = DataProvider.CurrentSession.Get<Command>(x.Id);
+                        Command command = SessionManager.CurrentSession.Get<Command>(x.Id);
 
                         if (command == null)
                             return false;
@@ -619,7 +619,7 @@ namespace CommandCentral.Entities
                         if (x == null)
                             return true;
 
-                        NEC nec = DataProvider.CurrentSession.Get<NEC>(x.Id);
+                        NEC nec = SessionManager.CurrentSession.Get<NEC>(x.Id);
 
                         if (nec == null)
                             return false;
@@ -647,7 +647,7 @@ namespace CommandCentral.Entities
                         if (x == null)
                             return true;
 
-                        UIC uic = DataProvider.CurrentSession.Get<UIC>(x.Id);
+                        UIC uic = SessionManager.CurrentSession.Get<UIC>(x.Id);
 
                         if (uic == null)
                             return false;
@@ -917,7 +917,7 @@ namespace CommandCentral.Entities
 
                     var query = new PhysicalAddress.PhysicalAddressQueryProvider().CreateQuery(QueryTypes.Simple, token.SearchParameter.Value);
 
-                    using (var session = DataProvider.CurrentSession)
+                    using (var session = SessionManager.CurrentSession)
                     {
                         var ids = query.GetExecutableQueryOver(session).Select(x => x.Id).List<Guid>();
 

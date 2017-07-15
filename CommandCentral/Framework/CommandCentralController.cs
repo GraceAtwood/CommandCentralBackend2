@@ -13,6 +13,7 @@ using FluentValidation.Results;
 using CommandCentral.Entities;
 using NHibernate;
 using CommandCentral.Authentication;
+using Microsoft.Extensions.Logging;
 
 namespace CommandCentral.Framework
 {
@@ -39,7 +40,15 @@ namespace CommandCentral.Framework
         {
             get
             {
-                return Data.DataProvider.CurrentSession;
+                return Data.SessionManager.CurrentSession;
+            }
+        }
+
+        public ILogger Logger
+        {
+            get
+            {
+                return Log.LoggerInstance;
             }
         }
 
@@ -154,7 +163,7 @@ namespace CommandCentral.Framework
         {
             base.OnActionExecuted(context);
 
-            Data.DataProvider.CloseSession();
+            Data.SessionManager.CloseSession();
         }
 
         #endregion
