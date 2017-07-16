@@ -54,7 +54,7 @@ namespace CommandCentral.Framework.Data
 
                 Schema = new SchemaExport(Config);
 
-                var test = Config.BuildSessionFactory().GetAllClassMetadata();
+                var test = Config.BuildSessionFactory();
 
                 ClassMetaData = new ConcurrentDictionary<Type, IClassMetadata>(Config.BuildSessionFactory().GetAllClassMetadata().Select(x => new
                 {

@@ -62,8 +62,13 @@ namespace CommandCentral.Entities
                 Map(x => x.Body).Length(1000).Not.Nullable();
                 Map(x => x.TimeCreated).Not.Nullable().CustomType<UtcDateTimeType>();
 
-                References<ICommentable>(x => x.OwningEntity).Column("OwningEntity_Id")
-                    .ForeignKey("none");
+                ReferencesAny(x => x.OwningEntity)
+                    .AddMetaValue<NewsItem>(typeof(NewsItem).Name)
+                    //Uncomment this and the line below when adding comments to a Person breaks.  This is an experiment to make sure I understand this shit.
+                    //.AddMetaValue<Person>(typeof(Person).Name)
+                    .EntityTypeColumn("Type")
+                    .EntityIdentifierColumn("Id")
+                    .IdentityType<Guid>();
             }
         }
 

@@ -494,9 +494,7 @@ namespace CommandCentral.Entities
                 HasManyToMany(x => x.WatchQualifications);
 
                 HasMany(x => x.Comments)
-                    .Cascade.AllDeleteOrphan()
-                    .KeyColumn("EntityOwner_id")
-                    .ForeignKeyConstraintName("none");
+                    .Cascade.AllDeleteOrphan();
 
                 HasMany(x => x.SubscribedEvents)
                     .AsMap<string>(index =>
