@@ -9,6 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using CommandCentral.Enums;
 using Microsoft.AspNetCore.Mvc.Cors.Internal;
+using System.Net;
+using Microsoft.AspNetCore.Diagnostics;
 
 namespace CommandCentral.CLI
 {
@@ -22,7 +24,10 @@ namespace CommandCentral.CLI
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-            services.AddMvc();
+            services.AddMvc(config =>
+            {
+                config.Filters.Add(typeof(Framework.GlobalExceptionFilter));
+            });
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy",
