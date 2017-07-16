@@ -13,17 +13,32 @@ namespace CommandCentral.Controllers
     [Route("api/[controller]")]
     public class ProfileLockController : CommandCentralController
     {
-        [HttpGet]
+        [HttpGet("me")]
         [RequireAuthentication]
-        public IActionResult Get([FromQuery] ProfileLockQueryDTO dto)
+        public IActionResult GetMe()
         {
-            return Ok();
+            var profileLock = DBSession.QueryOver<ProfileLock>().Where(x => x.Owner.Id == User.Id).SingleOrDefault();
+
+            if (profileLock == null)
+                return NotFound();
+
+            return Ok(new ProfileLockDTO
+            {
+                Id = profileLock.Id,
+                LockedPerson = profileLock.LockedPerson.Id,
+                MaxAge = ProfileLock.MaxAge,
+                Owner = profileLock.Owner.Id,
+                SubmitTime = profileLock.SubmitTime
+            });
         }
 
         [HttpGet("{id}")]
         [RequireAuthentication]
         public IActionResult Get(Guid id)
         {
+            if (!new ResolvedPermissions(User, null).AccessibleSubmodules.Contains(Enums.SubModules.AdminTools))
+                return PermissionDenied();
+
             var profileLock = DBSession.Get<ProfileLock>(id);
             if (profileLock == null)
                 return NotFound();
@@ -102,7 +117,7 @@ namespace CommandCentral.Controllers
                 DBSession.Save(profileLock);
                 transaction.Commit();
 
-                return CreatedAtAction(nameof(Get), new { id = profileLock.Id }, new ProfileLockDTO
+                return CreatedAtAction(nameof(GetMe), new ProfileLockDTO
                 {
                     Id = profileLock.Id,
                     SubmitTime = profileLock.SubmitTime,
@@ -112,15 +127,26 @@ namespace CommandCentral.Controllers
                 });
             }
         }
-
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
-        {
-        }
-
+        
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        [RequireAuthentication]
+        public IActionResult Delete(Guid id)
         {
+
+            using (var transaction = DBSession.BeginTransaction())
+            {
+                var item = DBSession.Load<ProfileLock>(id);
+
+                if (item == null)
+                    return NotFound();
+
+                if (item.Owner.Id != User.Id)
+                    return PermissionDenied();
+
+                DBSession.Delete(item);
+
+                return NoContent();
+            }
         }
     }
 }

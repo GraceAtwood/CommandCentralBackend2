@@ -14,7 +14,7 @@ namespace CommandCentral.Controllers
     [Route("api/[controller]")]
     public class PersonController : CommandCentralController
     {
-        [HttpGet("/me")]
+        [HttpGet("me")]
         [RequireAuthentication]
         public IActionResult Get()
         {
