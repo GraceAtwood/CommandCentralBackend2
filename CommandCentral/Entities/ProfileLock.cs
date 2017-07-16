@@ -74,7 +74,7 @@ namespace CommandCentral.Entities
             {
                 Id(x => x.Id).GeneratedBy.Assigned();
 
-                References(x => x.Owner).Not.Nullable();
+                References(x => x.Owner).Not.Nullable().Unique();
                 References(x => x.LockedPerson).Not.Nullable().Unique();
 
                 Map(x => x.SubmitTime).Not.Nullable().CustomType<UtcDateTimeType>();
