@@ -44,7 +44,7 @@ namespace CommandCentral.Framework
             }
         }
 
-        public ILogger Logger
+        private ILogger Logger
         {
             get
             {
@@ -52,12 +52,24 @@ namespace CommandCentral.Framework
             }
         }
 
-        #region Error Handling
+        #region Logging
 
         [NonAction]
         public void LogException(Exception e)
         {
+            Logger.LogError(new EventId(), e, e.ToString());
+        }
 
+        [NonAction]
+        public void LogInformation(string message)
+        {
+            Logger.LogInformation(message);
+        }
+
+        [NonAction]
+        public void LogDebug(string message)
+        {
+            Logger.LogDebug(message);
         }
 
         #endregion
@@ -80,6 +92,19 @@ namespace CommandCentral.Framework
         {
             return StatusCode(500, value);
         }
+
+        [NonAction]
+        public IActionResult PermissionDenied(object value = null)
+        {
+            return StatusCode(550, value);
+        }
+
+        [NonAction]
+        public IActionResult Forbid(object value)
+        {
+            return StatusCode(403, value);
+        }
+
         #endregion
 
         #region On Actions
@@ -128,15 +153,7 @@ namespace CommandCentral.Framework
             {
                 if (fromBodyParameter.ParameterType.GetCustomAttribute<FromBodyAttribute>() != null)
                 {
-                    var value = context.ActionArguments.First().Value;
-
-                    //First, if the model is required, let's check to see if its value is null.
-                    if (((ControllerParameterDescriptor)fromBodyParameter).ParameterInfo
-                        .GetCustomAttribute<RequiredModelAttribute>() != null && value == null)
-                    {
-                        //So the value is null.  In this case, let's tell the client how to call this endpoint.
-                        context.ModelState.AddModelError(fromBodyParameter.Name, "Please send the request properly.");
-                    }
+                    var value = context.ActionArguments[fromBodyParameter.Name];
 
                     //If the model is not null, let's call the validator for the dto if possible.
                     if (value is IValidatable validatableDTO)
@@ -166,9 +183,8 @@ namespace CommandCentral.Framework
 
         public override void OnActionExecuted(ActionExecutedContext context)
         {
-            base.OnActionExecuted(context);
-
             Data.SessionManager.CloseSession();
+            base.OnActionExecuted(context);
         }
 
         #endregion
