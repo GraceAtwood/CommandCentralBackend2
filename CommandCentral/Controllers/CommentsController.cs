@@ -20,6 +20,9 @@ namespace CommandCentral.Controllers
         {
             var result = DBSession.QueryOver<Comment>().Where(Restrictions.Eq("OwningEntity.id", id)).List();
 
+            if (result.Any() && !result.First().OwningEntity.CanPersonAccessComments(User))
+                return Unauthorized();
+            
             return Ok(result.Select(x =>
                 new CommentDTO
                 {
@@ -34,7 +37,7 @@ namespace CommandCentral.Controllers
 
         [HttpPost]
         [RequireAuthentication]
-        public IActionResult Post([FromBody]CommentDTO dto)
+        public IActionResult Post([FromBody]CommentPostDTO dto)
         {
             using (var transaction = DBSession.BeginTransaction())
             {
@@ -77,16 +80,74 @@ namespace CommandCentral.Controllers
 
         }
 
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        [HttpPatch("{id}")]
+        [RequireAuthentication]
+        public IActionResult Patch(Guid id, [FromBody]CommentPatchDTO dto)
         {
+            using (var transaction = DBSession.BeginTransaction())
+            {
+                try
+                {
+                    var comment = DBSession.Get<Comment>(id);
+
+                    if (comment == null)
+                        return NotFound();
+
+                    if (!comment.OwningEntity.CanPersonAccessComments(User))
+                        return Unauthorized();
+
+                    if (comment.Creator.Id != User.Id)
+                        return Unauthorized();
+
+                    comment.Body = dto.Body;
+
+                    var result = new Comment.CommentValidator().Validate(comment);
+                    if (!result.IsValid)
+                        return BadRequest(result.Errors.Select(x => x.ErrorMessage));
+
+                    DBSession.Update(comment);
+                    transaction.Commit();
+                    return Ok(comment.Id);
+                }
+                catch (Exception e)
+                {
+                    LogException(e);
+                    transaction.Rollback();
+                    return InternalServerError();
+                }
+            }
         }
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(Guid id)
         {
+            using (var transaction = DBSession.BeginTransaction())
+            {
+                try
+                {
+                    var comment = DBSession.Get<Comment>(id);
+
+                    if (comment == null)
+                        return NotFound();
+
+                    if (!comment.OwningEntity.CanPersonAccessComments(User))
+                        return Unauthorized();
+
+                    if (comment.Creator.Id != User.Id)
+                        return Unauthorized();
+
+                    DBSession.Delete(comment);
+                    transaction.Commit();
+                    return Ok(comment.Id);
+                }
+                catch (Exception e)
+                {
+                    LogException(e);
+                    transaction.Rollback();
+                    return InternalServerError();
+                }
+            }
         }
     }
 }
