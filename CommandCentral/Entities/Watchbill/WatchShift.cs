@@ -14,7 +14,7 @@ namespace CommandCentral.Entities.Watchbill
     /// <summary>
     /// A watch shift represents a single watch, who is assigned to it, and for what day it is as well as from one time to what time.  And some other things.
     /// </summary>
-    public class WatchShift : ICommentable, IEntity
+    public class WatchShift : IEntity
     {
 
         #region Properties
@@ -86,6 +86,11 @@ namespace CommandCentral.Entities.Watchbill
         }
 
         #endregion
+
+        public virtual bool CanPersonAccessComments(Person person)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Maps this object to the database.

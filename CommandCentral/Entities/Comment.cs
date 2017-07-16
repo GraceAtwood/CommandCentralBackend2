@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using FluentNHibernate.Mapping;
 using FluentValidation;
 using NHibernate.Type;
+using CommandCentral.Utilities.Types;
 
 namespace CommandCentral.Entities
 {
@@ -28,14 +29,19 @@ namespace CommandCentral.Entities
         public virtual Person Creator { get; set; }
 
         /// <summary>
+        /// The entity that owns this object.
+        /// </summary>
+        public virtual ICommentable OwningEntity { get; set; }
+
+        /// <summary>
         /// This is the text of the comment.
         /// </summary>
-        public virtual string Text { get; set; }
+        public virtual string Body { get; set; }
 
         /// <summary>
         /// The datetime at which this comment was made.
         /// </summary>
-        public virtual DateTime Time { get; set; }
+        public virtual DateTime TimeCreated { get; set; }
 
         #endregion
 
@@ -53,8 +59,17 @@ namespace CommandCentral.Entities
 
                 References(x => x.Creator);
 
-                Map(x => x.Text).Length(1000).Not.Nullable();
-                Map(x => x.Time).Not.Nullable().CustomType<UtcDateTimeType>();
+                Map(x => x.Body).Length(1000).Not.Nullable();
+                Map(x => x.TimeCreated).Not.Nullable().CustomType<UtcDateTimeType>();
+
+                ReferencesAny(x => x.OwningEntity)
+                    .AddMetaValue<NewsItem>(typeof(NewsItem).Name)
+                    //Uncomment this and the line below when adding comments to a Person breaks.  This is an experiment to make sure I understand this shit.
+                    //.AddMetaValue<Person>(typeof(Person).Name)
+                    .IdentityType<Guid>()
+                    .EntityTypeColumn("OwningEntity_Type")
+                    .EntityIdentifierColumn("OwningEntity_id")
+                    .MetaType<string>();
             }
         }
 
@@ -69,8 +84,9 @@ namespace CommandCentral.Entities
             public CommentValidator()
             {
                 RuleFor(x => x.Creator).NotEmpty();
-                RuleFor(x => x.Text).NotEmpty().Length(1, 1000);
-                RuleFor(x => x.Time).NotEmpty();
+                RuleFor(x => x.Body).NotEmpty().Length(1, 1000);
+                RuleFor(x => x.TimeCreated).NotEmpty();
+                RuleFor(x => x.OwningEntity).NotEmpty();
             }
         }
     }

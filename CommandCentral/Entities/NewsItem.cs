@@ -5,13 +5,14 @@ using FluentNHibernate.Mapping;
 using FluentValidation;
 using CommandCentral.Authorization;
 using NHibernate.Type;
+using CommandCentral.Utilities.Types;
 
 namespace CommandCentral.Entities
 {
     /// <summary>
     /// Describes a single News Item and its members, including its DB access members.
     /// </summary>
-    public class NewsItem : IEntity
+    public class NewsItem : IEntity, ICommentable
     {
 
         #region Properties
@@ -41,7 +42,22 @@ namespace CommandCentral.Entities
         /// </summary>
         public virtual DateTime CreationTime { get; set; }
 
+        /// <summary>
+        /// The comments.
+        /// </summary>
+        public virtual IList<Comment> Comments { get; set; }
+
         #endregion
+
+        /// <summary>
+        /// Determine if a person can access the comments.  For news item, everyone can.
+        /// </summary>
+        /// <param name="person"></param>
+        /// <returns></returns>
+        public virtual bool CanPersonAccessComments(Person person)
+        {
+            return true;
+        }
 
         /// <summary>
         /// Maps a news item to the database.
@@ -60,6 +76,11 @@ namespace CommandCentral.Entities
                 Map(x => x.Title).Not.Nullable().Length(50);
                 Map(x => x.Body).Not.Nullable().Length(3500);
                 Map(x => x.CreationTime).Not.Nullable();
+
+                HasMany(x => x.Comments)
+                    .Cascade.AllDeleteOrphan()
+                    .KeyColumn("OwningEntity_id")
+                    .ForeignKeyConstraintName("none");
             }
         }
 

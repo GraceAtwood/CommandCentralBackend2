@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CommandCentral.Entities
 {
-    interface IEntity
+    public interface IEntity
     {
         Guid Id { get; set; }
     }

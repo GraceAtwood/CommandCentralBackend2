@@ -98,7 +98,6 @@ namespace CommandCentral.Framework
             }
 
             //Handle Authentication.  Do we require authentication?
-            var test = ((ControllerActionDescriptor)context.ActionDescriptor).MethodInfo.GetCustomAttributes();
             if (((ControllerActionDescriptor)context.ActionDescriptor).MethodInfo.GetCustomAttribute<RequireAuthenticationAttribute>() != null)
             {
                 if (!Request.Headers.TryGetValue("sessionid", out Microsoft.Extensions.Primitives.StringValues sessionIdHeader)

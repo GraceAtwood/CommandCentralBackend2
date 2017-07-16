@@ -25,7 +25,7 @@ namespace CommandCentral.Entities
     /// Describes a single person and all their properties and data access methods.
     /// </summary>
     [HasPermissions]
-    public class Person : ICommentable, IEntity
+    public class Person : IEntity
     {
 
         #region Properties
@@ -426,7 +426,12 @@ namespace CommandCentral.Entities
 
             return IsInSameDepartmentAs(person) && this.Division.Id == person.Division.Id;
         }
-       
+
+        public virtual bool CanPersonAccessComments(Person person)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
 
         /// <summary>
@@ -487,11 +492,6 @@ namespace CommandCentral.Entities
                 HasMany(x => x.WatchAssignments).Cascade.All();
                 
                 HasManyToMany(x => x.WatchQualifications);
-
-                HasMany(x => x.Comments)
-                    .Cascade.AllDeleteOrphan()
-                    .KeyColumn("EntityOwner_id")
-                    .ForeignKeyConstraintName("none");
 
                 HasMany(x => x.SubscribedEvents)
                     .AsMap<string>(index =>
