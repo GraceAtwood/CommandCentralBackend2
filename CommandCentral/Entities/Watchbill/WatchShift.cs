@@ -14,7 +14,7 @@ namespace CommandCentral.Entities.Watchbill
     /// <summary>
     /// A watch shift represents a single watch, who is assigned to it, and for what day it is as well as from one time to what time.  And some other things.
     /// </summary>
-    public class WatchShift : ICommentable, IEntity
+    public class WatchShift : IEntity
     {
 
         #region Properties

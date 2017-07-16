@@ -7,6 +7,7 @@ using CommandCentral.Framework;
 using CommandCentral.Entities;
 using CommandCentral.DTOs;
 using CommandCentral.Utilities.Types;
+using NHibernate.Criterion;
 
 namespace CommandCentral.Controllers
 {
@@ -14,9 +15,10 @@ namespace CommandCentral.Controllers
     public class CommentsController : CommandCentralController
     {
         [HttpGet("{id}")]
+        [RequireAuthentication]
         public IActionResult Get(Guid id)
         {
-            var result = DBSession.QueryOver<Comment>().Where(x => x.OwningEntity.Id == id).List();
+            var result = DBSession.QueryOver<Comment>().Where(Restrictions.Eq("OwningEntity.id", id)).List();
 
             return Ok(result.Select(x =>
                 new CommentDTO
@@ -31,16 +33,19 @@ namespace CommandCentral.Controllers
         }
 
         [HttpPost]
+        [RequireAuthentication]
         public IActionResult Post([FromBody]CommentDTO dto)
         {
             using (var transaction = DBSession.BeginTransaction())
             {
                 try
                 {
-                    if (DBSession.QueryOver<ICommentable>().Where(x => x.Id == dto.OwningEntity).RowCount() == 0)
+                    if (DBSession.QueryOver<ICommentable>().Where(x => x.Id == dto.OwningEntity).ToRowCountQuery().List<int>().Sum() == 0)
                         return BadRequest("Your owning entity does not exist.");
 
-                    var owningEntity = DBSession.Load<ICommentable>(dto.OwningEntity);
+                    var owningEntity = DBSession.QueryOver<ICommentable>()
+                        .Where(x => x.Id == dto.OwningEntity)
+                        .SingleOrDefault();
 
                     if (!owningEntity.CanPersonAccessComments(User))
                         return Unauthorized();
@@ -58,6 +63,7 @@ namespace CommandCentral.Controllers
                     if (!result.IsValid)
                         return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
+                    DBSession.Save(comment);
                     transaction.Commit();
                     return Ok(comment.Id);
                 }

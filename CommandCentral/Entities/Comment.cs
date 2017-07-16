@@ -66,9 +66,10 @@ namespace CommandCentral.Entities
                     .AddMetaValue<NewsItem>(typeof(NewsItem).Name)
                     //Uncomment this and the line below when adding comments to a Person breaks.  This is an experiment to make sure I understand this shit.
                     //.AddMetaValue<Person>(typeof(Person).Name)
-                    .EntityTypeColumn("Type")
-                    .EntityIdentifierColumn("Id")
-                    .IdentityType<Guid>();
+                    .IdentityType<Guid>()
+                    .EntityTypeColumn("OwningEntity_Type")
+                    .EntityIdentifierColumn("OwningEntity_id")
+                    .MetaType<string>();
             }
         }
 

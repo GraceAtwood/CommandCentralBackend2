@@ -78,7 +78,9 @@ namespace CommandCentral.Entities
                 Map(x => x.CreationTime).Not.Nullable();
 
                 HasMany(x => x.Comments)
-                    .Cascade.AllDeleteOrphan();
+                    .Cascade.AllDeleteOrphan()
+                    .KeyColumn("OwningEntity_id")
+                    .ForeignKeyConstraintName("none");
             }
         }
 

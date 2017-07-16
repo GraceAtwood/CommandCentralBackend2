@@ -39,9 +39,9 @@ namespace CommandCentral.Framework.Data
 
                 var mySqlConfig = MySQLConfiguration.Standard.ConnectionString(Utilities.ConfigurationUtility.Configuration.GetConnectionString("Main"));
 
+                mySqlConfig = mySqlConfig.FormatSql().ShowSql();
                 if (Utilities.ConfigurationUtility.Configuration.GetValue<bool>("NHibnerate:PrintSQL"))
                 {
-                    mySqlConfig = mySqlConfig.FormatSql().ShowSql();
                 }
 
                 Config = Fluently.Configure()

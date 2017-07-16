@@ -64,6 +64,11 @@ namespace CommandCentral.Authentication
         /// <returns></returns>
         public virtual bool IsValid()
         {
+
+            #if DEBUG
+            return true;
+            #endif
+
             if (!IsActive)
                 return false;
 
@@ -97,6 +102,5 @@ namespace CommandCentral.Authentication
                 Cache.ReadWrite();
             }
         }
-
     }
 }
