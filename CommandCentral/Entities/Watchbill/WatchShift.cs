@@ -87,6 +87,11 @@ namespace CommandCentral.Entities.Watchbill
 
         #endregion
 
+        public virtual bool CanPersonAccessComments(Person person)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Maps this object to the database.
         /// </summary>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommandCentral.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,11 +10,14 @@ namespace CommandCentral.Utilities.Types
     /// <summary>
     /// The interface that makes an object commentable.
     /// </summary>
-    public interface ICommentable
+    public interface ICommentable : IEntity
     {
         /// <summary>
         /// The comments.
         /// </summary>
         IList<Entities.Comment> Comments { get; set; }
+
+        bool CanPersonAccessComments(Person person);
+             
     }
 }

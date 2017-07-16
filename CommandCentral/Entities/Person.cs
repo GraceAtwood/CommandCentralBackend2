@@ -426,7 +426,12 @@ namespace CommandCentral.Entities
 
             return IsInSameDepartmentAs(person) && this.Division.Id == person.Division.Id;
         }
-       
+
+        public virtual bool CanPersonAccessComments(Person person)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
 
         /// <summary>
