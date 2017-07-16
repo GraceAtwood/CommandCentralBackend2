@@ -9,14 +9,18 @@ using CommandCentral.Utilities;
 using CommandCentral.Framework.Data;
 using CommandCentral.Entities.ReferenceLists;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace CommandCentral.Controllers
 {
     [Route("api/[controller]")]
-    public class ProfilesController : CommandCentralController
+    public class PersonController : CommandCentralController
     {
-        // GET api/values/5
+        [HttpGet("/me")]
+        [RequireAuthentication]
+        public IActionResult Get()
+        {
+            return Get(null);
+        }
+
         [HttpGet("{id}")]
         [RequireAuthentication]
         public IActionResult Get(Guid? id = null)
@@ -35,7 +39,7 @@ namespace CommandCentral.Controllers
 
             DTOs.GetPersonResponseDTO dto = new DTOs.GetPersonResponseDTO
             {
-                ADAMSTrainingDate = fieldPermissions[nameof(Person.AccountHistory)].CanReturn
+                ADAMSTrainingDate = fieldPermissions[nameof(Person.ADAMSTrainingDate)].CanReturn
                 ? person.ADAMSTrainingDate : null,
                 Age = fieldPermissions[nameof(Person.Age)].CanReturn
                 ? (int?)person.Age : null,

@@ -106,7 +106,6 @@ namespace CommandCentral.Authorization
 
                 foreach (var property in pair.Value)
                 {
-
                     if (!property.HiddenFromPermission)
                     {
                         var descriptor = new PropertyPermissionsDescriptor();

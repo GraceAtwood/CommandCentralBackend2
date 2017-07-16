@@ -52,35 +52,35 @@ namespace CommandCentral.Controllers
         [RequireAuthentication]
         public IActionResult Post([FromBody]NewsItemDTO dto)
         {
-            var canEditNews = new ResolvedPermissions(User, null).AccessibleSubmodules.Contains(Enums.SubModules.EditNews);
-            if (!canEditNews) return Unauthorized();
+            if (!new ResolvedPermissions(User, null).AccessibleSubmodules.Contains(Enums.SubModules.EditNews))
+                return PermissionDenied();
+
             using (var transaction = DBSession.BeginTransaction())
             {
-                try
+                var item = new NewsItem
                 {
-                    var item = new NewsItem
-                    {
-                        Id = Guid.NewGuid(),
-                        Title = dto.Title,
-                        Body = dto.Body,
-                        Creator = User,
-                        CreationTime = CallTime
-                    };
+                    Id = Guid.NewGuid(),
+                    Title = dto.Title,
+                    Body = dto.Body,
+                    Creator = User,
+                    CreationTime = CallTime
+                };
 
-                    var result = new NewsItem.NewsItemValidator().Validate(item);
-                    if (!result.IsValid)
-                        return BadRequest(result.Errors.Select(x => x.ErrorMessage));
+                var result = new NewsItem.NewsItemValidator().Validate(item);
+                if (!result.IsValid)
+                    return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
-                    DBSession.Save(item);
-                    transaction.Commit();
-                    return Ok(item.Id);
-                }
-                catch (Exception e)
+                DBSession.Save(item);
+                transaction.Commit();
+
+                return CreatedAtAction(nameof(Get), new { id = item.Id }, new NewsItemDTO
                 {
-                    LogException(e);
-                    transaction.Rollback();
-                    return InternalServerError();
-                }
+                    Body = item.Body,
+                    CreationTime = item.CreationTime,
+                    Creator = item.Creator.Id,
+                    Id = item.Id,
+                    Title = item.Title
+                });
             }
             
         }
@@ -90,36 +90,28 @@ namespace CommandCentral.Controllers
         [RequireAuthentication]
         public IActionResult Patch(Guid id, [FromBody]NewsItemDTO dto)
         {
-            var canEditNews = new ResolvedPermissions(User, null).AccessibleSubmodules.Contains(Enums.SubModules.EditNews);
-            if (!canEditNews) return Unauthorized();
+            if (!new ResolvedPermissions(User, null).AccessibleSubmodules.Contains(Enums.SubModules.EditNews))
+                return PermissionDenied();
+
             using (var transaction = DBSession.BeginTransaction())
             {
-                try
+                var item = DBSession.Get<NewsItem>(id);
+                if (item == null)
                 {
-                    var item = DBSession.Get<NewsItem>(id);
-                    if (item == null)
-                    {
-                        return BadRequest("No NewsItem with that Id exists.");
-                    }
-
-                    item.Body = dto.Body;
-                    item.Title = dto.Title;
-
-                    var result = new NewsItem.NewsItemValidator().Validate(item);
-                    if (!result.IsValid)
-                        return BadRequest(result.Errors.Select(x => x.ErrorMessage));
-
-                    DBSession.Update(item);
-                    transaction.Commit();
-                    return Ok(id);
-
+                    return BadRequest("No NewsItem with that Id exists.");
                 }
-                catch (Exception e)
-                {
-                    LogException(e);
-                    transaction.Rollback();
-                    return InternalServerError();
-                }
+
+                item.Body = dto.Body;
+                item.Title = dto.Title;
+
+                var result = new NewsItem.NewsItemValidator().Validate(item);
+                if (!result.IsValid)
+                    return BadRequest(result.Errors.Select(x => x.ErrorMessage));
+
+                DBSession.Update(item);
+                transaction.Commit();
+
+                return NoContent();
             }
         }
 
@@ -128,27 +120,21 @@ namespace CommandCentral.Controllers
         [RequireAuthentication]
         public IActionResult Delete(Guid id)
         {
-            var canEditNews = new ResolvedPermissions(User, null).AccessibleSubmodules.Contains(Enums.SubModules.EditNews);
-            if (!canEditNews) return Unauthorized();
+            if (!new ResolvedPermissions(User, null).AccessibleSubmodules.Contains(Enums.SubModules.EditNews))
+                return PermissionDenied();
+
             using (var transaction = DBSession.BeginTransaction())
             {
-                try
+                var item = DBSession.Get<NewsItem>(id);
+                if (item == null)
                 {
-                    var item = DBSession.Get<NewsItem>(id);
-                    if (item == null)
-                    {
-                        return BadRequest("I mean, technically it's deleted? Since, like, no NewsItem with that Id existed at all...");
-                    }
-                    DBSession.Delete(item);
-                    transaction.Commit();
-                    return Ok();
+                    return BadRequest("I mean, technically it's deleted? Since, like, no NewsItem with that Id existed at all...");
                 }
-                catch (Exception e)
-                {
-                    LogException(e);
-                    transaction.Rollback();
-                    return InternalServerError();
-                }
+
+                DBSession.Delete(item);
+                transaction.Commit();
+
+                return NoContent();
             }
         }
     }
