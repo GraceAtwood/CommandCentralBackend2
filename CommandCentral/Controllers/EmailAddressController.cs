@@ -4,17 +4,46 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using CommandCentral.Framework;
+using CommandCentral.Entities;
+using CommandCentral.Authorization;
+using CommandCentral.DTOs;
 
 namespace CommandCentral.Controllers
 {
     [Route("api/[controller]")]
     public class EmailAddressController : CommandCentralController
     {
-        [HttpGet("person/{id}")]
+        [HttpGet]
         [RequireAuthentication]
-        public IActionResult Get(Guid id)
+        public IActionResult GetByPerson([FromQuery]Guid Person)
         {
-            return Ok();
+            var items = DBSession.QueryOver<EmailAddress>().Where(x => x.Person.Id == Person).List();
+
+            if (!items.Any())
+                return NotFound();
+
+            var isInChainOfCommand = new ResolvedPermissions(User, items.First().Person).IsInChainOfCommand.Any(x => x.Value);
+
+            IEnumerable<EmailAddress> result;
+            if (!isInChainOfCommand)
+            {
+                result = items.Where(x => x.IsReleasableOutsideCoC);
+            }
+            else
+            {
+                result = items;
+            }
+
+            return Ok(result.Select(x =>
+                new EmailAddressDTO
+                {
+                    Address = x.Address,
+                    IsReleasableOutsideCoC = x.IsReleasableOutsideCoC,
+                    Id = x.Id,
+                    IsPreferred = x.IsPreferred,
+                    Person = x.Person.Id
+                })
+            );
         }
 
         [HttpPost]

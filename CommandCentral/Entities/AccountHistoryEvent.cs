@@ -60,7 +60,9 @@ namespace CommandCentral.Entities
 
                 Map(x => x.EventTime).Not.Nullable().CustomType<UtcDateTimeType>();
 
-                References(x => x.AccountHistoryEventType);
+                References(x => x.AccountHistoryEventType).Not.Nullable();
+                References(x => x.Person).Not.Nullable();
+                
             }
         }
     }

@@ -9,7 +9,7 @@ namespace CommandCentral.Entities
     public abstract class Entity
     {
         [CanNeverEdit]
-        public Guid Id { get; set; }
+        public virtual Guid Id { get; set; }
 
         public override bool Equals(object obj)
         {

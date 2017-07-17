@@ -22,9 +22,9 @@ namespace CommandCentral.Entities
         public virtual string Address { get; set; }
 
         /// <summary>
-        /// Indicates whether or not a person wants to be contacted using this email address.
+        /// Indicates whether or not a person is ok with releasing this email address outside their chain of command.
         /// </summary>
-        public virtual bool IsContactable { get; set; }
+        public virtual bool IsReleasableOutsideCoC { get; set; }
 
         /// <summary>
         /// Indicates whether or not the client prefers to be contacted using this email address.
@@ -36,44 +36,21 @@ namespace CommandCentral.Entities
         /// </summary>
         public virtual Person Person { get; set; }
 
-        /// <summary>
-        /// Indicates whether or not this email address is a mail.mil email address.  This is a calculated field, built using the Address field.
-        /// </summary>
-        public virtual bool IsDodEmailAddress
-        {
-            get
-            {
-                var elements = Address.Split(new[] { "@" }, StringSplitOptions.RemoveEmptyEntries);
-                if (!elements.Any())
-                    return false;
-
-                return elements.Last().SafeEquals("mail.mil");
-            }
-        }
-
         #endregion
 
-        #region Overrides
-        
         /// <summary>
-        /// Returns a string representation.
+        /// Indicates whether or not this email address is a mail.mil email address.
         /// </summary>
         /// <returns></returns>
-        public override string ToString()
+        public virtual bool IsDoDEmailAddress()
         {
-            List<string> preferences = new List<string>();
-            if (IsContactable)
-                preferences.Add("C");
-            if (IsPreferred)
-                preferences.Add("P");
-            
-            string final = preferences.Any() ? $"({String.Join("|", preferences)})" : "";
+            var elements = Address.Split(new[] { "@" }, StringSplitOptions.RemoveEmptyEntries);
+            if (!elements.Any())
+                return false;
 
-            return $"{Address} {final}";
+            return elements.Last().InsensitiveEquals("mail.mil");
         }
-
-        #endregion
-
+        
         /// <summary>
         /// Maps an email address to the database.
         /// </summary>
@@ -87,7 +64,7 @@ namespace CommandCentral.Entities
                 Id(x => x.Id).GeneratedBy.Assigned();
 
                 Map(x => x.Address).Not.Nullable().Unique();
-                Map(x => x.IsContactable).Not.Nullable();
+                Map(x => x.IsReleasableOutsideCoC).Not.Nullable();
                 Map(x => x.IsPreferred).Not.Nullable();
 
                 References(x => x.Person).Not.Nullable();

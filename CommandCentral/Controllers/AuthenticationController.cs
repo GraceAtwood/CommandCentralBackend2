@@ -45,7 +45,9 @@ namespace CommandCentral.Controllers
                         person.AccountHistory.Add(new AccountHistoryEvent
                         {
                             AccountHistoryEventType = ReferenceListHelper<AccountHistoryType>.Find("Failed Login"),
-                            EventTime = this.CallTime
+                            EventTime = this.CallTime,
+                            Id = Guid.NewGuid(),
+                            Person = person
                         });
 
                         DBSession.Update(person);
@@ -72,7 +74,9 @@ namespace CommandCentral.Controllers
                 person.AccountHistory.Add(new AccountHistoryEvent
                 {
                     AccountHistoryEventType = ReferenceListHelper<AccountHistoryType>.Find("Login"),
-                    EventTime = CallTime
+                    EventTime = CallTime,
+                    Id = Guid.NewGuid(),
+                    Person = person
                 });
 
                 Response.Headers.Add("Access-Control-Expose-Headers", "sessionid");

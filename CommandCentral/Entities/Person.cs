@@ -268,8 +268,7 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The person's watch qualification.
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        [CanEditIfInChainOfCommand(ChainsOfCommand.QuarterdeckWatchbill, ChainOfCommandLevels.Division)]
+        [HiddenFromPermissions]
         public virtual IList<WatchQualification> WatchQualifications { get; set; }
 
         /// <summary>
@@ -285,15 +284,13 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The email addresses of this person.
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        [CanEditIfSelf]
+        [HiddenFromPermissions]
         public virtual IList<EmailAddress> EmailAddresses { get; set; }
 
         /// <summary>
         /// The Phone Numbers of this person.
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        [CanEditIfSelf]
+        [HiddenFromPermissions]
         public virtual IList<PhoneNumber> PhoneNumbers { get; set; }
 
         /// <summary>
@@ -646,7 +643,7 @@ namespace CommandCentral.Entities
                 {
                     RuleFor(x => x.EmailAddresses).Must((person, x) =>
                     {
-                        return x.Any(y => y.IsDodEmailAddress);
+                        return x.Any(y => y.IsDoDEmailAddress());
                     }).WithMessage("You must have at least one mail.mil address.");
                 });
 

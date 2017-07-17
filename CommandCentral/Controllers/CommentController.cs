@@ -14,11 +14,14 @@ namespace CommandCentral.Controllers
     [Route("api/[controller]")]
     public class CommentController : CommandCentralController
     {
-        [HttpGet("OwningEntity/{id}")]
+        [HttpGet]
         [RequireAuthentication]
-        public IActionResult Get(Guid id)
+        public IActionResult Get([FromQuery]Guid owningEntity)
         {
-            var result = DBSession.QueryOver<Comment>().Where(Restrictions.Eq("OwningEntity.id", id)).List();
+            var result = DBSession.QueryOver<Comment>().Where(Restrictions.Eq("OwningEntity.id", owningEntity)).List();
+
+            if (!result.Any())
+                return NotFound();
 
             if (result.Any() && !result.First().OwningEntity.CanPersonAccessComments(User))
                 return PermissionDenied();
@@ -41,10 +44,10 @@ namespace CommandCentral.Controllers
         {
             using (var transaction = DBSession.BeginTransaction())
             {
-                if (DBSession.QueryOver<ICommentable>().Where(x => x.Id == dto.OwningEntity).ToRowCountQuery().List<int>().Sum() == 0)
+                if (DBSession.QueryOver<CommentableEntity>().Where(x => x.Id == dto.OwningEntity).ToRowCountQuery().List<int>().Sum() == 0)
                     return BadRequest("Your owning entity does not exist.");
 
-                var owningEntity = DBSession.QueryOver<ICommentable>()
+                var owningEntity = DBSession.QueryOver<CommentableEntity>()
                     .Where(x => x.Id == dto.OwningEntity)
                     .SingleOrDefault();
 

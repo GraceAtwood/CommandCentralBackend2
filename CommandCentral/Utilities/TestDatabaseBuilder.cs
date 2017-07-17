@@ -33,7 +33,7 @@ namespace CommandCentral.Utilities
 
             SessionManager.Schema.Create(true, true);
 
-            Entities.Watchbill.WatchAssignment.WatchAssignmentMapping.UpdateForeignKeyRule();
+            //Entities.Watchbill.WatchAssignment.WatchAssignmentMapping.UpdateForeignKeyRule();
             AddAPIKey();
 
             PreDefUtility.PersistPreDef<WatchQualification>();
@@ -217,8 +217,9 @@ namespace CommandCentral.Utilities
                 {
                     Address = emailAddress,
                     Id = Guid.NewGuid(),
-                    IsContactable = true,
-                    IsPreferred = true
+                    IsReleasableOutsideCoC = true,
+                    IsPreferred = true,
+                    Person = person
                 } };
 
             person.AccountHistory = new List<AccountHistoryEvent>
@@ -226,7 +227,9 @@ namespace CommandCentral.Utilities
                 new AccountHistoryEvent
                 {
                     AccountHistoryEventType = ReferenceListHelper<AccountHistoryType>.Find("Creation"),
-                    EventTime = DateTime.UtcNow
+                    EventTime = DateTime.UtcNow,
+                    Person = person,
+                    Id = Guid.NewGuid()
                 }
             };
 

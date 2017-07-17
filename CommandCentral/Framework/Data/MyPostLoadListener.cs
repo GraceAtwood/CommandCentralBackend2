@@ -13,7 +13,10 @@ namespace CommandCentral.Framework.Data
         {
             if (@event.Entity is Person person)
             {
-                person.PermissionGroups = person.PermissionGroups.Select(x => Authorization.PermissionsCache.PermissionGroupsCache[x.Name]).ToList();
+                for (int x = 0; x < person.PermissionGroups.Count; x++)
+                {
+                    person.PermissionGroups[x] = Authorization.PermissionsCache.PermissionGroupsCache[person.PermissionGroups[x].Name];
+                }
             }
         }
     }
