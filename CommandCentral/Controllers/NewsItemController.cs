@@ -8,14 +8,11 @@ using CommandCentral.Entities;
 using CommandCentral.DTOs;
 using CommandCentral.Authorization;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace CommandCentral.Controllers
 {
     [Route("api/[controller]")]
     public class NewsItemController : CommandCentralController
     {
-        // GET: api/values
         [HttpGet]
         [RequireAuthentication]
         public IActionResult Get()
@@ -31,7 +28,6 @@ namespace CommandCentral.Controllers
             }));
         }
 
-        // GET api/values/5
         [HttpGet("{id}")]
         [RequireAuthentication]
         public IActionResult Get(Guid id)
@@ -47,7 +43,6 @@ namespace CommandCentral.Controllers
             });
         }
 
-        // POST api/values
         [HttpPost]
         [RequireAuthentication]
         public IActionResult Post([FromBody]NewsItemDTO dto)
@@ -85,7 +80,6 @@ namespace CommandCentral.Controllers
             
         }
 
-        // PATCH api/values/5
         [HttpPatch("{id}")]
         [RequireAuthentication]
         public IActionResult Patch(Guid id, [FromBody]NewsItemDTO dto)
@@ -115,7 +109,6 @@ namespace CommandCentral.Controllers
             }
         }
 
-        // DELETE api/values/5
         [HttpDelete("{id}")]
         [RequireAuthentication]
         public IActionResult Delete(Guid id)
