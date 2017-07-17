@@ -12,15 +12,10 @@ namespace CommandCentral.Entities
     /// <summary>
     /// Describes a single physical address
     /// </summary>
-    public class PhysicalAddress : IEntity
+    public class PhysicalAddress : Entity
     {
 
         #region Properties
-
-        /// <summary>
-        /// The unique GUID of this physical address.
-        /// </summary>
-        public virtual Guid Id { get; set; }
 
         /// <summary>
         /// The street number + route address.
@@ -53,14 +48,9 @@ namespace CommandCentral.Entities
         public virtual bool IsHomeAddress { get; set; }
 
         /// <summary>
-        /// The latitude of this physical address.
+        /// The person who owns this physical address.
         /// </summary>
-        public virtual float? Latitude { get; set; }
-
-        /// <summary>
-        /// The longitude of this physical address.
-        /// </summary>
-        public virtual float? Longitude { get; set; }
+        public virtual Person Person { get; set; }
 
         #endregion
 
@@ -74,66 +64,7 @@ namespace CommandCentral.Entities
         {
             return $"{(IsHomeAddress ? "(Home) " : "")}{Address}, {City}, {State} {ZipCode}";
         }
-
-        /// <summary>
-        /// Deep equality comparison
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        public override bool Equals(object obj)
-        {
-            var other = obj as PhysicalAddress;
-            if (other == null)
-                return false;
-
-            return Object.Equals(other.Id, this.Id) &&
-                   Object.Equals(other.Address, this.Address) &&
-                   Object.Equals(other.City, this.City) &&
-                   Object.Equals(other.State, this.State) &&
-                   Object.Equals(other.ZipCode, this.ZipCode) &&
-                   Object.Equals(other.Country, this.Country) &&
-                   Object.Equals(other.IsHomeAddress, this.IsHomeAddress) &&
-                   Object.Equals(other.Latitude, this.Latitude) &&
-                   Object.Equals(other.Longitude, this.Longitude);
-        }
-
-        /// <summary>
-        /// hashey codey
-        /// </summary>
-        /// <returns></returns>
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hash = 17;
-
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(Id);
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(Address);
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(City);
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(State);
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(ZipCode);
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(Country);
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(IsHomeAddress);
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(Latitude);
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(Longitude);
-
-                return hash;
-            }
-        }
-
-        #endregion
-
-        #region ctors
-
-        /// <summary>
-        /// Creates a new physical address, setting in the Id to a new Guid.
-        /// </summary>
-        public PhysicalAddress()
-        {
-            if (Id == default(Guid))
-                Id = Guid.NewGuid();
-        }
-
+        
         #endregion
 
         /// <summary>
@@ -154,8 +85,6 @@ namespace CommandCentral.Entities
                 Map(x => x.ZipCode).Not.Nullable();
                 Map(x => x.Country);
                 Map(x => x.IsHomeAddress).Not.Nullable();
-                Map(x => x.Latitude).Nullable();
-                Map(x => x.Longitude).Nullable();
             }
         }
 
@@ -170,15 +99,7 @@ namespace CommandCentral.Entities
             public PhysicalAddressValidator()
             {
                 CascadeMode = CascadeMode.StopOnFirstFailure;
-
-                /*RuleFor(x => x.Latitude)
-                        //.NotEmpty().WithMessage("Your latitude must not be empty")
-                        .Must(x => x >= -90 && x <= 90).WithMessage("Your latitude must be between -90 and 90, inclusive.");
-
-                RuleFor(x => x.Longitude)
-                    //.NotEmpty().WithMessage("Your longitude must not be empty")
-                    .Must(x => x >= -180 && x <= 180).WithMessage("Your longitude must be between -180 and 180, inclusive.");*/
-
+                
                 RuleFor(x => x.Address)
                     .NotEmpty().WithMessage("Your address must not be empty.")
                     .Length(1, 255).WithMessage("The address must be between 1 and 255 characters.");

@@ -25,16 +25,10 @@ namespace CommandCentral.Entities
     /// Describes a single person and all their properties and data access methods.
     /// </summary>
     [HasPermissions]
-    public class Person : IEntity
+    public class Person : CommentableEntity
     {
 
         #region Properties
-
-        /// <summary>
-        /// The person's unique Id.
-        /// </summary>
-        [CanNeverEdit]
-        public virtual Guid Id { get; set; }
 
         #region Main Properties
         
@@ -184,12 +178,6 @@ namespace CommandCentral.Entities
         [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual bool HasCompletedAWARE { get; set; }
 
-        /// <summary>
-        /// A collection of all the watch assignments this person has ever been assigned.
-        /// </summary>
-        [HiddenFromPermissions]
-        public virtual IList<Watchbill.WatchAssignment> WatchAssignments { get; set; }
-
         #endregion
 
         #region Work Properties
@@ -280,7 +268,8 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The person's watch qualification.
         /// </summary>
-        [HiddenFromPermissions]
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
+        [CanEditIfInChainOfCommand(ChainsOfCommand.QuarterdeckWatchbill, ChainOfCommandLevels.Division)]
         public virtual IList<WatchQualification> WatchQualifications { get; set; }
 
         /// <summary>
@@ -296,13 +285,15 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The email addresses of this person.
         /// </summary>
-        [HiddenFromPermissions]
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
+        [CanEditIfSelf]
         public virtual IList<EmailAddress> EmailAddresses { get; set; }
 
         /// <summary>
         /// The Phone Numbers of this person.
         /// </summary>
-        [HiddenFromPermissions]
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
+        [CanEditIfSelf]
         public virtual IList<PhoneNumber> PhoneNumbers { get; set; }
 
         /// <summary>
@@ -357,13 +348,7 @@ namespace CommandCentral.Entities
         /// </summary>
         [HiddenFromPermissions]
         public virtual IDictionary<Guid, ChainOfCommandLevels> SubscribedEvents { get; set; }
-
-        /// <summary>
-        /// Comments
-        /// </summary>
-        [HiddenFromPermissions]
-        public virtual IList<Comment> Comments { get; set; }
-
+        
         #endregion
 
         #endregion
@@ -427,9 +412,9 @@ namespace CommandCentral.Entities
             return IsInSameDepartmentAs(person) && this.Division.Id == person.Division.Id;
         }
 
-        public virtual bool CanPersonAccessComments(Person person)
+        public override bool CanPersonAccessComments(Person person)
         {
-            throw new NotImplementedException();
+            return true;
         }
 
         #endregion
@@ -489,7 +474,6 @@ namespace CommandCentral.Entities
                 HasMany(x => x.EmailAddresses).Cascade.All();
                 HasMany(x => x.PhoneNumbers).Cascade.All();
                 HasMany(x => x.PhysicalAddresses).Cascade.All();
-                HasMany(x => x.WatchAssignments).Cascade.All();
                 
                 HasManyToMany(x => x.WatchQualifications);
 

@@ -4,21 +4,17 @@ using FluentNHibernate.Mapping;
 using FluentValidation;
 using System.Collections.Generic;
 using CommandCentral.Utilities;
+using CommandCentral.Authorization.Rules;
 
 namespace CommandCentral.Entities
 {
     /// <summary>
     /// Describes a single email address along with its data access methods
     /// </summary>
-    public class EmailAddress : IEntity
+    public class EmailAddress : Entity
     {
 
         #region Properties
-
-        /// <summary>
-        /// The unique GUID of this Email Address
-        /// </summary>
-        public virtual Guid Id { get; set; }
 
         /// <summary>
         /// The actual email address of this object.
@@ -34,6 +30,11 @@ namespace CommandCentral.Entities
         /// Indicates whether or not the client prefers to be contacted using this email address.
         /// </summary>
         public virtual bool IsPreferred { get; set; }
+
+        /// <summary>
+        /// The person who owns this email address.
+        /// </summary>
+        public virtual Person Person { get; set; }
 
         /// <summary>
         /// Indicates whether or not this email address is a mail.mil email address.  This is a calculated field, built using the Address field.
@@ -53,43 +54,7 @@ namespace CommandCentral.Entities
         #endregion
 
         #region Overrides
-
-        /// <summary>
-        /// Deep comparison.
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        public override bool Equals(object obj)
-        {
-            var other = obj as EmailAddress;
-            if (other == null)
-                return false;
-
-            return Object.Equals(other.Address, this.Address) &&
-                   Object.Equals(other.Id, this.Id) &&
-                   Object.Equals(other.IsContactable, this.IsContactable) &&
-                   Object.Equals(other.IsPreferred, this.IsPreferred);
-        }
-
-        /// <summary>
-        /// hashey codey
-        /// </summary>
-        /// <returns></returns>
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hash = 17;
-
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(Id);
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(Address);
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(IsContactable);
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(IsPreferred);
-
-                return hash;
-            }
-        }
-
+        
         /// <summary>
         /// Returns a string representation.
         /// </summary>
@@ -109,17 +74,6 @@ namespace CommandCentral.Entities
 
         #endregion
 
-        #region ctors
-
-        public EmailAddress()
-        {
-            if (Id == default(Guid))
-                Id = Guid.NewGuid();
-        }
-
-
-        #endregion
-
         /// <summary>
         /// Maps an email address to the database.
         /// </summary>
@@ -135,6 +89,8 @@ namespace CommandCentral.Entities
                 Map(x => x.Address).Not.Nullable().Unique();
                 Map(x => x.IsContactable).Not.Nullable();
                 Map(x => x.IsPreferred).Not.Nullable();
+
+                References(x => x.Person).Not.Nullable();
             }
         }
 

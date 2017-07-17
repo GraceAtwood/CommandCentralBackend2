@@ -13,12 +13,10 @@ namespace CommandCentral.Entities.ReferenceLists
     /// <summary>
     /// Describes a single Division.
     /// </summary>
-    public class Division : IValidatable, IEntity
+    public class Division : Entity, IValidatable
     {
 
         #region Properties
-
-        public virtual Guid Id { get; set; }
 
         public virtual string Value { get; set; }
 
@@ -81,7 +79,5 @@ namespace CommandCentral.Entities.ReferenceLists
                     .WithMessage("The value must not be empty");
             }
         }
-
-        
     }
 }

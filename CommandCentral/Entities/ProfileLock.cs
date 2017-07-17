@@ -9,7 +9,7 @@ namespace CommandCentral.Entities
     /// <summary>
     /// Describes a single profile lock.
     /// </summary>
-    public class ProfileLock : IEntity
+    public class ProfileLock : Entity
     {
         /// <summary>
         /// The maximum age, as a timespan, after which a profile lock should be considered invalid.
@@ -17,11 +17,6 @@ namespace CommandCentral.Entities
         public static TimeSpan MaxAge { get; } = TimeSpan.FromMinutes(20);
 
         #region Properties
-
-        /// <summary>
-        /// The unique GUID assigned to this Profile Lock
-        /// </summary>
-        public virtual Guid Id { get; set; }
 
         /// <summary>
         /// The person who owns this lock.
@@ -41,7 +36,7 @@ namespace CommandCentral.Entities
         #endregion
 
         #region Helper Methods
-
+        
         /// <summary>
         /// Returns a timespan indicating for how much longer this profile lock is valid.
         /// </summary>

@@ -13,16 +13,11 @@ namespace CommandCentral.Entities
     /// <summary>
     /// A comment.  It's assigned to an object where users can comment on it.
     /// </summary>
-    public class Comment : IEntity
+    public class Comment : Entity
     {
 
         #region Properties
-
-        /// <summary>
-        /// The unique Id of this comment.
-        /// </summary>
-        public virtual Guid Id { get; set; }
-
+        
         /// <summary>
         /// The person who created this comment.
         /// </summary>
@@ -31,7 +26,7 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The entity that owns this object.
         /// </summary>
-        public virtual ICommentable OwningEntity { get; set; }
+        public virtual CommentableEntity OwningEntity { get; set; }
 
         /// <summary>
         /// This is the text of the comment.

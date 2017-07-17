@@ -7,7 +7,7 @@ namespace CommandCentral.Entities
     /// <summary>
     /// Defines a single attempt to reset a password.  The Id of this class is the key that unlocks the Finish Password Reset endpoint.
     /// </summary>
-    public class PendingPasswordReset : IEntity
+    public class PendingPasswordReset : Entity
     {
 
         /// <summary>
@@ -16,11 +16,6 @@ namespace CommandCentral.Entities
         private static readonly TimeSpan _maxAge = TimeSpan.FromDays(1);
 
         #region Properties
-
-        /// <summary>
-        /// The unique Id of this password reset event.
-        /// </summary>
-        public virtual Guid Id { get; set; }
 
         /// <summary>
         /// The person to which it belongs.

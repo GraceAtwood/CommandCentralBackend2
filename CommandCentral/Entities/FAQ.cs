@@ -5,21 +5,17 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentNHibernate.Mapping;
 using FluentValidation;
+using CommandCentral.Utilities.Types;
 
 namespace CommandCentral.Entities
 {
     /// <summary>
     /// A single frequently asked question.
     /// </summary>
-    public class FAQ : IEntity
+    public class FAQ : CommentableEntity
     {
         #region Properties
-
-        /// <summary>
-        /// The unique Guid for this FAQ
-        /// </summary>
-        public virtual Guid Id { get; set; }
-
+        
         /// <summary>
         /// The name of this FAQ item.
         /// </summary>
@@ -34,8 +30,13 @@ namespace CommandCentral.Entities
         /// The answer/text for the FAQ.
         /// </summary>
         public virtual IList<string> Paragraphs { get; set; }
-
+        
         #endregion
+
+        public override bool CanPersonAccessComments(Person person)
+        {
+            throw new NotImplementedException();
+        }
 
         #region Overrides
 

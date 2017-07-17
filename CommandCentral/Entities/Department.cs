@@ -13,11 +13,9 @@ namespace CommandCentral.Entities.ReferenceLists
     /// <summary>
     /// Describes a single Department and all of its divisions.
     /// </summary>
-    public class Department : IValidatable, IEntity
+    public class Department : Entity, IValidatable
     {
         #region Properties
-        
-        public virtual Guid Id { get; set; }
         
         public virtual string Value { get; set; }
 

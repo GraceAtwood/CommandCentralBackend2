@@ -7,7 +7,7 @@ namespace CommandCentral.Entities
     /// <summary>
     /// Describes a single account confirmation.  This is created when a client attempts to register an account.
     /// </summary>
-    public class PendingAccountConfirmation : IEntity
+    public class PendingAccountConfirmation : Entity
     {
 
         /// <summary>
@@ -16,11 +16,6 @@ namespace CommandCentral.Entities
         private static readonly TimeSpan _maxAge = TimeSpan.FromDays(1);
 
         #region Properties
-
-        /// <summary>
-        /// The unique Id of this account confirmation event.
-        /// </summary>
-        public virtual Guid Id { get; set; }
 
         /// <summary>
         /// The person to which it belongs.

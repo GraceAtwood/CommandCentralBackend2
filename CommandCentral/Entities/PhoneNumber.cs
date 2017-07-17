@@ -11,14 +11,9 @@ namespace CommandCentral.Entities
     /// <summary>
     /// Describes a single Phone number along with its data access members and properties
     /// </summary>
-    public class PhoneNumber : IEntity
+    public class PhoneNumber : Entity
     {
         #region Properties
-
-        /// <summary>
-        /// The unique GUID of this phone number.
-        /// </summary>
-        public virtual Guid Id { get; set; }
 
         /// <summary>
         /// The actual phone number of this phone number object.
@@ -40,11 +35,10 @@ namespace CommandCentral.Entities
         /// </summary>
         public virtual PhoneNumberType PhoneType { get; set; }
 
-        #endregion
-
-        #region Helper Methods
-
-        //public virtual System.Net.Mail.mail
+        /// <summary>
+        /// The person who owns this phone number.
+        /// </summary>
+        public virtual Person Person { get; set; }
 
         #endregion
 
@@ -69,56 +63,8 @@ namespace CommandCentral.Entities
             return $"{Number} ({phoneType}) {final}";
         }
 
-        /// <summary>
-        /// Deep comparison.
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        public override bool Equals(object obj)
-        {
-            var other = obj as PhoneNumber;
-            if (other == null)
-                return false;
-
-            return Object.Equals(other.Number, this.Number) &&
-                   Object.Equals(other.Id, this.Id) &&
-                   Object.Equals(other.IsContactable, this.IsContactable) &&
-                   Object.Equals(other.IsPreferred, this.IsPreferred) &&
-                   Object.Equals(other.PhoneType, this.PhoneType);
-        }
-
-        /// <summary>
-        /// Get the hash code...
-        /// </summary>
-        /// <returns></returns>
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hash = 17;
-
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(Id);
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(Number);
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(IsContactable);
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(IsPreferred);
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(PhoneType);
-
-                return hash;
-            }
-        }
-
         #endregion
-
-        #region ctors
-
-        public PhoneNumber()
-        {
-            if (Id == default(Guid))
-                Id = Guid.NewGuid();
-        }
-
-        #endregion
-
+        
         /// <summary>
         /// Maps a single phone number to the database.
         /// </summary>
@@ -134,8 +80,9 @@ namespace CommandCentral.Entities
                 Map(x => x.Number).Not.Nullable().Length(15);
                 Map(x => x.IsContactable).Not.Nullable();
                 Map(x => x.IsPreferred).Not.Nullable();
-                
-                References(x => x.PhoneType).Not.Nullable().LazyLoad(Laziness.False);
+
+                References(x => x.PhoneType).Not.Nullable();
+                References(x => x.Person).Not.Nullable();
             }
         }
 

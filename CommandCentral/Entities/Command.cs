@@ -13,11 +13,9 @@ namespace CommandCentral.Entities.ReferenceLists
     /// <summary>
     /// Describes a single command, such as NIOC GA and all of its departments and divisions.
     /// </summary>
-    public class Command : IValidatable, IEntity
+    public class Command : Entity, IValidatable
     {
         #region Properties
-
-        public virtual Guid Id { get; set; }
 
         public virtual string Value { get; set; }
 

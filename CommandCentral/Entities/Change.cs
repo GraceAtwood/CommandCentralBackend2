@@ -12,14 +12,9 @@ namespace CommandCentral.Entities
     /// <summary>
     /// Describes a single change
     /// </summary>
-    public class Change : IEntity
+    public class Change : Entity
     {
         #region Properties
-
-        /// <summary>
-        /// The Id of this change.
-        /// </summary>
-        public virtual Guid Id { get; set; }
 
         /// <summary>
         /// The client who initiated this change.
@@ -63,49 +58,7 @@ namespace CommandCentral.Entities
         {
             return $"The property '{PropertyName}' changed from '{OldValue}' to '{NewValue}'.";
         }
-
-        /// <summary>
-        /// Deep equals.
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        public override bool Equals(object obj)
-        {
-            var other = obj as Change;
-            if (other == null)
-                return false;
-
-            return Object.Equals(other.Editee.Id, this.Editee.Id) &&
-                   Object.Equals(other.Editor.Id, this.Editor.Id) &&
-                   Object.Equals(other.Id, this.Id) &&
-                   Object.Equals(other.NewValue, this.NewValue) &&
-                   Object.Equals(other.OldValue, this.OldValue) &&
-                   Object.Equals(other.PropertyName, this.PropertyName) &&
-                   Object.Equals(other.Time, this.Time);
-        }
-
-        /// <summary>
-        /// hashey codey
-        /// </summary>
-        /// <returns></returns>
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hash = 17;
-
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(Id);
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(Editee.Id);
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(Editor.Id);
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(PropertyName);
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(OldValue);
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(NewValue);
-                hash = hash * 23 + NullSafeUtilities.GetSafeHashCode(Time);
-
-                return hash;
-            }
-        }
-
+        
         #endregion
 
         /// <summary>

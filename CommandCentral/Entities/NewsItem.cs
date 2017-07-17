@@ -12,16 +12,11 @@ namespace CommandCentral.Entities
     /// <summary>
     /// Describes a single News Item and its members, including its DB access members.
     /// </summary>
-    public class NewsItem : IEntity, ICommentable
+    public class NewsItem : CommentableEntity
     {
 
         #region Properties
-
-        /// <summary>
-        /// The Id of the news item.
-        /// </summary>
-        public virtual Guid Id { get; set; }
-
+        
         /// <summary>
         /// The client that created the news item.
         /// </summary>
@@ -41,12 +36,7 @@ namespace CommandCentral.Entities
         /// The time this news item was created.
         /// </summary>
         public virtual DateTime CreationTime { get; set; }
-
-        /// <summary>
-        /// The comments.
-        /// </summary>
-        public virtual IList<Comment> Comments { get; set; }
-
+        
         #endregion
 
         /// <summary>
@@ -54,7 +44,7 @@ namespace CommandCentral.Entities
         /// </summary>
         /// <param name="person"></param>
         /// <returns></returns>
-        public virtual bool CanPersonAccessComments(Person person)
+        public override bool CanPersonAccessComments(Person person)
         {
             return true;
         }

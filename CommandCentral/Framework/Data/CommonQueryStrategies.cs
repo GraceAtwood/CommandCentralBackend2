@@ -1,5 +1,4 @@
-﻿using CommandCentral.Entities.Watchbill;
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,7 +37,7 @@ namespace CommandCentral.Framework.Data
             foreach (var value in str.Split(new[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries))
             {
                 if (!Guid.TryParse(value, out Guid result))
-                    throw new CommandCentralException("One of your values was not vallid.", ErrorTypes.Validation);
+                    throw new CommandCentralException("One of your values was not valid.", ErrorTypes.Validation);
 
                 values.Add(result);
             }
