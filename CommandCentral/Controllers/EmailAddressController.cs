@@ -47,8 +47,12 @@ namespace CommandCentral.Controllers
         }
 
         [HttpPost]
+        [RequireAuthentication]
         public void Post([FromBody]string value)
         {
+
+
+
         }
 
         [HttpPut("{id}")]
