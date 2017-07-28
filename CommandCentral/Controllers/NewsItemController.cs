@@ -33,6 +33,8 @@ namespace CommandCentral.Controllers
         public IActionResult Get(Guid id)
         {
             var item = DBSession.Get<NewsItem>(id);
+            if (item == null)
+                return NotFound();
             return Ok(new NewsItemDTO
             {
                 Id = item.Id,

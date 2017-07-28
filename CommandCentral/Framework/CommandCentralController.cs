@@ -14,6 +14,7 @@ using CommandCentral.Entities;
 using NHibernate;
 using CommandCentral.Authentication;
 using Microsoft.Extensions.Logging;
+using System.IO;
 
 namespace CommandCentral.Framework
 {
@@ -111,6 +112,12 @@ namespace CommandCentral.Framework
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
+            //using (var suckadick = new StreamReader(this.Request.Body))
+            //{
+            //    var eatmyass = suckadick.ReadToEnd();
+            //    var weee = "Fuck off, atwood, I know I didn't need this.";
+
+            //}
             HttpContext.Items["CallTime"] = DateTime.UtcNow;
 
             //Pull out the api key too.
@@ -148,32 +155,29 @@ namespace CommandCentral.Framework
 
             var fromBodyParameter = context.ActionDescriptor.Parameters
                 .FirstOrDefault(x => x.ParameterType.GetCustomAttribute<FromBodyAttribute>() != null);
-            
+
             if (fromBodyParameter != null)
             {
-                if (fromBodyParameter.ParameterType.GetCustomAttribute<FromBodyAttribute>() != null)
+                var value = context.ActionArguments[fromBodyParameter.Name];
+
+                //If the model is not null, let's call the validator for the dto if possible.
+                if (value is IValidatable validatableDTO)
                 {
-                    var value = context.ActionArguments[fromBodyParameter.Name];
+                    var result = validatableDTO.Validate();
 
-                    //If the model is not null, let's call the validator for the dto if possible.
-                    if (value is IValidatable validatableDTO)
+                    if (!result.IsValid)
                     {
-                        var result = validatableDTO.Validate();
-
-                        if (!result.IsValid)
+                        foreach (var error in result.Errors)
                         {
-                            foreach (var error in result.Errors)
-                            {
-                                context.ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
-                            }
+                            context.ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
                         }
+                    }
 
-                        if (!context.ModelState.IsValid)
-                        {
-                            context.Result = BadRequest(context.ModelState.Values.Where(x => x.ValidationState == Microsoft.AspNetCore.Mvc.ModelBinding.ModelValidationState.Invalid)
-                                .SelectMany(x => x.Errors.Select(y => y.ErrorMessage)).ToList());
-                            return;
-                        }
+                    if (!context.ModelState.IsValid)
+                    {
+                        context.Result = BadRequest(context.ModelState.Values.Where(x => x.ValidationState == Microsoft.AspNetCore.Mvc.ModelBinding.ModelValidationState.Invalid)
+                            .SelectMany(x => x.Errors.Select(y => y.ErrorMessage)).ToList());
+                        return;
                     }
                 }
             }

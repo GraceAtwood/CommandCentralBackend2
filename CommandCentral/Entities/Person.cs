@@ -284,19 +284,18 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The email addresses of this person.
         /// </summary>
-        [HiddenFromPermissions]
+        [CanEditIfSelf]
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual IList<EmailAddress> EmailAddresses { get; set; }
 
         /// <summary>
         /// The Phone Numbers of this person.
         /// </summary>
-        [HiddenFromPermissions]
         public virtual IList<PhoneNumber> PhoneNumbers { get; set; }
 
         /// <summary>
         /// The Physical Addresses of this person
         /// </summary>
-        [HiddenFromPermissions]
         public virtual IList<PhysicalAddress> PhysicalAddresses { get; set; }
 
         #endregion
