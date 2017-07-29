@@ -16,7 +16,7 @@ namespace CommandCentral.Utilities
         /// <typeparam name="T"></typeparam>
         /// <param name="expression"></param>
         /// <returns></returns>
-        public static string GetPropertyName<T>(this Expression<Func<T, object>> expression)
+        public static string GetPropertyName<T, TValue>(this Expression<Func<T, TValue>> expression)
         {
             return GetProperty(expression).Name;
         }
@@ -27,7 +27,7 @@ namespace CommandCentral.Utilities
         /// <typeparam name="T"></typeparam>
         /// <param name="expression"></param>
         /// <returns></returns>
-        public static MemberInfo GetProperty<T>(this Expression<Func<T, object>> expression)
+        public static MemberInfo GetProperty<T, TValue>(this Expression<Func<T, TValue>> expression)
         {
             if (expression.Body is MemberExpression memberExp)
                 return memberExp.Member;

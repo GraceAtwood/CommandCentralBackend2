@@ -8,6 +8,7 @@ using CommandCentral.Entities;
 using CommandCentral.Utilities;
 using CommandCentral.Framework.Data;
 using CommandCentral.Entities.ReferenceLists;
+using CommandCentral.Authorization;
 
 namespace CommandCentral.Controllers
 {
@@ -35,75 +36,71 @@ namespace CommandCentral.Controllers
             if (person == null)
                 return NotFound();
 
-            var fieldPermissions = new Authorization.ResolvedPermissions(User, person).FieldPermissions[typeof(Person)];
+            var perms = User.GetFieldPermissions<Person>(person);
 
             DTOs.GetPersonResponseDTO dto = new DTOs.GetPersonResponseDTO
             {
-                ADAMSTrainingDate = fieldPermissions[nameof(Person.ADAMSTrainingDate)].CanReturn
-                ? person.ADAMSTrainingDate : null,
-                Age = fieldPermissions[nameof(Person.Age)].CanReturn
-                ? (int?)person.Age : null,
-                BilletAssignment = fieldPermissions[nameof(person.BilletAssignment)].CanReturn
-                ? person.BilletAssignment?.Id : null,
-                Command = fieldPermissions[nameof(person.Command)].CanReturn
-                ? person.Command?.Id : null,
-                DateOfArrival = fieldPermissions[nameof(Person.DateOfArrival)].CanReturn
+                ADAMSTrainingDate = perms.GetSafeReturnValue(person, x => x.ADAMSTrainingDate),
+                Age = perms.GetSafeReturnValue(person, x => x.Age),
+                BilletAssignment = perms.GetSafeReturnValue(person, x => x.BilletAssignment)?.Id,
+                Command = perms.GetSafeReturnValue(person, x => x.Command)?.Id,
+                DateOfArrival = fieldPermissions[x => x.DateOfArrival].CanReturn
                 ? person.DateOfArrival : null,
-                DateOfBirth = fieldPermissions[nameof(Person.DateOfBirth)].CanReturn
+                DateOfBirth = fieldPermissions[x => x.DateOfBirth].CanReturn
                 ? person.DateOfBirth : null,
-                DateOfDeparture = fieldPermissions[nameof(Person.DateOfDeparture)].CanReturn
+                DateOfDeparture = fieldPermissions[x => x.DateOfDeparture].CanReturn
                 ? person.DateOfDeparture : null,
-                Department = fieldPermissions[nameof(Person.Department)].CanReturn
+                Department = fieldPermissions[x => x.Department].CanReturn
                 ? person.Department?.Id : null,
-                Designation = fieldPermissions[nameof(Person.Designation)].CanReturn
+                Designation = fieldPermissions[x => x.Designation].CanReturn
                 ? person.Designation?.Id : null,
-                Division = fieldPermissions[nameof(Person.Division)].CanReturn
+                Division = fieldPermissions[x => x.Division].CanReturn
                 ? person.Division?.Id : null,
-                DoDId = fieldPermissions[nameof(Person.DoDId)].CanReturn
+                DoDId = fieldPermissions[x => x.DoDId].CanReturn
                 ? person.DoDId : null,
-                DutyStatus = fieldPermissions[nameof(Person.DutyStatus)].CanReturn
+                DutyStatus = fieldPermissions[x => x.DutyStatus].CanReturn
                 ? person.DutyStatus?.Id : null,
-                EAOS = fieldPermissions[nameof(Person.EAOS)].CanReturn
+                EAOS = fieldPermissions[x => x.EAOS].CanReturn
                 ? person.EAOS : null,
-                Ethnicity = fieldPermissions[nameof(Person.Ethnicity)].CanReturn
+                Ethnicity = fieldPermissions[x => x.Ethnicity].CanReturn
                 ? person.Ethnicity?.Id : null,
-                FirstName = fieldPermissions[nameof(Person.FirstName)].CanReturn
+                FirstName = fieldPermissions[x => x.FirstName].CanReturn
                 ? person.FirstName : null,
-                GTCTrainingDate = fieldPermissions[nameof(Person.GTCTrainingDate)].CanReturn
+                GTCTrainingDate = fieldPermissions[x => x.GTCTrainingDate].CanReturn
                 ? person.GTCTrainingDate : null,
-                HasCompletedAWARE = fieldPermissions[nameof(Person.HasCompletedAWARE)].CanReturn
+                HasCompletedAWARE = fieldPermissions[x => x.HasCompletedAWARE].CanReturn
                 ? (bool?)person.HasCompletedAWARE : null,
-                Id = fieldPermissions[nameof(Person.Id)].CanReturn
+                Id = fieldPermissions[x => x.Id].CanReturn
                 ? person?.Id : null,
-                JobTitle = fieldPermissions[nameof(Person.JobTitle)].CanReturn
+                JobTitle = fieldPermissions[x => x.JobTitle].CanReturn
                 ? person.JobTitle : null,
-                LastName = fieldPermissions[nameof(Person.LastName)].CanReturn
+                LastName = fieldPermissions[x => x.LastName].CanReturn
                 ? person.LastName : null,
-                MiddleName = fieldPermissions[nameof(Person.MiddleName)].CanReturn
+                MiddleName = fieldPermissions[x => x.MiddleName].CanReturn
                 ? person.MiddleName : null,
-                Paygrade = fieldPermissions[nameof(Person.Paygrade)].CanReturn
+                Paygrade = fieldPermissions[x => x.Paygrade].CanReturn
                 ? person.Paygrade?.Id : null,
-                PRD = fieldPermissions[nameof(Person.PRD)].CanReturn
+                PRD = fieldPermissions[x => x.PRD].CanReturn
                 ? person.PRD : null,
-                PrimaryNEC = fieldPermissions[nameof(Person.PrimaryNEC)].CanReturn
+                PrimaryNEC = fieldPermissions[x => x.PrimaryNEC].CanReturn
                 ? person.PrimaryNEC?.Id : null,
-                ReligiousPreference = fieldPermissions[nameof(Person.ReligiousPreference)].CanReturn
+                ReligiousPreference = fieldPermissions[x => x.ReligiousPreference].CanReturn
                 ? person.ReligiousPreference?.Id : null,
-                Sex = fieldPermissions[nameof(Person.Sex)].CanReturn
+                Sex = fieldPermissions[x => x.Sex].CanReturn
                 ? person.Sex?.Id : null,
-                Shift = fieldPermissions[nameof(Person.Shift)].CanReturn
+                Shift = fieldPermissions[x => x.Shift].CanReturn
                 ? person.Shift : null,
-                SSN = fieldPermissions[nameof(Person.SSN)].CanReturn
+                SSN = fieldPermissions[x => x.SSN].CanReturn
                 ? person.SSN : null,
-                Suffix = fieldPermissions[nameof(Person.Suffix)].CanReturn
+                Suffix = fieldPermissions[x => x.Suffix].CanReturn
                 ? person.Suffix : null,
-                Supervisor = fieldPermissions[nameof(Person.Supervisor)].CanReturn
+                Supervisor = fieldPermissions[x => x.Supervisor].CanReturn
                 ? person.Supervisor : null,
-                UIC = fieldPermissions[nameof(Person.UIC)].CanReturn
+                UIC = fieldPermissions[x => x.UIC].CanReturn
                 ? person.UIC?.Id : null,
-                WorkCenter = fieldPermissions[nameof(Person.WorkCenter)].CanReturn
+                WorkCenter = fieldPermissions[x => x.WorkCenter].CanReturn
                 ? person.WorkCenter : null,
-                WorkRoom = fieldPermissions[nameof(Person.WorkRoom)].CanReturn
+                WorkRoom = fieldPermissions[x => x.WorkRoom].CanReturn
                 ? person.WorkRoom : null
             };
 
