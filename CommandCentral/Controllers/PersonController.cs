@@ -44,64 +44,35 @@ namespace CommandCentral.Controllers
                 Age = perms.GetSafeReturnValue(person, x => x.Age),
                 BilletAssignment = perms.GetSafeReturnValue(person, x => x.BilletAssignment)?.Id,
                 Command = perms.GetSafeReturnValue(person, x => x.Command)?.Id,
-                DateOfArrival = fieldPermissions[x => x.DateOfArrival].CanReturn
-                ? person.DateOfArrival : null,
-                DateOfBirth = fieldPermissions[x => x.DateOfBirth].CanReturn
-                ? person.DateOfBirth : null,
-                DateOfDeparture = fieldPermissions[x => x.DateOfDeparture].CanReturn
-                ? person.DateOfDeparture : null,
-                Department = fieldPermissions[x => x.Department].CanReturn
-                ? person.Department?.Id : null,
-                Designation = fieldPermissions[x => x.Designation].CanReturn
-                ? person.Designation?.Id : null,
-                Division = fieldPermissions[x => x.Division].CanReturn
-                ? person.Division?.Id : null,
-                DoDId = fieldPermissions[x => x.DoDId].CanReturn
-                ? person.DoDId : null,
-                DutyStatus = fieldPermissions[x => x.DutyStatus].CanReturn
-                ? person.DutyStatus?.Id : null,
-                EAOS = fieldPermissions[x => x.EAOS].CanReturn
-                ? person.EAOS : null,
-                Ethnicity = fieldPermissions[x => x.Ethnicity].CanReturn
-                ? person.Ethnicity?.Id : null,
-                FirstName = fieldPermissions[x => x.FirstName].CanReturn
-                ? person.FirstName : null,
-                GTCTrainingDate = fieldPermissions[x => x.GTCTrainingDate].CanReturn
-                ? person.GTCTrainingDate : null,
-                HasCompletedAWARE = fieldPermissions[x => x.HasCompletedAWARE].CanReturn
-                ? (bool?)person.HasCompletedAWARE : null,
-                Id = fieldPermissions[x => x.Id].CanReturn
-                ? person?.Id : null,
-                JobTitle = fieldPermissions[x => x.JobTitle].CanReturn
-                ? person.JobTitle : null,
-                LastName = fieldPermissions[x => x.LastName].CanReturn
-                ? person.LastName : null,
-                MiddleName = fieldPermissions[x => x.MiddleName].CanReturn
-                ? person.MiddleName : null,
-                Paygrade = fieldPermissions[x => x.Paygrade].CanReturn
-                ? person.Paygrade?.Id : null,
-                PRD = fieldPermissions[x => x.PRD].CanReturn
-                ? person.PRD : null,
-                PrimaryNEC = fieldPermissions[x => x.PrimaryNEC].CanReturn
-                ? person.PrimaryNEC?.Id : null,
-                ReligiousPreference = fieldPermissions[x => x.ReligiousPreference].CanReturn
-                ? person.ReligiousPreference?.Id : null,
-                Sex = fieldPermissions[x => x.Sex].CanReturn
-                ? person.Sex?.Id : null,
-                Shift = fieldPermissions[x => x.Shift].CanReturn
-                ? person.Shift : null,
-                SSN = fieldPermissions[x => x.SSN].CanReturn
-                ? person.SSN : null,
-                Suffix = fieldPermissions[x => x.Suffix].CanReturn
-                ? person.Suffix : null,
-                Supervisor = fieldPermissions[x => x.Supervisor].CanReturn
-                ? person.Supervisor : null,
-                UIC = fieldPermissions[x => x.UIC].CanReturn
-                ? person.UIC?.Id : null,
-                WorkCenter = fieldPermissions[x => x.WorkCenter].CanReturn
-                ? person.WorkCenter : null,
-                WorkRoom = fieldPermissions[x => x.WorkRoom].CanReturn
-                ? person.WorkRoom : null
+                DateOfArrival = perms.GetSafeReturnValue(person, x => x.DateOfArrival),
+                DateOfBirth = perms.GetSafeReturnValue(person, x => x.DateOfBirth),
+                DateOfDeparture = perms.GetSafeReturnValue(person, x => x.DateOfDeparture),
+                Department = perms.GetSafeReturnValue(person, x => x.Department)?.Id,
+                Designation = perms.GetSafeReturnValue(person, x => x.Designation)?.Id,
+                Division = perms.GetSafeReturnValue(person, x => x.Division)?.Id,
+                DoDId = perms.GetSafeReturnValue(person, x => x.DoDId),
+                DutyStatus = perms.GetSafeReturnValue(person, x => x.DutyStatus)?.Id,
+                EAOS = perms.GetSafeReturnValue(person, x => x.EAOS),
+                Ethnicity = perms.GetSafeReturnValue(person, x => x.Ethnicity)?.Id,
+                FirstName = perms.GetSafeReturnValue(person, x => x.FirstName),
+                GTCTrainingDate = perms.GetSafeReturnValue(person, x => x.GTCTrainingDate),
+                HasCompletedAWARE = perms.GetSafeReturnValue(person, x => x.HasCompletedAWARE),
+                Id = perms.GetSafeReturnValue(person, x => x.Id),
+                JobTitle = perms.GetSafeReturnValue(person, x => x.JobTitle),
+                LastName = perms.GetSafeReturnValue(person, x => x.LastName),
+                MiddleName = perms.GetSafeReturnValue(person, x => x.MiddleName),
+                Paygrade = perms.GetSafeReturnValue(person, x => x.Paygrade)?.Id,
+                PRD = perms.GetSafeReturnValue(person, x => x.PRD),
+                PrimaryNEC = perms.GetSafeReturnValue(person, x => x.PrimaryNEC)?.Id,
+                ReligiousPreference = perms.GetSafeReturnValue(person, x => x.ReligiousPreference)?.Id,
+                Sex = perms.GetSafeReturnValue(person, x => x.Sex)?.Id,
+                Shift = perms.GetSafeReturnValue(person, x => x.Shift),
+                SSN = perms.GetSafeReturnValue(person, x => x.SSN),
+                Suffix = perms.GetSafeReturnValue(person, x => x.Suffix),
+                Supervisor = perms.GetSafeReturnValue(person, x => x.Supervisor),
+                UIC = perms.GetSafeReturnValue(person, x => x.UIC)?.Id,
+                WorkCenter = perms.GetSafeReturnValue(person, x => x.WorkCenter),
+                WorkRoom = perms.GetSafeReturnValue(person, x => x.WorkRoom)
             };
 
             return Ok(dto);

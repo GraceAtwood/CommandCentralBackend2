@@ -25,10 +25,8 @@ namespace CommandCentral.Controllers
             if (!items.Any())
                 return NotFound();
 
-            var isInChainOfCommand = new ResolvedPermissions(User, items.First().Person).IsInChainOfCommand.Any(x => x.Value);
-
             IEnumerable<EmailAddress> result;
-            if (!isInChainOfCommand)
+            if (!User.IsInChainOfCommand(items.First().Person))
             {
                 result = items.Where(x => x.IsReleasableOutsideCoC);
             }
@@ -56,42 +54,8 @@ namespace CommandCentral.Controllers
             var item = DBSession.Get<EmailAddress>(id);
             if (item == null)
                 return NotFound();
-
-            var v = new ResolvedPermissions(User, item.Person);
-
-            var canSeeEmail = false;
-            if (User.Id == item.Person.Id)
-            {
-                canSeeEmail = true;
-            }
-            else
-            {
-                foreach (var l in v.HighestLevels)
-                {
-                    switch (l.Value)
-                    {
-                        case Enums.ChainOfCommandLevels.Command:
-                            if (User.IsInSameCommandAs(item.Person))
-                                canSeeEmail = true;
-                            break;
-                        case Enums.ChainOfCommandLevels.Department:
-                            if (User.IsInSameDepartmentAs(item.Person))
-                                canSeeEmail = true;
-                            break;
-                        case Enums.ChainOfCommandLevels.Division:
-                            if (User.IsInSameDivisionAs(item.Person))
-                                canSeeEmail = true;
-                            break;
-                        case Enums.ChainOfCommandLevels.None:
-                            break;
-                        default:
-                            throw new NotImplementedException("Switch statement in EmailAddress Post fell to default.");
-    
-                    }
-                }
-            }
-
-            if (item.IsReleasableOutsideCoC || canSeeEmail)
+            
+            if (item.IsReleasableOutsideCoC || User.IsInChainOfCommand(item.Person))
             {
                 return Ok(new EmailAddressDTO
                 {
@@ -116,7 +80,7 @@ namespace CommandCentral.Controllers
                 return BadRequest("No person exists for that Id");
             }
 
-            if (!new ResolvedPermissions(User, person).FieldPermissions[typeof(Person)][nameof(Person.EmailAddresses)].CanEdit)
+            if (!User.GetFieldPermissions<Person>(person).CanEdit(x => x.EmailAddresses))
             {
                 return Unauthorized("You do not have permission to add email addresses for this user.");
             }

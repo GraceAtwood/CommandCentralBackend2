@@ -197,8 +197,7 @@ namespace CommandCentral.Utilities
                 PermissionGroups = permissionGroups.ToList()
             };
 
-            var resolvedPermissions = new ResolvedPermissions(person, null);
-            person.FirstName = String.Join("__", resolvedPermissions.HighestLevels.Select(x => $"{x.Key.ToString().Substring(0, 2)}_{x.Value.ToString().Substring(0, 3)}"));
+            person.FirstName = String.Join("__", person.GetHighestAccessLevels().Select(x => $"{x.Key.ToString().Substring(0, 2)}_{x.Value.ToString().Substring(0, 3)}"));
 
             var emailAddress = $"{person.FirstName}.{person.MiddleName[0]}.{person.LastName}.mil@mail.mil";
 

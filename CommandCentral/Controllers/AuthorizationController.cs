@@ -27,7 +27,7 @@ namespace CommandCentral.Controllers
                 person = DBSession.Get<Person>(id.Value);
 
             var resolvedPermissions = new Authorization.ResolvedPermissions(User, person);
-
+            
             var dto = new DTOs.ResolvedPermissionsDTO
             {
                 AccessibleSubmodules = resolvedPermissions.AccessibleSubmodules.ToList(),
