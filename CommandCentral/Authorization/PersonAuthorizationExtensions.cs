@@ -107,10 +107,21 @@ namespace CommandCentral.Authorization
         /// <param name="person">The person whose permissions we want to check.</param>
         /// <param name="submodules">The submodules to check if this person can access.</param>
         /// <returns></returns>
-        public static bool CanAccessSubmodule(this Person person, IEnumerable<SubModules> submodules)
+        public static bool CanAccessSubmodules(this Person person, params SubModules[] submodules)
         {
-            if (submodules == null || !submodules.Any())
-                throw new ArgumentException("You must give at least one group to check against.", nameof(submodules));
+            return CanAccessSubmodules(person, subs: submodules);
+        }
+
+        /// <summary>
+        /// Returns true or false indicating if this person can access all of the given submodules.
+        /// </summary>
+        /// <param name="person">The person whose permissions we want to check.</param>
+        /// <param name="subs">The submodules to check if this person can access.</param>
+        /// <returns></returns>
+        public static bool CanAccessSubmodules(this Person person, IEnumerable<SubModules> subs)
+        {
+            if (subs == null || !subs.Any())
+                throw new ArgumentException("You must give at least one group to check against.", nameof(subs));
 
             if (person.PermissionGroups == null)
             {
@@ -119,7 +130,7 @@ namespace CommandCentral.Authorization
 
             var set = new HashSet<SubModules>(person.PermissionGroups.SelectMany(x => x.AccessibleSubmodules));
 
-            return submodules.All(set.Contains);
+            return subs.All(set.Contains);
         }
 
         /// <summary>
@@ -135,7 +146,5 @@ namespace CommandCentral.Authorization
         {
             return new TypePermissionsDescriptor<T>(person, other);
         }
-
-        
     }
 }
