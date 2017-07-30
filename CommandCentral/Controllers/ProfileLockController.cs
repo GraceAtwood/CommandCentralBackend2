@@ -7,6 +7,7 @@ using CommandCentral.Framework;
 using CommandCentral.Entities;
 using CommandCentral.Authorization;
 using CommandCentral.DTOs;
+using CommandCentral.Enums;
 
 namespace CommandCentral.Controllers
 {
@@ -36,7 +37,7 @@ namespace CommandCentral.Controllers
         [RequireAuthentication]
         public IActionResult Get(Guid id)
         {
-            if (!new ResolvedPermissions(User, null).AccessibleSubmodules.Contains(Enums.SubModules.AdminTools))
+            if (!User.CanAccessSubmodules(SubModules.AdminTools))
                 return PermissionDenied();
 
             var profileLock = DBSession.Get<ProfileLock>(id);

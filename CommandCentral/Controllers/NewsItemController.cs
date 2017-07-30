@@ -7,6 +7,7 @@ using CommandCentral.Framework;
 using CommandCentral.Entities;
 using CommandCentral.DTOs;
 using CommandCentral.Authorization;
+using CommandCentral.Enums;
 
 namespace CommandCentral.Controllers
 {
@@ -49,7 +50,7 @@ namespace CommandCentral.Controllers
         [RequireAuthentication]
         public IActionResult Post([FromBody]NewsItemDTO dto)
         {
-            if (!new ResolvedPermissions(User, null).AccessibleSubmodules.Contains(Enums.SubModules.EditNews))
+            if (!User.CanAccessSubmodules(SubModules.EditNews))
                 return PermissionDenied();
 
             using (var transaction = DBSession.BeginTransaction())
@@ -86,7 +87,7 @@ namespace CommandCentral.Controllers
         [RequireAuthentication]
         public IActionResult Put(Guid id, [FromBody]NewsItemDTO dto)
         {
-            if (!new ResolvedPermissions(User, null).AccessibleSubmodules.Contains(Enums.SubModules.EditNews))
+            if (!User.CanAccessSubmodules(SubModules.EditNews))
                 return PermissionDenied();
 
             using (var transaction = DBSession.BeginTransaction())
@@ -122,7 +123,7 @@ namespace CommandCentral.Controllers
         [RequireAuthentication]
         public IActionResult Delete(Guid id)
         {
-            if (!new ResolvedPermissions(User, null).AccessibleSubmodules.Contains(Enums.SubModules.EditNews))
+            if (!User.CanAccessSubmodules(SubModules.EditNews))
                 return PermissionDenied();
 
             using (var transaction = DBSession.BeginTransaction())
