@@ -82,9 +82,9 @@ namespace CommandCentral.Controllers
             
         }
 
-        [HttpPatch("{id}")]
+        [HttpPut("{id}")]
         [RequireAuthentication]
-        public IActionResult Patch(Guid id, [FromBody]NewsItemDTO dto)
+        public IActionResult Put(Guid id, [FromBody]NewsItemDTO dto)
         {
             if (!new ResolvedPermissions(User, null).AccessibleSubmodules.Contains(Enums.SubModules.EditNews))
                 return PermissionDenied();
@@ -107,7 +107,14 @@ namespace CommandCentral.Controllers
                 DBSession.Update(item);
                 transaction.Commit();
 
-                return NoContent();
+                return CreatedAtAction(nameof(Put), new { id = item.Id }, new NewsItemDTO
+                {
+                    Body = item.Body,
+                    CreationTime = item.CreationTime,
+                    Creator = item.Creator.Id,
+                    Id = item.Id,
+                    Title = item.Title
+                });
             }
         }
 
@@ -129,7 +136,7 @@ namespace CommandCentral.Controllers
                 DBSession.Delete(item);
                 transaction.Commit();
 
-                return NoContent();
+                return Ok();
             }
         }
     }

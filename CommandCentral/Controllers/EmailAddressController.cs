@@ -154,13 +154,68 @@ namespace CommandCentral.Controllers
         }
 
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        [RequireAuthentication]
+        public IActionResult Put(Guid id, [FromBody]EmailAddressDTO dto)
         {
+            using (var transaction = DBSession.BeginTransaction())
+            {
+                var item = DBSession.Get<EmailAddress>(id);
+                if (item == null)
+                {
+                    return BadRequest("This email address does not exist.");
+                }
+
+                if (!new ResolvedPermissions(User, item.Person).FieldPermissions[typeof(Person)][nameof(Person.EmailAddresses)].CanEdit)
+                {
+                    return Unauthorized("You do not have permission to edit this email address.");
+                }
+
+                item.Address = dto.Address;
+                item.IsPreferred = dto.IsPreferred;
+                item.IsReleasableOutsideCoC = dto.IsReleasableOutsideCoC;
+
+                var result = new EmailAddress.EmailAddressValidator().Validate(item);
+                if (!result.IsValid)
+                {
+                    return BadRequest(result.Errors.Select(x => x.ErrorMessage));
+                }
+
+                DBSession.Update(item);
+                transaction.Commit();
+
+                return CreatedAtAction(nameof(Put), new { id = item.Id }, new EmailAddressDTO
+                {
+                    Id = item.Id,
+                    Address = item.Address,
+                    IsReleasableOutsideCoC = item.IsReleasableOutsideCoC,
+                    Person = item.Person.Id,
+                    IsPreferred = item.IsPreferred
+                });
+            }
         }
 
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        [RequireAuthentication]
+        public IActionResult Delete(Guid id)
         {
+            using (var transaction = DBSession.BeginTransaction())
+            {
+                var item = DBSession.Get<EmailAddress>(id);
+
+                if (item == null)
+                {
+                    return BadRequest("This email address does not exist.");
+                }
+
+                if (!new ResolvedPermissions(User, item.Person).FieldPermissions[typeof(Person)][nameof(Person.EmailAddresses)].CanEdit)
+                {
+                    return Unauthorized("You do not have permission to delete this email address.");
+                }
+
+                DBSession.Delete(item);
+                transaction.Commit();
+                return Ok();
+            }
         }
     }
 }
