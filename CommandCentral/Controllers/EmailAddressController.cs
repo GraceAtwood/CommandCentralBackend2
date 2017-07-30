@@ -129,7 +129,7 @@ namespace CommandCentral.Controllers
                     return BadRequest("This email address does not exist.");
                 }
 
-                if (!new ResolvedPermissions(User, item.Person).FieldPermissions[typeof(Person)][nameof(Person.EmailAddresses)].CanEdit)
+                if (!User.GetFieldPermissions<Person>(item.Person).CanEdit(x => x.EmailAddresses))
                 {
                     return Unauthorized("You do not have permission to edit this email address.");
                 }
@@ -171,7 +171,7 @@ namespace CommandCentral.Controllers
                     return BadRequest("This email address does not exist.");
                 }
 
-                if (!new ResolvedPermissions(User, item.Person).FieldPermissions[typeof(Person)][nameof(Person.EmailAddresses)].CanEdit)
+                if (!User.GetFieldPermissions<Person>(item.Person).CanEdit(x => x.EmailAddresses))
                 {
                     return Unauthorized("You do not have permission to delete this email address.");
                 }
