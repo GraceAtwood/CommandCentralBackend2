@@ -81,7 +81,7 @@ namespace CommandCentral.Authorization
 
 
         /// <summary>
-        /// Retuns true or false indicating if this person can edit the membership of all of the given permission groups.
+        /// Returns true or false indicating if this person can edit the membership of all of the given permission groups.
         /// </summary>
         /// <param name="person">The person whose permissions we want to check.</param>
         /// <param name="groups">The groups to check if this person can edit.</param>
