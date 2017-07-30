@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using CommandCentral.Framework;
 using CommandCentral.Entities;
+using CommandCentral.Authorization;
 
 namespace CommandCentral.Controllers
 {
@@ -26,13 +27,13 @@ namespace CommandCentral.Controllers
             if (id.HasValue)
                 person = DBSession.Get<Person>(id.Value);
 
-            var resolvedPermissions = new Authorization.ResolvedPermissions(User, person);
-            
+            // var resolvedPermissions = new Authorization.ResolvedPermissions(User, person);
+
             var dto = new DTOs.ResolvedPermissionsDTO
             {
-                AccessibleSubmodules = resolvedPermissions.AccessibleSubmodules.ToList(),
-                EditablePermissionGroups = resolvedPermissions.EditablePermissionGroups.Select(x => x.Name).ToList(),
-                FieldPermissions = resolvedPermissions.FieldPermissions.ToDictionary(x => x.Key.Name, x => x.Value),
+                AccessibleSubmodules = ((Enums.SubModules[])Enum.GetValues(typeof(Enums.SubModules))).ToArray().Where(x => User.CanAccessSubmodules(new Enums.SubModules[] { x })).ToList(),
+                EditablePermissionGroups = PermissionsCache.PermissionGroupsCache.Values.Where(x => User.CanEditPermissionGroups(new PermissionGroup[] { x })).Select(x => x.ToString()).ToList(),
+                FieldPermissions = new Dictionary<string, Dictionary<string, PropertyPermissionsDescriptor>> { { nameof(Person), PermissionsCache.PermissionTypesCache[typeof(Person)] } },
                 HighestLevels = resolvedPermissions.HighestLevels,
                 IsInChainOfCommand = resolvedPermissions.IsInChainOfCommand,
                 PermissionGroupNames = resolvedPermissions.PermissionGroups.Select(x => x.Name).ToList(),
