@@ -179,7 +179,7 @@ namespace CommandCentral.Authorization
                     case ChainOfCommandLevels.None:
                         break;
                     default:
-                        throw new NotImplementedException($"Fell to default of switch in {nameof(CanReturn)}.  Value: {level.Value}");
+                        throw new NotImplementedException($"Fell to default of switch in {nameof(CanReturn_Internal)}.  Value: {level.Value}");
                 }
 
                 return true;
@@ -324,7 +324,7 @@ namespace CommandCentral.Authorization
                     case ChainOfCommandLevels.None:
                         break;
                     default:
-                        throw new NotImplementedException($"Fell to default of switch in {nameof(CanEdit)}.  Value: {level.Value}");
+                        throw new NotImplementedException($"Fell to default of switch in {nameof(CanEdit_Internal)}.  Value: {level.Value}");
                 }
 
                 return true;
