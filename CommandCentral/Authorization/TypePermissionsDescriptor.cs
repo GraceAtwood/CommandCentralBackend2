@@ -104,9 +104,6 @@ namespace CommandCentral.Authorization
         /// <returns></returns>
         public bool CanReturn(PropertyInfo info)
         {
-            if (info.DeclaringType != typeof(T))
-                throw new Exception($"The generic type T ({typeof(T).Name}) did not match the declaring type ({info.DeclaringType.Name}) of your property ({info.Name})!");
-
             if (!_propertyPermissions.TryGetValue(info, out PropertyPermissionsCollection permissions))
                 throw new ArgumentException($"Your property, {info.Name}, does not exist within the type permissions for the type '{typeof(T).Name}'", nameof(info));
 
@@ -136,9 +133,6 @@ namespace CommandCentral.Authorization
         /// <returns></returns>
         public bool CanReturn(PropertyPermissionsCollection permissions)
         {
-            if (permissions.Property.DeclaringType != typeof(T))
-                throw new Exception($"The generic type T ({typeof(T).Name}) did not match the declaring type ({permissions.Property.DeclaringType.Name}) of your property ({permissions.Property.Name})!");
-
             return CanReturn_Internal(permissions);
         }
 
@@ -246,9 +240,6 @@ namespace CommandCentral.Authorization
         /// <returns></returns>
         public bool CanEdit(PropertyInfo info)
         {
-            if (info.DeclaringType != typeof(T))
-                throw new Exception($"The generic type T ({typeof(T).Name}) did not match the declaring type ({info.DeclaringType.Name}) of your property ({info.Name})!");
-
             if (!_propertyPermissions.TryGetValue(info, out PropertyPermissionsCollection permissions))
                 throw new ArgumentException($"Your property, {info.Name}, does not exist within the type permissions for the type '{typeof(T).Name}'", nameof(info));
 
@@ -278,9 +269,6 @@ namespace CommandCentral.Authorization
         /// <returns></returns>
         public bool CanEdit(PropertyPermissionsCollection permissions)
         {
-            if (permissions.Property.DeclaringType != typeof(T))
-                throw new Exception($"The generic type T ({typeof(T).Name}) did not match the declaring type ({permissions.Property.DeclaringType.Name}) of your property ({permissions.Property.Name})!");
-
             return CanEdit_Internal(permissions);
         }
 
