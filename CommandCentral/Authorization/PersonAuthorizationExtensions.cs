@@ -102,6 +102,17 @@ namespace CommandCentral.Authorization
         }
 
         /// <summary>
+        /// Returns true or false indicating if this person can edit the membership of all of the given permission groups.
+        /// </summary>
+        /// <param name="person">The person whose permissions we want to check.</param>
+        /// <param name="permissionGroups">The groups to check if this person can edit.</param>
+        /// <returns></returns>
+        public static bool CanEditPermissionGroups(this Person person, params PermissionGroup[] permissionGroups)
+        {
+            return CanEditPermissionGroups(person, groups: permissionGroups);
+        }
+
+        /// <summary>
         /// Returns true or false indicating if this person can access all of the given submodules.
         /// </summary>
         /// <param name="person">The person whose permissions we want to check.</param>
