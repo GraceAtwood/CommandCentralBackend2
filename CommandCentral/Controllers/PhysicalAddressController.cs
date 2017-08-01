@@ -76,7 +76,7 @@ namespace CommandCentral.Controllers
                 });
             }
 
-            return Unauthorized();
+            return Forbid();
         }
 
         [HttpPost]
