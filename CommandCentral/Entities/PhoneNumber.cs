@@ -5,6 +5,7 @@ using FluentValidation;
 using System.Linq;
 using System.Collections.Generic;
 using CommandCentral.Utilities;
+using FluentValidation.Results;
 
 namespace CommandCentral.Entities
 {
@@ -21,9 +22,9 @@ namespace CommandCentral.Entities
         public virtual string Number { get; set; }
 
         /// <summary>
-        /// Indicates whether or not the person who owns this phone number wants any contact to occur using it.
+        /// Indicates whether or not a person is ok with releasing this phone number outside their chain of command.
         /// </summary>
-        public virtual bool IsContactable { get; set; }
+        public virtual bool IsReleasableOutsideCoC { get; set; }
 
         /// <summary>
         /// Indicates whether or not the person who owns this phone number prefers contact to occur on it.
@@ -42,29 +43,15 @@ namespace CommandCentral.Entities
 
         #endregion
 
-        #region Overrides
-
         /// <summary>
-        /// Returns the Number property along with the user preferences printed next to it.
+        /// Returns a validation result for this object.
         /// </summary>
         /// <returns></returns>
-        public override string ToString()
+        public override ValidationResult Validate()
         {
-            List<string> preferences = new List<string>();
-            if (IsContactable)
-                preferences.Add("C");
-            if (IsPreferred)
-                preferences.Add("P");
-            
-            string final = preferences.Any() ? $"({String.Join("|", preferences)})" : "";
-
-            char phoneType = PhoneType.Value.First();
-
-            return $"{Number} ({phoneType}) {final}";
+            return new Validator().Validate(this);
         }
 
-        #endregion
-        
         /// <summary>
         /// Maps a single phone number to the database.
         /// </summary>
@@ -78,7 +65,7 @@ namespace CommandCentral.Entities
                 Id(x => x.Id).GeneratedBy.Assigned();
 
                 Map(x => x.Number).Not.Nullable().Length(15);
-                Map(x => x.IsContactable).Not.Nullable();
+                Map(x => x.IsReleasableOutsideCoC).Not.Nullable();
                 Map(x => x.IsPreferred).Not.Nullable();
 
                 References(x => x.PhoneType).Not.Nullable();
@@ -89,12 +76,12 @@ namespace CommandCentral.Entities
         /// <summary>
         /// Validates the phone number object.
         /// </summary>
-        public class PhoneNumberValidator : AbstractValidator<PhoneNumber>
+        public class Validator : AbstractValidator<PhoneNumber>
         {
             /// <summary>
             /// Validates the phone number object.
             /// </summary>
-            public PhoneNumberValidator()
+            public Validator()
             {
                 RuleFor(x => x.Number).Length(0, 10)
                     .Must(x => x.All(char.IsDigit))

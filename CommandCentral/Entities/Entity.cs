@@ -1,4 +1,5 @@
 ﻿using CommandCentral.Authorization.Rules;
+using FluentValidation.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,5 +39,7 @@ namespace CommandCentral.Entities
         {
             return this.Id.ToString();
         }
+
+        public abstract ValidationResult Validate();
     }
 }

@@ -18,6 +18,7 @@ using CommandCentral.Framework;
 using CommandCentral.Utilities.Types;
 using CommandCentral.Authorization;
 using CommandCentral.Authorization.Rules;
+using FluentValidation.Results;
 
 namespace CommandCentral.Entities
 {
@@ -183,16 +184,10 @@ namespace CommandCentral.Entities
         #region Work Properties
 
         /// <summary>
-        /// The person's primary NEC.
+        /// The person's NECs.
         /// </summary>
         [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        public virtual NEC PrimaryNEC { get; set; }
-
-        /// <summary>
-        /// The list of the client's secondary NECs.
-        /// </summary>
-        [HiddenFromPermissions]
-        public virtual IList<NEC> SecondaryNECs { get; set; }
+        public virtual IList<NECInfo> NECs { get; set; }
 
         /// <summary>
         /// The person's supervisor
@@ -415,6 +410,11 @@ namespace CommandCentral.Entities
 
         #endregion
 
+        public override ValidationResult Validate()
+        {
+            return new Validator().Validate(this);
+        }
+
         /// <summary>
         /// Maps a person to the database.
         /// </summary>
@@ -462,9 +462,7 @@ namespace CommandCentral.Entities
                 Map(x => x.ADAMSTrainingDate).Nullable().CustomType<UtcDateTimeType>();
                 Map(x => x.HasCompletedAWARE).Not.Nullable().Default(false.ToString());
 
-                References(x => x.PrimaryNEC);
-                HasManyToMany(x => x.SecondaryNECs).Cascade.All();
-
+                HasMany(x => x.NECs).Cascade.All();
                 HasMany(x => x.AccountHistory).Cascade.All();
                 HasMany(x => x.Changes).Cascade.All().Inverse();
                 HasMany(x => x.EmailAddresses).Cascade.All();
@@ -489,12 +487,12 @@ namespace CommandCentral.Entities
         /// <summary>
         /// Validates a person object.
         /// </summary>
-        public class PersonValidator : AbstractValidator<Person>
+        public class Validator : AbstractValidator<Person>
         {
             /// <summary>
             /// Validates a person object.
             /// </summary>
-            public PersonValidator()
+            public Validator()
             {
                 RuleFor(x => x.Id).NotEmpty();
                 RuleFor(x => x.LastName).NotEmpty().Length(1, 40)
@@ -513,107 +511,24 @@ namespace CommandCentral.Entities
                     .WithMessage("The DOB must not be left blank.");
                 RuleFor(x => x.Sex).NotNull()
                     .WithMessage("The sex must not be left blank.");
-                RuleFor(x => x.Command).NotEmpty().WithMessage("A person must have a command.  If you are trying to indicate this person left the command, please set his or her duty status to 'LOSS'.");
-                RuleFor(x => x.Department).NotEmpty().WithMessage("A person must have a department.  If you are trying to indicate this person left the command, please set his or her duty status to 'LOSS'.");
-                RuleFor(x => x.Division).NotEmpty().WithMessage("A person must have a division.  If you are trying to indicate this person left the command, please set his or her duty status to 'LOSS'.");
-                RuleFor(x => x.Ethnicity).Must(x =>
-                    {
-                        if (x == null)
-                            return true;
-
-                        Ethnicity ethnicity = SessionManager.CurrentSession.Get<Ethnicity>(x.Id);
-
-                        if (ethnicity == null)
-                            return false;
-
-                        return ethnicity.Equals(x);
-                    })
-                    .WithMessage("The ethnicity wasn't valid.  It must match exactly a list item in the database.");
-                RuleFor(x => x.ReligiousPreference).Must(x =>
-                    {
-                        if (x == null)
-                            return true;
-
-                        ReligiousPreference pref = SessionManager.CurrentSession.Get<ReligiousPreference>(x.Id);
-
-                        if (pref == null)
-                            return false;
-
-                        return pref.Equals(x);
-                    })
-                    .WithMessage("The religious preference wasn't valid.  It must match exactly a list item in the database.");
-                RuleFor(x => x.Designation).Must(x =>
-                    {
-                        if (x == null)
-                            return true;
-
-                        Designation designation = SessionManager.CurrentSession.Get<Designation>(x.Id);
-
-                        if (designation == null)
-                            return false;
-
-                        return designation.Equals(x);
-                    })
-                    .WithMessage("The designation wasn't valid.  It must match exactly a list item in the database.");
-                RuleFor(x => x.Division).Must((person, x) =>
-                    {
-                        if (x == null)
-                            return true;
-
-                        Division division = SessionManager.CurrentSession.Get<Division>(x.Id);
-
-                        if (division == null)
-                            return false;
-
-                        return division.Equals(x);
-                    })
-                    .WithMessage("The division wasn't a valid division.  It must match exactly.");
-                RuleFor(x => x.Department).Must(x =>
-                    {
-                        if (x == null)
-                            return true;
-
-                        Department department = SessionManager.CurrentSession.Get<Department>(x.Id);
-
-                        if (department == null)
-                            return false;
-
-                        return department.Equals(x);
-                    })
-                    .WithMessage("The department was invalid.");
-                RuleFor(x => x.Command).Must(x =>
-                    {
-                        if (x == null)
-                            return true;
-
-                        Command command = SessionManager.CurrentSession.Get<Command>(x.Id);
-
-                        if (command == null)
-                            return false;
-
-                        return command.Equals(x);
-                    })
-                    .WithMessage("The command was invalid.");
-                RuleFor(x => x.PrimaryNEC).Must((person, x) =>
-                    {
-                        if (x == null)
-                            return true;
-
-                        NEC nec = SessionManager.CurrentSession.Get<NEC>(x.Id);
-
-                        if (nec == null)
-                            return false;
-
-                        if (!nec.Equals(x))
-                            return false;
-
-                        //Now let's also make sure this isn't in the secondary NECs.
-                        if (person.SecondaryNECs.Any(y => y.Id == x.Id))
-                            return false;
-
-                        return true;
-                    })
-                    .WithMessage("The primary NEC must not exist in the secondary NECs list.");
+                RuleFor(x => x.Command).NotEmpty()
+                    .WithMessage("A person must have a command.  If you are trying to indicate this person left the command, please set his or her duty status to 'LOSS'.");
+                RuleFor(x => x.Department).NotEmpty()
+                    .WithMessage("A person must have a department.  If you are trying to indicate this person left the command, please set his or her duty status to 'LOSS'.");
+                RuleFor(x => x.Division).NotEmpty()
+                    .WithMessage("A person must have a division.  If you are trying to indicate this person left the command, please set his or her duty status to 'LOSS'.");
+                RuleFor(x => x.Ethnicity).Must(x => ReferenceListHelper<Ethnicity>.IdExists(x.Id))
+                    .WithMessage("Your ethnicity was not found.");
+                RuleFor(x => x.ReligiousPreference).Must(x => ReferenceListHelper<Ethnicity>.IdExists(x.Id))
+                    .WithMessage("Your religious preference was not found.");
+                RuleFor(x => x.Designation).Must(x => ReferenceListHelper<Ethnicity>.IdExists(x.Id))
+                    .WithMessage("Your designation was not found.");
+                RuleFor(x => x.Division).Must(x => ReferenceListHelper<Ethnicity>.IdExists(x.Id))
+                    .WithMessage("Your division was not found.");
+                RuleFor(x => x.Department).Must(x => ReferenceListHelper<Ethnicity>.IdExists(x.Id))
+                    .WithMessage("Your department was not found.");
+                RuleFor(x => x.Command).Must(x => ReferenceListHelper<Ethnicity>.IdExists(x.Id))
+                    .WithMessage("Your command was not found.");
                 RuleFor(x => x.Supervisor).Length(0, 40)
                     .WithMessage("The supervisor field may not be longer than 40 characters.");
                 RuleFor(x => x.WorkCenter).Length(0, 40)
@@ -622,22 +537,10 @@ namespace CommandCentral.Entities
                     .WithMessage("The work room field may not be longer than 40 characters.");
                 RuleFor(x => x.Shift).Length(0, 40)
                     .WithMessage("The shift field may not be longer than 40 characters.");
-                RuleFor(x => x.UIC).Must(x =>
-                    {
-                        if (x == null)
-                            return true;
-
-                        UIC uic = SessionManager.CurrentSession.Get<UIC>(x.Id);
-
-                        if (uic == null)
-                            return false;
-
-                        return uic.Equals(x);
-                    })
-                    .WithMessage("The UIC was invalid.");
+                RuleFor(x => x.UIC).Must(x => ReferenceListHelper<Ethnicity>.IdExists(x.Id))
+                    .WithMessage("Your uic was not found.");
                 RuleFor(x => x.JobTitle).Length(0, 40)
                     .WithMessage("The job title may not be longer than 40 characters.");
-
                 When(x => x.IsClaimed, () =>
                 {
                     RuleFor(x => x.EmailAddresses).Must((person, x) =>
@@ -645,32 +548,14 @@ namespace CommandCentral.Entities
                         return x.Any(y => y.IsDoDEmailAddress());
                     }).WithMessage("You must have at least one mail.mil address.");
                 });
-
-                RuleForEach(x => x.SubscribedEvents).Must((person, subEvent) =>
-                {
-
-                    if (person.SubscribedEvents.Count(x => x.Key == subEvent.Key) != 1)
-                        return false;
-
-                    var changeEvent = ChangeEvents.ChangeEventHelper.AllChangeEvents.FirstOrDefault(x => x.Id == subEvent.Key);
-
-                    if (changeEvent == null)
-                        return false;
-
-                    if (!changeEvent.ValidLevels.Contains(subEvent.Value))
-                        return false;
-
-                    return true;
-                })
-                .WithMessage("One or more of your subscription events were not valid.");
-
+                
                 //Set validations
                 RuleFor(x => x.EmailAddresses)
-                    .SetCollectionValidator(new EmailAddress.EmailAddressValidator());
+                    .SetCollectionValidator(new EmailAddress.Validator());
                 RuleFor(x => x.PhoneNumbers)
-                    .SetCollectionValidator(new PhoneNumber.PhoneNumberValidator());
+                    .SetCollectionValidator(new PhoneNumber.Validator());
                 RuleFor(x => x.PhysicalAddresses)
-                    .SetCollectionValidator(new PhysicalAddress.PhysicalAddressValidator());
+                    .SetCollectionValidator(new PhysicalAddress.Validator());
             }
 
         }
@@ -764,53 +649,14 @@ namespace CommandCentral.Entities
                     x => x.Division,
                     x => x.Department,
                     x => x.Command,
-                    x => x.UIC,
-                    x => x.PrimaryNEC)
+                    x => x.UIC)
                 .AsType(SearchDataTypes.String)
                 .CanBeUsedIn(QueryTypes.Advanced, QueryTypes.Simple)
                 .UsingStrategy(token =>
                 {
                     return CommonQueryStrategies.ReferenceListValueQuery(token.SearchParameter.Key, token.SearchParameter.Value);
                 });
-
-                ForProperties(
-                    x => x.SecondaryNECs)
-                .AsType(SearchDataTypes.String)
-                .CanBeUsedIn(QueryTypes.Advanced)
-                .UsingStrategy(token =>
-                {
-                    NEC necAlias = null;
-
-                    token.Query = token.Query.JoinAlias(x => x.SecondaryNECs, () => necAlias);
-
-                    //First we need to get what the client gave us into a list of Guids.
-                    if (token.SearchParameter.Value == null)
-                        throw new CommandCentralException("You search value must not be null.", ErrorTypes.Validation);
-
-                    var str = (string)token.SearchParameter.Value;
-
-                    if (String.IsNullOrWhiteSpace(str))
-                        throw new CommandCentralException("Your search value must be a string of values, delineated by white space, semicolons, or commas.", ErrorTypes.Validation);
-
-                    List<string> values = new List<string>();
-                    foreach (var value in str.Split(new[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        if (String.IsNullOrWhiteSpace(value) || String.IsNullOrWhiteSpace(value.Trim()))
-                            throw new CommandCentralException("One of your values was not vallid.", ErrorTypes.Validation);
-
-                        values.Add(value.Trim());
-                    }
-
-                    var disjunction = new Disjunction();
-
-                    foreach (var value in values)
-                    {
-                        disjunction.Add(Restrictions.On(() => necAlias.Value).IsInsensitiveLike(value, MatchMode.Anywhere));
-                    }
-
-                    return disjunction;
-                });
-
+                
                 ForProperties(
                     x => x.WatchQualifications)
                 .AsType(SearchDataTypes.String)

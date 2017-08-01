@@ -7,6 +7,7 @@ using FluentNHibernate.Mapping;
 using FluentValidation;
 using NHibernate.Type;
 using CommandCentral.Utilities.Types;
+using FluentValidation.Results;
 
 namespace CommandCentral.Entities
 {
@@ -41,6 +42,15 @@ namespace CommandCentral.Entities
         #endregion
 
         /// <summary>
+        /// Validates this object.
+        /// </summary>
+        /// <returns></returns>
+        public override ValidationResult Validate()
+        {
+            return new Validator().Validate(this);
+        }
+
+        /// <summary>
         /// Maps this object to the database.
         /// </summary>
         public class CommentMapping : ClassMap<Comment>
@@ -71,12 +81,12 @@ namespace CommandCentral.Entities
         /// <summary>
         /// Validates the parent object.
         /// </summary>
-        public class CommentValidator : AbstractValidator<Comment>
+        public class Validator : AbstractValidator<Comment>
         {
             /// <summary>
             /// Validates the parent object.
             /// </summary>
-            public CommentValidator()
+            public Validator()
             {
                 RuleFor(x => x.Creator).NotEmpty();
                 RuleFor(x => x.Body).NotEmpty().Length(1, 1000);

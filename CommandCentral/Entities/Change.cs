@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using NHibernate.Type;
 using CommandCentral.Utilities;
+using FluentValidation.Results;
 
 namespace CommandCentral.Entities
 {
@@ -58,8 +59,17 @@ namespace CommandCentral.Entities
         {
             return $"The property '{PropertyName}' changed from '{OldValue}' to '{NewValue}'.";
         }
-        
+
         #endregion
+
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        public override ValidationResult Validate()
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Maps a change to the database.

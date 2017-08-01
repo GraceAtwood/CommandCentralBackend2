@@ -6,6 +6,7 @@ using FluentValidation;
 using CommandCentral.Framework.Data;
 using CommandCentral.Enums;
 using CommandCentral.Utilities;
+using FluentValidation.Results;
 
 namespace CommandCentral.Entities
 {
@@ -64,8 +65,17 @@ namespace CommandCentral.Entities
         {
             return $"{(IsHomeAddress ? "(Home) " : "")}{Address}, {City}, {State} {ZipCode}";
         }
-        
+
         #endregion
+
+        /// <summary>
+        /// Returns a valdidation result for this object.
+        /// </summary>
+        /// <returns></returns>
+        public override ValidationResult Validate()
+        {
+            return new Validator().Validate(this);
+        }
 
         /// <summary>
         /// Maps a physical address to the database.
@@ -91,12 +101,12 @@ namespace CommandCentral.Entities
         /// <summary>
         /// Validates a physical address
         /// </summary>
-        public class PhysicalAddressValidator : AbstractValidator<PhysicalAddress>
+        public class Validator : AbstractValidator<PhysicalAddress>
         {
             /// <summary>
             /// Validates a physical address
             /// </summary>
-            public PhysicalAddressValidator()
+            public Validator()
             {
                 CascadeMode = CascadeMode.StopOnFirstFailure;
                 

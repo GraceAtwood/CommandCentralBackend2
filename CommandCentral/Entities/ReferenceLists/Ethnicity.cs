@@ -11,7 +11,7 @@ namespace CommandCentral.Entities.ReferenceLists
     /// <summary>
     /// Describes a single ethnicity
     /// </summary>
-    public class Ethnicity : EditableReferenceListItemBase
+    public class Ethnicity : ReferenceListItemBase
     {
         /// <summary>
         /// Validates this ethnicity.

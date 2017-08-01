@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using FluentNHibernate.Mapping;
 using FluentValidation;
 using CommandCentral.Utilities.Types;
+using FluentValidation.Results;
 
 namespace CommandCentral.Entities
 {
@@ -30,15 +31,29 @@ namespace CommandCentral.Entities
         /// The answer/text for the FAQ.
         /// </summary>
         public virtual IList<string> Paragraphs { get; set; }
-        
+
         #endregion
 
+        #region Overrides
+
+        /// <summary>
+        /// Not implemented.
+        /// </summary>
+        /// <param name="person"></param>
+        /// <returns></returns>
         public override bool CanPersonAccessComments(Person person)
         {
             throw new NotImplementedException();
         }
 
-        #region Overrides
+        /// <summary>
+        /// Validates this object.
+        /// </summary>
+        /// <returns></returns>
+        public override ValidationResult Validate()
+        {
+            return new Validator().Validate(this);
+        }
 
         /// <summary>
         /// Returns the question.
@@ -75,12 +90,12 @@ namespace CommandCentral.Entities
         /// <summary>
         /// Validates an FAQ
         /// </summary>
-        public class FAQValidator : AbstractValidator<FAQ>
+        public class Validator : AbstractValidator<FAQ>
         {
             /// <summary>
             /// Validates an FAQ
             /// </summary>
-            public FAQValidator()
+            public Validator()
             {
                 RuleFor(x => x.Name).NotEmpty().Length(1, 50).Must(x =>
                 {

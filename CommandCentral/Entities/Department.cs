@@ -13,7 +13,7 @@ namespace CommandCentral.Entities.ReferenceLists
     /// <summary>
     /// Describes a single Department and all of its divisions.
     /// </summary>
-    public class Department : Entity, IValidatable
+    public class Department : Entity
     {
         #region Properties
         
@@ -33,15 +33,15 @@ namespace CommandCentral.Entities.ReferenceLists
 
         #endregion
 
-        #region Helper Methods
+        #region Overrides
 
         /// <summary>
         /// Validates this department object.
         /// </summary>
         /// <returns></returns>
-        public virtual ValidationResult Validate()
+        public override ValidationResult Validate()
         {
-            return new DepartmentValidator().Validate(this);
+            return new Validator().Validate(this);
         }
         
         #endregion
@@ -72,12 +72,12 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <summary>
         /// Validates the Department.
         /// </summary>
-        public class DepartmentValidator : AbstractValidator<Department>
+        public class Validator : AbstractValidator<Department>
         {
             /// <summary>
             /// Validates the Department.
             /// </summary>
-            public DepartmentValidator()
+            public Validator()
             {
                 RuleFor(x => x.Description).Length(0, 255)
                     .WithMessage("The description of a department must be no more than 255 characters.");

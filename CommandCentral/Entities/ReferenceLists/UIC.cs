@@ -4,19 +4,20 @@ using FluentNHibernate.Mapping;
 using FluentValidation;
 using System.Linq;
 using NHibernate.Criterion;
+using FluentValidation.Results;
 
 namespace CommandCentral.Entities.ReferenceLists
 {
     /// <summary>
     /// Describes a single UIC.
     /// </summary>
-    public class UIC : EditableReferenceListItemBase
+    public class UIC : ReferenceListItemBase
     {
         /// <summary>
         /// Returns a validation result which contains the result of validation. lol.
         /// </summary>
         /// <returns></returns>
-        public override FluentValidation.Results.ValidationResult Validate()
+        public override ValidationResult Validate()
         {
             return new UICValidator().Validate(this);
         }

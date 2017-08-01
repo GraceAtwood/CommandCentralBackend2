@@ -5,6 +5,7 @@ using FluentValidation;
 using System.Collections.Generic;
 using CommandCentral.Utilities;
 using CommandCentral.Authorization.Rules;
+using FluentValidation.Results;
 
 namespace CommandCentral.Entities
 {
@@ -37,6 +38,15 @@ namespace CommandCentral.Entities
         public virtual Person Person { get; set; }
 
         #endregion
+
+        /// <summary>
+        /// Returns a validation result for this object.
+        /// </summary>
+        /// <returns></returns>
+        public override ValidationResult Validate()
+        {
+            return new Validator().Validate(this);
+        }
 
         /// <summary>
         /// Indicates whether or not this email address is a mail.mil email address.
@@ -74,12 +84,12 @@ namespace CommandCentral.Entities
         /// <summary>
         /// Validates an Email address
         /// </summary>
-        public class EmailAddressValidator : AbstractValidator<EmailAddress>
+        public class Validator : AbstractValidator<EmailAddress>
         {
             /// <summary>
             /// Validates an Email address
             /// </summary>
-            public EmailAddressValidator()
+            public Validator()
             {
                 RuleFor(x => x.Address).Must(x =>
                     {

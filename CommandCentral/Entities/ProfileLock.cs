@@ -3,6 +3,7 @@ using FluentNHibernate.Mapping;
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Type;
+using FluentValidation.Results;
 
 namespace CommandCentral.Entities
 {
@@ -56,6 +57,15 @@ namespace CommandCentral.Entities
         }
 
         #endregion
+
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        public override ValidationResult Validate()
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Maps a profile lock to the database.

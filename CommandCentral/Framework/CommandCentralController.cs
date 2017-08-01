@@ -153,35 +153,6 @@ namespace CommandCentral.Framework
                 DBSession.Update(authSession);
             }
 
-            var fromBodyParameter = context.ActionDescriptor.Parameters
-                .FirstOrDefault(x => x.ParameterType.GetCustomAttribute<FromBodyAttribute>() != null);
-
-            if (fromBodyParameter != null)
-            {
-                var value = context.ActionArguments[fromBodyParameter.Name];
-
-                //If the model is not null, let's call the validator for the dto if possible.
-                if (value is IValidatable validatableDTO)
-                {
-                    var result = validatableDTO.Validate();
-
-                    if (!result.IsValid)
-                    {
-                        foreach (var error in result.Errors)
-                        {
-                            context.ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
-                        }
-                    }
-
-                    if (!context.ModelState.IsValid)
-                    {
-                        context.Result = BadRequest(context.ModelState.Values.Where(x => x.ValidationState == Microsoft.AspNetCore.Mvc.ModelBinding.ModelValidationState.Invalid)
-                            .SelectMany(x => x.Errors.Select(y => y.ErrorMessage)).ToList());
-                        return;
-                    }
-                }
-            }
-
             base.OnActionExecuting(context);
         }
 

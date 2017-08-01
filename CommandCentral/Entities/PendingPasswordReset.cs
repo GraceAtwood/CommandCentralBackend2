@@ -1,5 +1,6 @@
 ﻿using System;
 using FluentNHibernate.Mapping;
+using FluentValidation.Results;
 using NHibernate.Type;
 
 namespace CommandCentral.Entities
@@ -41,6 +42,15 @@ namespace CommandCentral.Entities
         }
 
         #endregion
+
+        /// <summary>
+        /// Not implemented.
+        /// </summary>
+        /// <returns></returns>
+        public override ValidationResult Validate()
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Maps this class to the database.

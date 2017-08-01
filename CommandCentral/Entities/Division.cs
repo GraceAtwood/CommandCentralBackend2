@@ -13,7 +13,7 @@ namespace CommandCentral.Entities.ReferenceLists
     /// <summary>
     /// Describes a single Division.
     /// </summary>
-    public class Division : Entity, IValidatable
+    public class Division : Entity
     {
 
         #region Properties
@@ -29,15 +29,15 @@ namespace CommandCentral.Entities.ReferenceLists
 
         #endregion
 
-        #region Helper Methods
+        #region Overrides
         
         /// <summary>
         /// Validates this division object.
         /// </summary>
         /// <returns></returns>
-        public virtual ValidationResult Validate()
+        public override ValidationResult Validate()
         {
-            return new DivisionValidator().Validate(this);
+            return new Validator().Validate(this);
         }
 
         #endregion
@@ -66,12 +66,12 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <summary>
         /// Validates le division.
         /// </summary>
-        public class DivisionValidator : AbstractValidator<Division>
+        public class Validator : AbstractValidator<Division>
         {
             /// <summary>
             /// Validates the division.
             /// </summary>
-            public DivisionValidator()
+            public Validator()
             {
                 RuleFor(x => x.Description).Length(0, 255)
                     .WithMessage("The description of a Department must be no more than 255 characters.");

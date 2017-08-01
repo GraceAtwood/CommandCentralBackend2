@@ -6,6 +6,7 @@ using FluentValidation;
 using CommandCentral.Authorization;
 using NHibernate.Type;
 using CommandCentral.Utilities.Types;
+using FluentValidation.Results;
 
 namespace CommandCentral.Entities
 {
@@ -50,6 +51,15 @@ namespace CommandCentral.Entities
         }
 
         /// <summary>
+        /// Validates this object.
+        /// </summary>
+        /// <returns></returns>
+        public override ValidationResult Validate()
+        {
+            return new Validator().Validate(this);
+        }
+
+        /// <summary>
         /// Maps a news item to the database.
         /// </summary>
         public class NewsItemMapping : ClassMap<NewsItem>
@@ -77,12 +87,12 @@ namespace CommandCentral.Entities
         /// <summary>
         /// Validates the properties of a news item.
         /// </summary>
-        public class NewsItemValidator : AbstractValidator<NewsItem>
+        public class Validator : AbstractValidator<NewsItem>
         {
             /// <summary>
             /// Validates the properties of a news item.
             /// </summary>
-            public NewsItemValidator()
+            public Validator()
             {
                 RuleFor(x => x.CreationTime).NotEmpty();
                 RuleFor(x => x.Creator).NotEmpty();

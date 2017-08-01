@@ -4,20 +4,21 @@ using FluentNHibernate.Mapping;
 using FluentValidation;
 using System.Linq;
 using NHibernate.Criterion;
+using FluentValidation.Results;
 
 namespace CommandCentral.Entities.ReferenceLists
 {
     /// <summary>
     /// Describes a single designation.  This is the job title for civilians, the rate for enlisted and the designator for officers.
     /// </summary>
-    public class Designation : EditableReferenceListItemBase
+    public class Designation : ReferenceListItemBase
     {
         
         /// <summary>
         /// Validates this designation.
         /// </summary>
         /// <returns></returns>
-        public override FluentValidation.Results.ValidationResult Validate()
+        public override ValidationResult Validate()
         {
             return new DesignationValidator().Validate(this);
         }

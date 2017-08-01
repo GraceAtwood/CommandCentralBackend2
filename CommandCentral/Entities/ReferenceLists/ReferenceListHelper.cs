@@ -26,6 +26,16 @@ namespace CommandCentral.Entities.ReferenceLists
         }
 
         /// <summary>
+        /// Returns true or false if a list with this id exists.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public static bool IdExists(Guid id)
+        {
+            return SessionManager.CurrentSession.QueryOver<T>().Where(x => x.Id == id).RowCount() != 0;
+        }
+
+        /// <summary>
         /// Returns true or false indicating if all values represent a reference list.
         /// </summary>
         /// <param name="values"></param>

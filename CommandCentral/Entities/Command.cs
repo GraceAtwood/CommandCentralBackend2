@@ -13,7 +13,7 @@ namespace CommandCentral.Entities.ReferenceLists
     /// <summary>
     /// Describes a single command, such as NIOC GA and all of its departments and divisions.
     /// </summary>
-    public class Command : Entity, IValidatable
+    public class Command : Entity
     {
         #region Properties
 
@@ -34,9 +34,9 @@ namespace CommandCentral.Entities.ReferenceLists
         /// Validates this command object.
         /// </summary>
         /// <returns></returns>
-        public virtual ValidationResult Validate()
+        public override ValidationResult Validate()
         {
-            return new CommandValidator().Validate(this);
+            return new Validator().Validate(this);
         }
         
         #endregion
@@ -65,12 +65,12 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <summary>
         /// Validates the Command.
         /// </summary>
-        public class CommandValidator : AbstractValidator<Command>
+        public class Validator : AbstractValidator<Command>
         {
             /// <summary>
             /// Validates the Command.
             /// </summary>
-            public CommandValidator()
+            public Validator()
             {
                 RuleFor(x => x.Description).Length(0, 255)
                     .WithMessage("The description of a Command must be no more than 255 characters.");

@@ -3,6 +3,7 @@ using FluentNHibernate.Mapping;
 using CommandCentral.Entities.ReferenceLists;
 using NHibernate.Type;
 using CommandCentral.Utilities;
+using FluentValidation.Results;
 
 namespace CommandCentral.Entities
 {
@@ -45,7 +46,16 @@ namespace CommandCentral.Entities
         }
 
         #endregion
-        
+
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        public override ValidationResult Validate()
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Maps an account history event to the database.
         /// </summary>

@@ -4,26 +4,22 @@ using FluentNHibernate.Mapping;
 using FluentValidation;
 using System.Linq;
 using NHibernate.Criterion;
+using FluentValidation.Results;
 
 namespace CommandCentral.Entities.ReferenceLists
 {
     /// <summary>
     /// Describes a single NEC.
     /// </summary>
-    public class NEC : EditableReferenceListItemBase
+    public class NEC : ReferenceListItemBase
     {
-        /// <summary>
-        /// The type of the NEC.
-        /// </summary>
-        public virtual PersonType NECType { get; set; }
-
         /// <summary>
         /// Validates an NEC.
         /// </summary>
         /// <returns></returns>
-        public override FluentValidation.Results.ValidationResult Validate()
+        public override ValidationResult Validate()
         {
-            return new NECValidator().Validate(this);
+            return new Validator().Validate(this);
         }
 
         /// <summary>
@@ -40,8 +36,6 @@ namespace CommandCentral.Entities.ReferenceLists
 
                 Map(x => x.Value).Not.Nullable().Unique();
                 Map(x => x.Description);
-                
-                References(x => x.NECType).Not.LazyLoad();
 
                 Cache.ReadWrite();
             }
@@ -50,12 +44,12 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <summary>
         /// Validates an NEC
         /// </summary>
-        public class NECValidator : AbstractValidator<NEC>
+        public class Validator : AbstractValidator<NEC>
         {
             /// <summary>
             /// Validates an NEC
             /// </summary>
-            public NECValidator()
+            public Validator()
             {
                 RuleFor(x => x.Description).Length(0, 255)
                     .WithMessage("The description of an NEC can be no more than 255 characters.");
@@ -63,7 +57,5 @@ namespace CommandCentral.Entities.ReferenceLists
                     .WithMessage("The value must not be empty.");
             }
         }
-
-        
     }
 }

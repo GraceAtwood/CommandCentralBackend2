@@ -4,19 +4,20 @@ using FluentNHibernate.Mapping;
 using FluentValidation;
 using System.Linq;
 using NHibernate.Criterion;
+using FluentValidation.Results;
 
 namespace CommandCentral.Entities.ReferenceLists
 {
     /// <summary>
     /// Describes a single Religious Preference
     /// </summary>
-    public class ReligiousPreference : EditableReferenceListItemBase
+    public class ReligiousPreference : ReferenceListItemBase
     {
         /// <summary>
         /// Validates this religious preference.  
         /// </summary>
         /// <returns></returns>
-        public override FluentValidation.Results.ValidationResult Validate()
+        public override ValidationResult Validate()
         {
             return new ReligiousPreferenceValidator().Validate(this);
         }
