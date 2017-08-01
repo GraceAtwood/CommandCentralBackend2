@@ -63,7 +63,7 @@ namespace CommandCentral.Controllers
                     TimeCreated = CallTime
                 };
 
-                var result = new Comment.Validator().Validate(comment);
+                var result = comment.Validate();
                 if (!result.IsValid)
                     return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
@@ -101,7 +101,7 @@ namespace CommandCentral.Controllers
 
                 comment.Body = dto.Body;
 
-                var result = new Comment.Validator().Validate(comment);
+                var result = comment.Validate();
                 if (!result.IsValid)
                     return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 

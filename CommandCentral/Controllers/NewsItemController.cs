@@ -66,7 +66,7 @@ namespace CommandCentral.Controllers
                     CreationTime = CallTime
                 };
 
-                var result = new NewsItem.Validator().Validate(item);
+                var result = item.Validate();
                 if (!result.IsValid)
                     return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
@@ -101,7 +101,7 @@ namespace CommandCentral.Controllers
                 item.Body = dto.Body;
                 item.Title = dto.Title;
 
-                var result = new NewsItem.Validator().Validate(item);
+                var result = item.Validate();
                 if (!result.IsValid)
                     return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 

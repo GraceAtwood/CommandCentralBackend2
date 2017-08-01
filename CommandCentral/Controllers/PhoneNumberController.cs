@@ -100,7 +100,7 @@ namespace CommandCentral.Controllers
                     PhoneType = phoneType
                 };
 
-                var result = new PhoneNumber.Validator().Validate(item);
+                var result = item.Validate();
                 if (!result.IsValid)
                 {
                     return BadRequest(result.Errors.Select(x => x.ErrorMessage));
@@ -144,7 +144,7 @@ namespace CommandCentral.Controllers
                 item.Number = dto.Number;
                 item.PhoneType = phoneType;
 
-                var result = new PhoneNumber.Validator().Validate(item);
+                var result = item.Validate();
                 if (!result.IsValid)
                 {
                     return BadRequest(result.Errors.Select(x => x.ErrorMessage));

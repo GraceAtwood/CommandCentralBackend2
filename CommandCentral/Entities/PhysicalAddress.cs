@@ -49,6 +49,11 @@ namespace CommandCentral.Entities
         public virtual bool IsHomeAddress { get; set; }
 
         /// <summary>
+        /// Indicates whether or not a person is ok with releasing this physica address outside their chain of command.
+        /// </summary>
+        public virtual bool IsReleasableOutsideCoC { get; set; }
+
+        /// <summary>
         /// The person who owns this physical address.
         /// </summary>
         public virtual Person Person { get; set; }
@@ -95,6 +100,7 @@ namespace CommandCentral.Entities
                 Map(x => x.ZipCode).Not.Nullable();
                 Map(x => x.Country);
                 Map(x => x.IsHomeAddress).Not.Nullable();
+                Map(x => x.IsReleasableOutsideCoC).Not.Nullable();
             }
         }
 
