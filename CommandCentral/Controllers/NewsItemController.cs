@@ -19,7 +19,8 @@ namespace CommandCentral.Controllers
         public IActionResult Get()
         {
             var items = DBSession.QueryOver<NewsItem>().List();
-            return Ok(items.Select(x => new NewsItemDTO
+
+            return Ok(items.Select(x => new DTOs.NewsItem.Get
             {
                 Id = x.Id,
                 Body = x.Body,
@@ -36,7 +37,8 @@ namespace CommandCentral.Controllers
             var item = DBSession.Get<NewsItem>(id);
             if (item == null)
                 return NotFound();
-            return Ok(new NewsItemDTO
+
+            return Ok(new DTOs.NewsItem.Get
             {
                 Id = item.Id,
                 Body = item.Body,
@@ -48,7 +50,7 @@ namespace CommandCentral.Controllers
 
         [HttpPost]
         [RequireAuthentication]
-        public IActionResult Post([FromBody]NewsItemDTO dto)
+        public IActionResult Post([FromBody]DTOs.NewsItem.Update dto)
         {
             if (!User.CanAccessSubmodules(SubModules.EditNews))
                 return PermissionDenied();
@@ -64,14 +66,14 @@ namespace CommandCentral.Controllers
                     CreationTime = CallTime
                 };
 
-                var result = new NewsItem.NewsItemValidator().Validate(item);
+                var result = new NewsItem.Validator().Validate(item);
                 if (!result.IsValid)
                     return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
                 DBSession.Save(item);
                 transaction.Commit();
 
-                return CreatedAtAction(nameof(Get), new { id = item.Id }, new NewsItemDTO
+                return CreatedAtAction(nameof(Get), new { id = item.Id }, new DTOs.NewsItem.Get
                 {
                     Body = item.Body,
                     CreationTime = item.CreationTime,
@@ -85,7 +87,7 @@ namespace CommandCentral.Controllers
 
         [HttpPut("{id}")]
         [RequireAuthentication]
-        public IActionResult Put(Guid id, [FromBody]NewsItemDTO dto)
+        public IActionResult Put(Guid id, [FromBody]DTOs.NewsItem.Update dto)
         {
             if (!User.CanAccessSubmodules(SubModules.EditNews))
                 return PermissionDenied();
@@ -94,21 +96,19 @@ namespace CommandCentral.Controllers
             {
                 var item = DBSession.Get<NewsItem>(id);
                 if (item == null)
-                {
-                    return BadRequest("No NewsItem with that Id exists.");
-                }
+                    return NotFound();
 
                 item.Body = dto.Body;
                 item.Title = dto.Title;
 
-                var result = new NewsItem.NewsItemValidator().Validate(item);
+                var result = new NewsItem.Validator().Validate(item);
                 if (!result.IsValid)
                     return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
                 DBSession.Update(item);
                 transaction.Commit();
 
-                return CreatedAtAction(nameof(Put), new { id = item.Id }, new NewsItemDTO
+                return CreatedAtAction(nameof(Put), new { id = item.Id }, new DTOs.NewsItem.Get
                 {
                     Body = item.Body,
                     CreationTime = item.CreationTime,
@@ -130,9 +130,7 @@ namespace CommandCentral.Controllers
             {
                 var item = DBSession.Get<NewsItem>(id);
                 if (item == null)
-                {
-                    return BadRequest("I mean, technically it's deleted? Since, like, no NewsItem with that Id existed at all...");
-                }
+                    return NotFound();
 
                 DBSession.Delete(item);
                 transaction.Commit();

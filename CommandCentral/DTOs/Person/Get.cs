@@ -1,17 +1,12 @@
-﻿using CommandCentral.Entities;
-using CommandCentral.Entities.ReferenceLists;
-using CommandCentral.Enums;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CommandCentral.DTOs
+namespace CommandCentral.DTOs.Person
 {
-    public class GetPersonResponseDTO
+    public class Get
     {
-
         public Guid? Id { get; set; }
         public string LastName { get; set; }
         public string FirstName { get; set; }
@@ -32,7 +27,6 @@ namespace CommandCentral.DTOs
         public DateTime? GTCTrainingDate { get; set; }
         public DateTime? ADAMSTrainingDate { get; set; }
         public bool? HasCompletedAWARE { get; set; }
-        public Guid? PrimaryNEC { get; set; }
         public string Supervisor { get; set; }
         public string WorkCenter { get; set; }
         public string WorkRoom { get; set; }

@@ -1,15 +1,13 @@
-﻿using CommandCentral.Authorization;
-using CommandCentral.Enums;
+﻿using CommandCentral.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CommandCentral.DTOs
+namespace CommandCentral.DTOs.Authorization
 {
-    public class ResolvedPermissionsDTO
+    public class Get
     {
-
         public List<string> PermissionGroupNames { get; set; }
         public Guid PersonId { get; set; }
         public Guid? PersonResolvedAgainstId { get; set; }
@@ -21,5 +19,10 @@ namespace CommandCentral.DTOs
         public List<string> EditablePermissionGroups { get; set; }
         public List<SubModules> AccessibleSubmodules { get; set; }
 
+        public class PropertyPermissionsDTO
+        {
+            public bool CanEdit { get; set; }
+            public bool CanReturn { get; set; }
+        }
     }
 }

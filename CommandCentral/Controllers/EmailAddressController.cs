@@ -36,7 +36,7 @@ namespace CommandCentral.Controllers
             }
 
             return Ok(result.Select(x =>
-                new EmailAddressDTO
+                new DTOs.EmailAddress.Get
                 {
                     Address = x.Address,
                     IsReleasableOutsideCoC = x.IsReleasableOutsideCoC,
@@ -57,7 +57,7 @@ namespace CommandCentral.Controllers
             
             if (item.IsReleasableOutsideCoC || User.IsInChainOfCommand(item.Person))
             {
-                return Ok(new EmailAddressDTO
+                return Ok(new DTOs.EmailAddress.Get
                 {
                     Id = item.Id,
                     Address = item.Address,
@@ -72,18 +72,14 @@ namespace CommandCentral.Controllers
 
         [HttpPost]
         [RequireAuthentication]
-        public IActionResult Post([FromBody]EmailAddressPostDTO dto)
+        public IActionResult Post([FromBody]DTOs.EmailAddress.Update dto)
         {
             var person = DBSession.Get<Person>(dto.Person);
             if (person == null)
-            {
-                return BadRequest("No person exists for that Id");
-            }
+                return NotFound();
 
             if (!User.GetFieldPermissions<Person>(person).CanEdit(x => x.EmailAddresses))
-            {
-                return Unauthorized("You do not have permission to add email addresses for this user.");
-            }
+                return PermissionDenied();
 
             using (var transaction = DBSession.BeginTransaction())
             {
@@ -96,7 +92,7 @@ namespace CommandCentral.Controllers
                     IsPreferred = dto.IsPreferred
                 };
 
-                var result = new EmailAddress.EmailAddressValidator().Validate(item);
+                var result = new EmailAddress.Validator().Validate(item);
                 if (!result.IsValid)
                 {
                     return BadRequest(result.Errors.Select(x => x.ErrorMessage));
@@ -105,7 +101,7 @@ namespace CommandCentral.Controllers
                 DBSession.Save(item);
                 transaction.Commit();
 
-                return CreatedAtAction(nameof(Get), new { id = item.Id }, new EmailAddressDTO
+                return CreatedAtAction(nameof(Get), new { id = item.Id }, new DTOs.EmailAddress.Get
                 {
                     Id = item.Id,
                     Address = item.Address,
@@ -119,26 +115,22 @@ namespace CommandCentral.Controllers
 
         [HttpPut("{id}")]
         [RequireAuthentication]
-        public IActionResult Put(Guid id, [FromBody]EmailAddressDTO dto)
+        public IActionResult Put(Guid id, [FromBody]DTOs.EmailAddress.Update dto)
         {
             using (var transaction = DBSession.BeginTransaction())
             {
                 var item = DBSession.Get<EmailAddress>(id);
                 if (item == null)
-                {
-                    return BadRequest("This email address does not exist.");
-                }
+                    return NotFound();
 
                 if (!User.GetFieldPermissions<Person>(item.Person).CanEdit(x => x.EmailAddresses))
-                {
-                    return Unauthorized("You do not have permission to edit this email address.");
-                }
+                    return PermissionDenied();
 
                 item.Address = dto.Address;
                 item.IsPreferred = dto.IsPreferred;
                 item.IsReleasableOutsideCoC = dto.IsReleasableOutsideCoC;
 
-                var result = new EmailAddress.EmailAddressValidator().Validate(item);
+                var result = new EmailAddress.Validator().Validate(item);
                 if (!result.IsValid)
                 {
                     return BadRequest(result.Errors.Select(x => x.ErrorMessage));
@@ -147,7 +139,7 @@ namespace CommandCentral.Controllers
                 DBSession.Update(item);
                 transaction.Commit();
 
-                return CreatedAtAction(nameof(Put), new { id = item.Id }, new EmailAddressDTO
+                return CreatedAtAction(nameof(Put), new { id = item.Id }, new DTOs.EmailAddress.Get
                 {
                     Id = item.Id,
                     Address = item.Address,
@@ -167,14 +159,10 @@ namespace CommandCentral.Controllers
                 var item = DBSession.Get<EmailAddress>(id);
 
                 if (item == null)
-                {
-                    return BadRequest("This email address does not exist.");
-                }
+                    return NotFound();
 
                 if (!User.GetFieldPermissions<Person>(item.Person).CanEdit(x => x.EmailAddresses))
-                {
-                    return Unauthorized("You do not have permission to delete this email address.");
-                }
+                    return PermissionDenied();
 
                 DBSession.Delete(item);
                 transaction.Commit();

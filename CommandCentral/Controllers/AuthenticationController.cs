@@ -14,7 +14,7 @@ namespace CommandCentral.Controllers
     public class AuthenticationController : CommandCentralController
     {
         [HttpPost]
-        public IActionResult Login([FromBody] DTOs.LoginRequestDTO dto)
+        public IActionResult Login([FromBody] DTOs.Authentication.Post dto)
         {
             using (var transaction = DBSession.BeginTransaction())
             {

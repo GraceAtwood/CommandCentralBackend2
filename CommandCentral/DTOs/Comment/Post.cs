@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CommandCentral.DTOs
+namespace CommandCentral.DTOs.Comment
 {
-    public class ProfileLockPostDTO
+    public class Post : Patch
     {
-        public Guid LockedPerson { get; set; }
+        public Guid OwningEntity { get; set; }
     }
 }

@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CommandCentral.DTOs
+namespace CommandCentral.DTOs.PhoneNumber
 {
-    public class EmailAddressDTO
+    public class Update
     {
-        public Guid Id { get; set; }
         public Guid Person { get; set; }
+        public Guid PhoneType { get; set; }
         public bool IsReleasableOutsideCoC { get; set; }
-        public string Address { get; set; }
+        public string Number { get; set; }
         public bool IsPreferred { get; set; }
     }
 }

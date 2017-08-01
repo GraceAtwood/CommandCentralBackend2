@@ -27,7 +27,7 @@ namespace CommandCentral.Controllers
                 return PermissionDenied();
             
             return Ok(result.Select(x =>
-                new CommentDTO
+                new DTOs.Comment.Get
                 {
                     Body = x.Body,
                     Creator = x.Creator.Id,
@@ -40,12 +40,12 @@ namespace CommandCentral.Controllers
 
         [HttpPost]
         [RequireAuthentication]
-        public IActionResult Post([FromBody]CommentPostDTO dto)
+        public IActionResult Post([FromBody]DTOs.Comment.Post dto)
         {
             using (var transaction = DBSession.BeginTransaction())
             {
                 if (DBSession.QueryOver<CommentableEntity>().Where(x => x.Id == dto.OwningEntity).ToRowCountQuery().List<int>().Sum() == 0)
-                    return BadRequest("Your owning entity does not exist.");
+                    return NotFound($"The parameter {nameof(dto.OwningEntity)} could not be found.");
 
                 var owningEntity = DBSession.QueryOver<CommentableEntity>()
                     .Where(x => x.Id == dto.OwningEntity)
@@ -63,14 +63,14 @@ namespace CommandCentral.Controllers
                     TimeCreated = CallTime
                 };
 
-                var result = new Comment.CommentValidator().Validate(comment);
+                var result = new Comment.Validator().Validate(comment);
                 if (!result.IsValid)
                     return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
                 DBSession.Save(comment);
                 transaction.Commit();
 
-                return CreatedAtAction(nameof(Get), new { id = comment.Id }, new CommentDTO
+                return CreatedAtAction(nameof(Get), new { id = comment.Id }, new DTOs.Comment.Get
                 {
                     Body = comment.Body,
                     Creator = comment.Creator.Id,
@@ -84,7 +84,7 @@ namespace CommandCentral.Controllers
 
         [HttpPatch("{id}")]
         [RequireAuthentication]
-        public IActionResult Patch(Guid id, [FromBody]CommentPatchDTO dto)
+        public IActionResult Patch(Guid id, [FromBody]DTOs.Comment.Patch dto)
         {
             using (var transaction = DBSession.BeginTransaction())
             {
@@ -101,7 +101,7 @@ namespace CommandCentral.Controllers
 
                 comment.Body = dto.Body;
 
-                var result = new Comment.CommentValidator().Validate(comment);
+                var result = new Comment.Validator().Validate(comment);
                 if (!result.IsValid)
                     return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 

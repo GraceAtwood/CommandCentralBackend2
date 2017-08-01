@@ -56,7 +56,7 @@ namespace CommandCentral.Controllers
                 }
             }
 
-            var dto = new DTOs.ResolvedPermissionsDTO
+            var dto = new DTOs.Authorization.Get
             {
                 AccessibleSubmodules = ((SubModules[])Enum.GetValues(typeof(SubModules))).Where(x => User.CanAccessSubmodules(x)).ToList(),
                 EditablePermissionGroups = PermissionsCache.PermissionGroupsCache.Values.Where(x => User.CanEditPermissionGroups(x)).Select(x => x.ToString()).ToList(),
@@ -67,7 +67,7 @@ namespace CommandCentral.Controllers
                         .ToDictionary(
                             permissionsDescriptor => permissionsDescriptor.Property.Name, 
                             permissionsDescriptor => 
-                                new DTOs.PropertyPermissionsDTO
+                                new DTOs.Authorization.Get.PropertyPermissionsDTO
                                 {
                                     CanEdit = permissionsDescriptor.CanEdit,
                                     CanReturn = permissionsDescriptor.CanReturn

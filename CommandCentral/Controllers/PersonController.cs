@@ -38,7 +38,7 @@ namespace CommandCentral.Controllers
 
             var perms = User.GetFieldPermissions<Person>(person);
 
-            DTOs.GetPersonResponseDTO dto = new DTOs.GetPersonResponseDTO
+            var dto = new DTOs.Person.Get
             {
                 ADAMSTrainingDate = perms.GetSafeReturnValue(person, x => x.ADAMSTrainingDate),
                 Age = perms.GetSafeReturnValue(person, x => x.Age),
@@ -63,7 +63,6 @@ namespace CommandCentral.Controllers
                 MiddleName = perms.GetSafeReturnValue(person, x => x.MiddleName),
                 Paygrade = perms.GetSafeReturnValue(person, x => x.Paygrade)?.Id,
                 PRD = perms.GetSafeReturnValue(person, x => x.PRD),
-                PrimaryNEC = perms.GetSafeReturnValue(person, x => x.PrimaryNEC)?.Id,
                 ReligiousPreference = perms.GetSafeReturnValue(person, x => x.ReligiousPreference)?.Id,
                 Sex = perms.GetSafeReturnValue(person, x => x.Sex)?.Id,
                 Shift = perms.GetSafeReturnValue(person, x => x.Shift),

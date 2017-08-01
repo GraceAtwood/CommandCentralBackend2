@@ -23,7 +23,7 @@ namespace CommandCentral.Controllers
             if (profileLock == null)
                 return NotFound();
 
-            return Ok(new ProfileLockDTO
+            return Ok(new DTOs.ProfileLock.Get
             {
                 Id = profileLock.Id,
                 LockedPerson = profileLock.LockedPerson.Id,
@@ -44,7 +44,7 @@ namespace CommandCentral.Controllers
             if (profileLock == null)
                 return NotFound();
 
-            return Ok(new ProfileLockDTO
+            return Ok(new DTOs.ProfileLock.Get
             {
                 Id = profileLock.Id,
                 LockedPerson = profileLock.LockedPerson.Id,
@@ -56,7 +56,7 @@ namespace CommandCentral.Controllers
 
         [HttpPost]
         [RequireAuthentication]
-        public IActionResult Post([FromBody]ProfileLockPostDTO dto)
+        public IActionResult Post([FromBody]DTOs.ProfileLock.Update dto)
         {
             using (var transaction = DBSession.BeginTransaction())
             {
@@ -76,18 +76,19 @@ namespace CommandCentral.Controllers
                     {
                         existingProfileLock.SubmitTime = CallTime;
                         DBSession.Update(existingProfileLock);
-                        return Ok(new ProfileLockDTO
+                        return Ok(new DTOs.ProfileLock.Get
                         {
                             Id = existingProfileLock.Id,
                             LockedPerson = existingProfileLock.LockedPerson.Id,
                             MaxAge = ProfileLock.MaxAge,
                             Owner = existingProfileLock.Owner.Id,
+                            SubmitTime = existingProfileLock.SubmitTime
                         });
                     }
                     else
                     {
                         //If the client does not own the existing lock, return a forbidden response.
-                        return Forbid(new ProfileLockDTO
+                        return Forbid(new DTOs.ProfileLock.Get
                         {
                             Id = existingProfileLock.Id,
                             LockedPerson = existingProfileLock.LockedPerson.Id,
@@ -118,7 +119,7 @@ namespace CommandCentral.Controllers
                 DBSession.Save(profileLock);
                 transaction.Commit();
 
-                return CreatedAtAction(nameof(GetMe), new ProfileLockDTO
+                return CreatedAtAction(nameof(GetMe), new DTOs.ProfileLock.Get
                 {
                     Id = profileLock.Id,
                     SubmitTime = profileLock.SubmitTime,
