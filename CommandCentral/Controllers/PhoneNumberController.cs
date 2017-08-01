@@ -82,7 +82,7 @@ namespace CommandCentral.Controllers
                 return NotFound();
 
             if (!User.GetFieldPermissions<Person>(person).CanEdit(x => x.EmailAddresses))
-                return PermissionDenied();
+                return Forbid();
 
             var phoneType = ReferenceListHelper<PhoneNumberType>.Get(dto.PhoneType);
             if (phoneType == null)
@@ -133,7 +133,7 @@ namespace CommandCentral.Controllers
                     return NotFound();
 
                 if (!User.GetFieldPermissions<Person>(item.Person).CanEdit(x => x.EmailAddresses))
-                    return PermissionDenied();
+                    return Forbid();
 
                 var phoneType = ReferenceListHelper<PhoneNumberType>.Get(dto.PhoneType);
                 if (phoneType == null)
@@ -177,7 +177,7 @@ namespace CommandCentral.Controllers
                     return NotFound();
 
                 if (!User.GetFieldPermissions<Person>(item.Person).CanEdit(x => x.PhoneNumbers))
-                    return PermissionDenied();
+                    return Forbid();
 
                 DBSession.Delete(item);
                 transaction.Commit();

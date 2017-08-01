@@ -24,7 +24,7 @@ namespace CommandCentral.Controllers
                 return NotFound();
 
             if (result.Any() && !result.First().OwningEntity.CanPersonAccessComments(User))
-                return PermissionDenied();
+                return Forbid();
             
             return Ok(result.Select(x =>
                 new DTOs.Comment.Get
@@ -52,7 +52,7 @@ namespace CommandCentral.Controllers
                     .SingleOrDefault();
 
                 if (!owningEntity.CanPersonAccessComments(User))
-                    return PermissionDenied();
+                    return Forbid();
 
                 var comment = new Comment
                 {
@@ -94,10 +94,10 @@ namespace CommandCentral.Controllers
                     return NotFound();
 
                 if (!comment.OwningEntity.CanPersonAccessComments(User))
-                    return PermissionDenied();
+                    return Forbid();
 
                 if (comment.Creator.Id != User.Id)
-                    return PermissionDenied();
+                    return Forbid();
 
                 comment.Body = dto.Body;
 
@@ -124,10 +124,10 @@ namespace CommandCentral.Controllers
                     return NotFound();
 
                 if (!comment.OwningEntity.CanPersonAccessComments(User))
-                    return PermissionDenied();
+                    return Forbid();
 
                 if (comment.Creator.Id != User.Id)
-                    return PermissionDenied();
+                    return Forbid();
 
                 DBSession.Delete(comment);
                 transaction.Commit();

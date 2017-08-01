@@ -102,7 +102,7 @@ namespace CommandCentral.Utilities
                     SessionManager.CurrentSession.Save(new Command
                     {
                         Description = Random.RandomString(8),
-                        Value = x.ToString(),
+                        Name = x.ToString(),
                         Id = Guid.NewGuid()
                     });
                 }
@@ -125,7 +125,7 @@ namespace CommandCentral.Utilities
                         {
                             Command = command,
                             Description = Random.RandomString(8),
-                            Value = $"{command.Value}.{x.ToString()}",
+                            Name = $"{command.Name}.{x.ToString()}",
                             Id = Guid.NewGuid()
                         };
 
@@ -153,7 +153,7 @@ namespace CommandCentral.Utilities
                         {
                             Department = department,
                             Description = Random.RandomString(8),
-                            Value = $"{department.Value}.{x.ToString()}",
+                            Name = $"{department.Name}.{x.ToString()}",
                             Id = Guid.NewGuid()
                         };
 
@@ -168,7 +168,7 @@ namespace CommandCentral.Utilities
 
         private static Dictionary<string, int> emailAddresses = new Dictionary<string, int>();
 
-        private static Person CreatePerson(Command command, Department department, Division division,
+        private static Person CreatePerson(Division division,
             UIC uic, string lastName, string username, IEnumerable<PermissionGroup> permissionGroups,
             IEnumerable<WatchQualification> watchQuals, Paygrade paygrade)
         {
@@ -176,9 +176,7 @@ namespace CommandCentral.Utilities
             {
                 Id = Guid.NewGuid(),
                 LastName = lastName,
-                MiddleName = division.Value,
-                Command = command,
-                Department = department,
+                MiddleName = division.Name,
                 Division = division,
                 UIC = uic,
                 SSN = Random.GenerateSSN(),
@@ -246,7 +244,7 @@ namespace CommandCentral.Utilities
 
                 var eligibilityGroup = ReferenceListHelper<WatchEligibilityGroup>.Find("Quarterdeck");
 
-                var person = CreatePerson(command, department, division, uic, "developer", "dev",
+                var person = CreatePerson(division, uic, "developer", "dev",
                     new[] { PermissionsCache.PermissionGroupsCache["Developers"] },
                     ReferenceListHelper<WatchQualification>.All(), ReferenceListHelper<Paygrade>.Find("E5"));
 
@@ -356,7 +354,7 @@ namespace CommandCentral.Utilities
                                     throw new Exception($"An unknown paygrade was found! {paygrade}");
                                 }
 
-                                var person = CreatePerson(command, department, division, uic, "user" + created.ToString(), "user" + created.ToString(), permGroups, quals, paygrade);
+                                var person = CreatePerson(division, uic, "user" + created.ToString(), "user" + created.ToString(), permGroups, quals, paygrade);
 
                                 SessionManager.CurrentSession.Save(person);
 

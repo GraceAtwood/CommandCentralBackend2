@@ -18,8 +18,14 @@ namespace CommandCentral.Entities.ReferenceLists
 
         #region Properties
 
-        public virtual string Value { get; set; }
+        /// <summary>
+        /// The name of this division.
+        /// </summary>
+        public virtual string Name { get; set; }
 
+        /// <summary>
+        /// A brief description of this division.
+        /// </summary>
         public virtual string Description { get; set; }
 
         /// <summary>
@@ -54,7 +60,7 @@ namespace CommandCentral.Entities.ReferenceLists
             {
                 Id(x => x.Id).GeneratedBy.Assigned();
 
-                Map(x => x.Value).Not.Nullable().Unique();
+                Map(x => x.Name).Not.Nullable().Unique();
                 Map(x => x.Description);
 
                 References(x => x.Department);
@@ -75,7 +81,7 @@ namespace CommandCentral.Entities.ReferenceLists
             {
                 RuleFor(x => x.Description).Length(0, 255)
                     .WithMessage("The description of a Department must be no more than 255 characters.");
-                RuleFor(x => x.Value).NotEmpty()
+                RuleFor(x => x.Name).NotEmpty()
                     .WithMessage("The value must not be empty");
             }
         }

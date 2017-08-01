@@ -53,7 +53,7 @@ namespace CommandCentral.Controllers
         public IActionResult Post([FromBody]DTOs.NewsItem.Update dto)
         {
             if (!User.CanAccessSubmodules(SubModules.EditNews))
-                return PermissionDenied();
+                return Forbid();
 
             using (var transaction = DBSession.BeginTransaction())
             {
@@ -90,7 +90,7 @@ namespace CommandCentral.Controllers
         public IActionResult Put(Guid id, [FromBody]DTOs.NewsItem.Update dto)
         {
             if (!User.CanAccessSubmodules(SubModules.EditNews))
-                return PermissionDenied();
+                return Forbid();
 
             using (var transaction = DBSession.BeginTransaction())
             {
@@ -124,7 +124,7 @@ namespace CommandCentral.Controllers
         public IActionResult Delete(Guid id)
         {
             if (!User.CanAccessSubmodules(SubModules.EditNews))
-                return PermissionDenied();
+                return Forbid();
 
             using (var transaction = DBSession.BeginTransaction())
             {

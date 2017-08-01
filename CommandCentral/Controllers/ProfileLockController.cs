@@ -38,7 +38,7 @@ namespace CommandCentral.Controllers
         public IActionResult Get(Guid id)
         {
             if (!User.CanAccessSubmodules(SubModules.AdminTools))
-                return PermissionDenied();
+                return Forbid();
 
             var profileLock = DBSession.Get<ProfileLock>(id);
             if (profileLock == null)
@@ -143,7 +143,7 @@ namespace CommandCentral.Controllers
                     return NotFound();
 
                 if (item.Owner.Id != User.Id)
-                    return PermissionDenied();
+                    return Forbid();
 
                 DBSession.Delete(item);
 

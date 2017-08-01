@@ -15,7 +15,6 @@ using CommandCentral.Framework.Data;
 using CommandCentral.Utilities;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
-using CommandCentral.Utilities.Types;
 using CommandCentral.Authorization;
 using CommandCentral.Authorization.Rules;
 using FluentValidation.Results;
@@ -150,17 +149,27 @@ namespace CommandCentral.Entities
         public virtual Division Division { get; set; }
 
         /// <summary>
-        /// The person's department
+        /// Readonly. Returns Division.Department
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        public virtual Department Department { get; set; }
+        public virtual Department Department
+        {
+            get
+            {
+                return Division?.Department;
+            }
+        }
 
         /// <summary>
-        /// The person's command
+        /// Readonly. Returns Department.Command
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        public virtual Command Command { get; set; }
-
+        public virtual Command Command
+        {
+            get
+            {
+                return Department?.Command;
+            }
+        }
+        
         /// <summary>
         /// The date this person received government travel card training.  Temporary and should be implemented in the training module.
         /// </summary>
@@ -371,7 +380,7 @@ namespace CommandCentral.Entities
         /// <returns></returns>
         public virtual bool IsInSameCommandAs(Person person)
         {
-            if (person == null || this.Command == null || person.Command == null)
+            if (person == null || this.Division.Department.Command == null || person.Division.Department.Command == null)
                 return false;
 
             return this.Command.Id == person.Command.Id;
@@ -410,6 +419,10 @@ namespace CommandCentral.Entities
 
         #endregion
 
+        /// <summary>
+        /// Validates this object.
+        /// </summary>
+        /// <returns></returns>
         public override ValidationResult Validate()
         {
             return new Validator().Validate(this);
@@ -431,8 +444,6 @@ namespace CommandCentral.Entities
                 References(x => x.ReligiousPreference).Nullable();
                 References(x => x.Designation).Nullable();
                 References(x => x.Division).Nullable();
-                References(x => x.Department).Nullable();
-                References(x => x.Command).Nullable();
                 References(x => x.UIC).Nullable();
                 References(x => x.Paygrade).Not.Nullable();
                 References(x => x.DutyStatus).Not.Nullable();
@@ -525,10 +536,6 @@ namespace CommandCentral.Entities
                     .WithMessage("Your designation was not found.");
                 RuleFor(x => x.Division).Must(x => ReferenceListHelper<Ethnicity>.IdExists(x.Id))
                     .WithMessage("Your division was not found.");
-                RuleFor(x => x.Department).Must(x => ReferenceListHelper<Ethnicity>.IdExists(x.Id))
-                    .WithMessage("Your department was not found.");
-                RuleFor(x => x.Command).Must(x => ReferenceListHelper<Ethnicity>.IdExists(x.Id))
-                    .WithMessage("Your command was not found.");
                 RuleFor(x => x.Supervisor).Length(0, 40)
                     .WithMessage("The supervisor field may not be longer than 40 characters.");
                 RuleFor(x => x.WorkCenter).Length(0, 40)

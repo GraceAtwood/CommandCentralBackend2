@@ -88,7 +88,7 @@ namespace CommandCentral.Controllers
                 return NotFound();
 
             if (!User.GetFieldPermissions<Person>(person).CanEdit(x => x.PhysicalAddresses))
-                return PermissionDenied();
+                return Forbid();
 
             using (var transaction = DBSession.BeginTransaction())
             {
@@ -140,7 +140,7 @@ namespace CommandCentral.Controllers
                     return NotFound();
 
                 if (!User.GetFieldPermissions<Person>(item.Person).CanEdit(x => x.PhysicalAddresses))
-                    return PermissionDenied();
+                    return Forbid();
 
                 item.Address = dto.Address;
                 item.City = dto.City;
@@ -186,7 +186,7 @@ namespace CommandCentral.Controllers
                     return NotFound();
 
                 if (!User.GetFieldPermissions<Person>(item.Person).CanEdit(x => x.PhysicalAddresses))
-                    return PermissionDenied();
+                    return Forbid();
 
                 DBSession.Delete(item);
                 transaction.Commit();

@@ -79,7 +79,7 @@ namespace CommandCentral.Controllers
                 return NotFound();
 
             if (!User.GetFieldPermissions<Person>(person).CanEdit(x => x.EmailAddresses))
-                return PermissionDenied();
+                return Forbid();
 
             using (var transaction = DBSession.BeginTransaction())
             {
@@ -124,7 +124,7 @@ namespace CommandCentral.Controllers
                     return NotFound();
 
                 if (!User.GetFieldPermissions<Person>(item.Person).CanEdit(x => x.EmailAddresses))
-                    return PermissionDenied();
+                    return Forbid();
 
                 item.Address = dto.Address;
                 item.IsPreferred = dto.IsPreferred;
@@ -162,7 +162,7 @@ namespace CommandCentral.Controllers
                     return NotFound();
 
                 if (!User.GetFieldPermissions<Person>(item.Person).CanEdit(x => x.EmailAddresses))
-                    return PermissionDenied();
+                    return Forbid();
 
                 DBSession.Delete(item);
                 transaction.Commit();

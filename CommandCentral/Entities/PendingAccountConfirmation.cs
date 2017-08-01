@@ -10,7 +10,6 @@ namespace CommandCentral.Entities
     /// </summary>
     public class PendingAccountConfirmation : Entity
     {
-
         /// <summary>
         /// The max age after which an account confirmation will have expired and it will become invalid.
         /// </summary>
@@ -69,6 +68,5 @@ namespace CommandCentral.Entities
                 Map(x => x.Time).Not.Nullable().CustomType<UtcDateTimeType>();
             }
         }
-
     }
 }
