@@ -24,12 +24,12 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The NEC itself.
         /// </summary>
-        public NEC Nec { get; set; }
+        public virtual NEC Nec { get; set; }
 
         /// <summary>
         /// The person to whom this nec info belongs.
         /// </summary>
-        public Person Person { get; set; }
+        public virtual Person Person { get; set; }
 
         #endregion
 
