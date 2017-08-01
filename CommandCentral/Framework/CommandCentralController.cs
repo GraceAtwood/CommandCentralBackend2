@@ -16,6 +16,7 @@ using CommandCentral.Authentication;
 using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Net;
+using Microsoft.AspNetCore.Routing;
 
 namespace CommandCentral.Framework
 {
