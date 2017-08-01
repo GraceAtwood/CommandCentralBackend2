@@ -15,6 +15,7 @@ using NHibernate;
 using CommandCentral.Authentication;
 using Microsoft.Extensions.Logging;
 using System.IO;
+using System.Net;
 
 namespace CommandCentral.Framework
 {
@@ -83,27 +84,27 @@ namespace CommandCentral.Framework
         /// <param name="value"></param>
         /// <returns></returns>
         [NonAction]
-        public IActionResult Unauthorized(object value)
+        public IActionResult Unauthorized(object value = null)
         {
-            return StatusCode(401, value);
+            return StatusCode((int)HttpStatusCode.Unauthorized, value);
         }
 
         [NonAction]
         public IActionResult InternalServerError(object value = null)
         {
-            return StatusCode(500, value);
+            return StatusCode((int)HttpStatusCode.InternalServerError, value);
         }
-
-        [NonAction]
-        public IActionResult PermissionDenied(object value = null)
-        {
-            return StatusCode(550, value);
-        }
-
+        
         [NonAction]
         public IActionResult Forbid(object value)
         {
-            return StatusCode(403, value);
+            return StatusCode((int)HttpStatusCode.Forbidden, value);
+        }
+
+        [NonAction]
+        public IActionResult Conflict(object value = null)
+        {
+            return StatusCode((int)HttpStatusCode.Conflict, value);
         }
 
         #endregion
@@ -112,12 +113,6 @@ namespace CommandCentral.Framework
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            //using (var suckadick = new StreamReader(this.Request.Body))
-            //{
-            //    var eatmyass = suckadick.ReadToEnd();
-            //    var weee = "Fuck off, atwood, I know I didn't need this.";
-
-            //}
             HttpContext.Items["CallTime"] = DateTime.UtcNow;
 
             //Pull out the api key too.
@@ -135,7 +130,7 @@ namespace CommandCentral.Framework
                 if (!Request.Headers.TryGetValue("sessionid", out Microsoft.Extensions.Primitives.StringValues sessionIdHeader)
                     || !Guid.TryParse(sessionIdHeader.FirstOrDefault(), out Guid sessionId))
                 {
-                    context.Result = Unauthorized("Your sesion id was not valid.");
+                    context.Result = Unauthorized();
                     return;
                 }
 
@@ -143,7 +138,7 @@ namespace CommandCentral.Framework
 
                 if (authSession == null || !authSession.IsValid())
                 {
-                    context.Result = Unauthorized("Your session has timed out.");
+                    context.Result = Unauthorized();
                     return;
                 }
 
