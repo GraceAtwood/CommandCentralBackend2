@@ -52,6 +52,7 @@
   <ItemGroup>
     <Folder Include="ChangeEvents\" />
     <Folder Include="Authentication\" />
+    <Folder Include="Entities\Muster\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="1.9.71" />

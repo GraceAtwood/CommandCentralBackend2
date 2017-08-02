@@ -32,6 +32,31 @@ namespace CommandCentral.Entities.ReferenceLists
         /// </summary>
         public virtual IList<Department> Departments { get; set; } = new List<Department>();
 
+        /// <summary>
+        /// The address of this command.
+        /// </summary>
+        public virtual string Address { get; set; }
+
+        /// <summary>
+        /// The city of this command.
+        /// </summary>
+        public virtual string City { get; set; }
+
+        /// <summary>
+        /// The state of this command.
+        /// </summary>
+        public virtual string State { get; set; }
+
+        /// <summary>
+        /// The command's zipcode.
+        /// </summary>
+        public virtual string ZipCode { get; set; }
+
+        /// <summary>
+        /// The command's country.
+        /// </summary>
+        public virtual string Country { get; set; }
+
         #endregion
 
         #region Helper Methods
