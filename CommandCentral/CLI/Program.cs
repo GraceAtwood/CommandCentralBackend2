@@ -27,7 +27,7 @@ namespace CommandCentral.CLI
                     CommandLine.Parser.Default.ParseArguments(args, options, (verb, subOptions) =>
                     {
                         if (subOptions == null)
-                            throw new Exception();
+                            throw new Exception("Invalid parameters!");
 
                         if (subOptions is LaunchOptions launch)
                         {
