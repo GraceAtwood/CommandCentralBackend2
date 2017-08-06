@@ -11,6 +11,8 @@ using CommandCentral.Enums;
 using Microsoft.AspNetCore.Mvc.Cors.Internal;
 using System.Net;
 using Microsoft.AspNetCore.Diagnostics;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 
 namespace CommandCentral.CLI
 {
@@ -27,6 +29,16 @@ namespace CommandCentral.CLI
             services.AddMvc(config =>
             {
                 config.Filters.Add(typeof(Framework.GlobalExceptionFilter));
+            })
+            .AddJsonOptions(options =>
+            {
+                options.SerializerSettings.DateTimeZoneHandling = Newtonsoft.Json.DateTimeZoneHandling.Utc;
+                options.SerializerSettings.DateFormatHandling = Newtonsoft.Json.DateFormatHandling.IsoDateFormat;
+                options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
+                options.SerializerSettings.DateFormatString = "yyyy-MM-ddTHH:mm:ss.fffZ";
+                options.SerializerSettings.Converters.Add(new StringEnumConverter { CamelCaseText = true });
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Error;
+                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             });
             services.AddCors(options =>
             {
