@@ -7,9 +7,9 @@ using FluentNHibernate.Mapping;
 
 namespace CommandCentral.Entities.ReferenceLists
 {
-    public class MusterStatus : ReferenceListItemBase
+    public class StatusPeriodReason : ReferenceListItemBase
     {
-        public class MusterStatusMapping : ClassMap<MusterStatus>
+        public class MusterStatusMapping : ClassMap<StatusPeriodReason>
         {
             public MusterStatusMapping()
             {
