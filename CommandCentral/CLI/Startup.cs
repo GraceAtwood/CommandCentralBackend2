@@ -13,6 +13,9 @@ using System.Net;
 using Microsoft.AspNetCore.Diagnostics;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using Swashbuckle.AspNetCore.Swagger;
+using Swashbuckle.Application;
+using System.Reflection;
 
 namespace CommandCentral.CLI
 {
@@ -22,7 +25,10 @@ namespace CommandCentral.CLI
         {
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        /// <summary>
+        /// This method gets called by the runtime. Use this method to add services to the container.
+        /// </summary>
+        /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
@@ -40,24 +46,77 @@ namespace CommandCentral.CLI
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Error;
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             });
+
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy",
                     builder =>
                     builder.AllowCredentials().AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             });
+
+            services.ConfigureSwaggerGen(options =>
+            {
+                options.DescribeAllEnumsAsStrings();
+                options.DescribeAllParametersInCamelCase();
+                options.IncludeXmlComments(@"bin\Debug\net47\win7-x86\commandcentral.xml");
+
+                options.SwaggerDoc("v1", new Info
+                {
+                    Title = "Command Central REST API",
+                    Version = "v2.0.3",
+                    Contact = new Contact
+                    {
+                        Email = "daniel.k.atwood@gmail.com",
+                        Name = "Daniel Atwood",
+                        Url = "http://commandcentral/"
+                    },
+                    Description = "The Command Central REST API provides common, standardized authentication, authorization, data access, and processing for U.S. Navy Sailor personnel and other administrative data.",
+                    License = new License { Name = "The please don't freaking sue me license, 2017" },
+                    TermsOfService = "This API is provided pretty much as is even though it's my job to ensure it works."
+                });
+
+                options.CustomSchemaIds(x => x.FullName);
+            });
+
+            services.AddSwaggerGen(options =>
+            {
+                options.DescribeAllEnumsAsStrings();
+                options.DescribeAllParametersInCamelCase();
+                options.IncludeXmlComments(@"bin\Debug\net47\win7-x86\commandcentral.xml");
+
+                options.CustomSchemaIds(x => x.FullName);
+            });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// <summary>
+        /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="env"></param>
+        /// <param name="loggerFactory"></param>
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             app.UseCors("CorsPolicy");
             loggerFactory.AddConsole();
             loggerFactory.AddDebug();
+            app.UseStaticFiles();
 
             Log.Initialize(loggerFactory);
 
             app.UseMvc();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.ShowJsonEditor();
+                c.ShowRequestHeaders();
+                c.RoutePrefix = "help";
+
+                c.InjectOnCompleteJavaScript("/SwaggerExtensions/basic-auth.js");
+
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "V1 Docs");
+            });
         }
     }
 }
