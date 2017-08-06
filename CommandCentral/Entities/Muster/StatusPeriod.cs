@@ -12,39 +12,76 @@ using NHibernate.Type;
 
 namespace CommandCentral.Entities.Muster
 {
+    /// <summary>
+    /// Represents a status period which is used to indicate a person will be something other than present for a given period of time.
+    /// </summary>
     public class StatusPeriod : CommentableEntity
     {
-
         #region Properties
 
+        /// <summary>
+        /// The person for whom this status period was submitted.
+        /// </summary>
         public virtual Person Person { get; set; }
 
+        /// <summary>
+        /// The person who submitted this status period.
+        /// </summary>
         public virtual Person SubmittedBy { get; set; }
 
+        /// <summary>
+        /// The time this status period was submitted.
+        /// </summary>
         public virtual DateTime DateSubmitted { get; set; }
 
+        /// <summary>
+        /// The last person to modify this status period.
+        /// </summary>
         public virtual Person LastModifiedBy { get; set; }
 
+        /// <summary>
+        /// The last time this status period was modified.
+        /// </summary>
         public virtual DateTime DateLastModified { get; set; }
 
+        /// <summary>
+        /// Indicates if this status period will also exempt the person from watch.
+        /// </summary>
         public virtual bool ExemptsFromWatch { get; set; }
 
+        /// <summary>
+        /// The date range of this status period.
+        /// </summary>
         public virtual TimeRange Range { get; set; }
 
+        /// <summary>
+        /// The <seealso cref="StatusPeriodReason"/> for this status period.
+        /// </summary>
         public virtual StatusPeriodReason Reason { get; set; }
-
 
         #endregion
 
         #region CommentableEntity Members  
 
+        /// <summary>
+        /// The comments associated with this status period.
+        /// </summary>
         public override IList<Comment> Comments { get; set; }
 
+        /// <summary>
+        /// Determines if the given person can return comments for this status period.
+        /// </summary>
+        /// <param name="person"></param>
+        /// <returns></returns>
         public override bool CanPersonAccessComments(Person person)
         {
-            return person.Equals(this.Person) || person.IsInChainOfCommand(this.Person);
+            return person.GetFieldPermissions<Person>(this.Person).CanReturn(x => x.StatusPeriods);
         }
 
+        /// <summary>
+        /// Validates this object.
+        /// </summary>
+        /// <returns></returns>
         public override ValidationResult Validate()
         {
             return new Validator().Validate(this);
@@ -52,8 +89,14 @@ namespace CommandCentral.Entities.Muster
 
         #endregion
 
+        /// <summary>
+        /// Maps this object to the database.
+        /// </summary>
         public class StatusPeriodMapping : ClassMap<StatusPeriod>
         {
+            /// <summary>
+            /// Maps this object to the database.
+            /// </summary>
             public StatusPeriodMapping()
             {
                 Id(x => x.Id).GeneratedBy.Assigned();
@@ -74,8 +117,14 @@ namespace CommandCentral.Entities.Muster
             }
         }
 
+        /// <summary>
+        /// Validates this object.
+        /// </summary>
         public class Validator : AbstractValidator<StatusPeriod>
         {
+            /// <summary>
+            /// Validates this object.
+            /// </summary>
             public Validator()
             {
                 RuleFor(x => x.Person).NotEmpty();
@@ -91,7 +140,9 @@ namespace CommandCentral.Entities.Muster
                     .Must((period, range) => range.End >= period.DateLastModified)
                         .WithMessage("A status period must end after it was submitted or after it was last modified.  For example, you may not modify a status period to end before now.");
 
-                RuleFor(x => x.Reason).NotEmpty();
+                RuleFor(x => x.Reason).NotEmpty()
+                    .Must(x => !x.Value.Equals("Present", StringComparison.CurrentCultureIgnoreCase))
+                    .WithMessage("A status period's reason may not be 'Present'.  You can not project that someone is going to be present for a given period of time."); ;
             }
         }
     }

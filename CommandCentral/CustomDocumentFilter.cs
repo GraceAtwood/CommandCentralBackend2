@@ -8,6 +8,8 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web.Http.Description;
 
@@ -15,7 +17,7 @@ namespace CommandCentral
 {
     public class CustomDocumentFilter : IDocumentFilter
     {
-        private static void AddControllerDescriptions(SwaggerDocument swaggerDoc, ApiDescriptionGroupCollection apiDescriptions)
+        private void AddControllerDescriptions(SwaggerDocument swaggerDoc, ApiDescriptionGroupCollection apiDescriptions)
         {
             var doc = new XmlDocumentationProvider(GetXmlCommentsPath());
 
@@ -29,7 +31,7 @@ namespace CommandCentral
                 var test = XmlDocumentationProvider.GetId(apiGroup.Key.ControllerTypeInfo);
                 var apiDoc = doc.GetSummary(XmlDocumentationProvider.GetId(apiGroup.Key.ControllerTypeInfo));
                 if (!String.IsNullOrWhiteSpace(apiDoc))
-                    tag.Description = apiDoc;
+                    tag.Description = Formatted(apiDoc);
                 lst.Add(tag);
 
             }
@@ -49,6 +51,17 @@ namespace CommandCentral
             swaggerDoc.Paths = paths.ToDictionary(x => x.Key, x => x.Value);
 
             AddControllerDescriptions(swaggerDoc, context.ApiDescriptionsGroups);
+        }
+
+        private string Formatted(string text)
+        {
+            if (text == null) return null;
+            var stringBuilder = new StringBuilder(text);
+
+            return stringBuilder
+                .Replace("<para>", "<p>")
+                .Replace("</para>", "</p>")
+                .ToString();
         }
     }
 }

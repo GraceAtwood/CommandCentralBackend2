@@ -15,11 +15,9 @@ using CommandCentral.Utilities.Types;
 namespace CommandCentral.Controllers
 {
     /// <summary>
-    /// A status period is used to indicate that a person will be in a status other than "Present" for a given period of time.
-    /// <para/>
-    /// Status periods are used to inform the muster each day by pre-setting a person's muster status and to indicate that person is unavailable for watch (by setting the ExemptsFromWatch field).
-    /// <para />
-    /// Clients in a person's chain of command may submit status periods; however, if a status period is said to exempt a person from watch, then membership in a person's watchbill chain of command is also required.
+    /// <para>A status period is used to indicate that a person will be in a status other than "Present" for a given period of time.</para>
+    /// <para>Status periods are used to inform the muster each day by pre-setting a person's muster status and to indicate that person is unavailable for watch (by setting the ExemptsFromWatch field).</para>
+    /// <para>Clients in a person's chain of command may submit status periods; however, if a status period is said to exempt a person from watch, then membership in a person's watchbill chain of command is also required.</para>
     /// </summary>
     [Route("api/[controller]")]
     [Produces("application/json")]
@@ -42,10 +40,10 @@ namespace CommandCentral.Controllers
         /// <param name="exemptsFromWatch">true/false</param>
         /// <param name="limit">[Default = 1000] Indicates that the api should return no more than this number of records.  Does not guarantee that the api will return at least this many records even if there are more than this number in the database due to after-load authorization checks.</param>
         /// <param name="orderBy">[Default = start][Valid values = start, datesubmitted] Instructs the api to order the results by this field (this also affects which records are returned if limit is given).</param>
-        /// <returns><seealso cref="IActionResult"/></returns>
+        /// <returns></returns>
         [HttpGet]
         [RequireAuthentication]
-        [ProducesResponseType(200, Type = typeof(DTOs.StatusPeriod.Get))]
+        [ProducesResponseType(200, Type = typeof(List<DTOs.StatusPeriod.Get>))]
         public IActionResult Get([FromQuery] Guid? person, [FromQuery] Guid? submittedBy, [FromQuery] DateTime? start, [FromQuery] DateTime? end, [FromQuery] Guid? reason, [FromQuery] bool? exemptsFromWatch, [FromQuery] int limit = 1000, [FromQuery] string orderBy = nameof(TimeRange.Start))
         {
             if (limit <= 0)
@@ -99,8 +97,14 @@ namespace CommandCentral.Controllers
             return Ok(result.ToList());
         }
 
+        /// <summary>
+        /// Returns the status period identified by the given Id.
+        /// </summary>
+        /// <param name="id">The id of the status period to return.</param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         [RequireAuthentication]
+        [ProducesResponseType(200, Type = typeof(DTOs.StatusPeriod.Get))]
         public IActionResult Get(Guid id)
         {
             var item = DBSession.Get<StatusPeriod>(id);
@@ -124,8 +128,14 @@ namespace CommandCentral.Controllers
             });
         }
 
+        /// <summary>
+        /// Creates a new status period.
+        /// </summary>
+        /// <param name="dto">The dto containing the data required to create the new status period.</param>
+        /// <returns></returns>
         [HttpPost]
         [RequireAuthentication]
+        [ProducesResponseType(200, Type = typeof(DTOs.StatusPeriod.Get))]
         public IActionResult Post([FromBody]DTOs.StatusPeriod.Post dto)
         {
             var person = DBSession.Get<Person>(dto.Person);
@@ -181,8 +191,15 @@ namespace CommandCentral.Controllers
             }
         }
 
+        /// <summary>
+        /// Updates the given status period.
+        /// </summary>
+        /// <param name="id">The id of the status period to update.</param>
+        /// <param name="dto">The dto containing all of the data to update.</param>
+        /// <returns></returns>
         [HttpPut("{id}")]
         [RequireAuthentication]
+        [ProducesResponseType(200, Type = typeof(DTOs.StatusPeriod.Get))]
         public IActionResult Put(Guid id, [FromBody]DTOs.StatusPeriod.Put dto)
         {
             var item = DBSession.Get<StatusPeriod>(id);
@@ -233,8 +250,14 @@ namespace CommandCentral.Controllers
             }
         }
 
+        /// <summary>
+        /// Deletes the given status period.
+        /// </summary>
+        /// <param name="id">The id of the status period to delete.</param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         [RequireAuthentication]
+        [ProducesResponseType(200)]
         public IActionResult Delete(Guid id)
         {
             var item = DBSession.Get<StatusPeriod>(id);
