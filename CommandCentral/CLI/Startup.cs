@@ -16,6 +16,7 @@ using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.Application;
 using System.Reflection;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace CommandCentral.CLI
 {
@@ -75,6 +76,7 @@ namespace CommandCentral.CLI
                 });
 
                 options.OperationFilter<AssignSwaggerAPIKeyHeader>();
+                options.DocumentFilter<CustomDocumentFilter>();
 
                 options.CustomSchemaIds(x => x.FullName);
             });

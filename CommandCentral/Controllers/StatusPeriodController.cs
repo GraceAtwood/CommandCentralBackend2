@@ -22,6 +22,7 @@ namespace CommandCentral.Controllers
     /// Clients in a person's chain of command may submit status periods; however, if a status period is said to exempt a person from watch, then membership in a person's watchbill chain of command is also required.
     /// </summary>
     [Route("api/[controller]")]
+    [Produces("application/json")]
     public class StatusPeriodController : CommandCentralController
     {
         /// <summary>
