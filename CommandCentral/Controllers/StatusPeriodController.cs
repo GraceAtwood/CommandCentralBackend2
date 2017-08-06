@@ -10,6 +10,7 @@ using CommandCentral.Authorization;
 using CommandCentral.Entities;
 using CommandCentral.Entities.ReferenceLists;
 using CommandCentral.Enums;
+using CommandCentral.Utilities.Types;
 
 namespace CommandCentral.Controllers
 {
@@ -18,8 +19,11 @@ namespace CommandCentral.Controllers
     {
         [HttpGet]
         [RequireAuthentication]
-        public IActionResult Get([FromQuery] Guid? person, [FromQuery] Guid? submittedBy, [FromQuery] DateTime? start, [FromQuery] DateTime? end, [FromQuery] Guid? reason, [FromQuery] bool? exemptsFromWatch, [FromQuery] int limit = 1000)
+        public IActionResult Get([FromQuery] Guid? person, [FromQuery] Guid? submittedBy, [FromQuery] DateTime? start, [FromQuery] DateTime? end, [FromQuery] Guid? reason, [FromQuery] bool? exemptsFromWatch, [FromQuery] int limit = 1000, [FromQuery] string orderBy = nameof(TimeRange.Start))
         {
+            if (limit <= 0)
+                return BadRequest($"The value '{limit}' for the property '{nameof(limit)}' was invalid.");
+
             var query = DBSession.QueryOver<StatusPeriod>();
 
             if (person.HasValue)
@@ -40,6 +44,13 @@ namespace CommandCentral.Controllers
 
             if (exemptsFromWatch.HasValue)
                 query = query.Where(x => x.ExemptsFromWatch == exemptsFromWatch);
+
+            if (String.Equals(orderBy, nameof(TimeRange.Start), StringComparison.CurrentCultureIgnoreCase))
+                query = query.OrderBy(x => x.Range.Start).Desc;
+            else if (String.Equals(orderBy, nameof(StatusPeriod.DateSubmitted), StringComparison.CurrentCultureIgnoreCase))
+                query = query.OrderBy(x => x.DateSubmitted).Desc;
+            else
+                return BadRequest($"Your requested value '{orderBy}' for the parameter '{nameof(orderBy)}' is not supported.  The supported values are '{nameof(TimeRange.Start)}' (this is the default) and '{nameof(StatusPeriod.DateSubmitted)}'.");
 
             var result = query.OrderBy(x => x.Range.Start).Desc.Take(limit)
                 .Future()
