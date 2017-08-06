@@ -14,15 +14,41 @@ using CommandCentral.Utilities.Types;
 
 namespace CommandCentral.Controllers
 {
+    /// <summary>
+    /// A status period is used to indicate that a person will be in a status other than "Present" for a given period of time.
+    /// <para/>
+    /// Status periods are used to inform the muster each day by pre-setting a person's muster status and to indicate that person is unavailable for watch (by setting the ExemptsFromWatch field).
+    /// <para />
+    /// Clients in a person's chain of command may submit status periods; however, if a status period is said to exempt a person from watch, then membership in a person's watchbill chain of command is also required.
+    /// </summary>
     [Route("api/[controller]")]
     public class StatusPeriodController : CommandCentralController
     {
+        /// <summary>
+        /// Queries against status periods.
+        /// 
+        /// Status periods are only returned if the client has permission to view the StatusPeriod.Person's status periods.
+        /// 
+        /// This qualification is taken into account after the database load, so it is possible that a limit of 1000 records could potentially return less as records are filtered out.
+        /// 
+        /// For this reason, limit should be seen as "return no more than this number of records".
+        /// </summary>
+        /// <param name="person">The id of the person for whom a status period was submitted.</param>
+        /// <param name="submittedBy">The id of the person who submitted a status period.</param>
+        /// <param name="start">Defines the starting date and time of a window in which to search for any status period that overlaps with that window.  If left blank, the search window is assumed to start at the beginning of time.</param>
+        /// <param name="end">Defines the ending date and time of a window in which to search for any status period that overlaps with that window.  If left blank, the search window is assumed to end at the end of time.</param>
+        /// <param name="reason">The id of the reason to search for.</param>
+        /// <param name="exemptsFromWatch">true/false</param>
+        /// <param name="limit">[Default = 1000] Indicates that the api should return no more than this number of records.  Does not guarantee that the api will return at least this many records even if there are more than this number in the database due to after-load authorization checks.</param>
+        /// <param name="orderBy">[Default = start][Valid values = start, datesubmitted] Instructs the api to order the results by this field (this also affects which records are returned if limit is given).</param>
+        /// <returns><seealso cref="IActionResult"/></returns>
         [HttpGet]
         [RequireAuthentication]
+        [ProducesResponseType(200, Type = typeof(DTOs.StatusPeriod.Get))]
         public IActionResult Get([FromQuery] Guid? person, [FromQuery] Guid? submittedBy, [FromQuery] DateTime? start, [FromQuery] DateTime? end, [FromQuery] Guid? reason, [FromQuery] bool? exemptsFromWatch, [FromQuery] int limit = 1000, [FromQuery] string orderBy = nameof(TimeRange.Start))
         {
             if (limit <= 0)
-                return BadRequest($"The value '{limit}' for the property '{nameof(limit)}' was invalid.");
+                return BadRequest($"The value '{limit}' for the property '{nameof(limit)}' was invalid.  It must be greater than zero.");
 
             var query = DBSession.QueryOver<StatusPeriod>();
 
