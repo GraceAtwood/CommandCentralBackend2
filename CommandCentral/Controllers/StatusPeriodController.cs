@@ -58,7 +58,7 @@ namespace CommandCentral.Controllers
                         LastModifiedBy = statusPeriod.LastModifiedBy.Id
                     });
 
-            return Ok(result);
+            return Ok(result.ToList());
         }
 
         [HttpGet("{id}")]
