@@ -36,7 +36,7 @@ namespace CommandCentral.CLI
                 options.SerializerSettings.DateFormatHandling = Newtonsoft.Json.DateFormatHandling.IsoDateFormat;
                 options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
                 options.SerializerSettings.DateFormatString = "yyyy-MM-ddTHH:mm:ss.fffZ";
-                options.SerializerSettings.Converters.Add(new StringEnumConverter { CamelCaseText = true });
+                options.SerializerSettings.Converters.Add(new StringEnumConverter { CamelCaseText = false });
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Error;
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             });
