@@ -70,6 +70,12 @@ namespace CommandCentral.Utilities
                     Id = Guid.Parse("90FDB89F-282B-4BD6-840B-CEF597615728")
                 });
 
+                SessionManager.CurrentSession.Save(new APIKey
+                {
+                    ApplicationName = "Swagger Documentation Page",
+                    Id = Guid.Parse("E28235AC-57A1-42AC-AA85-1547B755EA7E")
+                });
+
                 transaction.Commit();
             }
         }

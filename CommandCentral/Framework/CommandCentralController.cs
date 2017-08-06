@@ -122,21 +122,24 @@ namespace CommandCentral.Framework
             HttpContext.Items["CallTime"] = DateTime.UtcNow;
 
             //Pull out the api key too.
-            if (!Request.Headers.TryGetValue("apikey", out Microsoft.Extensions.Primitives.StringValues apiKeyHeader)
+            if (!Request.Headers.TryGetValue("X-Api-Key", out Microsoft.Extensions.Primitives.StringValues apiKeyHeader)
                 || !Guid.TryParse(apiKeyHeader.FirstOrDefault(), out Guid apiKey)
                 || DBSession.Get<APIKey>(apiKey) == null)
             {
-                context.Result = Unauthorized("Your api key was not valid.");
+                context.Result = Unauthorized("Your api key was not valid or was not provided.  You must provide an api key (Guid) in the header 'X-Api-Key'.  " +
+                    "If you do not have an api key for your application, please contact the development team and we'll hook you up.");
                 return;
             }
 
             //Handle Authentication.  Do we require authentication?
             if (((ControllerActionDescriptor)context.ActionDescriptor).MethodInfo.GetCustomAttribute<RequireAuthenticationAttribute>() != null)
             {
-                if (!Request.Headers.TryGetValue("sessionid", out Microsoft.Extensions.Primitives.StringValues sessionIdHeader)
+                if (!Request.Headers.TryGetValue("X-Session-Id", out Microsoft.Extensions.Primitives.StringValues sessionIdHeader)
                     || !Guid.TryParse(sessionIdHeader.FirstOrDefault(), out Guid sessionId))
                 {
-                    context.Result = Unauthorized();
+                    context.Result = Unauthorized("Your session id was not valid or was not provided.  " +
+                        "You must provide a session id (Guid) in the header 'X-Session-Id'.  " +
+                        "You can obtain a session id from the POST /authentication endpoint.");
                     return;
                 }
 
@@ -144,7 +147,9 @@ namespace CommandCentral.Framework
 
                 if (authSession == null || !authSession.IsValid())
                 {
-                    context.Result = Unauthorized();
+                    context.Result = Unauthorized("Your sesion id was not valid or your session has timed out.  " +
+                        "You must provide a session id (Guid) in the header 'X-Session-Id'.  " +
+                        "You can obtain a session id from the POST /authentication endpoint.");
                     return;
                 }
 

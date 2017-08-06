@@ -62,7 +62,6 @@ namespace CommandCentral.CLI
 
                 options.SwaggerDoc("v1", new Info
                 {
-                    Title = "Command Central REST API",
                     Version = "v2.0.3",
                     Contact = new Contact
                     {
@@ -74,6 +73,8 @@ namespace CommandCentral.CLI
                     License = new License { Name = "The please don't freaking sue me license, 2017" },
                     TermsOfService = "This API is provided pretty much as is even though it's my job to ensure it works."
                 });
+
+                options.OperationFilter<AssignSwaggerAPIKeyHeader>();
 
                 options.CustomSchemaIds(x => x.FullName);
             });
@@ -112,8 +113,8 @@ namespace CommandCentral.CLI
                 c.ShowJsonEditor();
                 c.ShowRequestHeaders();
                 c.RoutePrefix = "help";
-
-                c.InjectOnCompleteJavaScript("/SwaggerExtensions/basic-auth.js");
+               
+                c.InjectOnCompleteJavaScript("/swagger-ui/basic-auth.js");
 
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "V1 Docs");
             });

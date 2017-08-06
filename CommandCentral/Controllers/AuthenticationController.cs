@@ -79,8 +79,8 @@ namespace CommandCentral.Controllers
                     Person = person
                 });
 
-                Response.Headers.Add("Access-Control-Expose-Headers", "sessionid");
-                Response.Headers["sessionid"] = new Microsoft.Extensions.Primitives.StringValues(ses.Id.ToString());
+                Response.Headers.Add("Access-Control-Expose-Headers", "X-Session-Id");
+                Response.Headers["X-Session-Id"] = new Microsoft.Extensions.Primitives.StringValues(ses.Id.ToString());
 
                 transaction.Commit();
 
