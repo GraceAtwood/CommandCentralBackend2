@@ -103,7 +103,12 @@ namespace CommandCentral.Utilities
                     {
                         Description = Random.RandomString(8),
                         Name = x.ToString(),
-                        Id = Guid.NewGuid()
+                        Id = Guid.NewGuid(),
+                        Address = "123 Happy St.",
+                        City = "Happyville",
+                        Country = "USA",
+                        State = "Texas",
+                        ZipCode = "55555"
                     });
                 }
 

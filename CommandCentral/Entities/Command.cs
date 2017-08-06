@@ -86,6 +86,11 @@ namespace CommandCentral.Entities.ReferenceLists
 
                 Map(x => x.Name).Not.Nullable().Unique();
                 Map(x => x.Description);
+                Map(x => x.Address).Not.Nullable();
+                Map(x => x.City).Not.Nullable();
+                Map(x => x.State).Not.Nullable();
+                Map(x => x.ZipCode).Not.Nullable();
+                Map(x => x.Country).Not.Nullable();
 
                 HasMany(x => x.Departments).Cascade.All();
 
@@ -103,10 +108,13 @@ namespace CommandCentral.Entities.ReferenceLists
             /// </summary>
             public Validator()
             {
-                RuleFor(x => x.Description).Length(0, 255)
-                    .WithMessage("The description of a Command must be no more than 255 characters.");
-                RuleFor(x => x.Name).NotEmpty()
-                    .WithMessage("The value must not be empty.");
+                RuleFor(x => x.Description).Length(0, 255);
+                RuleFor(x => x.Name).NotEmpty().Length(1, 20);
+                RuleFor(x => x.Address).NotEmpty().Length(1, 255);
+                RuleFor(x => x.City).NotEmpty().Length(1, 255);
+                RuleFor(x => x.State).NotEmpty().Length(1, 255);
+                RuleFor(x => x.ZipCode).NotEmpty().Length(1, 255);
+                RuleFor(x => x.Country).NotEmpty().Length(1, 255);
             }
         }
 
