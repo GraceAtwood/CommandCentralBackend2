@@ -38,7 +38,6 @@
     <None Remove="Email\Templates\WatchReassignedRemoved_HTML.html" />
     <None Remove="PreDefs\Def_AccountHistoryTypes.cc" />
     <None Remove="PreDefs\Def_DutyStatuses.cc" />
-    <None Remove="PreDefs\Def_MusterStatuses.cc" />
     <None Remove="PreDefs\Def_Paygrades.cc" />
     <None Remove="PreDefs\Def_PhoneNumberTypes.cc" />
     <None Remove="PreDefs\Def_Sexes.cc" />
@@ -52,7 +51,6 @@
   <ItemGroup>
     <Folder Include="ChangeEvents\" />
     <Folder Include="Authentication\" />
-    <Folder Include="Entities\Muster\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="1.9.71" />
@@ -103,7 +101,7 @@
     <EmbeddedResource Include="PreDefs\Def_PermissionGroups.cc" />
     <EmbeddedResource Include="PreDefs\Def_AccountHistoryTypes.cc" />
     <EmbeddedResource Include="PreDefs\Def_DutyStatuses.cc" />
-    <EmbeddedResource Include="PreDefs\Def_MusterStatuses.cc" />
+    <EmbeddedResource Include="PreDefs\Def_StatusPeriodReasons.cc" />
     <EmbeddedResource Include="PreDefs\Def_Paygrades.cc" />
     <EmbeddedResource Include="PreDefs\Def_PhoneNumberTypes.cc" />
     <EmbeddedResource Include="PreDefs\Def_Sexes.cc" />

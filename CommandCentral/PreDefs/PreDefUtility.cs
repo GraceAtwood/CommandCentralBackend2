@@ -36,8 +36,6 @@ namespace CommandCentral.PreDefs
                         var type = Assembly.GetExecutingAssembly().GetType(fullName, true);
 
                         Predefs.Add((IPreDef)jObject.ToObject(typeof(PreDefOf<>).MakeGenericType(type)));
-
-                        //TODO Logging.Log.Info("Loaded PreDef for type {0}".With(fullName));
                     }
                 }
             }

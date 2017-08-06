@@ -29,7 +29,7 @@ namespace CommandCentral.Authorization
                                             Property = prop,
                                             PropertyPermissions = new PropertyPermissionsCollection(prop)
                                         })
-                    }).ToDictionary(x => x.Type, x => x.Properties.ToDictionary(y => y.Property, y => y.PropertyPermissions)));
+                    }).ToDictionary(x => x.Type, x => x.Properties.ToDictionary(y => y.Property, y => y.PropertyPermissions, new Utilities.Types.CustomPropertyInfoEqualityComparer())));
             
             PermissionGroupsCache = new ConcurrentDictionary<string, PermissionGroup>(
                 PreDefs.PreDefOf<PermissionGroup>.Get().Definitions.ToDictionary(x => x.Name, x => x));

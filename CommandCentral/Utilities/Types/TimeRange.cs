@@ -88,7 +88,7 @@ namespace CommandCentral.Utilities.Types
         /// <returns></returns>
         public override string ToString()
         {
-            return Start.ToString() + "..." + End.ToString();
+            return $"{Start} ... {End}";
         }
 
         #endregion

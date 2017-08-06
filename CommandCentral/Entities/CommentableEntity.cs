@@ -10,7 +10,7 @@ namespace CommandCentral.Entities
 
         public virtual IList<Comment> Comments { get; set; }
 
-        public abstract bool CanPersonAccessComments(Person Person);
+        public abstract bool CanPersonAccessComments(Person person);
 
     }
 }

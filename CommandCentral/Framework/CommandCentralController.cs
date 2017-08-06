@@ -102,6 +102,11 @@ namespace CommandCentral.Framework
             return StatusCode((int)HttpStatusCode.Forbidden, value);
         }
 
+        /// <summary>
+        /// Returns a 409 CONFLICT status code indicating that the requested action would cause a conflict that can not be resolved.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         [NonAction]
         public IActionResult Conflict(object value = null)
         {

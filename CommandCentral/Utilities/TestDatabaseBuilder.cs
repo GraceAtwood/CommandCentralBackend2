@@ -44,7 +44,7 @@ namespace CommandCentral.Utilities
             PreDefUtility.PersistPreDef<WatchAssignmentState>();
             PreDefUtility.PersistPreDef<PhoneNumberType>();
             PreDefUtility.PersistPreDef<Paygrade>();
-            PreDefUtility.PersistPreDef<MusterStatus>();
+            PreDefUtility.PersistPreDef<StatusPeriodReason>();
             PreDefUtility.PersistPreDef<DutyStatus>();
             PreDefUtility.PersistPreDef<AccountHistoryType>();
 

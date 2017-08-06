@@ -119,7 +119,7 @@ namespace CommandCentral.Authorization
         public bool CanReturn<TValue>(Expression<Func<T, TValue>> selector)
         {
             var info = (PropertyInfo)selector.GetProperty();
-
+            
             if (!_propertyPermissions.TryGetValue(info, out PropertyPermissionsCollection permissions))
                 throw new ArgumentException($"Your property, {info.Name}, does not exist within the type permissions for the type '{typeof(T).Name}'", nameof(info));
 
@@ -163,11 +163,14 @@ namespace CommandCentral.Authorization
                             return false;
                         break;
                     case ChainOfCommandLevels.Department:
-                        if (!Person.IsInSameDepartmentAs(Other))
+                        if ((_personHighestLevels[level.Key] == ChainOfCommandLevels.Command && !Person.IsInSameCommandAs(Other)) ||
+                            (_personHighestLevels[level.Key] == ChainOfCommandLevels.Department && !Person.IsInSameDepartmentAs(Other)))
                             return false;
                         break;
                     case ChainOfCommandLevels.Division:
-                        if (!Person.IsInSameDivisionAs(Other))
+                        if ((_personHighestLevels[level.Key] == ChainOfCommandLevels.Command && !Person.IsInSameCommandAs(Other)) ||
+                            (_personHighestLevels[level.Key] == ChainOfCommandLevels.Department && !Person.IsInSameDepartmentAs(Other)) ||
+                            (_personHighestLevels[level.Key] == ChainOfCommandLevels.Division && !Person.IsInSameDivisionAs(Other)))
                             return false;
                         break;
                     case ChainOfCommandLevels.None:
@@ -302,11 +305,14 @@ namespace CommandCentral.Authorization
                             return false;
                         break;
                     case ChainOfCommandLevels.Department:
-                        if (!Person.IsInSameDepartmentAs(Other))
+                        if ((_personHighestLevels[level.Key] == ChainOfCommandLevels.Command  && !Person.IsInSameCommandAs(Other)) ||
+                            (_personHighestLevels[level.Key] == ChainOfCommandLevels.Department && !Person.IsInSameDepartmentAs(Other)))
                             return false;
                         break;
                     case ChainOfCommandLevels.Division:
-                        if (!Person.IsInSameDivisionAs(Other))
+                        if ((_personHighestLevels[level.Key] == ChainOfCommandLevels.Command && !Person.IsInSameCommandAs(Other)) ||
+                            (_personHighestLevels[level.Key] == ChainOfCommandLevels.Department && !Person.IsInSameDepartmentAs(Other)) ||
+                            (_personHighestLevels[level.Key] == ChainOfCommandLevels.Division && !Person.IsInSameDivisionAs(Other)))
                             return false;
                         break;
                     case ChainOfCommandLevels.None:

@@ -18,6 +18,7 @@ using CommandCentral.Framework;
 using CommandCentral.Authorization;
 using CommandCentral.Authorization.Rules;
 using FluentValidation.Results;
+using CommandCentral.Entities.Muster;
 
 namespace CommandCentral.Entities
 {
@@ -272,8 +273,17 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The person's watch qualification.
         /// </summary>
-        [HiddenFromPermissions]
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
+        [CanEditIfInChainOfCommand(ChainsOfCommand.QuarterdeckWatchbill, ChainOfCommandLevels.Division)]
         public virtual IList<WatchQualification> WatchQualifications { get; set; }
+
+        /// <summary>
+        /// The person's status periods which describe projected locations and duty locations.
+        /// </summary>
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
+        [CanEditIfInChainOfCommand(ChainsOfCommand.QuarterdeckWatchbill, ChainOfCommandLevels.Division)]
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Muster, ChainOfCommandLevels.Division)]
+        public virtual IList<StatusPeriod> StatusPeriods { get; set; }
 
         /// <summary>
         /// The type of billet this person is assigned to.
@@ -348,7 +358,7 @@ namespace CommandCentral.Entities
         /// </summary>
         [HiddenFromPermissions]
         public virtual IDictionary<Guid, ChainOfCommandLevels> SubscribedEvents { get; set; }
-        
+
         #endregion
 
         #endregion
@@ -356,12 +366,12 @@ namespace CommandCentral.Entities
         #region Overrides
 
         /// <summary>
-        /// Returns a friendly name for this user in the form: Atwood, Daniel Kurt Roger
+        /// Returns a friendly name for this user in the form: {LastName}, {FirstName} {MiddleName}
         /// </summary>
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("{0}, {1} {2}", LastName, FirstName, MiddleName);
+            return $"{LastName}, {FirstName} {MiddleName}";
         }
 
         #endregion
@@ -479,6 +489,7 @@ namespace CommandCentral.Entities
                 HasMany(x => x.EmailAddresses).Cascade.All();
                 HasMany(x => x.PhoneNumbers).Cascade.All();
                 HasMany(x => x.PhysicalAddresses).Cascade.All();
+                HasMany(x => x.StatusPeriods).Cascade.All().KeyColumn("Person_id");
                 
                 HasManyToMany(x => x.WatchQualifications);
 

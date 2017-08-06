@@ -1,5 +1,5 @@
 ﻿{
-  "TypeFullName": "CommandCentral.Entities.ReferenceLists.MusterStatus",
+  "TypeFullName": "CommandCentral.Entities.ReferenceLists.StatusPeriodReason",
   "Definitions": [
     {
       "Id": "97742B09-0DB3-46D7-A77F-BDA83AFE0CA8",
