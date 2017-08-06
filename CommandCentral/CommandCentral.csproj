@@ -10,13 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="wwwroot\**" />
-    <Content Remove="wwwroot\**" />
-    <EmbeddedResource Remove="wwwroot\**" />
-    <None Remove="wwwroot\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="Email\Templates\AccountConfirmation_HTML.html" />
     <None Remove="Email\Templates\AssignmentChangedEvent_HTML.html" />
     <None Remove="Email\Templates\BeginPasswordReset_HTML.html" />
@@ -50,7 +43,7 @@
     <None Remove="PreDefs\Def_WatchEligibilityGroups.cc" />
     <None Remove="PreDefs\Def_WatchQualifications.cc" />
     <None Remove="PreDefs\Def_WatchShiftTypes.cc" />
-    <None Remove="SwaggerExtensions\basic-auth.js" />
+    <None Remove="wwwroot\swagger-ui\basic-auth.js" />
   </ItemGroup>
 
   <ItemGroup>
@@ -117,7 +110,7 @@
     <EmbeddedResource Include="PreDefs\Def_WatchEligibilityGroups.cc" />
     <EmbeddedResource Include="PreDefs\Def_WatchQualifications.cc" />
     <EmbeddedResource Include="PreDefs\Def_WatchShiftTypes.cc" />
-    <Content Include="SwaggerExtensions\basic-auth.js">
+    <Content Include="wwwroot\swagger-ui\basic-auth.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

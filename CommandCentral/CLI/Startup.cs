@@ -99,11 +99,11 @@ namespace CommandCentral.CLI
             app.UseCors("CorsPolicy");
             loggerFactory.AddConsole();
             loggerFactory.AddDebug();
-            app.UseStaticFiles();
 
             Log.Initialize(loggerFactory);
 
             app.UseMvc();
+            app.UseStaticFiles();
 
             app.UseSwagger();
 
