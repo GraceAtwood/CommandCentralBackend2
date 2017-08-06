@@ -13,6 +13,7 @@ using CommandCentral.Enums;
 
 namespace CommandCentral.Controllers
 {
+    [Route("api/[controller]")]
     public class DivisionController : CommandCentralController
     {
         [HttpGet("{id}")]

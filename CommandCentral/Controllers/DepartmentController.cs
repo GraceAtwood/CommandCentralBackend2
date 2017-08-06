@@ -14,6 +14,7 @@ using NHibernate.Linq;
 
 namespace CommandCentral.Controllers
 {
+    [Route("api/[controller]")]
     public class DepartmentController : CommandCentralController
     {
         [HttpGet("{id}")]
