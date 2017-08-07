@@ -8,7 +8,7 @@ using CommandCentral.Authorization;
 using FluentValidation.Results;
 using CommandCentral.Framework;
 
-namespace CommandCentral.Entities.ReferenceLists
+namespace CommandCentral.Entities
 {
     /// <summary>
     /// Describes a single command, such as NIOC GA and all of its departments and divisions.
@@ -48,7 +48,7 @@ namespace CommandCentral.Entities.ReferenceLists
         public virtual string State { get; set; }
 
         /// <summary>
-        /// The command's zipcode.
+        /// The command's zip code.
         /// </summary>
         public virtual string ZipCode { get; set; }
 
@@ -57,9 +57,17 @@ namespace CommandCentral.Entities.ReferenceLists
         /// </summary>
         public virtual string Country { get; set; }
 
-        #endregion
+        /// <summary>
+        /// The command's current muster cycle.
+        /// </summary>
+        public virtual Muster.MusterCycle CurrentMusterCycle { get; set; } 
 
-        #region Helper Methods
+        /// <summary>
+        /// The hour of the day at which the muster begins.  This is also the same hour that, after 24 hours, the muster will rollover and finalize if it hasn't already been.
+        /// </summary>
+        public virtual int MusterStartHour { get; set; }
+
+        #endregion
 
         /// <summary>
         /// Validates this command object.
@@ -69,7 +77,14 @@ namespace CommandCentral.Entities.ReferenceLists
         {
             return new Validator().Validate(this);
         }
-        
+
+        #region Muster Handling
+
+        public void RolloverCurrentMusterCycle(Person person)
+        {
+
+        }
+
         #endregion
 
         /// <summary>
@@ -91,8 +106,11 @@ namespace CommandCentral.Entities.ReferenceLists
                 Map(x => x.State).Not.Nullable();
                 Map(x => x.ZipCode).Not.Nullable();
                 Map(x => x.Country).Not.Nullable();
+                Map(x => x.MusterStartHour).Not.Nullable();
 
                 HasMany(x => x.Departments).Cascade.All();
+
+                References(x => x.CurrentMusterCycle).Not.Nullable();
 
                 Cache.ReadWrite();
             }
@@ -115,8 +133,11 @@ namespace CommandCentral.Entities.ReferenceLists
                 RuleFor(x => x.State).NotEmpty().Length(1, 255);
                 RuleFor(x => x.ZipCode).NotEmpty().Length(1, 255);
                 RuleFor(x => x.Country).NotEmpty().Length(1, 255);
+
+                RuleFor(x => x.MusterStartHour).InclusiveBetween(1, 24);
+
+                RuleFor(x => x.CurrentMusterCycle).NotEmpty();
             }
         }
-
     }
 }

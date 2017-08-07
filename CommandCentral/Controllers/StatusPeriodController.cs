@@ -65,7 +65,7 @@ namespace CommandCentral.Controllers
                 query = query.Where(x => x.Range.Start <= end && x.Range.End >= start);
 
             if (reason.HasValue)
-                query = query.Where(x => x.Reason.Id == reason);
+                query = query.Where(x => x.AccountabilityType.Id == reason);
 
             if (exemptsFromWatch.HasValue)
                 query = query.Where(x => x.ExemptsFromWatch == exemptsFromWatch);
@@ -88,7 +88,7 @@ namespace CommandCentral.Controllers
                         Id = statusPeriod.Id,
                         Person = statusPeriod.Person.Id,
                         Range = statusPeriod.Range,
-                        Reason = statusPeriod.Reason.Id,
+                        Reason = statusPeriod.AccountabilityType.Id,
                         SubmittedBy = statusPeriod.SubmittedBy.Id,
                         DateLastModified = statusPeriod.DateLastModified,
                         LastModifiedBy = statusPeriod.LastModifiedBy.Id
@@ -121,7 +121,7 @@ namespace CommandCentral.Controllers
                 Id = item.Id,
                 Person = item.Person.Id,
                 Range = item.Range,
-                Reason = item.Reason.Id,
+                Reason = item.AccountabilityType.Id,
                 SubmittedBy = item.SubmittedBy.Id,
                 DateLastModified = item.DateLastModified,
                 LastModifiedBy = item.LastModifiedBy.Id
@@ -150,7 +150,7 @@ namespace CommandCentral.Controllers
             if (!User.GetFieldPermissions<Person>(person).CanEdit(x => x.StatusPeriods))
                 return Forbid("Can not submit a status period for this person.");
 
-            var reason = ReferenceListHelper<StatusPeriodReason>.Get(dto.Reason);
+            var reason = ReferenceListHelper<AccountabilityType>.Get(dto.Reason);
             if (reason == null)
                 return NotFound($"Unable to find object referenced by parameter: {nameof(dto.Reason)}.");
 
@@ -161,7 +161,7 @@ namespace CommandCentral.Controllers
                 Id = Guid.NewGuid(),
                 Person = person,
                 Range = dto.Range,
-                Reason = reason,
+                AccountabilityType = reason,
                 SubmittedBy = User,
                 DateLastModified = CallTime,
                 LastModifiedBy = User
@@ -183,7 +183,7 @@ namespace CommandCentral.Controllers
                     Id = item.Id,
                     Person = item.Person.Id,
                     Range = item.Range,
-                    Reason = item.Reason.Id,
+                    Reason = item.AccountabilityType.Id,
                     SubmittedBy = item.SubmittedBy.Id,
                     DateLastModified = item.DateLastModified,
                     LastModifiedBy = item.LastModifiedBy.Id
@@ -216,7 +216,7 @@ namespace CommandCentral.Controllers
                 return Forbid();
             }
 
-            var reason = ReferenceListHelper<StatusPeriodReason>.Get(dto.Reason);
+            var reason = ReferenceListHelper<AccountabilityType>.Get(dto.Reason);
             if (reason == null)
                 return NotFound($"Unable to find object referenced by parameter: {nameof(dto.Reason)}.");
 
@@ -224,7 +224,7 @@ namespace CommandCentral.Controllers
             {
                 item.ExemptsFromWatch = dto.ExemptsFromWatch;
                 item.Range = dto.Range;
-                item.Reason = reason;
+                item.AccountabilityType = reason;
                 item.LastModifiedBy = User;
                 item.DateLastModified = CallTime;
 
@@ -242,7 +242,7 @@ namespace CommandCentral.Controllers
                     Id = item.Id,
                     Person = item.Person.Id,
                     Range = item.Range,
-                    Reason = item.Reason.Id,
+                    Reason = item.AccountabilityType.Id,
                     SubmittedBy = item.SubmittedBy.Id,
                     DateLastModified = item.DateLastModified,
                     LastModifiedBy = item.LastModifiedBy.Id

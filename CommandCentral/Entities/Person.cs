@@ -344,19 +344,24 @@ namespace CommandCentral.Entities
         /// <summary>
         /// A list containing account history events, these are events that track things like login, password reset, etc.
         /// </summary>
-        [HiddenFromPermissions]
+        [CanReturnIfSelf]
+        [CanNeverEdit]
+        [CanReturnIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Command)]
         public virtual IList<AccountHistoryEvent> AccountHistory { get; set; }
 
         /// <summary>
-        /// A list containing all changes that have every occurred to the profile.
+        /// A list containing all changes that have ever occurred to the profile.
         /// </summary>
-        [HiddenFromPermissions]
+        [CanNeverEdit]
         public virtual IList<Change> Changes { get; set; }
 
         /// <summary>
         /// The list of those events to which this person is subscribed.
         /// </summary>
-        [HiddenFromPermissions]
+        [CanEditIfSelf]
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
+        [CanEditIfInChainOfCommand(ChainsOfCommand.QuarterdeckWatchbill, ChainOfCommandLevels.Division)]
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Muster, ChainOfCommandLevels.Division)]
         public virtual IDictionary<Guid, ChainOfCommandLevels> SubscribedEvents { get; set; }
 
         #endregion
@@ -495,7 +500,7 @@ namespace CommandCentral.Entities
 
                 HasMany(x => x.SubscribedEvents)
                     .AsMap<string>(index =>
-                        index.Column("ChangeEventId").Type<Guid>(), element =>
+                        index.Column("ChangeEvent").Type<Enums.ChangeEvents>(), element =>
                         element.Column("Level").Type<ChainOfCommandLevels>())
                     .Cascade.All();
 

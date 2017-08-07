@@ -101,7 +101,7 @@
     <EmbeddedResource Include="PreDefs\Def_PermissionGroups.cc" />
     <EmbeddedResource Include="PreDefs\Def_AccountHistoryTypes.cc" />
     <EmbeddedResource Include="PreDefs\Def_DutyStatuses.cc" />
-    <EmbeddedResource Include="PreDefs\Def_StatusPeriodReasons.cc" />
+    <EmbeddedResource Include="PreDefs\Def_AccountabilityTypes.cc" />
     <EmbeddedResource Include="PreDefs\Def_Paygrades.cc" />
     <EmbeddedResource Include="PreDefs\Def_PhoneNumberTypes.cc" />
     <EmbeddedResource Include="PreDefs\Def_Sexes.cc" />
