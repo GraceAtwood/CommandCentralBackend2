@@ -59,27 +59,18 @@ namespace CommandCentral.Entities.Muster
             return new Validator().Validate(this);
         }
 
+        /// <summary>
+        /// Finalizes this muster cycle.
+        /// </summary>
+        /// <param name="person"></param>
         public virtual void FinalizeMusterCycle(Person person)
         {
-            try
-            {
-                if (IsFinalized)
-                    throw new InvalidOperationException("A muster cycle may not be finalized if it has already been finalized.");
+            if (IsFinalized)
+                throw new InvalidOperationException("A muster cycle may not be finalized if it has already been finalized.");
 
-                IsFinalized = true;
-                TimeFinalized = DateTime.UtcNow;
-                FinalizedBy = person;
-
-                
-
-            }
-            catch
-            {
-                IsFinalized = false;
-                FinalizedBy = null;
-                TimeFinalized = null;
-                throw;
-            }
+            IsFinalized = true;
+            TimeFinalized = DateTime.UtcNow;
+            FinalizedBy = person;
         }
 
         /// <summary>

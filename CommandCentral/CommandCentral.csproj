@@ -47,7 +47,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ChangeEvents\" />
     <Folder Include="Authentication\" />
   </ItemGroup>
   <ItemGroup>

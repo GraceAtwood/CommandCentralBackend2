@@ -7,6 +7,9 @@ using NHibernate.Criterion;
 using CommandCentral.Authorization;
 using FluentValidation.Results;
 using CommandCentral.Framework;
+using CommandCentral.Utilities.Types;
+using CommandCentral.Events;
+using CommandCentral.Events.Args;
 
 namespace CommandCentral.Entities
 {
@@ -80,9 +83,37 @@ namespace CommandCentral.Entities
 
         #region Muster Handling
 
+        /// <summary>
+        /// Rolls over the current muster cycle, finalizing the muser cycle if needed.
+        /// </summary>
+        /// <param name="person"></param>
         public void RolloverCurrentMusterCycle(Person person)
         {
+            if (!CurrentMusterCycle.IsFinalized)
+            {
+                CurrentMusterCycle.FinalizeMusterCycle(person);
+                EventManager.OnMusterFinalized(new MusterFinalizedEventArgs
+                {
+                    MusterCycle = CurrentMusterCycle
+                });
+            }
 
+            DateTime startTime;
+            if (DateTime.UtcNow.Hour < MusterStartHour)
+                startTime = DateTime.UtcNow.Date.AddDays(-1).AddHours(MusterStartHour);
+            else
+                startTime = DateTime.UtcNow.Date.AddHours(MusterStartHour);
+
+            CurrentMusterCycle = new Muster.MusterCycle
+            {
+                Command = this,
+                Id = Guid.NewGuid(),
+                Range = new TimeRange
+                {
+                    Start = startTime,
+                    End = startTime.AddDays(1)
+                }
+            };
         }
 
         #endregion

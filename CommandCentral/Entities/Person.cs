@@ -500,7 +500,7 @@ namespace CommandCentral.Entities
 
                 HasMany(x => x.SubscribedEvents)
                     .AsMap<string>(index =>
-                        index.Column("ChangeEvent").Type<Enums.ChangeEvents>(), element =>
+                        index.Column("ChangeEvent").Type<ChangeEvents>(), element =>
                         element.Column("Level").Type<ChainOfCommandLevels>())
                     .Cascade.All();
 
