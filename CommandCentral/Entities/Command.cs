@@ -87,7 +87,7 @@ namespace CommandCentral.Entities
         /// Rolls over the current muster cycle, finalizing the muser cycle if needed.
         /// </summary>
         /// <param name="person"></param>
-        public void RolloverCurrentMusterCycle(Person person)
+        public virtual void RolloverCurrentMusterCycle(Person person)
         {
             if (!CurrentMusterCycle.IsFinalized)
             {
@@ -141,7 +141,8 @@ namespace CommandCentral.Entities
 
                 HasMany(x => x.Departments).Cascade.All();
 
-                References(x => x.CurrentMusterCycle).Not.Nullable();
+                HasOne(x => x.CurrentMusterCycle).PropertyRef(x => x.Command).Cascade.All();
+                //References(x => x.CurrentMusterCycle).Cascade.All().Not.Nullable();
 
                 Cache.ReadWrite();
             }

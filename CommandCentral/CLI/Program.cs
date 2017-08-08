@@ -35,7 +35,7 @@ namespace CommandCentral.CLI
                                 .UseKestrel()
                                 .UseContentRoot(Directory.GetCurrentDirectory())
                                 .UseUrls("http://*:1113")
-                                .UseStartup<Startup>()
+                                .UseStartup<Framework.Startup>()
                                 .Build();
 
                             host.Run();

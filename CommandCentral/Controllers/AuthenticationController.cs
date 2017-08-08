@@ -10,6 +10,10 @@ using CommandCentral.Authentication;
 
 namespace CommandCentral.Controllers
 {
+    /// <summary>
+    /// Authentication is the means by which a client identifies him or herself and obtains a session id.  
+    /// A session id is expected to be passed in every subsequent request in order to identify a user's current session.
+    /// </summary>
     [Route("api/[controller]")]
     public class AuthenticationController : CommandCentralController
     {
@@ -26,32 +30,21 @@ namespace CommandCentral.Controllers
                 if (!PasswordHash.ValidatePassword(dto.Password, person.PasswordHash))
                 {
 
-                    if (person.EmailAddresses.Any())
+                    Events.EventManager.OnLoginFailed(new Events.Args.LoginFailedEventArgs
                     {
-                        var model = new Email.Models.FailedAccountLoginEmailModel
-                        {
-                            FriendlyName = person.ToString()
-                        };
+                        Person = person
+                    });
 
-                        //Ok, so we have an email we can use to contact the person!
-                        Email.EmailInterface.CCEmailMessage
-                            .CreateDefault()
-                            .To(person.EmailAddresses.Select(x => new System.Net.Mail.MailAddress(x.Address, person.ToString())))
-                            .Subject("Security Alert : Failed Login")
-                            .HTMLAlternateViewUsingTemplateFromEmbedded("CommandCentral.Email.Templates.FailedAccountLogin_HTML.html", model)
-                            .SendWithRetryAndFailure(TimeSpan.FromSeconds(1));
+                    //Now we also need to add the event to client's account history.
+                    person.AccountHistory.Add(new AccountHistoryEvent
+                    {
+                        AccountHistoryEventType = ReferenceListHelper<AccountHistoryType>.Find("Failed Login"),
+                        EventTime = this.CallTime,
+                        Id = Guid.NewGuid(),
+                        Person = person
+                    });
 
-                        //Now we also need to add the event to client's account history.
-                        person.AccountHistory.Add(new AccountHistoryEvent
-                        {
-                            AccountHistoryEventType = ReferenceListHelper<AccountHistoryType>.Find("Failed Login"),
-                            EventTime = this.CallTime,
-                            Id = Guid.NewGuid(),
-                            Person = person
-                        });
-
-                        DBSession.Update(person);
-                    }
+                    DBSession.Update(person);
 
                     transaction.Commit();
                     return Unauthorized();
