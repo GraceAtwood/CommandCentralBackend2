@@ -10,13 +10,22 @@ using CommandCentral.Utilities.Types;
 
 namespace CommandCentral.CronOperations
 {
+    /// <summary>
+    /// Contains all of the start up and cron operation registrations for the muster module.
+    /// </summary>
     public class MusterRegistry : Registry
     {
+        /// <summary>
+        /// Initializes this registry.
+        /// </summary>
         public MusterRegistry()
         {
             SetupMuster();
         }
 
+        /// <summary>
+        /// Walks through each command in the database, rolling over any muster cycle that needs it, and registering the muster cycle for rollover at its proper hour.
+        /// </summary>
         private void SetupMuster()
         {
             using (var transaction = SessionManager.CurrentSession.BeginTransaction())
@@ -34,10 +43,10 @@ namespace CommandCentral.CronOperations
                         command.RolloverCurrentMusterCycle(null);
                     }
 
-                    Events.EventManager.OnMusterOpened(new Events.Args.MusterOpenedEventArgs
+                    Events.EventManager.OnMusterOpened(new Events.Args.MusterCycleEventArgs
                     {
                         MusterCycle = command.CurrentMusterCycle
-                    });
+                    }, this);
 
                     SessionManager.CurrentSession.Update(command);
 
@@ -48,6 +57,10 @@ namespace CommandCentral.CronOperations
             }
         }
 
+        /// <summary>
+        /// Rolls over the muster cycle for the given command.
+        /// </summary>
+        /// <param name="commandId"></param>
         private void DoRolloverForCommand(Guid commandId)
         {
             using (var transaction = SessionManager.CurrentSession.BeginTransaction())
@@ -66,10 +79,10 @@ namespace CommandCentral.CronOperations
                     command.RolloverCurrentMusterCycle(null);
                 }
 
-                Events.EventManager.OnMusterOpened(new Events.Args.MusterOpenedEventArgs
+                Events.EventManager.OnMusterOpened(new Events.Args.MusterCycleEventArgs
                 {
                     MusterCycle = command.CurrentMusterCycle
-                });
+                }, this);
 
                 SessionManager.CurrentSession.Update(command);
 

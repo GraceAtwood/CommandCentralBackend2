@@ -92,10 +92,10 @@ namespace CommandCentral.Entities
             if (!CurrentMusterCycle.IsFinalized)
             {
                 CurrentMusterCycle.FinalizeMusterCycle(person);
-                EventManager.OnMusterFinalized(new MusterFinalizedEventArgs
+                EventManager.OnMusterFinalized(new MusterCycleEventArgs
                 {
                     MusterCycle = CurrentMusterCycle
-                });
+                }, this);
             }
 
             DateTime startTime;
@@ -141,8 +141,7 @@ namespace CommandCentral.Entities
 
                 HasMany(x => x.Departments).Cascade.All();
 
-                HasOne(x => x.CurrentMusterCycle).PropertyRef(x => x.Command).Cascade.All();
-                //References(x => x.CurrentMusterCycle).Cascade.All().Not.Nullable();
+                References(x => x.CurrentMusterCycle).Cascade.All().Not.Nullable();
 
                 Cache.ReadWrite();
             }

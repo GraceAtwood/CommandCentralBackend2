@@ -19,6 +19,8 @@ using CommandCentral.Authorization;
 using CommandCentral.Authorization.Rules;
 using FluentValidation.Results;
 using CommandCentral.Entities.Muster;
+using NHibernate;
+using System.Linq.Expressions;
 
 namespace CommandCentral.Entities
 {
@@ -442,7 +444,7 @@ namespace CommandCentral.Entities
         {
             return new Validator().Validate(this);
         }
-
+        
         /// <summary>
         /// Maps a person to the database.
         /// </summary>

@@ -95,7 +95,7 @@ namespace CommandCentral.Entities.Muster
                 });
 
                 References(x => x.FinalizedBy);
-                References(x => x.Command).Not.Nullable();
+                References(x => x.Command);
 
                 HasMany(x => x.MusterEntries).Cascade.All();
             }

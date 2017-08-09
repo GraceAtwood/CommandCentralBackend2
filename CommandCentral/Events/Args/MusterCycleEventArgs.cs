@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace CommandCentral.Events.Args
 {
-    public class MusterFinalizedEventArgs : EventArgs
+    public class MusterCycleEventArgs : EventArgs
     {
-
         public MusterCycle MusterCycle { get; set; }
-
     }
 }

@@ -33,7 +33,7 @@ namespace CommandCentral.Controllers
                     Events.EventManager.OnLoginFailed(new Events.Args.LoginFailedEventArgs
                     {
                         Person = person
-                    });
+                    }, this);
 
                     //Now we also need to add the event to client's account history.
                     person.AccountHistory.Add(new AccountHistoryEvent
