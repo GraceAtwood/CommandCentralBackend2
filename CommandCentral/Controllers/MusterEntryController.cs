@@ -21,6 +21,7 @@ namespace CommandCentral.Controllers
     /// Anyone can see all muster entries; however, modification of muster entries requires that you be in the given person's muster chain of command.
     /// </summary>
     [Route("api/[controller]")]
+    [Produces("application/json")]
     public class MusterEntryController : CommandCentralController
     {
         /// <summary>

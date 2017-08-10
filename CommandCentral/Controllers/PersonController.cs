@@ -16,17 +16,24 @@ using Microsoft.AspNetCore.JsonPatch;
 namespace CommandCentral.Controllers
 {
     [Route("api/[controller]")]
+    [Produces("application/json")]
     public class PersonController : CommandCentralController
     {
         [HttpGet]
         [RequireAuthentication]
+        [ProducesResponseType(200, Type = typeof(List<DTOs.Person.Get>))]
         public IActionResult Get()
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Retrieves the person identified by the given Id.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("me")]
         [RequireAuthentication]
+        [ProducesResponseType(200, Type = typeof(DTOs.Person.Get))]
         public IActionResult GetMe()
         {
             var perms = User.GetFieldPermissions<Person>(User);
@@ -34,8 +41,14 @@ namespace CommandCentral.Controllers
             return Ok(new DTOs.Person.Get(User, perms));
         }
 
+        /// <summary>
+        /// Retrieves the person identified by the given Id.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         [RequireAuthentication]
+        [ProducesResponseType(200, Type = typeof(DTOs.Person.Get))]
         public IActionResult Get(Guid id)
         {
             var person = DBSession.Get<Person>(id);
@@ -47,15 +60,21 @@ namespace CommandCentral.Controllers
             return Ok(new DTOs.Person.Get(person, perms));
         }
 
+        /// <summary>
+        /// Creates a new person.  Client must have access to the "CreatePerson" submodule.
+        /// </summary>
+        /// <param name="dto">The dto containing all of the information needed to create a person.</param>
+        /// <returns></returns>
         [HttpPost]
         [RequireAuthentication]
+        [ProducesResponseType(201, Type = typeof(DTOs.Person.Get))]
         public IActionResult Post([FromBody] DTOs.Person.Post dto)
         {
             if (dto == null)
                 return BadRequest();
 
             if (!User.CanAccessSubmodules(SubModules.CreatePerson))
-                Forbid();
+                return Forbid();
 
             var person = new Person
             {
@@ -83,6 +102,12 @@ namespace CommandCentral.Controllers
                 DBSession.Save(person);
                 transaction.Commit();
             }
+
+            Events.EventManager.OnPersonCreated(new Events.Args.PersonCreatedEventArgs
+            {
+                CreatedBy = User,
+                Person = person
+            }, this);
 
             return CreatedAtAction(nameof(Get), new { id = person.Id }, new DTOs.Person.Get(person, User.GetFieldPermissions<Person>(person)));
         }

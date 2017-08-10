@@ -42,11 +42,25 @@ namespace CommandCentral.Events
 
         #endregion
 
+        #region Authentication 
+
         public static event EventHandler<LoginFailedEventArgs> LoginFailed;
         public static void OnLoginFailed(LoginFailedEventArgs e, object sender)
         {
             LoginFailed?.Invoke(sender, e);
         }
+
+        #endregion
+
+        #region Profile
+
+        public static event EventHandler<PersonCreatedEventArgs> PersonCreated;
+        public static void OnPersonCreated(PersonCreatedEventArgs e, object sender)
+        {
+            PersonCreated?.Invoke(sender, e);
+        }
+
+        #endregion
 
     }
 }

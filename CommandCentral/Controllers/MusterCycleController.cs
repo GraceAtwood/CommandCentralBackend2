@@ -24,6 +24,7 @@ namespace CommandCentral.Controllers
     /// This is how you close or reopen the muster cycle.  The rest of the muster cycle's life cycle is handled automatically.
     /// </summary>
     [Route("api/[controller]")]
+    [Produces("application/json")]
     public class MusterCycleController : CommandCentralController
     {
         /// <summary>
