@@ -1,36 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using FluentValidation;
-using System.Linq;
-using NHibernate.Criterion;
 using FluentValidation.Results;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CommandCentral.Entities.ReferenceLists
 {
     /// <summary>
-    /// Describes a single UIC.
+    /// Identifies different types of correspondence.
     /// </summary>
-    public class UIC : ReferenceListItemBase
+    public class CorrespondenceItemType : ReferenceListItemBase
     {
         /// <summary>
-        /// Returns a validation result which contains the result of validation. lol.
+        /// Validates this object.
         /// </summary>
         /// <returns></returns>
         public override ValidationResult Validate()
         {
-            return new UICValidator().Validate(this);
+            return new Validator().Validate(this);
         }
 
         /// <summary>
-        /// Maps a UIC to the database.
+        /// Maps this object to the database.
         /// </summary>
-        public class UICMapping : ClassMap<UIC>
+        public class CorrespondenceItemTypeMapping : ClassMap<CorrespondenceItemType>
         {
             /// <summary>
-            /// Maps a UIC to the database.
+            /// Maps this object to the database.
             /// </summary>
-            public UICMapping()
+            public CorrespondenceItemTypeMapping()
             {
                 Id(x => x.Id).GeneratedBy.Assigned();
 
@@ -42,17 +42,17 @@ namespace CommandCentral.Entities.ReferenceLists
         }
 
         /// <summary>
-        /// Validates the UIC.
+        /// Validates this object.
         /// </summary>
-        public class UICValidator : AbstractValidator<UIC>
+        public class Validator : AbstractValidator<CorrespondenceItemType>
         {
             /// <summary>
-            /// Validates the UIC.
+            /// Validates this object.
             /// </summary>
-            public UICValidator()
+            public Validator()
             {
                 RuleFor(x => x.Description).Length(0, 255)
-                    .WithMessage("The description of a UIC must be no more than 255 characters.");
+                    .WithMessage("The description of a correspondence item type must be no more than 255 characters.");
                 RuleFor(x => x.Value).NotEmpty()
                     .WithMessage("The value must not be null.");
             }

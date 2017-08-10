@@ -62,12 +62,7 @@ namespace CommandCentral.Entities.Muster
         #endregion
 
         #region CommentableEntity Members  
-
-        /// <summary>
-        /// The comments associated with this status period.
-        /// </summary>
-        public override IList<Comment> Comments { get; set; }
-
+        
         /// <summary>
         /// Determines if the given person can return comments for this status period.
         /// </summary>
@@ -114,6 +109,11 @@ namespace CommandCentral.Entities.Muster
                 References(x => x.SubmittedBy).Not.Nullable();
                 References(x => x.LastModifiedBy).Not.Nullable();
                 References(x => x.AccountabilityType).Not.Nullable();
+
+                HasMany(x => x.Comments)
+                    .Cascade.AllDeleteOrphan()
+                    .KeyColumn("OwningEntity_id")
+                    .ForeignKeyConstraintName("none");
             }
         }
 
