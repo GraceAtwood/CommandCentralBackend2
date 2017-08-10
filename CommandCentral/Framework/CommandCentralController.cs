@@ -108,18 +108,31 @@ namespace CommandCentral.Framework
             return StatusCode((int)HttpStatusCode.Unauthorized, value);
         }
 
+        /// <summary>
+        /// Returns a 500 Internal Server Error with the given value as the body.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         [NonAction]
         public IActionResult InternalServerError(object value = null)
         {
             return StatusCode((int)HttpStatusCode.InternalServerError, value);
         }
         
+        /// <summary>
+        /// Returns a 403 FORBID status.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         [NonAction]
         public IActionResult Forbid(object value)
         {
             return StatusCode((int)HttpStatusCode.Forbidden, value);
         }
 
+        /// <summary>
+        /// Returns a 403 FORBID status.
+        /// </summary>
         [NonAction]
         public new IActionResult Forbid()
         {
