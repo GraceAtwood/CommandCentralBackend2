@@ -4,14 +4,33 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation.Results;
 using FluentNHibernate.Mapping;
+using System.IO;
 
 namespace CommandCentral.Entities
 {
     public class FileAttachment : Entity, IHazComments
     {
+        public static string AttachmentsDirectory = Utilities.ConfigurationUtility.Configuration["Attachments"];
+
         public virtual IList<Comment> Comments { get; set; }
 
         public virtual IHazAttachments OwningEntity { get; set; }
+
+        public virtual string AttachmentFilePath
+        {
+            get
+            {
+                return Path.Combine(Directory.GetCurrentDirectory(), AttachmentsDirectory, Id.ToString() + ".ccatt");
+            }
+        }
+
+        public virtual string OverlayFilePath
+        {
+            get
+            {
+                return Path.Combine(Directory.GetCurrentDirectory(), AttachmentsDirectory, Id.ToString() + ".ccover");
+            }
+        }
 
         public bool CanPersonAccessComments(Person person)
         {
