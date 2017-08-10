@@ -15,7 +15,7 @@ namespace CommandCentral.Entities.Muster
     /// <summary>
     /// Represents a status period which is used to indicate a person will be something other than present for a given period of time.
     /// </summary>
-    public class StatusPeriod : CommentableEntity
+    public class StatusPeriod : Entity, IHazComments
     {
         #region Properties
 
@@ -59,16 +59,19 @@ namespace CommandCentral.Entities.Muster
         /// </summary>
         public virtual AccountabilityType AccountabilityType { get; set; }
 
-        #endregion
+        /// <summary>
+        /// Comments on this status period.
+        /// </summary>
+        public virtual IList<Comment> Comments { get; set; }
 
-        #region CommentableEntity Members  
+        #endregion
         
         /// <summary>
         /// Determines if the given person can return comments for this status period.
         /// </summary>
         /// <param name="person"></param>
         /// <returns></returns>
-        public override bool CanPersonAccessComments(Person person)
+        public virtual bool CanPersonAccessComments(Person person)
         {
             return person.GetFieldPermissions<Person>(this.Person).CanReturn(x => x.StatusPeriods);
         }
@@ -81,8 +84,6 @@ namespace CommandCentral.Entities.Muster
         {
             return new Validator().Validate(this);
         }
-
-        #endregion
 
         /// <summary>
         /// Maps this object to the database.

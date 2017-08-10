@@ -13,7 +13,7 @@ namespace CommandCentral.Entities.Correspondence
     /// <summary>
     /// A correspondence item describes and tracks the routing of paperwork either physically or digitally.
     /// </summary>
-    public class CorrespondenceItem : CommentableEntity
+    public class CorrespondenceItem : Entity, IHazAttachments, IHazComments
     {
         #region Properties
 
@@ -41,6 +41,11 @@ namespace CommandCentral.Entities.Correspondence
         /// The list of all attachments included in this correspondence.
         /// </summary>
         public virtual IList<FileAttachment> Attachments { get; set; }
+
+        /// <summary>
+        /// The list of comments for this item.
+        /// </summary>
+        public virtual IList<Comment> Comments { get; set; }
 
         /// <summary>
         /// The list of all reviews that have been submitted for this correspondence.
@@ -81,9 +86,22 @@ namespace CommandCentral.Entities.Correspondence
         /// </summary>
         /// <param name="person"></param>
         /// <returns></returns>
-        public override bool CanPersonAccessComments(Person person)
+        public virtual bool CanPersonAccessComments(Person person)
         {
             return SubmittedBy == person || SubmittedFor == person || 
+                this.Reviews.Any(x => x.Reviewer == person || x.ReviewedBy == person);
+        }
+
+        /// <summary>
+        /// Determines if a person can access the attachments.  True if :
+        /// return SubmittedBy == person || SubmittedFor == person || 
+        ///        this.Reviews.Any(x => x.Reviewer == person || x.ReviewedBy == person);
+        /// </summary>
+        /// <param name="person"></param>
+        /// <returns></returns>
+        public virtual bool CanPersonAccessAttachments(Person person)
+        {
+            return SubmittedBy == person || SubmittedFor == person ||
                 this.Reviews.Any(x => x.Reviewer == person || x.ReviewedBy == person);
         }
 
@@ -125,7 +143,9 @@ namespace CommandCentral.Entities.Correspondence
                     .ForeignKeyConstraintName("none");
 
                 HasMany(x => x.Attachments)
-                    .Cascade.AllDeleteOrphan();
+                    .Cascade.AllDeleteOrphan()
+                    .KeyColumn("OwningEntity_id")
+                    .ForeignKeyConstraintName("none");
 
                 HasMany(x => x.Reviews)
                     .Cascade.AllDeleteOrphan();

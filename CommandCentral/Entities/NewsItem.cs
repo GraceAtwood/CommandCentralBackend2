@@ -13,7 +13,7 @@ namespace CommandCentral.Entities
     /// <summary>
     /// Describes a single News Item and its members, including its DB access members.
     /// </summary>
-    public class NewsItem : CommentableEntity
+    public class NewsItem : Entity, IHazComments
     {
 
         #region Properties
@@ -37,6 +37,11 @@ namespace CommandCentral.Entities
         /// The time this news item was created.
         /// </summary>
         public virtual DateTime CreationTime { get; set; }
+
+        /// <summary>
+        /// Comments for this news item.
+        /// </summary>
+        public virtual IList<Comment> Comments { get; set; }
         
         #endregion
 
@@ -45,7 +50,7 @@ namespace CommandCentral.Entities
         /// </summary>
         /// <param name="person"></param>
         /// <returns></returns>
-        public override bool CanPersonAccessComments(Person person)
+        public virtual bool CanPersonAccessComments(Person person)
         {
             return true;
         }

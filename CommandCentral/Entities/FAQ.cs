@@ -13,7 +13,7 @@ namespace CommandCentral.Entities
     /// <summary>
     /// A single frequently asked question.
     /// </summary>
-    public class FAQ : CommentableEntity
+    public class FAQ : Entity, IHazComments
     {
         #region Properties
         
@@ -32,6 +32,11 @@ namespace CommandCentral.Entities
         /// </summary>
         public virtual IList<string> Paragraphs { get; set; }
 
+        /// <summary>
+        /// Comments for this faq.
+        /// </summary>
+        public virtual IList<Comment> Comments { get; set; }
+
         #endregion
 
         #region Overrides
@@ -41,7 +46,7 @@ namespace CommandCentral.Entities
         /// </summary>
         /// <param name="person"></param>
         /// <returns></returns>
-        public override bool CanPersonAccessComments(Person person)
+        public virtual bool CanPersonAccessComments(Person person)
         {
             throw new NotImplementedException();
         }
@@ -84,6 +89,11 @@ namespace CommandCentral.Entities
                     .Table("faqparagraphs")
                     .KeyColumn("FAQId")
                     .Element("Paragraph", x => x.Length(1000));
+
+                HasMany(x => x.Comments)
+                    .Cascade.AllDeleteOrphan()
+                    .KeyColumn("OwningEntity_id")
+                    .ForeignKeyConstraintName("none");
             }
         }
 

@@ -44,10 +44,10 @@ namespace CommandCentral.Controllers
         {
             using (var transaction = DBSession.BeginTransaction())
             {
-                if (DBSession.QueryOver<CommentableEntity>().Where(x => x.Id == dto.OwningEntity).ToRowCountQuery().List<int>().Sum() == 0)
+                if (DBSession.QueryOver<IHazComments>().Where(x => x.Id == dto.OwningEntity).ToRowCountQuery().List<int>().Sum() == 0)
                     return NotFound($"The parameter {nameof(dto.OwningEntity)} could not be found.");
 
-                var owningEntity = DBSession.QueryOver<CommentableEntity>()
+                var owningEntity = DBSession.QueryOver<IHazComments>()
                     .Where(x => x.Id == dto.OwningEntity)
                     .SingleOrDefault();
 

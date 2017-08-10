@@ -27,7 +27,7 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The entity that owns this object.
         /// </summary>
-        public virtual CommentableEntity OwningEntity { get; set; }
+        public virtual IHazComments OwningEntity { get; set; }
 
         /// <summary>
         /// This is the text of the comment.
@@ -35,7 +35,7 @@ namespace CommandCentral.Entities
         public virtual string Body { get; set; }
 
         /// <summary>
-        /// The datetime at which this comment was made.
+        /// The date time at which this comment was made.
         /// </summary>
         public virtual DateTime TimeCreated { get; set; }
 

@@ -26,7 +26,7 @@ namespace CommandCentral.Entities
     /// Describes a single person and all their properties and data access methods.
     /// </summary>
     [HasPermissions]
-    public class Person : CommentableEntity
+    public class Person : Entity, IHazComments
     {
 
         #region Properties
@@ -364,6 +364,11 @@ namespace CommandCentral.Entities
         [CanEditIfInChainOfCommand(ChainsOfCommand.Muster, ChainOfCommandLevels.Division)]
         public virtual IDictionary<Guid, ChainOfCommandLevels> SubscribedEvents { get; set; }
 
+        /// <summary>
+        /// The list of comments.
+        /// </summary>
+        public virtual IList<Comment> Comments { get; set; }
+
         #endregion
 
         #endregion
@@ -427,7 +432,12 @@ namespace CommandCentral.Entities
             return IsInSameDepartmentAs(person) && this.Division.Id == person.Division.Id;
         }
 
-        public override bool CanPersonAccessComments(Person person)
+        /// <summary>
+        /// Determines if a person can access comments.
+        /// </summary>
+        /// <param name="person"></param>
+        /// <returns></returns>
+        public virtual bool CanPersonAccessComments(Person person)
         {
             return true;
         }
