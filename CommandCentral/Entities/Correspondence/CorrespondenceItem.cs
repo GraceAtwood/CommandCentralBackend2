@@ -159,7 +159,7 @@ namespace CommandCentral.Entities.Correspondence
                 When(x => x.HasBeenCompleted, () =>
                 {
                     RuleFor(x => x.Reviews)
-                        .Must((item, reviews) => reviews.Any(x => x.IsReviewed.HasValue && x.Reviewer == item.FinalApprover))
+                        .Must((item, reviews) => reviews.Any(x => x.IsReviewed && x.Reviewer == item.FinalApprover))
                             .WithMessage("You can not set a correspondence item to 'completed' unless the final approver has reviewed the item.");
                 });
 
