@@ -5,11 +5,12 @@ using System.Threading.Tasks;
 using FluentValidation.Results;
 using FluentNHibernate.Mapping;
 using System.IO;
+using CommandCentral.Framework;
 
 namespace CommandCentral.Entities
 {
     /// <summary>
-    /// A file attachment is a binary file of some kind with an overlay image on which clints can draw.
+    /// A file attachment is a binary file of some kind with an overlay image on which clients can draw.
     /// </summary>
     public class FileAttachment : Entity
     {
