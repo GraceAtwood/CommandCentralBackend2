@@ -55,9 +55,9 @@ namespace CommandCentral.Entities.Muster
         public virtual TimeRange Range { get; set; }
 
         /// <summary>
-        /// The <seealso cref="StatusPeriodReason"/> for this status period.
+        /// The <seealso cref="ReferenceLists.AccountabilityType"/> for this status period.
         /// </summary>
-        public virtual StatusPeriodReason Reason { get; set; }
+        public virtual AccountabilityType AccountabilityType { get; set; }
 
         #endregion
 
@@ -113,7 +113,7 @@ namespace CommandCentral.Entities.Muster
                 References(x => x.Person).Not.Nullable().Column("Person_id");
                 References(x => x.SubmittedBy).Not.Nullable();
                 References(x => x.LastModifiedBy).Not.Nullable();
-                References(x => x.Reason).Not.Nullable();
+                References(x => x.AccountabilityType).Not.Nullable();
             }
         }
 
@@ -140,9 +140,9 @@ namespace CommandCentral.Entities.Muster
                     .Must((period, range) => range.End >= period.DateLastModified)
                         .WithMessage("A status period must end after it was submitted or after it was last modified.  For example, you may not modify a status period to end before now.");
 
-                RuleFor(x => x.Reason).NotEmpty()
+                RuleFor(x => x.AccountabilityType).NotEmpty()
                     .Must(x => !x.Value.Equals("Present", StringComparison.CurrentCultureIgnoreCase))
-                    .WithMessage("A status period's reason may not be 'Present'.  You can not project that someone is going to be present for a given period of time."); ;
+                    .WithMessage("A status period's accountability type may not be 'Present'.  You can not project that someone is going to be present for a given period of time."); ;
             }
         }
     }

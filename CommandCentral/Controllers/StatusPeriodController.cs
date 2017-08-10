@@ -11,6 +11,9 @@ using CommandCentral.Entities;
 using CommandCentral.Entities.ReferenceLists;
 using CommandCentral.Enums;
 using CommandCentral.Utilities.Types;
+using NHibernate.Linq;
+using System.Linq.Expressions;
+using CommandCentral.Utilities;
 
 namespace CommandCentral.Controllers
 {
@@ -32,11 +35,11 @@ namespace CommandCentral.Controllers
         /// 
         /// For this reason, limit should be seen as "return no more than this number of records".
         /// </summary>
-        /// <param name="person">The id of the person for whom a status period was submitted.</param>
-        /// <param name="submittedBy">The id of the person who submitted a status period.</param>
-        /// <param name="start">Defines the starting date and time of a window in which to search for any status period that overlaps with that window.  If left blank, the search window is assumed to start at the beginning of time.</param>
-        /// <param name="end">Defines the ending date and time of a window in which to search for any status period that overlaps with that window.  If left blank, the search window is assumed to end at the end of time.</param>
-        /// <param name="reason">The id of the reason to search for.</param>
+        /// <param name="person">The person for whom a status period was submitted.  Supports either Id selection or simple search-based query combined with a conjunction.</param>
+        /// <param name="submittedBy">The person who submitted a status period.  Supports either Id selection or simple search-based query combined with a conjunction.</param>
+        /// <param name="from">Defines the starting date and time of a window in which to search for any status period that overlaps with that window.  If left blank, the search window is assumed to start at the beginning of time.</param>
+        /// <param name="to">Defines the ending date and time of a window in which to search for any status period that overlaps with that window.  If left blank, the search window is assumed to end at the end of time.</param>
+        /// <param name="accountabilityType">The accountability type or code to search for.  Supports either Id selection or simple search-based query combined with a disjunction.</param>
         /// <param name="exemptsFromWatch">true/false</param>
         /// <param name="limit">[Default = 1000] Indicates that the api should return no more than this number of records.  Does not guarantee that the api will return at least this many records even if there are more than this number in the database due to after-load authorization checks.</param>
         /// <param name="orderBy">[Default = start][Valid values = start, datesubmitted] Instructs the api to order the results by this field (this also affects which records are returned if limit is given).</param>
@@ -44,41 +47,101 @@ namespace CommandCentral.Controllers
         [HttpGet]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.StatusPeriod.Get>))]
-        public IActionResult Get([FromQuery] Guid? person, [FromQuery] Guid? submittedBy, [FromQuery] DateTime? start, [FromQuery] DateTime? end, [FromQuery] Guid? reason, [FromQuery] bool? exemptsFromWatch, [FromQuery] int limit = 1000, [FromQuery] string orderBy = nameof(TimeRange.Start))
+        public IActionResult Get([FromQuery] string person, [FromQuery] string submittedBy, [FromQuery] DateTime? from, 
+            [FromQuery] DateTime? to, [FromQuery] string accountabilityType, [FromQuery] bool? exemptsFromWatch, [FromQuery] int limit = 1000, [FromQuery] string orderBy = nameof(TimeRange.Start))
         {
             if (limit <= 0)
                 return BadRequest($"The value '{limit}' for the property '{nameof(limit)}' was invalid.  It must be greater than zero.");
 
-            var query = DBSession.QueryOver<StatusPeriod>();
+            var query = DBSession.Query<StatusPeriod>();
 
-            if (person.HasValue)
-                query = query.Where(x => x.Person.Id == person);
+            if (!String.IsNullOrWhiteSpace(person))
+            {
+                if (Guid.TryParse(person, out Guid id))
+                {
+                    query = query.Where(x => x.Person.Id == id);
+                }
+                else
+                {
+                    foreach (var term in person.Split(',', ' ', ';', '-'))
+                    {
+                        query = query.Where(x =>
+                            x.Person.FirstName.Contains(term) ||
+                            x.Person.LastName.Contains(term) ||
+                            x.Person.MiddleName.Contains(term) ||
+                            x.Person.Division.Name.Contains(term) ||
+                            x.Person.Division.Department.Name.Contains(term) ||
+                            x.Person.Paygrade.Value.Contains(term) ||
+                            x.Person.UIC.Value.Contains(term) ||
+                            x.Person.Designation.Value.Contains(term));
+                    }
+                }
+            }
 
-            if (submittedBy.HasValue)
-                query = query.Where(x => x.SubmittedBy.Id == submittedBy);
+            if (!String.IsNullOrWhiteSpace(submittedBy))
+            {
+                if (Guid.TryParse(submittedBy, out Guid id))
+                {
+                    query = query.Where(x => x.SubmittedBy.Id == id);
+                }
+                else
+                {
+                    foreach (var term in submittedBy.Split(',', ' ', ';', '-'))
+                    {
+                        query = query.Where(x =>
+                            x.SubmittedBy.FirstName.Contains(term) ||
+                            x.SubmittedBy.LastName.Contains(term) ||
+                            x.SubmittedBy.MiddleName.Contains(term) ||
+                            x.SubmittedBy.Division.Name.Contains(term) ||
+                            x.SubmittedBy.Division.Department.Name.Contains(term) ||
+                            x.SubmittedBy.Paygrade.Value.Contains(term) ||
+                            x.SubmittedBy.UIC.Value.Contains(term) ||
+                            x.SubmittedBy.Designation.Value.Contains(term));
+                    }
+                }
+            }
 
-            if (start.HasValue && !end.HasValue)
-                query = query.Where(x => x.Range.Start >= start || x.Range.End >= start);
-            else if (end.HasValue && !start.HasValue)
-                query = query.Where(x => x.Range.Start <= end || x.Range.End <= end);
-            else if (end.HasValue && end.HasValue)
-                query = query.Where(x => x.Range.Start <= end && x.Range.End >= start);
+            if (!String.IsNullOrWhiteSpace(accountabilityType))
+            {
+                if (Guid.TryParse(accountabilityType, out Guid id))
+                {
+                    query = query.Where(x => x.AccountabilityType.Id == id);
+                }
+                else
+                {
+                    var terms = accountabilityType.Split(',', ' ', ';', '-');
 
-            if (reason.HasValue)
-                query = query.Where(x => x.Reason.Id == reason);
+                    Expression<Func<StatusPeriod, bool>> predicate = x => x.AccountabilityType.Value.Contains(terms.First());
+
+                    foreach (var term in terms.Skip(1))
+                    {
+                        predicate = predicate.Or(x => x.AccountabilityType.Value.Contains(term));
+                    }
+
+                    query = query.Where(predicate);
+                }
+            }
+
+            if (from.HasValue && !to.HasValue)
+                query = query.Where(x => x.Range.Start >= from || x.Range.End >= from);
+            else if (to.HasValue && !from.HasValue)
+                query = query.Where(x => x.Range.Start <= to || x.Range.End <= to);
+            else if (to.HasValue && to.HasValue)
+                query = query.Where(x => x.Range.Start <= to && x.Range.End >= from);
 
             if (exemptsFromWatch.HasValue)
                 query = query.Where(x => x.ExemptsFromWatch == exemptsFromWatch);
 
             if (String.Equals(orderBy, nameof(TimeRange.Start), StringComparison.CurrentCultureIgnoreCase))
-                query = query.OrderBy(x => x.Range.Start).Desc;
+                query = query.OrderByDescending(x => x.Range.Start);
             else if (String.Equals(orderBy, nameof(StatusPeriod.DateSubmitted), StringComparison.CurrentCultureIgnoreCase))
-                query = query.OrderBy(x => x.DateSubmitted).Desc;
+                query = query.OrderByDescending(x => x.DateSubmitted);
             else
                 return BadRequest($"Your requested value '{orderBy}' for the parameter '{nameof(orderBy)}' is not supported.  The supported values are '{nameof(TimeRange.Start)}' (this is the default) and '{nameof(StatusPeriod.DateSubmitted)}'.");
 
-            var result = query.OrderBy(x => x.Range.Start).Desc.Take(limit)
-                .Future()
+            var result = query
+                .Take(limit)
+                .ToFuture()
                 .Where(statusPeriod => User.GetFieldPermissions<Person>(statusPeriod.Person).CanReturn(x => x.StatusPeriods))
                 .Select(statusPeriod =>
                     new DTOs.StatusPeriod.Get
@@ -88,7 +151,7 @@ namespace CommandCentral.Controllers
                         Id = statusPeriod.Id,
                         Person = statusPeriod.Person.Id,
                         Range = statusPeriod.Range,
-                        Reason = statusPeriod.Reason.Id,
+                        Reason = statusPeriod.AccountabilityType.Id,
                         SubmittedBy = statusPeriod.SubmittedBy.Id,
                         DateLastModified = statusPeriod.DateLastModified,
                         LastModifiedBy = statusPeriod.LastModifiedBy.Id
@@ -98,9 +161,9 @@ namespace CommandCentral.Controllers
         }
 
         /// <summary>
-        /// Returns the status period identified by the given Id.
+        /// Retrieves the status period identified by the given Id.
         /// </summary>
-        /// <param name="id">The id of the status period to return.</param>
+        /// <param name="id">The id of the status period to retrieve.</param>
         /// <returns></returns>
         [HttpGet("{id}")]
         [RequireAuthentication]
@@ -121,7 +184,7 @@ namespace CommandCentral.Controllers
                 Id = item.Id,
                 Person = item.Person.Id,
                 Range = item.Range,
-                Reason = item.Reason.Id,
+                Reason = item.AccountabilityType.Id,
                 SubmittedBy = item.SubmittedBy.Id,
                 DateLastModified = item.DateLastModified,
                 LastModifiedBy = item.LastModifiedBy.Id
@@ -138,6 +201,9 @@ namespace CommandCentral.Controllers
         [ProducesResponseType(200, Type = typeof(DTOs.StatusPeriod.Get))]
         public IActionResult Post([FromBody]DTOs.StatusPeriod.Post dto)
         {
+            if (dto == null)
+                return BadRequest();
+
             var person = DBSession.Get<Person>(dto.Person);
             if (person == null)
                 return NotFound($"Unable to find object referenced by parameter: {nameof(dto.Person)}.");
@@ -150,7 +216,7 @@ namespace CommandCentral.Controllers
             if (!User.GetFieldPermissions<Person>(person).CanEdit(x => x.StatusPeriods))
                 return Forbid("Can not submit a status period for this person.");
 
-            var reason = ReferenceListHelper<StatusPeriodReason>.Get(dto.Reason);
+            var reason = ReferenceListHelper<AccountabilityType>.Get(dto.Reason);
             if (reason == null)
                 return NotFound($"Unable to find object referenced by parameter: {nameof(dto.Reason)}.");
 
@@ -161,7 +227,7 @@ namespace CommandCentral.Controllers
                 Id = Guid.NewGuid(),
                 Person = person,
                 Range = dto.Range,
-                Reason = reason,
+                AccountabilityType = reason,
                 SubmittedBy = User,
                 DateLastModified = CallTime,
                 LastModifiedBy = User
@@ -183,7 +249,7 @@ namespace CommandCentral.Controllers
                     Id = item.Id,
                     Person = item.Person.Id,
                     Range = item.Range,
-                    Reason = item.Reason.Id,
+                    Reason = item.AccountabilityType.Id,
                     SubmittedBy = item.SubmittedBy.Id,
                     DateLastModified = item.DateLastModified,
                     LastModifiedBy = item.LastModifiedBy.Id
@@ -202,6 +268,9 @@ namespace CommandCentral.Controllers
         [ProducesResponseType(200, Type = typeof(DTOs.StatusPeriod.Get))]
         public IActionResult Put(Guid id, [FromBody]DTOs.StatusPeriod.Put dto)
         {
+            if (dto == null)
+                return BadRequest();
+
             var item = DBSession.Get<StatusPeriod>(id);
             if (item == null)
                 return NotFound();
@@ -216,7 +285,7 @@ namespace CommandCentral.Controllers
                 return Forbid();
             }
 
-            var reason = ReferenceListHelper<StatusPeriodReason>.Get(dto.Reason);
+            var reason = ReferenceListHelper<AccountabilityType>.Get(dto.Reason);
             if (reason == null)
                 return NotFound($"Unable to find object referenced by parameter: {nameof(dto.Reason)}.");
 
@@ -224,7 +293,7 @@ namespace CommandCentral.Controllers
             {
                 item.ExemptsFromWatch = dto.ExemptsFromWatch;
                 item.Range = dto.Range;
-                item.Reason = reason;
+                item.AccountabilityType = reason;
                 item.LastModifiedBy = User;
                 item.DateLastModified = CallTime;
 
@@ -242,7 +311,7 @@ namespace CommandCentral.Controllers
                     Id = item.Id,
                     Person = item.Person.Id,
                     Range = item.Range,
-                    Reason = item.Reason.Id,
+                    Reason = item.AccountabilityType.Id,
                     SubmittedBy = item.SubmittedBy.Id,
                     DateLastModified = item.DateLastModified,
                     LastModifiedBy = item.LastModifiedBy.Id
@@ -284,7 +353,7 @@ namespace CommandCentral.Controllers
                 transaction.Commit();
             }
 
-            return Ok();
+            return NoContent();
         }
     }
 }

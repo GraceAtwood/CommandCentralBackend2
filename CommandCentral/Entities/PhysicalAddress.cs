@@ -136,48 +136,6 @@ namespace CommandCentral.Entities
                     .Matches(@"^\d{5}(?:[-\s]\d{4})?$").WithMessage("Your zip code was not valid.");
             }
         }
-
-        /// <summary>
-        /// Provides searching strategies.
-        /// </summary>
-        public class PhysicalAddressQueryProvider : QueryStrategyProvider<PhysicalAddress>
-        {
-            /// <summary>
-            /// Provides searching strategies.
-            /// </summary>
-            public PhysicalAddressQueryProvider()
-            {
-                ForProperties(
-                    x => x.Id)
-                .AsType(SearchDataTypes.String)
-                .CanBeUsedIn(QueryTypes.Advanced)
-                .UsingStrategy(token =>
-                {
-                    return CommonQueryStrategies.IdQuery(token.SearchParameter.Key.GetPropertyName(), token.SearchParameter.Value);
-                });
-
-                ForProperties(
-                    x => x.Address,
-                    x => x.City,
-                    x => x.State,
-                    x => x.ZipCode,
-                    x => x.Country)
-                .AsType(SearchDataTypes.String)
-                .CanBeUsedIn(QueryTypes.Advanced, QueryTypes.Simple)
-                .UsingStrategy(token =>
-                {
-                    return CommonQueryStrategies.StringQuery(token.SearchParameter.Key.GetPropertyName(), token.SearchParameter.Value);
-                });
-
-                ForProperties(
-                    x => x.IsHomeAddress)
-                .AsType(SearchDataTypes.Boolean)
-                .CanBeUsedIn(QueryTypes.Advanced)
-                .UsingStrategy(token =>
-                {
-                    return CommonQueryStrategies.BooleanQuery(token.SearchParameter.Key.GetPropertyName(), token.SearchParameter.Value);
-                });
-            }
-        }
+        
     }
 }

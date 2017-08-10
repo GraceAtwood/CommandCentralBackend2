@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CommandCentral
+namespace CommandCentral.Framework
 {
     public class AssignSwaggerAPIKeyHeader : IOperationFilter
     {

@@ -8,7 +8,7 @@ using NHibernate.Criterion;
 using CommandCentral.Framework;
 using FluentValidation.Results;
 
-namespace CommandCentral.Entities.ReferenceLists
+namespace CommandCentral.Entities
 {
     /// <summary>
     /// Describes a single Division.

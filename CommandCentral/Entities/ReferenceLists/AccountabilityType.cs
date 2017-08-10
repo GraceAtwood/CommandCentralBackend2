@@ -7,11 +7,11 @@ using FluentNHibernate.Mapping;
 
 namespace CommandCentral.Entities.ReferenceLists
 {
-    public class StatusPeriodReason : ReferenceListItemBase
+    public class AccountabilityType : ReferenceListItemBase
     {
-        public class MusterStatusMapping : ClassMap<StatusPeriodReason>
+        public class AccountabilityTypeMapping : ClassMap<AccountabilityType>
         {
-            public MusterStatusMapping()
+            public AccountabilityTypeMapping()
             {
                 Id(x => x.Id).GeneratedBy.Assigned();
 
