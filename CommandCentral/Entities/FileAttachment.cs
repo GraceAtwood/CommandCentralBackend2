@@ -8,14 +8,29 @@ using System.IO;
 
 namespace CommandCentral.Entities
 {
-    public class FileAttachment : Entity, IHazComments
+    /// <summary>
+    /// A file attachment is a binary file of some kind with an overlay image on which clints can draw.
+    /// </summary>
+    public class FileAttachment : Entity
     {
+        /// <summary>
+        /// The path to the attachments directory as set in the .json app settings.
+        /// </summary>
         public static string AttachmentsDirectory = Utilities.ConfigurationUtility.Configuration["Attachments"];
 
-        public virtual IList<Comment> Comments { get; set; }
-
+        /// <summary>
+        /// The object that owns this file attachment.
+        /// </summary>
         public virtual IHazAttachments OwningEntity { get; set; }
 
+        /// <summary>
+        /// The file extension for this attachment.
+        /// </summary>
+        public virtual string FileExtension { get; set; }
+
+        /// <summary>
+        /// Returns the file path for the attachment itself.
+        /// </summary>
         public virtual string AttachmentFilePath
         {
             get
@@ -24,6 +39,9 @@ namespace CommandCentral.Entities
             }
         }
 
+        /// <summary>
+        /// Returns the file path to the overlay image for this file attachment.
+        /// </summary>
         public virtual string OverlayFilePath
         {
             get
@@ -31,22 +49,29 @@ namespace CommandCentral.Entities
                 return Path.Combine(Directory.GetCurrentDirectory(), AttachmentsDirectory, Id.ToString() + ".ccover");
             }
         }
-
-        public bool CanPersonAccessComments(Person person)
-        {
-            throw new NotImplementedException();
-        }
-
+        
+        /// <summary>
+        /// Not implemented.
+        /// </summary>
+        /// <returns></returns>
         public override ValidationResult Validate()
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Maps this object to the database.
+        /// </summary>
         public class FileAttachmentMapping : ClassMap<FileAttachment>
         {
+            /// <summary>
+            /// Maps this object to the database.
+            /// </summary>
             public FileAttachmentMapping()
             {
                 Id(x => x.Id).GeneratedBy.Assigned();
+
+                Map(x => x.FileExtension).Not.Nullable();
 
                 ReferencesAny(x => x.OwningEntity)
                     .AddMetaValue<NewsItem>(typeof(Correspondence.CorrespondenceItem).Name)
