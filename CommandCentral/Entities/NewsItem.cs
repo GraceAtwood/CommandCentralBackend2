@@ -15,7 +15,6 @@ namespace CommandCentral.Entities
     /// </summary>
     public class NewsItem : Entity, IHazComments
     {
-
         #region Properties
         
         /// <summary>

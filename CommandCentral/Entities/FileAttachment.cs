@@ -74,7 +74,7 @@ namespace CommandCentral.Entities
                 Map(x => x.FileExtension).Not.Nullable();
 
                 ReferencesAny(x => x.OwningEntity)
-                    .AddMetaValue<NewsItem>(typeof(Correspondence.CorrespondenceItem).Name)
+                    .AddMetaValue<Correspondence.CorrespondenceItem>(typeof(Correspondence.CorrespondenceItem).Name)
                     //Uncomment this and the line below when adding comments to a Person breaks.  This is an experiment to make sure I understand this shit.
                     //.AddMetaValue<Person>(typeof(Person).Name)
                     .IdentityType<Guid>()
