@@ -18,6 +18,7 @@ using FluentValidation.Results;
 using CommandCentral.Entities.Muster;
 using NHibernate;
 using System.Linq.Expressions;
+using NHibernate.Linq;
 
 namespace CommandCentral.Entities
 {
@@ -31,7 +32,7 @@ namespace CommandCentral.Entities
         #region Properties
 
         #region Main Properties
-        
+
         /// <summary>
         /// The person's last name.
         /// </summary>
@@ -83,7 +84,7 @@ namespace CommandCentral.Entities
         [CanEditIfSelf]
         [CanReturnIfSelf]
         [CanReturnIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        public virtual DateTime? DateOfBirth { get; set; }
+        public virtual DateTime DateOfBirth { get; set; }
 
         /// <summary>
         /// The person's age.  0 if the date of birth isn't set.
@@ -93,17 +94,17 @@ namespace CommandCentral.Entities
         {
             get
             {
-                if (DateOfBirth == null || !DateOfBirth.HasValue)
+                if (DateOfBirth == default(DateTime))
                     return 0;
 
-                if (DateTime.Today.Month < DateOfBirth.Value.Month ||
-                    DateTime.Today.Month == DateOfBirth.Value.Month &&
-                    DateTime.Today.Day < DateOfBirth.Value.Day)
+                if (DateTime.Today.Month < DateOfBirth.Month ||
+                    DateTime.Today.Month == DateOfBirth.Month &&
+                    DateTime.Today.Day < DateOfBirth.Day)
                 {
-                    return DateTime.Today.Year - DateOfBirth.Value.Year - 1;
+                    return DateTime.Today.Year - DateOfBirth.Year - 1;
                 }
 
-                return DateTime.Today.Year - DateOfBirth.Value.Year;
+                return DateTime.Today.Year - DateOfBirth.Year;
             }
         }
 
@@ -169,7 +170,7 @@ namespace CommandCentral.Entities
                 return Department?.Command;
             }
         }
-        
+
         /// <summary>
         /// The date this person received government travel card training.  Temporary and should be implemented in the training module.
         /// </summary>
@@ -242,7 +243,7 @@ namespace CommandCentral.Entities
         /// The date/time that the person arrived at the command.
         /// </summary>
         [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        public virtual DateTime? DateOfArrival { get; set; }
+        public virtual DateTime DateOfArrival { get; set; }
 
         /// <summary>
         /// The client's job title.
@@ -338,7 +339,7 @@ namespace CommandCentral.Entities
         /// The list of the person's permissions.  This is not persisted in the database.  Only the names are.
         /// </summary>
         [HiddenFromPermissions]
-        public virtual IList<PermissionGroup> PermissionGroups { get; set; } = new List<PermissionGroup> ();
+        public virtual IList<PermissionGroup> PermissionGroups { get; set; } = new List<PermissionGroup>();
 
         /// <summary>
         /// A list containing account history events, these are events that track things like login, password reset, etc.
@@ -441,7 +442,7 @@ namespace CommandCentral.Entities
         {
             return new Validator().Validate(this);
         }
-        
+
         /// <summary>
         /// Maps a person to the database.
         /// </summary>
@@ -456,35 +457,35 @@ namespace CommandCentral.Entities
 
                 References(x => x.Ethnicity).Nullable();
                 References(x => x.ReligiousPreference).Nullable();
-                References(x => x.Designation).Nullable();
-                References(x => x.Division).Nullable();
+                References(x => x.Designation).Not.Nullable();
+                References(x => x.Division).Not.Nullable();
                 References(x => x.UIC).Nullable();
                 References(x => x.Paygrade).Not.Nullable();
                 References(x => x.DutyStatus).Not.Nullable();
                 References(x => x.Sex).Not.Nullable();
                 References(x => x.BilletAssignment);
 
-                Map(x => x.LastName).Not.Nullable().Length(40);
-                Map(x => x.FirstName).Not.Nullable().Length(40);
-                Map(x => x.MiddleName).Nullable().Length(40);
-                Map(x => x.SSN).Not.Nullable().Length(40).Unique();
-                Map(x => x.DoDId).Unique();
+                Map(x => x.LastName).Not.Nullable();
+                Map(x => x.FirstName).Not.Nullable();
+                Map(x => x.MiddleName);
+                Map(x => x.SSN).Not.Nullable().Unique();
+                Map(x => x.DoDId).Not.Nullable().Unique();
                 Map(x => x.DateOfBirth).Not.Nullable();
-                Map(x => x.Supervisor).Nullable().Length(40);
-                Map(x => x.WorkCenter).Nullable().Length(40);
-                Map(x => x.WorkRoom).Nullable().Length(40);
-                Map(x => x.Shift).Nullable().Length(40);
+                Map(x => x.Supervisor);
+                Map(x => x.WorkCenter);
+                Map(x => x.WorkRoom);
+                Map(x => x.Shift);
                 Map(x => x.DateOfArrival).Not.Nullable();
-                Map(x => x.JobTitle).Nullable().Length(40);
+                Map(x => x.JobTitle);
                 Map(x => x.EAOS).CustomType<UtcDateTimeType>();
                 Map(x => x.PRD).CustomType<UtcDateTimeType>();
-                Map(x => x.DateOfDeparture).Nullable().CustomType<UtcDateTimeType>();
+                Map(x => x.DateOfDeparture).CustomType<UtcDateTimeType>();
                 Map(x => x.IsClaimed).Not.Nullable().Default(false.ToString());
-                Map(x => x.Username).Nullable().Length(40).Unique();
-                Map(x => x.PasswordHash).Nullable().Length(100);
-                Map(x => x.Suffix).Nullable().Length(40);
-                Map(x => x.GTCTrainingDate).Nullable().CustomType<UtcDateTimeType>();
-                Map(x => x.ADAMSTrainingDate).Nullable().CustomType<UtcDateTimeType>();
+                Map(x => x.Username).Unique();
+                Map(x => x.PasswordHash).Unique();
+                Map(x => x.Suffix);
+                Map(x => x.GTCTrainingDate).CustomType<UtcDateTimeType>();
+                Map(x => x.ADAMSTrainingDate).CustomType<UtcDateTimeType>();
                 Map(x => x.HasCompletedAWARE).Not.Nullable().Default(false.ToString());
 
                 HasMany(x => x.NECs).Cascade.All();
@@ -494,7 +495,7 @@ namespace CommandCentral.Entities
                 HasMany(x => x.PhoneNumbers).Cascade.All();
                 HasMany(x => x.PhysicalAddresses).Cascade.All();
                 HasMany(x => x.StatusPeriods).Cascade.All().KeyColumn("Person_id");
-                
+
                 HasManyToMany(x => x.WatchQualifications);
 
                 HasMany(x => x.SubscribedEvents)
@@ -521,21 +522,27 @@ namespace CommandCentral.Entities
             public Validator()
             {
                 RuleFor(x => x.Id).NotEmpty();
-                RuleFor(x => x.LastName).NotEmpty().Length(1, 40)
-                    .WithMessage("The last name must not be left blank and must not exceed 40 characters.");
-                RuleFor(x => x.FirstName).Length(0, 40)
-                    .WithMessage("The first name must not exceed 40 characters.");
-                RuleFor(x => x.MiddleName).Length(0, 40)
-                    .WithMessage("The middle name must not exceed 40 characters.");
-                RuleFor(x => x.Suffix).Length(0, 40)
-                    .WithMessage("The suffix must not exceed 40 characters.");
-                RuleFor(x => x.SSN).NotEmpty().Must(x => System.Text.RegularExpressions.Regex.IsMatch(x, @"^(?!\b(\d)\1+-(\d)\1+-(\d)\1+\b)(?!123-45-6789|219-09-9999|078-05-1120)(?!666|000|9\d{2})\d{3}(?!00)\d{2}(?!0{4})\d{4}$"))
-                    .WithMessage("The SSN must be valid and contain only numbers.");
+                RuleFor(x => x.LastName).NotEmpty().Length(1, 255)
+                    .WithMessage("The last name must not be left blank and must not exceed 255 characters.");
+                RuleFor(x => x.FirstName).NotEmpty().Length(1, 255)
+                    .WithMessage("The first name must not be left blank and must not exceed 255 characters.");
+                RuleFor(x => x.MiddleName).Length(0, 255)
+                    .WithMessage("The middle name must not exceed 255 characters.");
+                RuleFor(x => x.Suffix).Length(0, 255)
+                    .WithMessage("The suffix must not exceed 255 characters.");
+                RuleFor(x => x.SSN).NotEmpty()
+                    .Must(x => System.Text.RegularExpressions.Regex.IsMatch(x, @"^(?!\b(\d)\1+-(\d)\1+-(\d)\1+\b)(?!123-45-6789|219-09-9999|078-05-1120)(?!666|000|9\d{2})\d{3}(?!00)\d{2}(?!0{4})\d{4}$"))
+                        .WithMessage("The SSN must be valid and contain only numbers.")
+                    .Must((person, ssn) => SessionManager.CurrentSession.Query<Person>().Count(x => x.SSN == ssn && x.Id != person.Id) == 0)
+                        .WithMessage("That ssn exists on another profile.  SSNs must be unique.");
+                RuleFor(x => x.DoDId).NotEmpty().Length(10)
+                    .Must(x => x.All(Char.IsDigit))
+                        .WithMessage("All characters of a DoD id must be digits.")
+                    .Must((person, dodId) => SessionManager.CurrentSession.Query<Person>().Count(x => x.DoDId == dodId && x.Id != person.Id) == 0)
+                        .WithMessage("That DoD id exists on another profile.  DoD Ids must be unique.");
                 RuleFor(x => x.DateOfBirth).NotEmpty()
                     .WithMessage("The DOB must not be left blank.");
-                RuleFor(x => x.PRD).NotEmpty()
-                    .WithMessage("The DOB must not be left blank.");
-                RuleFor(x => x.Sex).NotNull()
+                RuleFor(x => x.Sex).NotEmpty().Must(x => ReferenceListHelper<Sex>.IdExists(x.Id))
                     .WithMessage("The sex must not be left blank.");
                 RuleFor(x => x.Command).NotEmpty()
                     .WithMessage("A person must have a command.  If you are trying to indicate this person left the command, please set his or her duty status to 'LOSS'.");
@@ -543,43 +550,39 @@ namespace CommandCentral.Entities
                     .WithMessage("A person must have a department.  If you are trying to indicate this person left the command, please set his or her duty status to 'LOSS'.");
                 RuleFor(x => x.Division).NotEmpty()
                     .WithMessage("A person must have a division.  If you are trying to indicate this person left the command, please set his or her duty status to 'LOSS'.");
-                RuleFor(x => x.Ethnicity).Must(x => ReferenceListHelper<Ethnicity>.IdExists(x.Id))
-                    .WithMessage("Your ethnicity was not found.");
-                RuleFor(x => x.ReligiousPreference).Must(x => ReferenceListHelper<Ethnicity>.IdExists(x.Id))
-                    .WithMessage("Your religious preference was not found.");
-                RuleFor(x => x.Designation).Must(x => ReferenceListHelper<Ethnicity>.IdExists(x.Id))
-                    .WithMessage("Your designation was not found.");
-                RuleFor(x => x.Division).Must(x => ReferenceListHelper<Ethnicity>.IdExists(x.Id))
-                    .WithMessage("Your division was not found.");
-                RuleFor(x => x.Supervisor).Length(0, 40)
-                    .WithMessage("The supervisor field may not be longer than 40 characters.");
-                RuleFor(x => x.WorkCenter).Length(0, 40)
-                    .WithMessage("The work center field may not be longer than 40 characters.");
-                RuleFor(x => x.WorkRoom).Length(0, 40)
-                    .WithMessage("The work room field may not be longer than 40 characters.");
-                RuleFor(x => x.Shift).Length(0, 40)
-                    .WithMessage("The shift field may not be longer than 40 characters.");
-                RuleFor(x => x.UIC).Must(x => ReferenceListHelper<Ethnicity>.IdExists(x.Id))
-                    .WithMessage("Your uic was not found.");
-                RuleFor(x => x.JobTitle).Length(0, 40)
-                    .WithMessage("The job title may not be longer than 40 characters.");
-                When(x => x.IsClaimed, () =>
-                {
-                    RuleFor(x => x.EmailAddresses).Must((person, x) =>
+                RuleFor(x => x.Ethnicity).Must(x =>
                     {
-                        return x.Any(y => y.IsDoDEmailAddress());
-                    }).WithMessage("You must have at least one mail.mil address.");
-                });
-                
-                //Set validations
-                RuleFor(x => x.EmailAddresses)
-                    .SetCollectionValidator(new EmailAddress.Validator());
-                RuleFor(x => x.PhoneNumbers)
-                    .SetCollectionValidator(new PhoneNumber.Validator());
-                RuleFor(x => x.PhysicalAddresses)
-                    .SetCollectionValidator(new PhysicalAddress.Validator());
-            }
+                        if (x != null && !ReferenceListHelper<Ethnicity>.IdExists(x.Id))
+                            return false;
 
+                        return true;
+                    })
+                    .WithMessage("Your ethnicity was not found.");
+                RuleFor(x => x.ReligiousPreference).Must(x =>
+                    {
+                        if (x != null && !ReferenceListHelper<Ethnicity>.IdExists(x.Id))
+                            return false;
+
+                        return true;
+                    })
+                    .WithMessage("Your religious preference was not found.");
+                RuleFor(x => x.Designation).Must(x => ReferenceListHelper<Designation>.IdExists(x.Id))
+                    .WithMessage("Your designation was not found.");
+                RuleFor(x => x.Division).Must(x => SessionManager.CurrentSession.Query<Division>().Count(div => div.Id == x.Id) == 1)
+                    .WithMessage("Your division was not found.");
+                RuleFor(x => x.Supervisor).Length(0, 255)
+                    .WithMessage("The supervisor field may not be longer than 255 characters.");
+                RuleFor(x => x.WorkCenter).Length(0, 255)
+                    .WithMessage("The work center field may not be longer than 255 characters.");
+                RuleFor(x => x.WorkRoom).Length(0, 255)
+                    .WithMessage("The work room field may not be longer than 255 characters.");
+                RuleFor(x => x.Shift).Length(0, 255)
+                    .WithMessage("The shift field may not be longer than 255 characters.");
+                RuleFor(x => x.UIC).Must(x => ReferenceListHelper<UIC>.IdExists(x.Id))
+                    .WithMessage("Your uic was not found.");
+                RuleFor(x => x.JobTitle).Length(0, 255)
+                    .WithMessage("The job title may not be longer than 255 characters.");
+            }
         }
     }
 }

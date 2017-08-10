@@ -51,6 +51,7 @@ namespace CommandCentral.Utilities
             PreDefUtility.PersistPreDef<AccountHistoryType>();
 
             CreateUICs();
+            CreateDesignations();
 
             CreateCommands(1, 1);
             CreateDepartments(2, 4);
@@ -91,6 +92,25 @@ namespace CommandCentral.Utilities
                     SessionManager.CurrentSession.Save(new UIC
                     {
                         Value = Random.RandomString(5),
+                        Description = Random.RandomString(8),
+                        Id = Guid.NewGuid()
+                    });
+
+                }
+
+                transaction.Commit();
+            }
+        }
+
+        private static void CreateDesignations()
+        {
+            using (var transaction = SessionManager.CurrentSession.BeginTransaction())
+            {
+                for (int x = 0; x < Random.GetRandomNumber(5, 10); x++)
+                {
+                    SessionManager.CurrentSession.Save(new Designation
+                    {
+                        Value = Random.RandomString(3),
                         Description = Random.RandomString(8),
                         Id = Guid.NewGuid()
                     });
@@ -205,7 +225,7 @@ namespace CommandCentral.Utilities
 
         private static Person CreatePerson(Division division,
             UIC uic, string lastName, string username, IEnumerable<PermissionGroup> permissionGroups,
-            IEnumerable<WatchQualification> watchQuals, Paygrade paygrade)
+            IEnumerable<WatchQualification> watchQuals, Paygrade paygrade, Designation designation)
         {
             var person = new Person()
             {
@@ -227,7 +247,8 @@ namespace CommandCentral.Utilities
                 Paygrade = paygrade,
                 DutyStatus = ReferenceListHelper<DutyStatus>.Random(1).First(),
                 WatchQualifications = watchQuals.ToList(),
-                PermissionGroups = permissionGroups.ToList()
+                PermissionGroups = permissionGroups.ToList(),
+                Designation = designation
             };
 
             person.FirstName = String.Join("__", person.GetHighestAccessLevels().Select(x => $"{x.Key.ToString().Substring(0, 2)}_{x.Value.ToString().Substring(0, 3)}"));
@@ -281,7 +302,7 @@ namespace CommandCentral.Utilities
 
                 var person = CreatePerson(division, uic, "developer", "dev",
                     new[] { PermissionsCache.PermissionGroupsCache["Developers"] },
-                    ReferenceListHelper<WatchQualification>.All(), ReferenceListHelper<Paygrade>.Find("E5"));
+                    ReferenceListHelper<WatchQualification>.All(), ReferenceListHelper<Paygrade>.Find("E5"), ReferenceListHelper<Designation>.Random(1).First());
 
                 SessionManager.CurrentSession.Save(person);
 
@@ -389,7 +410,7 @@ namespace CommandCentral.Utilities
                                     throw new Exception($"An unknown paygrade was found! {paygrade}");
                                 }
 
-                                var person = CreatePerson(division, uic, "user" + created.ToString(), "user" + created.ToString(), permGroups, quals, paygrade);
+                                var person = CreatePerson(division, uic, "user" + created.ToString(), "user" + created.ToString(), permGroups, quals, paygrade, ReferenceListHelper<Designation>.Random(1).First());
 
                                 SessionManager.CurrentSession.Save(person);
 
