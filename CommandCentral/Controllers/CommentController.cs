@@ -112,7 +112,6 @@ namespace CommandCentral.Controllers
             }
         }
 
-        // DELETE api/values/5
         [HttpDelete("{id}")]
         public IActionResult Delete(Guid id)
         {

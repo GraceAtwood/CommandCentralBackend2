@@ -7,6 +7,7 @@ using CommandCentral.Authorization;
 using NHibernate.Type;
 using CommandCentral.Utilities.Types;
 using FluentValidation.Results;
+using CommandCentral.Framework;
 
 namespace CommandCentral.Entities
 {

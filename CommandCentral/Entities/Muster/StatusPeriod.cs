@@ -9,6 +9,7 @@ using FluentValidation.Results;
 using FluentNHibernate.Mapping;
 using FluentValidation;
 using NHibernate.Type;
+using CommandCentral.Framework;
 
 namespace CommandCentral.Entities.Muster
 {
