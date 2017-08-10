@@ -73,14 +73,14 @@ namespace CommandCentral.Entities.Muster
             {
                 Id(x => x.Id).GeneratedBy.Assigned();
 
-                Map(x => x.Command).Not.Nullable();
-                Map(x => x.Department).Not.Nullable();
-                Map(x => x.Division).Not.Nullable();
-                Map(x => x.Designation).Not.Nullable();
-                Map(x => x.Paygrade).Not.Nullable();
-                Map(x => x.UIC).Not.Nullable();
+                Map(x => x.Command);
+                Map(x => x.Department);
+                Map(x => x.Division);
+                Map(x => x.Designation);
+                Map(x => x.Paygrade);
+                Map(x => x.UIC);
 
-                References(x => x.MusterEntry).Not.Nullable();
+                References(x => x.MusterEntry).Not.Nullable().Unique();
             }
         }
 

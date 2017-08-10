@@ -28,6 +28,18 @@ namespace CommandCentral.Events
             MusterReopened?.Invoke(sender, e);
         }
 
+        public static event EventHandler<MusterEntryEventArgs> MusterEntryDeleted;
+        public static void OnMusterEntryDeleted(MusterEntryEventArgs e, object sender)
+        {
+            MusterEntryDeleted?.Invoke(sender, e);
+        }
+
+        public static event EventHandler<MusterEntryEventArgs> MusterEntrySubmitted;
+        public static void OnMusterEntrySubmitted(MusterEntryEventArgs e, object sender)
+        {
+            MusterEntrySubmitted?.Invoke(sender, e);
+        }
+
         #endregion
 
         public static event EventHandler<LoginFailedEventArgs> LoginFailed;

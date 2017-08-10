@@ -79,7 +79,8 @@ namespace CommandCentral.Entities.Muster
                 References(x => x.AccountabilityType).Not.Nullable();
                 References(x => x.MusterCycle).Not.Nullable();
                 References(x => x.StatusPeriodSetBy);
-                References(x => x.ArchiveInformation);
+
+                References(x => x.ArchiveInformation).Cascade.All();
             }
         }
 

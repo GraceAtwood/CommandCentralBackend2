@@ -82,7 +82,8 @@ namespace CommandCentral.Controllers
         }
 
         [HttpDelete]
-        public IActionResult Logout([FromHeader] string sessionId)
+        [RequireAuthentication]
+        public IActionResult Logout([FromHeader(Name = "X-Session-Id")] string sessionId)
         {
             using (var transaction = DBSession.BeginTransaction())
             {

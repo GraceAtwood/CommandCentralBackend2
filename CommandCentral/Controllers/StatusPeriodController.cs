@@ -47,7 +47,8 @@ namespace CommandCentral.Controllers
         [HttpGet]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.StatusPeriod.Get>))]
-        public IActionResult Get([FromQuery] string person, [FromQuery] string submittedBy, [FromQuery] DateTime? from, [FromQuery] DateTime? to, [FromQuery] string accountabilityType, [FromQuery] bool? exemptsFromWatch, [FromQuery] int limit = 1000, [FromQuery] string orderBy = nameof(TimeRange.Start))
+        public IActionResult Get([FromQuery] string person, [FromQuery] string submittedBy, [FromQuery] DateTime? from, 
+            [FromQuery] DateTime? to, [FromQuery] string accountabilityType, [FromQuery] bool? exemptsFromWatch, [FromQuery] int limit = 1000, [FromQuery] string orderBy = nameof(TimeRange.Start))
         {
             if (limit <= 0)
                 return BadRequest($"The value '{limit}' for the property '{nameof(limit)}' was invalid.  It must be greater than zero.");
@@ -139,7 +140,6 @@ namespace CommandCentral.Controllers
                 return BadRequest($"Your requested value '{orderBy}' for the parameter '{nameof(orderBy)}' is not supported.  The supported values are '{nameof(TimeRange.Start)}' (this is the default) and '{nameof(StatusPeriod.DateSubmitted)}'.");
 
             var result = query
-                .OrderByDescending(x => x.Range.Start)
                 .Take(limit)
                 .ToFuture()
                 .Where(statusPeriod => User.GetFieldPermissions<Person>(statusPeriod.Person).CanReturn(x => x.StatusPeriods))
@@ -161,9 +161,9 @@ namespace CommandCentral.Controllers
         }
 
         /// <summary>
-        /// Returns the status period identified by the given Id.
+        /// Retrieves the status period identified by the given Id.
         /// </summary>
-        /// <param name="id">The id of the status period to return.</param>
+        /// <param name="id">The id of the status period to retrieve.</param>
         /// <returns></returns>
         [HttpGet("{id}")]
         [RequireAuthentication]
@@ -201,6 +201,9 @@ namespace CommandCentral.Controllers
         [ProducesResponseType(200, Type = typeof(DTOs.StatusPeriod.Get))]
         public IActionResult Post([FromBody]DTOs.StatusPeriod.Post dto)
         {
+            if (dto == null)
+                return BadRequest();
+
             var person = DBSession.Get<Person>(dto.Person);
             if (person == null)
                 return NotFound($"Unable to find object referenced by parameter: {nameof(dto.Person)}.");
@@ -265,6 +268,9 @@ namespace CommandCentral.Controllers
         [ProducesResponseType(200, Type = typeof(DTOs.StatusPeriod.Get))]
         public IActionResult Put(Guid id, [FromBody]DTOs.StatusPeriod.Put dto)
         {
+            if (dto == null)
+                return BadRequest();
+
             var item = DBSession.Get<StatusPeriod>(id);
             if (item == null)
                 return NotFound();
@@ -347,7 +353,7 @@ namespace CommandCentral.Controllers
                 transaction.Commit();
             }
 
-            return Ok();
+            return NoContent();
         }
     }
 }
