@@ -20,9 +20,18 @@ using Microsoft.AspNetCore.Routing;
 
 namespace CommandCentral.Framework
 {
+    /// <summary>
+    /// Provides authentication handling and other services for all controllers.  All controllers in the project should inherit from this class.
+    /// <para/>
+    /// I understand that the authentication middle ware for ASP.NET core is where the authentication should be taking place.  I haven't done it there for two reasons:
+    /// I don't know how yet and I gotta do other things.
+    /// Until Command Central moves away from NIPR net, the added functionality the asp.net core identity provider gives us is pretty useless.
+    /// </summary>
     public class CommandCentralController : Controller
     {
-
+        /// <summary>
+        /// Represents the currently logged in user for this HTTP context.  Invalid outside a web request context.
+        /// </summary>
         public new Person User
         {
             get
@@ -31,6 +40,9 @@ namespace CommandCentral.Framework
             }
         }
 
+        /// <summary>
+        /// The earliest time at which the client called the web service.
+        /// </summary>
         public DateTime CallTime
         {
             get
@@ -39,6 +51,9 @@ namespace CommandCentral.Framework
             }
         }
 
+        /// <summary>
+        /// Represents a database session for this web request session.
+        /// </summary>
         public ISession DBSession
         {
             get
@@ -47,6 +62,9 @@ namespace CommandCentral.Framework
             }
         }
 
+        /// <summary>
+        /// The logging instance that should be used for logging... things.
+        /// </summary>
         private ILogger Logger
         {
             get
@@ -100,6 +118,12 @@ namespace CommandCentral.Framework
         public IActionResult Forbid(object value)
         {
             return StatusCode((int)HttpStatusCode.Forbidden, value);
+        }
+
+        [NonAction]
+        public new IActionResult Forbid()
+        {
+            return StatusCode((int)HttpStatusCode.Forbidden);
         }
 
         /// <summary>

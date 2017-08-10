@@ -434,10 +434,6 @@ namespace CommandCentral.Email.EmailInterface
                     }
                 });
             }
-            else
-            {
-                //TODO Logging.Log.Debug("An email was suppressed (no smtp hosts).  Subject: {0}".With(Message.Subject));
-            }
         }
 
         #endregion

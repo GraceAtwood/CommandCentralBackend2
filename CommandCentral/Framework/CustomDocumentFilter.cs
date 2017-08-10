@@ -13,7 +13,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web.Http.Description;
 
-namespace CommandCentral
+namespace CommandCentral.Framework
 {
     public class CustomDocumentFilter : IDocumentFilter
     {

@@ -17,13 +17,15 @@ using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.Application;
 using System.Reflection;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using FluentScheduler;
 
-namespace CommandCentral.CLI
+namespace CommandCentral.Framework
 {
     public class Startup
     {
         public Startup(IHostingEnvironment env)
         {
+            RegisterCronOperations();
         }
 
         /// <summary>
@@ -35,7 +37,7 @@ namespace CommandCentral.CLI
             // Add framework services.
             services.AddMvc(config =>
             {
-                config.Filters.Add(typeof(Framework.GlobalExceptionFilter));
+                config.Filters.Add(typeof(GlobalExceptionFilter));
             })
             .AddJsonOptions(options =>
             {
@@ -120,6 +122,16 @@ namespace CommandCentral.CLI
 
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "V1 Docs");
             });
+        }
+
+        private void RegisterCronOperations()
+        {
+
+            var registries = Assembly.GetExecutingAssembly()
+                .GetTypes().Where(x => typeof(Registry).IsAssignableFrom(x))
+                .Select(x => (Registry)Activator.CreateInstance(x));
+
+            JobManager.Initialize(registries.ToArray());
         }
     }
 }

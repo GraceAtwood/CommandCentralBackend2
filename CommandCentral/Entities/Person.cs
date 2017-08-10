@@ -4,9 +4,6 @@ using System.Linq;
 using CommandCentral.Entities.ReferenceLists;
 using FluentNHibernate.Mapping;
 using FluentValidation;
-using NHibernate.Transform;
-using NHibernate.Criterion;
-using NHibernate.Linq;
 using System.Reflection;
 using NHibernate.Type;
 using Newtonsoft.Json;
@@ -19,6 +16,8 @@ using CommandCentral.Authorization;
 using CommandCentral.Authorization.Rules;
 using FluentValidation.Results;
 using CommandCentral.Entities.Muster;
+using NHibernate;
+using System.Linq.Expressions;
 
 namespace CommandCentral.Entities
 {
@@ -344,19 +343,24 @@ namespace CommandCentral.Entities
         /// <summary>
         /// A list containing account history events, these are events that track things like login, password reset, etc.
         /// </summary>
-        [HiddenFromPermissions]
+        [CanReturnIfSelf]
+        [CanNeverEdit]
+        [CanReturnIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Command)]
         public virtual IList<AccountHistoryEvent> AccountHistory { get; set; }
 
         /// <summary>
-        /// A list containing all changes that have every occurred to the profile.
+        /// A list containing all changes that have ever occurred to the profile.
         /// </summary>
-        [HiddenFromPermissions]
+        [CanNeverEdit]
         public virtual IList<Change> Changes { get; set; }
 
         /// <summary>
         /// The list of those events to which this person is subscribed.
         /// </summary>
-        [HiddenFromPermissions]
+        [CanEditIfSelf]
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
+        [CanEditIfInChainOfCommand(ChainsOfCommand.QuarterdeckWatchbill, ChainOfCommandLevels.Division)]
+        [CanEditIfInChainOfCommand(ChainsOfCommand.Muster, ChainOfCommandLevels.Division)]
         public virtual IDictionary<Guid, ChainOfCommandLevels> SubscribedEvents { get; set; }
 
         #endregion
@@ -437,7 +441,7 @@ namespace CommandCentral.Entities
         {
             return new Validator().Validate(this);
         }
-
+        
         /// <summary>
         /// Maps a person to the database.
         /// </summary>
@@ -495,7 +499,7 @@ namespace CommandCentral.Entities
 
                 HasMany(x => x.SubscribedEvents)
                     .AsMap<string>(index =>
-                        index.Column("ChangeEventId").Type<Guid>(), element =>
+                        index.Column("ChangeEvent").Type<ChangeEvents>(), element =>
                         element.Column("Level").Type<ChainOfCommandLevels>())
                     .Cascade.All();
 
@@ -577,200 +581,5 @@ namespace CommandCentral.Entities
             }
 
         }
-
-        /// <summary>
-        /// Provides searching strategies for the person object.
-        /// </summary>
-        public class PersonQueryProvider : QueryStrategyProvider<Person>
-        {
-            /// <summary>
-            /// Provides searching strategies for the person object.
-            /// </summary>
-            public PersonQueryProvider()
-            {
-                ForProperties(
-                    x => x.Id)
-                .AsType(SearchDataTypes.String)
-                .CanBeUsedIn(QueryTypes.Advanced)
-                .UsingStrategy(token =>
-                {
-                    return CommonQueryStrategies.IdQuery(token.SearchParameter.Key.GetPropertyName(), token.SearchParameter.Value);
-                });
-
-                ForProperties(
-                    x => x.SSN,
-                    x => x.Suffix,
-                    x => x.Supervisor,
-                    x => x.WorkCenter,
-                    x => x.WorkRoom,
-                    x => x.Shift,
-                    x => x.JobTitle,
-                    x => x.DoDId)
-                .AsType(SearchDataTypes.String)
-                .CanBeUsedIn(QueryTypes.Advanced)
-                .UsingStrategy(token =>
-                {
-                    return CommonQueryStrategies.StringQuery(token.SearchParameter.Key.GetPropertyName(), token.SearchParameter.Value);
-                });
-                              
-                ForProperties(
-                    x => x.LastName,
-                    x => x.FirstName,
-                    x => x.MiddleName)
-                .AsType(SearchDataTypes.String)
-                .CanBeUsedIn(QueryTypes.Advanced, QueryTypes.Simple)
-                .UsingStrategy(token =>
-                {
-                    return CommonQueryStrategies.StringQuery(token.SearchParameter.Key.GetPropertyName(), token.SearchParameter.Value);
-                });
-
-                ForProperties(
-                    x => x.HasCompletedAWARE)
-                .AsType(SearchDataTypes.Boolean)
-                .CanBeUsedIn(QueryTypes.Advanced)
-                .UsingStrategy(token =>
-                    {
-                        return CommonQueryStrategies.BooleanQuery(token.SearchParameter.Key.GetPropertyName(), token.SearchParameter.Value);
-                    });
-
-                ForProperties(
-                    x => x.DateOfBirth,
-                    x => x.GTCTrainingDate,
-                    x => x.ADAMSTrainingDate,
-                    x => x.DateOfArrival,
-                    x => x.EAOS,
-                    x => x.DateOfDeparture,
-                    x => x.PRD)
-                .AsType(SearchDataTypes.DateTime)
-                .CanBeUsedIn(QueryTypes.Advanced)
-                .UsingStrategy(token =>
-                {
-                    return CommonQueryStrategies.DateTimeQuery(token.SearchParameter.Key.GetPropertyName(), token.SearchParameter.Value);
-                });
-
-                ForProperties(
-                    x => x.Sex,
-                    x => x.BilletAssignment,
-                    x => x.Ethnicity,
-                    x => x.ReligiousPreference,
-                    x => x.DutyStatus)
-                .AsType(SearchDataTypes.String)
-                .CanBeUsedIn(QueryTypes.Advanced)
-                .UsingStrategy(token =>
-                {
-                    return CommonQueryStrategies.ReferenceListValueQuery(token.SearchParameter.Key, token.SearchParameter.Value);
-                });
-
-                ForProperties(
-                    x => x.Paygrade,
-                    x => x.Designation,
-                    x => x.Division,
-                    x => x.Department,
-                    x => x.Command,
-                    x => x.UIC)
-                .AsType(SearchDataTypes.String)
-                .CanBeUsedIn(QueryTypes.Advanced, QueryTypes.Simple)
-                .UsingStrategy(token =>
-                {
-                    return CommonQueryStrategies.ReferenceListValueQuery(token.SearchParameter.Key, token.SearchParameter.Value);
-                });
-                
-                ForProperties(
-                    x => x.WatchQualifications)
-                .AsType(SearchDataTypes.String)
-                .CanBeUsedIn(QueryTypes.Advanced)
-                .UsingStrategy(token =>
-                {
-                    WatchQualification qualAlias = null;
-
-                    token.Query = token.Query.JoinAlias(x => x.WatchQualifications, () => qualAlias);
-
-                    //First we need to get what the client gave us into a list of Guids.
-                    if (token.SearchParameter.Value == null)
-                        throw new CommandCentralException("You search value must not be null.", ErrorTypes.Validation);
-
-                    var str = (string)token.SearchParameter.Value;
-
-                    if (String.IsNullOrWhiteSpace(str))
-                        throw new CommandCentralException("Your search value must be a string of values, delineated by white space, semicolons, or commas.", ErrorTypes.Validation);
-
-                    List<string> values = new List<string>();
-                    foreach (var value in str.Split(new[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        if (String.IsNullOrWhiteSpace(value) || String.IsNullOrWhiteSpace(value.Trim()))
-                            throw new CommandCentralException("One of your values was not vallid.", ErrorTypes.Validation);
-
-                        values.Add(value.Trim());
-                    }
-
-                    var disjunction = new Disjunction();
-
-                    foreach (var value in values)
-                    {
-                        disjunction.Add(Restrictions.On(() => qualAlias.Value).IsInsensitiveLike(value, MatchMode.Anywhere));
-                    }
-
-                    return disjunction;
-                });
-                
-                ForProperties(
-                    x => x.EmailAddresses)
-                .AsType(SearchDataTypes.String)
-                .CanBeUsedIn(QueryTypes.Advanced)
-                .UsingStrategy(token =>
-                {
-                    EmailAddress addressAlias = null;
-                    token.Query = token.Query.JoinAlias(x => x.EmailAddresses, () => addressAlias);
-
-                    //First we need to get what the client gave us into a list of Guids.
-                    if (token.SearchParameter.Value == null)
-                        throw new CommandCentralException("You search value must not be null.", ErrorTypes.Validation);
-
-                    var str = (string)token.SearchParameter.Value;
-
-                    if (String.IsNullOrWhiteSpace(str))
-                        throw new CommandCentralException("Your search value must be a string of values, delineated by white space, semicolons, or commas.", ErrorTypes.Validation);
-
-                    List<string> values = new List<string>();
-                    foreach (var value in str.Split(new[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        if (String.IsNullOrWhiteSpace(value) || String.IsNullOrWhiteSpace(value.Trim()))
-                            throw new CommandCentralException("One of your values was not valid.", ErrorTypes.Validation);
-
-                        values.Add(value.Trim());
-                    }
-
-                    var disjunction = new Disjunction();
-
-                    foreach (var value in values)
-                    {
-                        disjunction.Add(Restrictions.On(() => addressAlias.Address).IsInsensitiveLike(value, MatchMode.Anywhere));
-                    }
-
-                    return disjunction;
-                });
-
-                ForProperties(
-                    x => x.PhysicalAddresses)
-                .AsType(SearchDataTypes.String)
-                .CanBeUsedIn(QueryTypes.Advanced)
-                .UsingStrategy(token =>
-                {
-                    PhysicalAddress addressAlias = null;
-                    token.Query.JoinAlias(x => x.PhysicalAddresses, () => addressAlias);
-
-                    var query = new PhysicalAddress.PhysicalAddressQueryProvider().CreateQuery(QueryTypes.Simple, token.SearchParameter.Value);
-
-                    using (var session = SessionManager.CurrentSession)
-                    {
-                        var ids = query.GetExecutableQueryOver(session).Select(x => x.Id).List<Guid>();
-
-                        return Restrictions.On(() => addressAlias.Id).IsIn(ids.ToList());
-                    }
-
-                });
-            }
-        }
-
     }
 }

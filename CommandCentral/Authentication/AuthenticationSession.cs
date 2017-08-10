@@ -49,11 +49,6 @@ namespace CommandCentral.Authentication
         /// </summary>
         public virtual DateTime LastUsedTime { get; set; }
 
-        /// <summary>
-        /// Shows all messages that were sent during this session.
-        /// </summary>
-        public virtual IList<MessageLog> Messages { get; set; }
-
         #endregion
 
         #region Helper Methods
@@ -64,13 +59,12 @@ namespace CommandCentral.Authentication
         /// <returns></returns>
         public virtual bool IsValid()
         {
+            if (!IsActive)
+                return false;
 
             #if DEBUG
             return true;
             #endif
-
-            if (!IsActive)
-                return false;
 
             if (DateTime.UtcNow.Subtract(LastUsedTime) >= _maxAge)
                 return false;
@@ -97,7 +91,6 @@ namespace CommandCentral.Authentication
                 Map(x => x.IsActive).Not.Nullable();
                 Map(x => x.LastUsedTime);
                 References(x => x.Person).LazyLoad(Laziness.False);
-                HasMany(x => x.Messages).Inverse().Cascade.All();
 
                 Cache.ReadWrite();
             }

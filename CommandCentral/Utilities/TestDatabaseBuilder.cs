@@ -1,11 +1,13 @@
 ﻿using CommandCentral.Authentication;
 using CommandCentral.Authorization;
 using CommandCentral.Entities;
+using CommandCentral.Entities.Muster;
 using CommandCentral.Entities.ReferenceLists;
 using CommandCentral.Entities.ReferenceLists.Watchbill;
 using CommandCentral.Enums;
 using CommandCentral.Framework.Data;
 using CommandCentral.PreDefs;
+using CommandCentral.Utilities.Types;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 using System;
@@ -44,7 +46,7 @@ namespace CommandCentral.Utilities
             PreDefUtility.PersistPreDef<WatchAssignmentState>();
             PreDefUtility.PersistPreDef<PhoneNumberType>();
             PreDefUtility.PersistPreDef<Paygrade>();
-            PreDefUtility.PersistPreDef<StatusPeriodReason>();
+            PreDefUtility.PersistPreDef<AccountabilityType>();
             PreDefUtility.PersistPreDef<DutyStatus>();
             PreDefUtility.PersistPreDef<AccountHistoryType>();
 
@@ -105,7 +107,7 @@ namespace CommandCentral.Utilities
             {
                 for (int x = 0; x < Random.GetRandomNumber(2, 4); x++)
                 {
-                    SessionManager.CurrentSession.Save(new Command
+                    var command = new Command
                     {
                         Description = Random.RandomString(8),
                         Name = x.ToString(),
@@ -114,8 +116,30 @@ namespace CommandCentral.Utilities
                         City = "Happyville",
                         Country = "USA",
                         State = "Texas",
-                        ZipCode = "55555"
-                    });
+                        ZipCode = "55555",
+                        MusterStartHour = 16
+                    };
+
+                    DateTime startTime;
+                    if (DateTime.UtcNow.Hour < command.MusterStartHour)
+                        startTime = DateTime.UtcNow.Date.AddDays(-1).AddHours(command.MusterStartHour);
+                    else
+                        startTime = DateTime.UtcNow.Date.AddHours(command.MusterStartHour);
+
+                    var cycle = new MusterCycle
+                    {
+                        Command = command,
+                        Id = Guid.NewGuid(),
+                        Range = new TimeRange
+                        {
+                            Start = startTime,
+                            End = startTime.AddDays(1)
+                        }
+                    };
+
+                    command.CurrentMusterCycle = cycle;
+
+                    SessionManager.CurrentSession.SaveOrUpdate(command);
                 }
 
                 transaction.Commit();
