@@ -54,6 +54,11 @@ namespace CommandCentral.Entities.Correspondence
         public virtual IList<CorrespondenceReview> Reviews { get; set; }
 
         /// <summary>
+        /// The list of persons this correspondence item has been shared with.
+        /// </summary>
+        public virtual IList<Person> SharedWith { get; set; }
+
+        /// <summary>
         /// The person who is ultimately responsible for approving or denying this correspondence.
         /// </summary>
         public virtual Person FinalApprover { get; set; }
@@ -150,6 +155,8 @@ namespace CommandCentral.Entities.Correspondence
 
                 HasMany(x => x.Reviews)
                     .Cascade.AllDeleteOrphan();
+
+                HasMany(x => x.SharedWith);
             }
         }
 

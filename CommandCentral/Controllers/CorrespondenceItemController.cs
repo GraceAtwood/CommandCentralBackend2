@@ -11,6 +11,7 @@ using CommandCentral.Entities.ReferenceLists;
 using CommandCentral.Authorization;
 using CommandCentral.Enums;
 using NHibernate.Linq;
+using CommandCentral.Entities.Correspondence;
 
 namespace CommandCentral.Controllers
 {
@@ -31,7 +32,16 @@ namespace CommandCentral.Controllers
         [ProducesResponseType(200, Type = typeof(DTOs.CorrespondenceItem.Get))]
         public IActionResult Get(Guid id)
         {
-            throw new NotImplementedException();
+            var item = DBSession.Get<CorrespondenceItem>(id);
+            if (item == null)
+                return NotFound();
+
+            if (item.SubmittedBy != User && item.SubmittedFor != User &&
+                !item.Reviews.Any(x => x.Reviewer == User || x.ReviewedBy == User) &&
+                !item.SharedWith.Contains(User))
+                return Forbid();
+
+            return Ok(new DTOs.CorrespondenceItem.Get(item));
         }
 
         [HttpPost]
