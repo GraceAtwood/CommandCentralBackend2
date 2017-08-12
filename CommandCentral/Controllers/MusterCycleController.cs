@@ -100,7 +100,7 @@ namespace CommandCentral.Controllers
                 {
                     if (Guid.TryParse(phrase, out Guid id))
                     {
-                        predicate = predicate.NullSafeOr(x => x.Id == id);
+                        predicate = predicate.NullSafeOr(x => x.Command.Id == id);
                     }
                     else
                     {
