@@ -34,7 +34,6 @@ namespace CommandCentral.Utilities
 
             SessionManager.Schema.Create(true, true);
 
-            //Entities.Watchbill.WatchAssignment.WatchAssignmentMapping.UpdateForeignKeyRule();
             AddAPIKey();
 
             PreDefUtility.PersistPreDef<WatchQualification>();
