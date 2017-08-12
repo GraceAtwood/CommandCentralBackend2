@@ -19,7 +19,7 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <returns></returns>
         public override FluentValidation.Results.ValidationResult Validate()
         {
-            return new EthnicityValidator().Validate(this);
+            return new Validator().Validate(this);
         }
 
         /// <summary>
@@ -44,12 +44,12 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <summary>
         /// Validates an ethnicity.
         /// </summary>
-        public class EthnicityValidator : AbstractValidator<Ethnicity>
+        public class Validator : AbstractValidator<Ethnicity>
         {
             /// <summary>
             /// Validates an ethnicity.
             /// </summary>
-            public EthnicityValidator()
+            public Validator()
             {
                 RuleFor(x => x.Description).Length(0, 255)
                     .WithMessage("The description of an ethnicity may be no more than 255 characters.");

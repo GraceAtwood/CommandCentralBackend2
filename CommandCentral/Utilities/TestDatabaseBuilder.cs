@@ -3,7 +3,6 @@ using CommandCentral.Authorization;
 using CommandCentral.Entities;
 using CommandCentral.Entities.Muster;
 using CommandCentral.Entities.ReferenceLists;
-using CommandCentral.Entities.ReferenceLists.Watchbill;
 using CommandCentral.Enums;
 using CommandCentral.Framework.Data;
 using CommandCentral.PreDefs;
@@ -40,10 +39,6 @@ namespace CommandCentral.Utilities
 
             PreDefUtility.PersistPreDef<WatchQualification>();
             PreDefUtility.PersistPreDef<Sex>();
-            PreDefUtility.PersistPreDef<WatchbillStatus>();
-            PreDefUtility.PersistPreDef<WatchShiftType>();
-            PreDefUtility.PersistPreDef<WatchEligibilityGroup>();
-            PreDefUtility.PersistPreDef<WatchAssignmentState>();
             PreDefUtility.PersistPreDef<PhoneNumberType>();
             PreDefUtility.PersistPreDef<Paygrade>();
             PreDefUtility.PersistPreDef<AccountabilityType>();
@@ -59,7 +54,6 @@ namespace CommandCentral.Utilities
 
             CreateDeveloper();
             CreateUsers(30);
-
         }
 
         private static void AddAPIKey()
@@ -298,15 +292,11 @@ namespace CommandCentral.Utilities
                 var division = department.Divisions.First();
                 var uic = ReferenceListHelper<UIC>.Random(1).First();
 
-                var eligibilityGroup = ReferenceListHelper<WatchEligibilityGroup>.Find("Quarterdeck");
-
                 var person = CreatePerson(division, uic, "developer", "dev",
                     new[] { PermissionsCache.PermissionGroupsCache["Developers"] },
                     ReferenceListHelper<WatchQualification>.All(), ReferenceListHelper<Paygrade>.Find("E5"), ReferenceListHelper<Designation>.Random(1).First());
 
                 SessionManager.CurrentSession.Save(person);
-
-                eligibilityGroup.EligiblePersons.Add(person);
 
                 SessionManager.CurrentSession.Update(person);
 
@@ -320,8 +310,6 @@ namespace CommandCentral.Utilities
             using (var transaction = SessionManager.CurrentSession.BeginTransaction())
             {
                 var paygrades = ReferenceListHelper<Paygrade>.All().Where(x => (x.Value.Contains("E") && !x.Value.Contains("O")) || (x.Value.Contains("O") && !x.Value.Contains("C")));
-
-                var eligibilityGroup = ReferenceListHelper<WatchEligibilityGroup>.Find("Quarterdeck");
 
                 var divPermGroups = Authorization.PermissionsCache.PermissionGroupsCache.Values
                     .Where(x => x.AccessLevels.Values.Any(y => y == ChainOfCommandLevels.Division) && x.IsMemberOfChainOfCommand).ToList();
@@ -413,20 +401,13 @@ namespace CommandCentral.Utilities
                                 var person = CreatePerson(division, uic, "user" + created.ToString(), "user" + created.ToString(), permGroups, quals, paygrade, ReferenceListHelper<Designation>.Random(1).First());
 
                                 SessionManager.CurrentSession.Save(person);
-
-                                if (!paygrade.IsCivilianPaygrade())
-                                {
-                                    eligibilityGroup.EligiblePersons.Add(person);
-                                }
-
+                                
                                 created++;
 
                             }
                         }
                     }
                 }
-
-                SessionManager.CurrentSession.Update(eligibilityGroup);
 
                 transaction.Commit();
 

@@ -38,11 +38,7 @@
     <None Remove="PreDefs\Def_Paygrades.cc" />
     <None Remove="PreDefs\Def_PhoneNumberTypes.cc" />
     <None Remove="PreDefs\Def_Sexes.cc" />
-    <None Remove="PreDefs\Def_WatchAssignmentStates.cc" />
-    <None Remove="PreDefs\Def_WatchbillStatuses.cc" />
-    <None Remove="PreDefs\Def_WatchEligibilityGroups.cc" />
     <None Remove="PreDefs\Def_WatchQualifications.cc" />
-    <None Remove="PreDefs\Def_WatchShiftTypes.cc" />
     <None Remove="wwwroot\swagger-ui\basic-auth.js" />
   </ItemGroup>
 
@@ -106,11 +102,7 @@
     <EmbeddedResource Include="PreDefs\Def_Paygrades.cc" />
     <EmbeddedResource Include="PreDefs\Def_PhoneNumberTypes.cc" />
     <EmbeddedResource Include="PreDefs\Def_Sexes.cc" />
-    <EmbeddedResource Include="PreDefs\Def_WatchAssignmentStates.cc" />
-    <EmbeddedResource Include="PreDefs\Def_WatchbillStatuses.cc" />
-    <EmbeddedResource Include="PreDefs\Def_WatchEligibilityGroups.cc" />
     <EmbeddedResource Include="PreDefs\Def_WatchQualifications.cc" />
-    <EmbeddedResource Include="PreDefs\Def_WatchShiftTypes.cc" />
     <Content Include="wwwroot\swagger-ui\basic-auth.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
