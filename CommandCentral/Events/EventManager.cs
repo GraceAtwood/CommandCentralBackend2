@@ -62,5 +62,57 @@ namespace CommandCentral.Events
 
         #endregion
 
+        #region Correspondence
+
+        public static event EventHandler<CorrespondenceItemEventArgs> CorrespondenceCreated;
+        public static void OnCorrespondenceCreated(CorrespondenceItemEventArgs e, object sender)
+        {
+            CorrespondenceCreated?.Invoke(sender, e);
+        }
+
+        public static event EventHandler<CorrespondenceReviewEventArgs> NewReviewSubmitted;
+        public static void OnNewReviewSubmitted(CorrespondenceReviewEventArgs e, object sender)
+        {
+            NewReviewSubmitted?.Invoke(sender, e);
+        }
+
+        public static event EventHandler<CorrespondenceReviewEventArgs> ReviewStatusChanged;
+        public static void OnReviewStatusChanged(CorrespondenceReviewEventArgs e, object sender)
+        {
+            ReviewStatusChanged?.Invoke(sender, e);
+        }
+
+        public static event EventHandler<CorrespondenceItemEventArgs> CorrespondenceRoutedToNextPerson;
+        public static void OnCorrespondenceRoutedToNextPerson(CorrespondenceItemEventArgs e, object sender)
+        {
+            CorrespondenceRoutedToNextPerson?.Invoke(sender, e);
+        }
+
+        public static event EventHandler<CorrespondenceItemEventArgs> CorrespondenceCompleted;
+        public static void OnCorrespondenceCompleted(CorrespondenceItemEventArgs e, object sender)
+        {
+            CorrespondenceCompleted?.Invoke(sender, e);
+        }
+
+        public static event EventHandler<CorrespondenceItemEventArgs> CorrespondenceShared;
+        public static void OnCorrespondenceShared(CorrespondenceItemEventArgs e, object sender)
+        {
+            CorrespondenceShared?.Invoke(sender, e);
+        }
+
+        public static event EventHandler<CorrespondenceItemEventArgs> CorrespondenceDeleted;
+        public static void OnCorrespondenceDeleted(CorrespondenceItemEventArgs e, object sender)
+        {
+            CorrespondenceDeleted?.Invoke(sender, e);
+        }
+
+        public static event EventHandler<CorrespondenceItemEventArgs> CorrespondenceModified;
+        public static void OnCorrespondenceModified(CorrespondenceItemEventArgs e, object sender)
+        {
+            CorrespondenceModified?.Invoke(sender, e);
+        }
+
+        #endregion
+
     }
 }

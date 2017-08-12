@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CommandCentral.DTOs.CorrespondenceItem
 {
-    public class Get : Update
+    public class Get : Post
     {
         public Guid Id { get; set; }
         public int SeriesNumber { get; set; }

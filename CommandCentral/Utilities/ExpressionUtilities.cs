@@ -42,7 +42,31 @@ namespace CommandCentral.Utilities
             throw new ArgumentException("'expression' should be a member expression or a method call expression.", "expression");
         }
 
-        public static Expression<Func<T, bool>> Or<T>(this Expression<Func<T, bool>> expr1,
+        public static Expression<Func<T, bool>> NullSafeOr<T>(this Expression<Func<T, bool>> expr1,
+                                                            Expression<Func<T, bool>> expr2)
+        {
+            if (expr2 == null)
+                throw new ArgumentNullException(nameof(expr2));
+
+            if (expr1 == null)
+                return expr2;
+
+            return expr1.Or(expr2);
+        }
+
+        public static Expression<Func<T, bool>> NullSafeAnd<T>(this Expression<Func<T, bool>> expr1,
+                                                            Expression<Func<T, bool>> expr2)
+        {
+            if (expr2 == null)
+                throw new ArgumentNullException(nameof(expr2));
+
+            if (expr1 == null)
+                return expr2;
+
+            return expr1.And(expr2);
+        }
+
+        private static Expression<Func<T, bool>> Or<T>(this Expression<Func<T, bool>> expr1,
                                                             Expression<Func<T, bool>> expr2)
         {
             var invokedExpr = Expression.Invoke(expr2, expr1.Parameters.Cast<Expression>());
@@ -50,7 +74,7 @@ namespace CommandCentral.Utilities
                   (Expression.OrElse(expr1.Body, invokedExpr), expr1.Parameters);
         }
 
-        public static Expression<Func<T, bool>> And<T>(this Expression<Func<T, bool>> expr1,
+        private static Expression<Func<T, bool>> And<T>(this Expression<Func<T, bool>> expr1,
                                                              Expression<Func<T, bool>> expr2)
         {
             var invokedExpr = Expression.Invoke(expr2, expr1.Parameters.Cast<Expression>());

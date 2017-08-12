@@ -54,50 +54,69 @@ namespace CommandCentral.Controllers
 
             if (!String.IsNullOrWhiteSpace(finalizedBy))
             {
-                if (finalizedBy.Equals("[system]", StringComparison.CurrentCultureIgnoreCase))
+                Expression<Func<MusterCycle, bool>> predicate = null;
+
+                foreach (var phrase in finalizedBy.Split(',').Select(x => x.Trim()))
                 {
-                    query = query.Where(x => x.FinalizedBy == null && x.IsFinalized == true);
-                }
-                else if (Guid.TryParse(finalizedBy, out Guid id))
-                {
-                    query = query.Where(x => x.FinalizedBy.Id == id);
-                }
-                else
-                {
-                    foreach (var term in finalizedBy.Split(',', ' ', ';', '-'))
+                    if (phrase.Equals("[system]", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        query = query.Where(x =>
-                            x.FinalizedBy.FirstName.Contains(term) ||
-                            x.FinalizedBy.LastName.Contains(term) ||
-                            x.FinalizedBy.MiddleName.Contains(term) ||
-                            x.FinalizedBy.Division.Name.Contains(term) ||
-                            x.FinalizedBy.Division.Department.Name.Contains(term) ||
-                            x.FinalizedBy.Paygrade.Value.Contains(term) ||
-                            x.FinalizedBy.UIC.Value.Contains(term) ||
-                            x.FinalizedBy.Designation.Value.Contains(term));
+                        isFinalized = null;
+                        predicate = predicate.NullSafeOr(x => x.FinalizedBy == null && x.IsFinalized == true);
+                    }
+                    else if (Guid.TryParse(phrase, out Guid id))
+                    {
+                        predicate = predicate.NullSafeOr(x => x.FinalizedBy.Id == id);
+                    }
+                    else
+                    {
+                        var terms = phrase.Split();
+                        Expression<Func<MusterCycle, bool>> subPredicate = null;
+
+                        foreach (var term in phrase.Split())
+                        {
+                            subPredicate = subPredicate.NullSafeAnd(x =>
+                                x.FinalizedBy.FirstName.Contains(term) ||
+                                x.FinalizedBy.LastName.Contains(term) ||
+                                x.FinalizedBy.MiddleName.Contains(term) ||
+                                x.FinalizedBy.Division.Name.Contains(term) ||
+                                x.FinalizedBy.Division.Department.Name.Contains(term) ||
+                                x.FinalizedBy.Paygrade.Value.Contains(term) ||
+                                x.FinalizedBy.UIC.Value.Contains(term) ||
+                                x.FinalizedBy.Designation.Value.Contains(term));
+                        }
+
+                        predicate = predicate.NullSafeOr(subPredicate);
                     }
                 }
+
+                query = query.Where(predicate);
             }
 
             if (!String.IsNullOrWhiteSpace(command))
             {
-                if (Guid.TryParse(command, out Guid id))
-                {
-                    query = query.Where(x => x.Command.Id == id);
-                }
-                else
-                {
-                    var terms = command.Split(',', ' ', ';', '-');
+                Expression<Func<MusterCycle, bool>> predicate = null;
 
-                    Expression<Func<MusterCycle, bool>> predicate = x => x.Command.Name.Contains(terms.First());
-
-                    foreach (var term in terms.Skip(1))
+                foreach (var phrase in command.Split(',').Select(x => x.Trim()))
+                {
+                    if (Guid.TryParse(phrase, out Guid id))
                     {
-                        predicate = predicate.Or(x => x.Command.Name.Contains(term));
+                        predicate = predicate.NullSafeOr(x => x.Id == id);
                     }
+                    else
+                    {
+                        var terms = phrase.Split();
+                        Expression<Func<MusterCycle, bool>> subPredicate = null;
 
-                    query = query.Where(predicate);
+                        foreach (var term in terms)
+                        {
+                            subPredicate = subPredicate.NullSafeOr(x => x.Command.Name.Contains(term));
+                        }
+
+                        predicate = predicate.NullSafeOr(subPredicate);
+                    }
                 }
+
+                query = query.Where(predicate);
             }
 
             if (from.HasValue && !to.HasValue)
