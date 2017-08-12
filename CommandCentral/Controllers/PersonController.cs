@@ -81,16 +81,16 @@ namespace CommandCentral.Controllers
                 Id = Guid.NewGuid(),
                 DateOfArrival = dto.DateOfArrival,
                 DateOfBirth = dto.DateOfBirth,
-                UIC = ReferenceListHelper<UIC>.Get(dto.UIC),
-                Designation = ReferenceListHelper<Designation>.Get(dto.Designation),
-                Paygrade = ReferenceListHelper<Paygrade>.Get(dto.Paygrade),
+                UIC = DBSession.Get<UIC>(dto.UIC),
+                Designation = DBSession.Get<Designation>(dto.Designation),
+                Paygrade = DBSession.Get<Paygrade>(dto.Paygrade),
                 Division = DBSession.Get<Division>(dto.Division),
                 DoDId = dto.DoDId,
                 SSN = dto.SSN,
                 LastName = dto.LastName,
                 FirstName = dto.FirstName,
-                Sex = ReferenceListHelper<Sex>.Get(dto.Sex),
-                DutyStatus = ReferenceListHelper<DutyStatus>.Get(dto.DutyStatus)
+                Sex = DBSession.Get<Sex>(dto.Sex),
+                DutyStatus = DBSession.Get<DutyStatus>(dto.DutyStatus)
             };
 
             var result = person.Validate();

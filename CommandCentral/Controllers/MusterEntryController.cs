@@ -228,7 +228,7 @@ namespace CommandCentral.Controllers
             if (!User.IsInChainOfCommand(person, ChainsOfCommand.Muster))
                 return Forbid();
 
-            var accountabilityType = ReferenceListHelper<AccountabilityType>.Get(dto.AccountabilityType);
+            var accountabilityType = DBSession.Get<AccountabilityType>(dto.AccountabilityType);
             if (accountabilityType == null)
                 return NotFound($"The object referenced by your parameter '{nameof(dto.AccountabilityType)}' could not be found.");
 
@@ -283,7 +283,7 @@ namespace CommandCentral.Controllers
             if (!User.IsInChainOfCommand(entry.Person, ChainsOfCommand.Muster))
                 return Forbid();
 
-            var accountabilityType = ReferenceListHelper<AccountabilityType>.Get(dto.AccountabilityType);
+            var accountabilityType = DBSession.Get<AccountabilityType>(dto.AccountabilityType);
             if (accountabilityType == null)
                 return NotFound($"The object referenced by your parameter '{nameof(dto.AccountabilityType)}' could not be found.");
 

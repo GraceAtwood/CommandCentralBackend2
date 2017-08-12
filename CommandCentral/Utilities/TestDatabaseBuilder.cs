@@ -42,7 +42,6 @@ namespace CommandCentral.Utilities
             PreDefUtility.PersistPreDef<Paygrade>();
             PreDefUtility.PersistPreDef<AccountabilityType>();
             PreDefUtility.PersistPreDef<DutyStatus>();
-            PreDefUtility.PersistPreDef<AccountHistoryType>();
 
             CreateUICs();
             CreateDesignations();
@@ -232,13 +231,13 @@ namespace CommandCentral.Utilities
                 IsClaimed = true,
                 Username = username,
                 PasswordHash = Authentication.PasswordHash.CreateHash("a"),
-                Sex = ReferenceListHelper<Sex>.Random(1).First(),
+                Sex = ReferenceListHelper.Random<Sex>(1).First(),
                 DateOfBirth = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12), Random.GetRandomNumber(1, 28)),
                 DateOfArrival = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12), Random.GetRandomNumber(1, 28)),
                 EAOS = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12), Random.GetRandomNumber(1, 28)),
                 PRD = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12), Random.GetRandomNumber(1, 28)),
                 Paygrade = paygrade,
-                DutyStatus = ReferenceListHelper<DutyStatus>.Random(1).First(),
+                DutyStatus = ReferenceListHelper.Random<DutyStatus>(1).First(),
                 WatchQualifications = watchQuals.ToList(),
                 PermissionGroups = permissionGroups.ToList(),
                 Designation = designation
@@ -272,7 +271,7 @@ namespace CommandCentral.Utilities
             {
                 new AccountHistoryEvent
                 {
-                    AccountHistoryEventType = ReferenceListHelper<AccountHistoryType>.Find("Creation"),
+                    AccountHistoryEventType = AccountHistoryTypes.Created,
                     EventTime = DateTime.UtcNow,
                     Person = person,
                     Id = Guid.NewGuid()
@@ -289,11 +288,11 @@ namespace CommandCentral.Utilities
                 var command = SessionManager.CurrentSession.QueryOver<Command>().CacheMode(NHibernate.CacheMode.Ignore).List().First();
                 var department = command.Departments.First();
                 var division = department.Divisions.First();
-                var uic = ReferenceListHelper<UIC>.Random(1).First();
+                var uic = ReferenceListHelper.Random<UIC>(1).First();
 
                 var person = CreatePerson(division, uic, "developer", "dev",
                     new[] { PermissionsCache.PermissionGroupsCache["Developers"] },
-                    ReferenceListHelper<WatchQualification>.All(), ReferenceListHelper<Paygrade>.Find("E5"), ReferenceListHelper<Designation>.Random(1).First());
+                    ReferenceListHelper.All<WatchQualification>(), ReferenceListHelper.Find<Paygrade>("E5"), ReferenceListHelper.Random<Designation>(1).First());
 
                 SessionManager.CurrentSession.Save(person);
 
@@ -308,7 +307,7 @@ namespace CommandCentral.Utilities
             int created = 0;
             using (var transaction = SessionManager.CurrentSession.BeginTransaction())
             {
-                var paygrades = ReferenceListHelper<Paygrade>.All().Where(x => (x.Value.Contains("E") && !x.Value.Contains("O")) || (x.Value.Contains("O") && !x.Value.Contains("C")));
+                var paygrades = ReferenceListHelper.All<Paygrade>().Where(x => (x.Value.Contains("E") && !x.Value.Contains("O")) || (x.Value.Contains("O") && !x.Value.Contains("C")));
 
                 var divPermGroups = Authorization.PermissionsCache.PermissionGroupsCache.Values
                     .Where(x => x.AccessLevels.Values.Any(y => y == ChainOfCommandLevels.Division) && x.IsMemberOfChainOfCommand).ToList();
@@ -328,7 +327,7 @@ namespace CommandCentral.Utilities
                             for (int x = 0; x < sailorsPerDivision; x++)
                             {
                                 var paygrade = paygrades.Shuffle().First();
-                                var uic = ReferenceListHelper<UIC>.Random(1).First();
+                                var uic = ReferenceListHelper.Random<UIC>(1).First();
 
                                 List<WatchQualification> quals = new List<WatchQualification>();
                                 List<PermissionGroup> permGroups = new List<PermissionGroup>();
@@ -364,23 +363,23 @@ namespace CommandCentral.Utilities
 
                                 if (paygrade.IsOfficerPaygrade())
                                 {
-                                    quals.Add(ReferenceListHelper<WatchQualification>.Find("CDO"));
+                                    quals.Add(ReferenceListHelper.Find<WatchQualification>("CDO"));
                                 }
                                 else if (paygrade.IsEnlistedPaygrade())
                                 {
                                     if (paygrade.IsChief())
                                     {
-                                        quals.Add(ReferenceListHelper<WatchQualification>.Find("CDO"));
+                                        quals.Add(ReferenceListHelper.Find<WatchQualification>("CDO"));
                                     }
                                     else
                                     {
                                         if (paygrade.IsPettyOfficer())
                                         {
-                                            quals.AddRange(ReferenceListHelper<WatchQualification>.FindAll("OOD", "JOOD"));
+                                            quals.AddRange(ReferenceListHelper.FindAll<WatchQualification>("OOD", "JOOD"));
                                         }
                                         else if (paygrade.IsSeaman())
                                         {
-                                            quals.Add(ReferenceListHelper<WatchQualification>.Find("JOOD"));
+                                            quals.Add(ReferenceListHelper.Find<WatchQualification>("JOOD"));
                                         }
                                         else
                                         {
@@ -397,7 +396,7 @@ namespace CommandCentral.Utilities
                                     throw new Exception($"An unknown paygrade was found! {paygrade}");
                                 }
 
-                                var person = CreatePerson(division, uic, "user" + created.ToString(), "user" + created.ToString(), permGroups, quals, paygrade, ReferenceListHelper<Designation>.Random(1).First());
+                                var person = CreatePerson(division, uic, "user" + created.ToString(), "user" + created.ToString(), permGroups, quals, paygrade, ReferenceListHelper.Random<Designation>(1).First());
 
                                 SessionManager.CurrentSession.Save(person);
                                 

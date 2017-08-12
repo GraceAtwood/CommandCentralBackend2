@@ -28,14 +28,5 @@ namespace CommandCentral.Entities.ReferenceLists
         public virtual string Description { get; set; }
 
         #endregion
-
-        /// <summary>
-        /// Not implemented
-        /// </summary>
-        /// <returns></returns>
-        public override ValidationResult Validate()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

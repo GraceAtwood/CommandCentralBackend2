@@ -33,7 +33,7 @@
     <None Remove="Email\Templates\WatchInputRequirements_HTML.html" />
     <None Remove="Email\Templates\WatchReassignedAdded_HTML.html" />
     <None Remove="Email\Templates\WatchReassignedRemoved_HTML.html" />
-    <None Remove="PreDefs\Def_AccountHistoryTypes.cc" />
+    <None Remove="PreDefs\Def_BilletAssignments.cc" />
     <None Remove="PreDefs\Def_DutyStatuses.cc" />
     <None Remove="PreDefs\Def_Paygrades.cc" />
     <None Remove="PreDefs\Def_PhoneNumberTypes.cc" />
@@ -95,9 +95,9 @@
     <EmbeddedResource Include="Email\Templates\WatchInputRequirements_HTML.html" />
     <EmbeddedResource Include="Email\Templates\WatchReassignedAdded_HTML.html" />
     <EmbeddedResource Include="Email\Templates\WatchReassignedRemoved_HTML.html" />
-    <EmbeddedResource Include="PreDefs\Def_PermissionGroups.cc" />
-    <EmbeddedResource Include="PreDefs\Def_AccountHistoryTypes.cc" />
+    <EmbeddedResource Include="PreDefs\Def_BilletAssignments.cc" />
     <EmbeddedResource Include="PreDefs\Def_DutyStatuses.cc" />
+    <EmbeddedResource Include="PreDefs\Def_PermissionGroups.cc" />
     <EmbeddedResource Include="PreDefs\Def_AccountabilityTypes.cc" />
     <EmbeddedResource Include="PreDefs\Def_Paygrades.cc" />
     <EmbeddedResource Include="PreDefs\Def_PhoneNumberTypes.cc" />

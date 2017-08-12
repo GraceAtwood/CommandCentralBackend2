@@ -34,7 +34,7 @@ namespace CommandCentral.Controllers
                 {
                     Id = x.Id,
                     Person = x.Person.Id,
-                    AccountHistoryEventType = x.AccountHistoryEventType.Id,
+                    AccountHistoryEventType = x.AccountHistoryEventType,
                     EventTime = x.EventTime
                 })
             );
@@ -55,7 +55,7 @@ namespace CommandCentral.Controllers
             {
                 Id = item.Id,
                 Person = item.Person.Id,
-                AccountHistoryEventType = item.AccountHistoryEventType.Id,
+                AccountHistoryEventType = item.AccountHistoryEventType,
                 EventTime = item.EventTime
             });
         }

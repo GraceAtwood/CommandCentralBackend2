@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FluentNHibernate.Mapping;
+using FluentValidation.Results;
 
 namespace CommandCentral.Entities.ReferenceLists
 {
@@ -12,6 +13,11 @@ namespace CommandCentral.Entities.ReferenceLists
     /// </summary>
     public class BilletAssignment : ReferenceListItemBase
     {
+        public override ValidationResult Validate()
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Maps this object to the database.
         /// </summary>

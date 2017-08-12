@@ -4,11 +4,10 @@ using CommandCentral.Entities.ReferenceLists;
 using NHibernate.Type;
 using CommandCentral.Utilities;
 using FluentValidation.Results;
+using CommandCentral.Enums;
 
 namespace CommandCentral.Entities
 {
-    
-
     /// <summary>
     /// Describes a single account history event.
     /// </summary>
@@ -20,7 +19,7 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The type of history event that occurred.
         /// </summary>
-        public virtual AccountHistoryType AccountHistoryEventType { get; set; }
+        public virtual AccountHistoryTypes AccountHistoryEventType { get; set; }
 
         /// <summary>
         /// The time at which this event occurred.
@@ -69,10 +68,9 @@ namespace CommandCentral.Entities
                 Id(x => x.Id).GeneratedBy.Assigned();
 
                 Map(x => x.EventTime).Not.Nullable().CustomType<UtcDateTimeType>();
+                Map(x => x.AccountHistoryEventType).Not.Nullable();
 
-                References(x => x.AccountHistoryEventType).Not.Nullable();
                 References(x => x.Person).Not.Nullable();
-                
             }
         }
     }

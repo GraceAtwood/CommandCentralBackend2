@@ -552,7 +552,7 @@ namespace CommandCentral.Entities
                         .WithMessage("That DoD id exists on another profile.  DoD Ids must be unique.");
                 RuleFor(x => x.DateOfBirth).NotEmpty()
                     .WithMessage("The DOB must not be left blank.");
-                RuleFor(x => x.Sex).NotEmpty().Must(x => ReferenceListHelper<Sex>.IdExists(x.Id))
+                RuleFor(x => x.Sex).NotEmpty().Must(x => ReferenceListHelper.IdExists<Sex>(x.Id))
                     .WithMessage("The sex must not be left blank.");
                 RuleFor(x => x.Command).NotEmpty()
                     .WithMessage("A person must have a command.  If you are trying to indicate this person left the command, please set his or her duty status to 'LOSS'.");
@@ -562,7 +562,7 @@ namespace CommandCentral.Entities
                     .WithMessage("A person must have a division.  If you are trying to indicate this person left the command, please set his or her duty status to 'LOSS'.");
                 RuleFor(x => x.Ethnicity).Must(x =>
                     {
-                        if (x != null && !ReferenceListHelper<Ethnicity>.IdExists(x.Id))
+                        if (x != null && !ReferenceListHelper.IdExists<Ethnicity>(x.Id))
                             return false;
 
                         return true;
@@ -570,13 +570,13 @@ namespace CommandCentral.Entities
                     .WithMessage("Your ethnicity was not found.");
                 RuleFor(x => x.ReligiousPreference).Must(x =>
                     {
-                        if (x != null && !ReferenceListHelper<Ethnicity>.IdExists(x.Id))
+                        if (x != null && !ReferenceListHelper.IdExists<Ethnicity>(x.Id))
                             return false;
 
                         return true;
                     })
                     .WithMessage("Your religious preference was not found.");
-                RuleFor(x => x.Designation).Must(x => ReferenceListHelper<Designation>.IdExists(x.Id))
+                RuleFor(x => x.Designation).Must(x => ReferenceListHelper.IdExists<Designation>(x.Id))
                     .WithMessage("Your designation was not found.");
                 RuleFor(x => x.Division).Must(x => SessionManager.CurrentSession.Query<Division>().Count(div => div.Id == x.Id) == 1)
                     .WithMessage("Your division was not found.");
@@ -588,7 +588,7 @@ namespace CommandCentral.Entities
                     .WithMessage("The work room field may not be longer than 255 characters.");
                 RuleFor(x => x.Shift).Length(0, 255)
                     .WithMessage("The shift field may not be longer than 255 characters.");
-                RuleFor(x => x.UIC).Must(x => ReferenceListHelper<UIC>.IdExists(x.Id))
+                RuleFor(x => x.UIC).Must(x => ReferenceListHelper.IdExists<UIC>(x.Id))
                     .WithMessage("Your uic was not found.");
                 RuleFor(x => x.JobTitle).Length(0, 255)
                     .WithMessage("The job title may not be longer than 255 characters.");

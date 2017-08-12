@@ -10,6 +10,11 @@ namespace CommandCentral.Entities.ReferenceLists
 {
     public class PhoneNumberType : ReferenceListItemBase
     {
+        public override ValidationResult Validate()
+        {
+            throw new NotImplementedException();
+        }
+
         public class PhoneNumberTypeMapping : ClassMap<PhoneNumberType>
         {
             public PhoneNumberTypeMapping()

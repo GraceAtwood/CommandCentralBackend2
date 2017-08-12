@@ -7,6 +7,7 @@ using CommandCentral.Framework;
 using CommandCentral.Entities;
 using CommandCentral.Entities.ReferenceLists;
 using CommandCentral.Authentication;
+using CommandCentral.Enums;
 
 namespace CommandCentral.Controllers
 {
@@ -38,7 +39,7 @@ namespace CommandCentral.Controllers
                     //Now we also need to add the event to client's account history.
                     person.AccountHistory.Add(new AccountHistoryEvent
                     {
-                        AccountHistoryEventType = ReferenceListHelper<AccountHistoryType>.Find("Failed Login"),
+                        AccountHistoryEventType = AccountHistoryTypes.FailedLogin,
                         EventTime = this.CallTime,
                         Id = Guid.NewGuid(),
                         Person = person
@@ -66,7 +67,7 @@ namespace CommandCentral.Controllers
                 //Also put the account history on the client.
                 person.AccountHistory.Add(new AccountHistoryEvent
                 {
-                    AccountHistoryEventType = ReferenceListHelper<AccountHistoryType>.Find("Login"),
+                    AccountHistoryEventType = AccountHistoryTypes.Login,
                     EventTime = CallTime,
                     Id = Guid.NewGuid(),
                     Person = person

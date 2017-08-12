@@ -10,6 +10,11 @@ namespace CommandCentral.Entities.ReferenceLists
 {
     public class DutyStatus : ReferenceListItemBase
     {
+        public override ValidationResult Validate()
+        {
+            throw new NotImplementedException();
+        }
+
         public class DutyStatusMapping : ClassMap<DutyStatus>
         {
             public DutyStatusMapping()

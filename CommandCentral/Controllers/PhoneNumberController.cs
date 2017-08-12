@@ -84,7 +84,7 @@ namespace CommandCentral.Controllers
             if (!User.GetFieldPermissions<Person>(person).CanEdit(x => x.EmailAddresses))
                 return Forbid();
 
-            var phoneType = ReferenceListHelper<PhoneNumberType>.Get(dto.PhoneType);
+            var phoneType = DBSession.Get<PhoneNumberType>(dto.PhoneType);
             if (phoneType == null)
                 return NotFound($"The parameter {nameof(dto.PhoneType)} could not be found.");
 
@@ -135,9 +135,9 @@ namespace CommandCentral.Controllers
                 if (!User.GetFieldPermissions<Person>(item.Person).CanEdit(x => x.EmailAddresses))
                     return Forbid();
 
-                var phoneType = ReferenceListHelper<PhoneNumberType>.Get(dto.PhoneType);
+                var phoneType = DBSession.Get<PhoneNumberType>(dto.PhoneType);
                 if (phoneType == null)
-                    return NotFound($"The paramater {nameof(dto.PhoneType)} could not be found.");
+                    return NotFound($"The object identified by the parameter {nameof(dto.PhoneType)} could not be found.");
 
                 item.IsPreferred = dto.IsPreferred;
                 item.IsReleasableOutsideCoC = dto.IsReleasableOutsideCoC;

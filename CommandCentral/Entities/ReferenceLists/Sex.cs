@@ -13,6 +13,11 @@ namespace CommandCentral.Entities.ReferenceLists
     /// </summary>
     public class Sex : ReferenceListItemBase
     {
+        public override ValidationResult Validate()
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Maps the object to the database.
         /// </summary>

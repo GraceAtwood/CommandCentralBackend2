@@ -246,7 +246,7 @@ namespace CommandCentral.Controllers
             if (!User.GetFieldPermissions<Person>(person).CanEdit(x => x.StatusPeriods))
                 return Forbid("Can not submit a status period for this person.");
 
-            var reason = ReferenceListHelper<AccountabilityType>.Get(dto.Reason);
+            var reason = DBSession.Get<AccountabilityType>(dto.Reason);
             if (reason == null)
                 return NotFound($"Unable to find object referenced by parameter: {nameof(dto.Reason)}.");
 
@@ -315,7 +315,7 @@ namespace CommandCentral.Controllers
                 return Forbid();
             }
 
-            var reason = ReferenceListHelper<AccountabilityType>.Get(dto.Reason);
+            var reason = DBSession.Get<AccountabilityType>(dto.Reason);
             if (reason == null)
                 return NotFound($"Unable to find object referenced by parameter: {nameof(dto.Reason)}.");
 
