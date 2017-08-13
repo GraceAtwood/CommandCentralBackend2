@@ -23,7 +23,7 @@ namespace CommandCentral.Controllers
     [Produces("application/json")]
     public class PersonController : CommandCentralController
     {
-        [HttpPost("?")]
+        [HttpPost("query")]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Person.Get>))]
         public IActionResult Query([FromBody] DTOs.Person.Query dto)

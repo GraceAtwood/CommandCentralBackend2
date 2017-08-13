@@ -5,12 +5,14 @@ using FluentValidation;
 using System.Linq;
 using NHibernate.Criterion;
 using FluentValidation.Results;
+using CommandCentral.Framework;
 
 namespace CommandCentral.Entities.ReferenceLists
 {
     /// <summary>
     /// Describes a single NEC.
     /// </summary>
+    [EditableReferenceList]
     public class NEC : ReferenceListItemBase
     {
         /// <summary>

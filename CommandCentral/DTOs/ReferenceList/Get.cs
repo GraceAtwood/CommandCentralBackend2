@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CommandCentral.DTOs.ReferenceList
 {
-    public class Get : Put
+    public class Get : Post
     {
         public Guid Id { get; set; }
 
@@ -14,6 +14,7 @@ namespace CommandCentral.DTOs.ReferenceList
             Id = item.Id;
             Value = item.Value;
             Description = item.Description;
+            Type = item.GetType().Name;
         }
     }
 }

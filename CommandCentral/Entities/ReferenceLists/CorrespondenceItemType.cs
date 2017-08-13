@@ -1,4 +1,5 @@
-﻿using FluentNHibernate.Mapping;
+﻿using CommandCentral.Framework;
+using FluentNHibernate.Mapping;
 using FluentValidation;
 using FluentValidation.Results;
 using System;
@@ -11,6 +12,7 @@ namespace CommandCentral.Entities.ReferenceLists
     /// <summary>
     /// Identifies different types of correspondence.
     /// </summary>
+    [EditableReferenceList]
     public class CorrespondenceItemType : ReferenceListItemBase
     {
         /// <summary>

@@ -21,8 +21,7 @@ namespace CommandCentral.Controllers
     {
         [HttpGet]
         [RequireAuthentication]
-        [Swashbuckle.AspNetCore.SwaggerGen.SwaggerResponse(200, Type = typeof(List<KeyValuePair<string, List<DTOs.ReferenceList.Get>>>), 
-            Description = "This should actually be a dictionary, but swagger-ui doesn't support it.  The reference list type will be the key.")]
+        [ProducesResponseType(200, Type = typeof(List<DTOs.ReferenceList.GetList>))]
         public IActionResult Get([FromQuery] string value, [FromQuery] string description, [FromQuery] string type)
         {
             IQueryable<ReferenceListItemBase> query;
@@ -65,7 +64,8 @@ namespace CommandCentral.Controllers
 
             var result = query
                 .GroupBy(x => x.GetType().Name)
-                .ToDictionary(item => item.Key, item => item.ToList().Select(x => new DTOs.ReferenceList.Get(x)));
+                .Select(x => new DTOs.ReferenceList.GetList(x))
+                .ToList();
 
             return Ok(result);
         }

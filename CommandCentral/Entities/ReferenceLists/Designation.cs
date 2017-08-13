@@ -5,12 +5,14 @@ using FluentValidation;
 using System.Linq;
 using NHibernate.Criterion;
 using FluentValidation.Results;
+using CommandCentral.Framework;
 
 namespace CommandCentral.Entities.ReferenceLists
 {
     /// <summary>
     /// Describes a single designation.  This is the job title for civilians, the rate for enlisted and the designator for officers.
     /// </summary>
+    [EditableReferenceList]
     public class Designation : ReferenceListItemBase
     {
         
