@@ -16,67 +16,23 @@ using System.Linq.Expressions;
 
 namespace CommandCentral.Controllers
 {
+    /// <summary>
+    /// The person object is the central entry to a person's profile.  Permissions for each field can be attained from the /authorization controller.
+    /// </summary>
     [Route("api/[controller]")]
     [Produces("application/json")]
     public class PersonController : CommandCentralController
     {
-        [HttpGet]
+        [HttpPost("?")]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Person.Get>))]
-        public IActionResult Get([FromQuery] string command, [FromQuery] int limit = 1000, [FromQuery] string orderBy = nameof(Person.LastName))
+        public IActionResult Query([FromBody] DTOs.Person.Query dto)
         {
-            if (limit <= 0)
-                return BadRequest($"The value '{limit}' for the property '{nameof(limit)}' was invalid.  It must be greater than zero.");
-
-            var query = DBSession.Query<Person>();
-
-            if (!String.IsNullOrWhiteSpace(command))
-            {
-                Expression<Func<Person, bool>> predicate = null;
-
-                foreach (var phrase in command.Split(',').Select(x => x.Trim()))
-                {
-                    if (Guid.TryParse(phrase, out Guid id))
-                    {
-                        predicate = predicate.NullSafeOr(x => x.Division.Department.Command.Id == id);
-                    }
-                    else
-                    {
-                        var terms = phrase.Split();
-                        Expression<Func<Person, bool>> subPredicate = null;
-
-                        foreach (var term in terms)
-                        {
-                            subPredicate = subPredicate.NullSafeOr(x => x.Division.Department.Command.Name.Contains(term));
-                        }
-
-                        predicate = predicate.NullSafeOr(subPredicate);
-                    }
-                }
-
-                query = query.Where(predicate);
-            }
-
-            if (String.Equals(orderBy, nameof(Person.LastName), StringComparison.CurrentCultureIgnoreCase))
-                query = query.OrderByDescending(x => x.LastName);
-            else
-                return BadRequest($"Your requested value '{orderBy}' for the parameter '{nameof(orderBy)}' is not supported.  The supported values are '{nameof(Person.LastName)}' (this is the default) and nothing else yet.");
-
-            var result = query
-                .Take(limit)
-                .ToList()
-                .Select(item =>
-                {
-                    var perms = User.GetFieldPermissions<Person>(item);
-
-                    return new DTOs.Person.Get(item, perms);
-                });
-
-            return Ok(result.ToList());
+            throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Retrieves the person identified by the given Id.
+        /// Retrieves the person identified by the current login session.
         /// </summary>
         /// <returns></returns>
         [HttpGet("me")]
@@ -158,13 +114,6 @@ namespace CommandCentral.Controllers
             }, this);
 
             return CreatedAtAction(nameof(Get), new { id = person.Id }, new DTOs.Person.Get(person, User.GetFieldPermissions<Person>(person)));
-        }
-
-        [HttpPatch("{id}")]
-        [RequireAuthentication]
-        public IActionResult Patch(Guid id, [FromBody]JsonPatchDocument<Person> personPatchDocument)
-        {
-            throw new NotImplementedException();
         }
     }
 }

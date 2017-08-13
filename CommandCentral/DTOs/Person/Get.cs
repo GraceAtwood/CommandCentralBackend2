@@ -16,9 +16,6 @@ namespace CommandCentral.DTOs.Person
         public Guid? ReligiousPreference { get; set; }
         public Guid Department { get; set; }
         public Guid Command { get; set; }
-        public DateTime? GTCTrainingDate { get; set; }
-        public DateTime? ADAMSTrainingDate { get; set; }
-        public bool? HasCompletedAWARE { get; set; }
         public string Supervisor { get; set; }
         public string WorkCenter { get; set; }
         public string WorkRoom { get; set; }
@@ -31,7 +28,6 @@ namespace CommandCentral.DTOs.Person
 
         public Get(Entities.Person person, TypePermissionsDescriptor<Entities.Person> perms)
         {
-            ADAMSTrainingDate = perms.GetSafeReturnValue(person, x => x.ADAMSTrainingDate);
             Age = perms.GetSafeReturnValue(person, x => x.Age);
             BilletAssignment = perms.GetSafeReturnValue(person, x => x.BilletAssignment)?.Id;
             Command = perms.GetSafeReturnValue(person, x => x.Command).Id;
@@ -46,8 +42,6 @@ namespace CommandCentral.DTOs.Person
             EAOS = perms.GetSafeReturnValue(person, x => x.EAOS);
             Ethnicity = perms.GetSafeReturnValue(person, x => x.Ethnicity)?.Id;
             FirstName = perms.GetSafeReturnValue(person, x => x.FirstName);
-            GTCTrainingDate = perms.GetSafeReturnValue(person, x => x.GTCTrainingDate);
-            HasCompletedAWARE = perms.GetSafeReturnValue(person, x => x.HasCompletedAWARE);
             Id = perms.GetSafeReturnValue(person, x => x.Id);
             JobTitle = perms.GetSafeReturnValue(person, x => x.JobTitle);
             LastName = perms.GetSafeReturnValue(person, x => x.LastName);

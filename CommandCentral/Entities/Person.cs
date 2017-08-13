@@ -171,24 +171,6 @@ namespace CommandCentral.Entities
             }
         }
 
-        /// <summary>
-        /// The date this person received government travel card training.  Temporary and should be implemented in the training module.
-        /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        public virtual DateTime? GTCTrainingDate { get; set; }
-
-        /// <summary>
-        /// The date on which ADAMS training was completed.  Temporary and should be implemented in the training module.
-        /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        public virtual DateTime? ADAMSTrainingDate { get; set; }
-
-        /// <summary>
-        /// The date on which AWARE training was completed.  Temporary and should be implemented in the training module.
-        /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        public virtual bool HasCompletedAWARE { get; set; }
-
         #endregion
 
         #region Work Properties
@@ -362,7 +344,7 @@ namespace CommandCentral.Entities
         [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         [CanEditIfInChainOfCommand(ChainsOfCommand.QuarterdeckWatchbill, ChainOfCommandLevels.Division)]
         [CanEditIfInChainOfCommand(ChainsOfCommand.Muster, ChainOfCommandLevels.Division)]
-        public virtual IDictionary<Guid, ChainOfCommandLevels> SubscribedEvents { get; set; }
+        public virtual IDictionary<ChangeEvents, ChainOfCommandLevels> SubscribedEvents { get; set; }
 
         /// <summary>
         /// The list of comments.
@@ -494,9 +476,6 @@ namespace CommandCentral.Entities
                 Map(x => x.Username).Unique();
                 Map(x => x.PasswordHash).Unique();
                 Map(x => x.Suffix);
-                Map(x => x.GTCTrainingDate).CustomType<UtcDateTimeType>();
-                Map(x => x.ADAMSTrainingDate).CustomType<UtcDateTimeType>();
-                Map(x => x.HasCompletedAWARE).Not.Nullable().Default(false.ToString());
 
                 HasMany(x => x.NECs).Cascade.All();
                 HasMany(x => x.AccountHistory).Cascade.All();
