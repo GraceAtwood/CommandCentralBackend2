@@ -14,6 +14,8 @@ using CommandCentral.Utilities.Types;
 using NHibernate.Linq;
 using System.Linq.Expressions;
 using CommandCentral.Utilities;
+using CommandCentral.Framework.Data;
+using LinqKit;
 
 namespace CommandCentral.Controllers
 {
@@ -47,112 +49,24 @@ namespace CommandCentral.Controllers
         [HttpGet]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.StatusPeriod.Get>))]
-        public IActionResult Get([FromQuery] string person, [FromQuery] string submittedBy, [FromQuery] DateTime? from, 
-            [FromQuery] DateTime? to, [FromQuery] string accountabilityType, [FromQuery] bool? exemptsFromWatch, [FromQuery] int limit = 1000, [FromQuery] string orderBy = nameof(TimeRange.Start))
+        public IActionResult Get([FromQuery] string person, [FromQuery] string submittedBy, [FromQuery] DTOs.DateTimeRangeQuery range, 
+            [FromQuery] string accountabilityType, [FromQuery] bool? exemptsFromWatch, [FromQuery] int limit = 1000, [FromQuery] string orderBy = nameof(TimeRange.Start))
         {
             if (limit <= 0)
                 return BadRequest($"The value '{limit}' for the property '{nameof(limit)}' was invalid.  It must be greater than zero.");
 
-            var query = DBSession.Query<StatusPeriod>();
+            Expression<Func<StatusPeriod, bool>> predicate = null;
 
-            if (!String.IsNullOrWhiteSpace(person))
-            {
-                Expression<Func<StatusPeriod, bool>> predicate = null;
+            predicate = predicate
+                .AddPersonQueryExpression(x => x.Person, person)
+                .AddPersonQueryExpression(x => x.SubmittedBy, submittedBy)
+                .AddReferenceListQueryExpression(x => x.AccountabilityType, accountabilityType)
+                .AddTimeRangeQueryExpression(x => x.Range, range)
+                .AddNullableBoolQueryExpression(x => x.ExemptsFromWatch, exemptsFromWatch);
 
-                foreach (var phrase in person.Split(',').Select(x => x.Trim()))
-                {
-                    if (Guid.TryParse(phrase, out Guid id))
-                    {
-                        predicate = predicate.NullSafeOr(x => x.Person.Id == id);
-                    }
-                    else
-                    {
-                        var terms = phrase.Split();
-                        Expression<Func<StatusPeriod, bool>> subPredicate = null;
-
-                        foreach (var term in phrase.Split())
-                        {
-                            subPredicate = subPredicate.NullSafeAnd(x =>
-                                x.Person.FirstName.Contains(term) ||
-                                x.Person.LastName.Contains(term) ||
-                                x.Person.MiddleName.Contains(term) ||
-                                x.Person.Division.Name.Contains(term) ||
-                                x.Person.Division.Department.Name.Contains(term) ||
-                                x.Person.Paygrade.Value.Contains(term) ||
-                                x.Person.UIC.Value.Contains(term) ||
-                                x.Person.Designation.Value.Contains(term));
-                        }
-
-                        predicate = predicate.NullSafeOr(subPredicate);
-                    }
-                }
-
-                query = query.Where(predicate);
-            }
-
-            if (!String.IsNullOrWhiteSpace(submittedBy))
-            {
-                Expression<Func<StatusPeriod, bool>> predicate = null;
-
-                foreach (var phrase in submittedBy.Split(',').Select(x => x.Trim()))
-                {
-                    if (Guid.TryParse(phrase, out Guid id))
-                    {
-                        predicate = predicate.NullSafeOr(x => x.SubmittedBy.Id == id);
-                    }
-                    else
-                    {
-                        var terms = phrase.Split();
-                        Expression<Func<StatusPeriod, bool>> subPredicate = null;
-
-                        foreach (var term in phrase.Split())
-                        {
-                            subPredicate = subPredicate.NullSafeAnd(x =>
-                                x.SubmittedBy.FirstName.Contains(term) ||
-                                x.SubmittedBy.LastName.Contains(term) ||
-                                x.SubmittedBy.MiddleName.Contains(term) ||
-                                x.SubmittedBy.Division.Name.Contains(term) ||
-                                x.SubmittedBy.Division.Department.Name.Contains(term) ||
-                                x.SubmittedBy.Paygrade.Value.Contains(term) ||
-                                x.SubmittedBy.UIC.Value.Contains(term) ||
-                                x.SubmittedBy.Designation.Value.Contains(term));
-                        }
-
-                        predicate = predicate.NullSafeOr(subPredicate);
-                    }
-                }
-
-                query = query.Where(predicate);
-            }
-
-            if (!String.IsNullOrWhiteSpace(accountabilityType))
-            {
-                Expression<Func<StatusPeriod, bool>> predicate = null;
-
-                foreach (var term in accountabilityType.Split())
-                {
-                    if (Guid.TryParse(term, out Guid id))
-                    {
-                        predicate = predicate.NullSafeOr(x => x.AccountabilityType.Id == id);
-                    }
-                    else
-                    {
-                        predicate = predicate.NullSafeOr(x => x.AccountabilityType.Value.Contains(term));
-                    }
-                }
-
-                query = query.Where(predicate);
-            }
-
-            if (from.HasValue && !to.HasValue)
-                query = query.Where(x => x.Range.Start >= from || x.Range.End >= from);
-            else if (to.HasValue && !from.HasValue)
-                query = query.Where(x => x.Range.Start <= to || x.Range.End <= to);
-            else if (to.HasValue && to.HasValue)
-                query = query.Where(x => x.Range.Start <= to && x.Range.End >= from);
-
-            if (exemptsFromWatch.HasValue)
-                query = query.Where(x => x.ExemptsFromWatch == exemptsFromWatch);
+            var query = DBSession.Query<StatusPeriod>()
+                .AsExpandable()
+                .NullSafeWhere(predicate);
 
             if (String.Equals(orderBy, nameof(TimeRange.Start), StringComparison.CurrentCultureIgnoreCase))
                 query = query.OrderByDescending(x => x.Range.Start);
@@ -163,7 +77,7 @@ namespace CommandCentral.Controllers
 
             var result = query
                 .Take(limit)
-                .ToFuture()
+                .ToList()
                 .Where(statusPeriod => User.GetFieldPermissions<Person>(statusPeriod.Person).CanReturn(x => x.StatusPeriods))
                 .Select(statusPeriod =>
                     new DTOs.StatusPeriod.Get

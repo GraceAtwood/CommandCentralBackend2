@@ -1,4 +1,5 @@
-﻿using CommandCentral.Entities.Muster;
+﻿using CommandCentral.Entities;
+using CommandCentral.Entities.Muster;
 using CommandCentral.Entities.ReferenceLists;
 using CommandCentral.Utilities;
 using CommandCentral.Utilities.Types;
@@ -35,10 +36,10 @@ namespace CommandCentral.Framework.Data
 
                 foreach (var term in phrase.SplitByAnd())
                 {
-                    subPredicate = subPredicate.NullSafeOr(x => selector.Invoke(x).Contains(term));
+                    subPredicate = subPredicate.NullSafeAnd(x => selector.Invoke(x).Contains(term));
                 }
 
-                predicate = predicate.NullSafeAnd(subPredicate);
+                predicate = predicate.NullSafeOr(subPredicate);
             }
 
             return initial.NullSafeAnd(predicate);
@@ -57,17 +58,54 @@ namespace CommandCentral.Framework.Data
 
                 if (Guid.TryParse(phrase, out Guid id))
                 {
-                    subPredicate = subPredicate.NullSafeOr(x => selector.Invoke(x).Id == id);
+                    subPredicate = subPredicate.And(x => selector.Invoke(x).Id == id);
                 }
                 else
                 {
                     foreach (var term in phrase.SplitByAnd())
                     {
-                        subPredicate = subPredicate.NullSafeOr(x => selector.Invoke(x).Value.Contains(term));
+                        subPredicate = subPredicate.And(x => selector.Invoke(x).Value.Contains(term));
                     }
                 }
 
-                predicate = predicate.NullSafeAnd(subPredicate);
+                predicate = predicate.NullSafeOr(subPredicate);
+            }
+
+            return initial.NullSafeAnd(predicate);
+        }
+
+        public static Expression<Func<T, bool>> AddPersonQueryExpression<T>(this Expression<Func<T, bool>> initial, Expression<Func<T, Person>> selector, string searchValue)
+        {
+            if (String.IsNullOrWhiteSpace(searchValue))
+                return initial;
+
+            Expression<Func<T, bool>> predicate = null;
+
+            foreach (var phrase in searchValue.SplitByOr())
+            {
+                Expression<Func<T, bool>> subPredicate = null;
+
+                if (Guid.TryParse(phrase, out Guid id))
+                {
+                    subPredicate = subPredicate.NullSafeAnd(x => selector.Invoke(x).Id == id);
+                }
+                else
+                {
+                    foreach (var term in phrase.SplitByAnd())
+                    {
+                        subPredicate = subPredicate.NullSafeAnd(x =>
+                            selector.Invoke(x).FirstName.Contains(term) ||
+                            selector.Invoke(x).LastName.Contains(term) ||
+                            selector.Invoke(x).MiddleName.Contains(term) ||
+                            selector.Invoke(x).Division.Name.Contains(term) ||
+                            selector.Invoke(x).Division.Department.Name.Contains(term) ||
+                            selector.Invoke(x).Paygrade.Value.Contains(term) ||
+                            selector.Invoke(x).UIC.Value.Contains(term) ||
+                            selector.Invoke(x).Designation.Value.Contains(term));
+                    }
+                }
+
+                predicate = predicate.NullSafeOr(subPredicate);
             }
 
             return initial.NullSafeAnd(predicate);
@@ -101,6 +139,15 @@ namespace CommandCentral.Framework.Data
                 return initial.NullSafeAnd(x => selector.Invoke(x) <= range.To && selector.Invoke(x) >= range.From);
         }
 
+        public static Expression<Func<T, bool>> AddTimeRangeQueryExpression<T>(this Expression<Func<T, bool>> initial, Expression<Func<T, TimeRange>> selector, DTOs.DateTimeRangeQuery range)
+        {
+            var expression = GetTimeRangeQueryExpression(selector, range);
+            if (expression == null)
+                return initial;
+
+            return initial.NullSafeAnd(expression);
+        }
+
         public static Expression<Func<T, bool>> GetTimeRangeQueryExpression<T>(Expression<Func<T, TimeRange>> selector, DTOs.DateTimeRangeQuery range)
         {
             if (range == null || range.HasNeither())
@@ -112,6 +159,14 @@ namespace CommandCentral.Framework.Data
                 return x => selector.Invoke(x).Start <= range.To || selector.Invoke(x).End <= range.To;
             else
                 return x => selector.Invoke(x).Start <= range.To && selector.Invoke(x).End >= range.From;
+        }
+
+        public static Expression<Func<T, bool>> AddNullableBoolQueryExpression<T>(this Expression<Func<T, bool>> initial, Expression<Func<T, bool?>> selector, bool? value)
+        {
+            if (!value.HasValue)
+                return initial;
+
+            return initial.NullSafeAnd(x => selector.Invoke(x) == value);
         }
     }
 }
