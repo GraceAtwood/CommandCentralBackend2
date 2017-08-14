@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using CommandCentral.Utilities;
 using CommandCentral.Authorization.Rules;
 using FluentValidation.Results;
+using CommandCentral.Framework.Data;
+using NHibernate.Linq;
 
 namespace CommandCentral.Entities
 {
@@ -91,18 +93,11 @@ namespace CommandCentral.Entities
             /// </summary>
             public Validator()
             {
-                RuleFor(x => x.Address).Must(x =>
-                    {
-                        try
-                        {
-                            var address = new System.Net.Mail.MailAddress(x);
-                            return true;
-                        }
-                        catch
-                        {
-                            return false;
-                        }
-                    });
+                RuleFor(x => x.Address).EmailAddress().Must((item, address) =>
+                {
+                    return SessionManager.CurrentSession.Query<EmailAddress>().Count(x => x.Id != item.Id && x.Address == address) == 0;
+                })
+                .WithMessage("Email addresses must be unique."); ;
             }
         }
     }

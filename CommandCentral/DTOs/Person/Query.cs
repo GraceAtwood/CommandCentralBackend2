@@ -14,7 +14,6 @@ namespace CommandCentral.DTOs.Person
         public string SSN { get; set; }
         public string DoDId { get; set; }
         public string Designation { get; set; }
-        public string NECs { get; set; }
         public string DutyStatus { get; set; }
         public string UIC { get; set; }
         public string Sex { get; set; }
@@ -31,11 +30,13 @@ namespace CommandCentral.DTOs.Person
         public string WatchQualifications { get; set; }
         public string BilletAssignment { get; set; }
         public string PermissionGroups { get; set; }
+        public List<NECQuery> NECs { get; set; }
         public DateTimeRangeQuery EAOS { get; set; }
         public DateTimeRangeQuery PRD { get; set; }
         public DateTimeRangeQuery DateOfDeparture { get; set; }
         public DateTimeRangeQuery DateOfBirth { get; set; }
         public DateTimeRangeQuery DateOfArrival { get; set; }
+        public DateTimeRangeQuery StatusPeriod { get; set; }
         public Dictionary<ChangeEvents, ChainOfCommandLevels> SubscribedEvents { get; set; }
     }
 }

@@ -12,5 +12,13 @@ namespace CommandCentral.DTOs.AccountHistoryEvent
         public AccountHistoryTypes AccountHistoryEventType { get; set; }
         public DateTime EventTime { get; set; }
         public Guid Person { get; set; }
+
+        public Get(Entities.AccountHistoryEvent item)
+        {
+            Id = item.Id;
+            AccountHistoryEventType = item.AccountHistoryEventType;
+            EventTime = item.EventTime;
+            Person = item.Person.Id;
+        }
     }
 }

@@ -12,7 +12,7 @@ using CommandCentral.Enums;
 namespace CommandCentral.Controllers
 {
     [Route("api/[controller]")]
-    public class ProfileLockController : CommandCentralController
+    public class ProfileLocksController : CommandCentralController
     {
         [HttpGet("me")]
         [RequireAuthentication]

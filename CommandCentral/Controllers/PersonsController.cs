@@ -13,6 +13,8 @@ using CommandCentral.Enums;
 using NHibernate.Linq;
 using Microsoft.AspNetCore.JsonPatch;
 using System.Linq.Expressions;
+using LinqKit;
+using CommandCentral.Entities.Muster;
 
 namespace CommandCentral.Controllers
 {
@@ -21,14 +23,63 @@ namespace CommandCentral.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [Produces("application/json")]
-    public class PersonController : CommandCentralController
+    public partial class PersonsController : CommandCentralController
     {
         [HttpPost("query")]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Person.Get>))]
-        public IActionResult Query([FromBody] DTOs.Person.Query dto)
+        public IActionResult Query([FromBody] DTOs.Person.Query dto, [FromQuery] int limit = 1000, [FromQuery] string orderBy = nameof(Person.LastName))
         {
-            throw new NotImplementedException();
+            if (dto == null)
+                return BadRequestDTONull();
+
+            if (limit <= 0)
+                return BadRequestLimit(limit, nameof(limit));
+
+            Expression<Func<StatusPeriod, bool>> statusPeriodSearch = CommonQueryStrategies.GetTimeRangeQueryExpression<StatusPeriod>(y => y.Range, dto.StatusPeriod);
+
+            Expression<Func<Person, bool>> predicate = null;
+
+            predicate = predicate
+                .AddStringQueryExpression(x => x.FirstName, dto.FirstName)
+                .AddStringQueryExpression(x => x.FirstName, dto.FirstName)
+                .AddStringQueryExpression(x => x.LastName, dto.LastName)
+                .AddStringQueryExpression(x => x.MiddleName, dto.MiddleName)
+                .AddStringQueryExpression(x => x.SSN, dto.SSN)
+                .AddStringQueryExpression(x => x.DoDId, dto.DoDId)
+                .AddStringQueryExpression(x => x.Supervisor, dto.Supervisor)
+                .AddStringQueryExpression(x => x.WorkCenter, dto.WorkCenter)
+                .AddStringQueryExpression(x => x.WorkRoom, dto.WorkRoom)
+                .AddStringQueryExpression(x => x.Shift, dto.Shift)
+                .AddStringQueryExpression(x => x.JobTitle, dto.JobTitle)
+                .AddReferenceListQueryExpression(x => x.Designation, dto.Designation)
+                .AddReferenceListQueryExpression(x => x.DutyStatus, dto.DutyStatus)
+                .AddReferenceListQueryExpression(x => x.UIC, dto.UIC)
+                .AddReferenceListQueryExpression(x => x.Sex, dto.Sex)
+                .AddReferenceListQueryExpression(x => x.Ethnicity, dto.Ethnicity)
+                .AddReferenceListQueryExpression(x => x.ReligiousPreference, dto.ReligiousPreference)
+                .AddReferenceListQueryExpression(x => x.BilletAssignment, dto.BilletAssignment)
+                .AddDateTimeQueryExpression(x => x.DateOfArrival, dto.DateOfArrival)
+                .AddDateTimeQueryExpression(x => x.DateOfBirth, dto.DateOfBirth)
+                .AddDateTimeQueryExpression(x => x.DateOfDeparture, dto.DateOfDeparture)
+                .AddDateTimeQueryExpression(x => x.EAOS, dto.EAOS)
+                .AddDateTimeQueryExpression(x => x.PRD, dto.PRD)
+                .NullSafeAnd(x => x.StatusPeriods.Any(statusPeriodSearch.Compile()));
+
+            var result = DBSession.Query<Person>()
+                .AsExpandable()
+                .NullSafeWhere(predicate)
+                .OrderBy(x => x.LastName)
+                .Take(limit)
+                .ToList()
+                .Select(person =>
+                {
+                    var perms = User.GetFieldPermissions<Person>(person);
+                    return new DTOs.Person.Get(person, perms);
+                })
+                .ToList();
+
+            return Ok(result);
         }
 
         /// <summary>

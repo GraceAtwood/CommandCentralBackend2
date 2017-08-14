@@ -82,9 +82,9 @@ namespace CommandCentral.Controllers
 
         }
 
-        [HttpPatch("{id}")]
+        [HttpPut("{id}")]
         [RequireAuthentication]
-        public IActionResult Patch(Guid id, [FromBody]DTOs.Comment.Patch dto)
+        public IActionResult Put(Guid id, [FromBody]DTOs.Comment.Put dto)
         {
             using (var transaction = DBSession.BeginTransaction())
             {

@@ -12,7 +12,7 @@ using CommandCentral.Enums;
 namespace CommandCentral.Controllers
 {
     [Route("api/[controller]")]
-    public class NewsItemController : CommandCentralController
+    public class NewsItemsController : CommandCentralController
     {
         [HttpGet]
         [RequireAuthentication]

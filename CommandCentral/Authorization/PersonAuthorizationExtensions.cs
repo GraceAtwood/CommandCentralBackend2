@@ -151,7 +151,6 @@ namespace CommandCentral.Authorization
         /// <typeparam name="T">The type that contains the properties in question.</typeparam>
         /// <param name="person">The person whose permissions we want to check.</param>
         /// <param name="other">The person to check permissions against.</param>
-        /// <param name="selectors">A params array of selectors that provide the properties to check.</param>
         /// <returns></returns>
         public static TypePermissionsDescriptor<T> GetFieldPermissions<T>(this Person person, Person other)
         {

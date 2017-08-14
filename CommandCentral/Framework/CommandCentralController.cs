@@ -98,6 +98,40 @@ namespace CommandCentral.Framework
         #region Return Actions
 
         /// <summary>
+        /// Returns a <seealso cref="BadRequestObjectResult"/> that indicates the limit must be greater than 0.
+        /// </summary>
+        /// <param name="limit"></param>
+        /// <param name="limitParameterName"></param>
+        /// <returns></returns>
+        [NonAction]
+        public BadRequestObjectResult BadRequestLimit(int limit, string limitParameterName)
+        {
+            return BadRequest($"The value '{limit}' for the property '{limitParameterName}' was invalid.  It must be greater than zero.");
+        }
+
+        /// <summary>
+        /// Returns a <seealso cref="BadRequestObjectResult"/> that indicates an error in parsing caused the dto to be null on arrival.
+        /// </summary>
+        /// <returns></returns>
+        [NonAction]
+        public BadRequestObjectResult BadRequestDTONull()
+        {
+            return BadRequest(ControllerContext.ModelState);
+        }
+
+        /// <summary>
+        /// Returns a <seealso cref="NotFoundObjectResult"/> with the body set to an error message indicating an object identified by the parameter could not be found.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="parameterName"></param>
+        /// <returns></returns>
+        [NonAction]
+        public NotFoundObjectResult NotFoundParameter(Guid id, string parameterName)
+        {
+            return NotFound($"The object with Id '{id}' identified by your parameter '{parameterName}' could not be found.");
+        }
+
+        /// <summary>
         /// Returns an unauthorized (401) result with a value.
         /// </summary>
         /// <param name="value"></param>
@@ -149,6 +183,7 @@ namespace CommandCentral.Framework
         {
             return StatusCode((int)HttpStatusCode.Conflict, value);
         }
+
 
         #endregion
 

@@ -24,7 +24,7 @@ namespace CommandCentral.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [Produces("application/json")]
-    public class StatusPeriodController : CommandCentralController
+    public class StatusPeriodsController : CommandCentralController
     {
         /// <summary>
         /// Queries against status periods.
@@ -129,23 +129,15 @@ namespace CommandCentral.Controllers
             {
                 Expression<Func<StatusPeriod, bool>> predicate = null;
 
-                foreach (var phrase in accountabilityType.Split(',').Select(x => x.Trim()))
+                foreach (var term in accountabilityType.Split())
                 {
-                    if (Guid.TryParse(phrase, out Guid id))
+                    if (Guid.TryParse(term, out Guid id))
                     {
-                        predicate = predicate.NullSafeOr(x => x.Id == id);
+                        predicate = predicate.NullSafeOr(x => x.AccountabilityType.Id == id);
                     }
                     else
                     {
-                        var terms = phrase.Split();
-                        Expression<Func<StatusPeriod, bool>> subPredicate = null;
-
-                        foreach (var term in terms)
-                        {
-                            subPredicate = subPredicate.NullSafeOr(x => x.AccountabilityType.Value.Contains(term));
-                        }
-
-                        predicate = predicate.NullSafeOr(subPredicate);
+                        predicate = predicate.NullSafeOr(x => x.AccountabilityType.Value.Contains(term));
                     }
                 }
 

@@ -15,7 +15,7 @@ using NHibernate.Linq;
 namespace CommandCentral.Controllers
 {
     [Route("api/[controller]")]
-    public class CommandController : CommandCentralController
+    public class CommandsController : CommandCentralController
     {
         [HttpGet("{id}")]
         public IActionResult Get(Guid id)

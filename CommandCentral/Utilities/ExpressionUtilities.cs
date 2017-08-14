@@ -66,6 +66,9 @@ namespace CommandCentral.Utilities
             return expr1.And(expr2);
         }
 
+        //x => x.LastName == "test"
+        //x => x.FirstName == "other test"
+        //x => x.LastName == test || x.FirstName == "other test"
         private static Expression<Func<T, bool>> Or<T>(this Expression<Func<T, bool>> expr1,
                                                             Expression<Func<T, bool>> expr2)
         {

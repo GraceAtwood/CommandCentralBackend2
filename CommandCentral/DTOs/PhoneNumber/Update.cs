@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 namespace CommandCentral.DTOs.PhoneNumber
 {
     public class Update
-    {
-        public Guid Person { get; set; }
+    { 
         public Guid PhoneType { get; set; }
         public bool IsReleasableOutsideCoC { get; set; }
         public string Number { get; set; }

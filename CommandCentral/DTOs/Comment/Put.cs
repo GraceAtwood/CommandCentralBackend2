@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CommandCentral.DTOs.Comment
 {
-    public class Patch
+    public class Put
     {
         public string Body { get; set; }
     }

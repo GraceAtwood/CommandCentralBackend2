@@ -18,7 +18,7 @@ namespace CommandCentral.Controllers
 {
     [Route("api/[controller]")]
     [Produces("application/json")]
-    public class CorrespondenceItemController : CommandCentralController
+    public class CorrespondenceItemsController : CommandCentralController
     {
         [HttpGet]
         [RequireAuthentication]

@@ -22,7 +22,7 @@ namespace CommandCentral.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [Produces("application/json")]
-    public class MusterEntryController : CommandCentralController
+    public class MusterEntriesController : CommandCentralController
     {
         /// <summary>
         /// Queries muster entries.

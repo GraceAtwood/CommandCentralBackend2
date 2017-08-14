@@ -17,7 +17,7 @@ namespace CommandCentral.Controllers
 {
     [Route("api/[controller]")]
     [Produces("application/json")]
-    public class ReferenceListController : CommandCentralController
+    public class ReferenceListsController : CommandCentralController
     {
         [HttpGet]
         [RequireAuthentication]

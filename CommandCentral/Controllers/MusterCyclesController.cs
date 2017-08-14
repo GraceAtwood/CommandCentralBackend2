@@ -25,7 +25,7 @@ namespace CommandCentral.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [Produces("application/json")]
-    public class MusterCycleController : CommandCentralController
+    public class MusterCyclesController : CommandCentralController
     {
         /// <summary>
         /// Queries against the muster cycles.

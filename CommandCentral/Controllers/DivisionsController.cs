@@ -14,7 +14,7 @@ using CommandCentral.Enums;
 namespace CommandCentral.Controllers
 {
     [Route("api/[controller]")]
-    public class DivisionController : CommandCentralController
+    public class DivisionsController : CommandCentralController
     {
         [HttpGet("{id}")]
         public IActionResult Get(Guid id)

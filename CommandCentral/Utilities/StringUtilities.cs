@@ -35,5 +35,25 @@ namespace CommandCentral.Utilities
             Console.WriteLine(str, args);
         }
 
+        /// <summary>
+        /// Null safe null check for string.
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static bool NullSafeIsNullOrWhitespace(this string str)
+        {
+            return String.IsNullOrWhiteSpace(str);
+        }
+
+        public static IEnumerable<string> SplitByAnd(this string str)
+        {
+            return str.Split('+').Select(x => x.Trim());
+        }
+
+        public static IEnumerable<string> SplitByOr(this string str)
+        {
+            return str.Split('|').Select(x => x.Trim());
+        }
+
     }
 }
