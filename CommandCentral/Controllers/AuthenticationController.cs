@@ -16,94 +16,117 @@ namespace CommandCentral.Controllers
     /// A session id is expected to be passed in every subsequent request in order to identify a user's current session.
     /// </summary>
     [Route("api/[controller]")]
+    [Produces("application/json")]
     public class AuthenticationController : CommandCentralController
     {
+        /// <summary>
+        /// Authenticates a user given a username and password.  Returns a header, X-Session-Id, which should be sent back to the API on every request to identify your client.
+        /// </summary>
+        /// <param name="dto">A dto identifying the information needed to login a user.</param>
+        /// <returns></returns>
         [HttpPost]
+        [ProducesResponseType(204)]
         public IActionResult Login([FromBody] DTOs.Authentication.Post dto)
         {
-            using (var transaction = DBSession.BeginTransaction())
+            if (dto == null)
+                return BadRequestDTONull();
+
+            var person = DBSession.QueryOver<Person>().Where(x => x.Username == dto.Username).SingleOrDefault();
+
+            if (person == null)
+                return Unauthorized();
+
+            if (!PasswordHash.ValidatePassword(dto.Password, person.PasswordHash))
             {
-                var person = DBSession.QueryOver<Person>().Where(x => x.Username == dto.Username).SingleOrDefault();
-
-                if (person == null)
-                    return Unauthorized();
-
-                if (!PasswordHash.ValidatePassword(dto.Password, person.PasswordHash))
+                Events.EventManager.OnLoginFailed(new Events.Args.LoginFailedEventArgs
                 {
-
-                    Events.EventManager.OnLoginFailed(new Events.Args.LoginFailedEventArgs
-                    {
-                        Person = person
-                    }, this);
-
-                    //Now we also need to add the event to client's account history.
-                    person.AccountHistory.Add(new AccountHistoryEvent
-                    {
-                        AccountHistoryEventType = AccountHistoryTypes.FailedLogin,
-                        EventTime = this.CallTime,
-                        Id = Guid.NewGuid(),
-                        Person = person
-                    });
-
-                    DBSession.Update(person);
-
-                    transaction.Commit();
-                    return Unauthorized();
-                }
-
-                //The client is who they claim to be so let's make them an authentication session.
-                AuthenticationSession ses = new AuthenticationSession
-                {
-                    Id = Guid.NewGuid(),
-                    IsActive = true,
-                    LastUsedTime = CallTime,
-                    LoginTime = CallTime,
                     Person = person
-                };
+                }, this);
 
-                //Now insert it
-                DBSession.Save(ses);
-
-                //Also put the account history on the client.
+                //Now we also need to add the event to client's account history.
                 person.AccountHistory.Add(new AccountHistoryEvent
                 {
-                    AccountHistoryEventType = AccountHistoryTypes.Login,
-                    EventTime = CallTime,
+                    AccountHistoryEventType = AccountHistoryTypes.FailedLogin,
+                    EventTime = this.CallTime,
                     Id = Guid.NewGuid(),
                     Person = person
                 });
 
-                Response.Headers.Add("Access-Control-Expose-Headers", "X-Session-Id");
-                Response.Headers["X-Session-Id"] = new Microsoft.Extensions.Primitives.StringValues(ses.Id.ToString());
+                using (var transaction = DBSession.BeginTransaction())
+                {
+                    DBSession.Update(person);
+                    transaction.Commit();
+                }
 
-                transaction.Commit();
-
-                return NoContent();
+                return Unauthorized();
             }
-        }
 
-        [HttpDelete]
-        [RequireAuthentication]
-        public IActionResult Logout([FromHeader(Name = "X-Session-Id")] string sessionId)
-        {
+            //The client is who they claim to be so let's make them an authentication session.
+            AuthenticationSession authSession = new AuthenticationSession
+            {
+                Id = Guid.NewGuid(),
+                IsActive = true,
+                LastUsedTime = CallTime,
+                LoginTime = CallTime,
+                Person = person
+            };
+
+            //Now insert it
+            DBSession.Save(authSession);
+
+            //Also put the account history on the client.
+            person.AccountHistory.Add(new AccountHistoryEvent
+            {
+                AccountHistoryEventType = AccountHistoryTypes.Login,
+                EventTime = CallTime,
+                Id = Guid.NewGuid(),
+                Person = person
+            });
+
+            Response.Headers.Add("Access-Control-Expose-Headers", "X-Session-Id");
+            Response.Headers["X-Session-Id"] = new Microsoft.Extensions.Primitives.StringValues(authSession.Id.ToString());
+
             using (var transaction = DBSession.BeginTransaction())
             {
-                if (string.IsNullOrWhiteSpace(sessionId))
-                    return BadRequest();
-
-                var authSession = DBSession.Get<AuthenticationSession>(Guid.Parse(sessionId));
-
-                if (authSession == null)
-                    return BadRequest();
-
-                authSession.IsActive = false;
-                authSession.LogoutTime = CallTime;
-                DBSession.Update(authSession);
-
+                DBSession.Save(authSession);
+                DBSession.Update(person);
                 transaction.Commit();
-
-                return NoContent();
             }
+
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Logs out the user and invalidates the session identified by the X-Session-Id header.  Client muster be the owner of the session.
+        /// </summary>
+        /// <param name="sessionId">The session id to log out.</param>
+        /// <returns></returns>
+        [HttpDelete]
+        [RequireAuthentication]
+        [ProducesResponseType(204)]
+        public IActionResult Logout([FromHeader(Name = "X-Session-Id")] string sessionId)
+        {
+            if (string.IsNullOrWhiteSpace(sessionId))
+                return BadRequest();
+
+            var authSession = DBSession.Get<AuthenticationSession>(Guid.Parse(sessionId));
+
+            if (authSession == null)
+                return BadRequest();
+
+            if (authSession.Person != User)
+                return Forbid();
+
+            authSession.IsActive = false;
+            authSession.LogoutTime = CallTime;
+
+            using (var transaction = DBSession.BeginTransaction())
+            {
+                DBSession.Update(authSession);
+                transaction.Commit();
+            }
+
+            return NoContent();
         }
     }
 }

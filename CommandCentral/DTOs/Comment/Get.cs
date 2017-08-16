@@ -10,5 +10,14 @@ namespace CommandCentral.DTOs.Comment
         public Guid Id { get; set; }
         public Guid Creator { get; set; }
         public DateTime TimeCreated { get; set; }
+
+        public Get(Entities.Comment item)
+        {
+            Body = item.Body;
+            Creator = item.Creator.Id;
+            Id = item.Id;
+            OwningEntity = item.OwningEntity.Id;
+            TimeCreated = item.TimeCreated;
+        }
     }
 }

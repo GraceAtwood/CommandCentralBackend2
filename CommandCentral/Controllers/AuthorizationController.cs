@@ -10,24 +10,48 @@ using CommandCentral.Enums;
 
 namespace CommandCentral.Controllers
 {
+    /// <summary>
+    /// Authorization is the method through which a client can ask questions about their permissions with respect to another person.  
+    /// From authorization, a client can also learn what submodules they have access to and other things.
+    /// </summary>
     [Route("api/[controller]")]
+    [Produces("application/json")]
     public class AuthorizationController : CommandCentralController
     {
+        /// <summary>
+        /// Gets the permissions your client has with respect to no one.  
+        /// This is the best way to determine what submodules your client has access to and other things that don't require knowledge about another user.  
+        /// This endpoint can also be used to determine the "best case" permissions your client has for all users regardless of who they are.  
+        /// When possible, please use this endpoint as it will execute faster and is less expensive.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [RequireAuthentication]
+        [ProducesResponseType(200, Type = typeof(DTOs.Authorization.Get))]
         public IActionResult Get()
         {
-            return Get(null);
+            return Ok(GetPermissions(null));
         }
 
+        /// <summary>
+        /// Gets the permissions your client has with respect to the given person.
+        /// </summary>
+        /// <param name="id">The id of the person with respect to whom you want to know your client's permissions.</param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         [RequireAuthentication]
-        public IActionResult Get(Guid? id = null)
+        [ProducesResponseType(200, Type = typeof(DTOs.Authorization.Get))]
+        public IActionResult Get(Guid id)
         {
-            Person person = null;
-            if (id.HasValue)
-                person = DBSession.Get<Person>(id.Value);
+            var person = DBSession.Get<Person>(id);
+            if (person == null)
+                return NotFoundParameter(id, nameof(id));
 
+            return Ok(GetPermissions(person));
+        }
+
+        private DTOs.Authorization.Get GetPermissions(Person person)
+        {
             var highestlevels = User.GetHighestAccessLevels();
 
             var returnableFieldsAtLevel = new Dictionary<ChainOfCommandLevels, Dictionary<string, HashSet<string>>>();
@@ -65,8 +89,8 @@ namespace CommandCentral.Controllers
                     dynamic desc = Activator.CreateInstance(typeof(TypePermissionsDescriptor<>).MakeGenericType(x.Key), new[] { User, person });
                     return ((IEnumerable<PropertyPermissionsDescriptor>)desc.GetAllPermissions())
                         .ToDictionary(
-                            permissionsDescriptor => permissionsDescriptor.Property.Name, 
-                            permissionsDescriptor => 
+                            permissionsDescriptor => permissionsDescriptor.Property.Name,
+                            permissionsDescriptor =>
                                 new DTOs.Authorization.Get.PropertyPermissionsDTO
                                 {
                                     CanEdit = permissionsDescriptor.CanEdit,
@@ -81,7 +105,7 @@ namespace CommandCentral.Controllers
                 ReturnableFieldsAtLevel = returnableFieldsAtLevel.ToDictionary(x => x.Key, x => x.Value.ToDictionary(y => y.Key, y => y.Value.ToList()))
             };
 
-            return Ok(dto);
+            return dto;
         }
     }
 }

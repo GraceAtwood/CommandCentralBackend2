@@ -83,6 +83,11 @@ namespace CommandCentral.Entities.Correspondence
         /// </summary>
         public virtual bool HasPhysicalCounterpart { get; set; }
 
+        /// <summary>
+        /// This item's priority level.
+        /// </summary>
+        public virtual Enums.CorrespondenceItemPriorityLevels PriorityLevel { get; set; }
+
         #endregion
 
         /// <summary>
@@ -137,6 +142,7 @@ namespace CommandCentral.Entities.Correspondence
                 Map(x => x.HasBeenCompleted).Not.Nullable();
                 Map(x => x.HasPhysicalCounterpart).Not.Nullable();
                 Map(x => x.Body).Length(1000);
+                Map(x => x.PriorityLevel);
 
                 References(x => x.SubmittedFor).Not.Nullable();
                 References(x => x.SubmittedBy).Not.Nullable();

@@ -8,131 +8,191 @@ using CommandCentral.Entities;
 using CommandCentral.DTOs;
 using CommandCentral.Utilities.Types;
 using NHibernate.Criterion;
+using System.Linq.Expressions;
+using CommandCentral.Utilities;
+using CommandCentral.Framework.Data;
+using NHibernate.Linq;
+using LinqKit;
+using CommandCentral.Authorization;
+using CommandCentral.Enums;
 
 namespace CommandCentral.Controllers
 {
+    /// <summary>
+    /// Comments are implemented by multiple entities and allow clients to post... well... comments to an entity.
+    /// Permissions for who can access and post comments to an entity are controlled by that entity.
+    /// </summary>
     [Route("api/[controller]")]
+    [Produces("application/json")]
     public class CommentController : CommandCentralController
     {
+        /// <summary>
+        /// Queries all comments for the given criteria.
+        /// NOTE: Results are filtered after database load based on whether or not your client can view the given comments.  
+        /// For this reason, limit should be seen as "return no more than this number of results".
+        /// </summary>
+        /// <param name="owningEntity">Id of the entity that owns the comments.</param>
+        /// <param name="creator">The person who created a comment.</param>
+        /// <param name="timeCreated">A time range describing the dates to search for when a comment was created.</param>
+        /// <param name="body">Queries the body of comments.</param>
+        /// <param name="limit">[Default = 1000] Instructs the service to return no more than this number of results.</param>
+        /// <returns></returns>
         [HttpGet]
         [RequireAuthentication]
-        public IActionResult Get([FromQuery]Guid owningEntity)
+        [ProducesResponseType(200, Type = typeof(List<DTOs.Command.Get>))]
+        public IActionResult Get([FromQuery] Guid? owningEntity, [FromQuery] string creator, [FromQuery] DateTimeRangeQuery timeCreated,
+            [FromQuery] string body, [FromQuery] int limit = 1000)
         {
-            var result = DBSession.QueryOver<Comment>().Where(Restrictions.Eq("OwningEntity.id", owningEntity)).List();
+            if (limit <= 0)
+                return BadRequestLimit(limit, nameof(limit));
 
-            if (!result.Any())
-                return NotFound();
+            Expression<Func<Comment, bool>> predicate = null;
 
-            if (result.Any() && !result.First().OwningEntity.CanPersonAccessComments(User))
-                return Forbid();
-            
-            return Ok(result.Select(x =>
-                new DTOs.Comment.Get
-                {
-                    Body = x.Body,
-                    Creator = x.Creator.Id,
-                    Id = x.Id,
-                    OwningEntity = x.OwningEntity.Id,
-                    TimeCreated = x.TimeCreated
-                }
-            ));
+            predicate = predicate
+                .AddStringQueryExpression(x => x.Body, body)
+                .AddPersonQueryExpression(x => x.Creator, creator)
+                .AddDateTimeQueryExpression(x => x.TimeCreated, timeCreated);
+
+            if (owningEntity.HasValue)
+                predicate = predicate.NullSafeAnd(x => x.OwningEntity.Id == owningEntity);
+
+            var result = DBSession.Query<Comment>()
+                .AsExpandable()
+                .Where(predicate)
+                .OrderByDescending(x => x.TimeCreated)
+                .Take(limit)
+                .ToFuture()
+                .Where(item => item.OwningEntity.CanPersonAccessComments(User))
+                .Select(item => new DTOs.Comment.Get(item))
+                .ToList();
+
+            return Ok(result);
         }
 
+        /// <summary>
+        /// Retrieves the comment identified by the given id.
+        /// </summary>
+        /// <param name="id">The identifier for a given comment.</param>
+        /// <returns></returns>
+        [HttpGet("{id}")]
+        [RequireAuthentication]
+        [ProducesResponseType(200, Type = typeof(DTOs.Command.Get))]
+        public IActionResult Get(Guid id)
+        {
+            var item = DBSession.Get<Comment>(id);
+            if (item == null)
+                return NotFoundParameter(id, nameof(id));
+
+            if (!item.OwningEntity.CanPersonAccessComments(User))
+                return Forbid();
+
+            return Ok(new DTOs.Comment.Get(item));
+        }
+
+        /// <summary>
+        /// Creates a new comment.  The creator of the new comment will be the currently logged in user.
+        /// </summary>
+        /// <param name="dto">A dto containing all the information required to make a new comment.</param>
+        /// <returns></returns>
         [HttpPost]
         [RequireAuthentication]
+        [ProducesResponseType(201, Type = typeof(DTOs.Command.Get))]
         public IActionResult Post([FromBody]DTOs.Comment.Post dto)
         {
+            if (dto == null)
+                return BadRequestDTONull();
+
+            var owningEntity = DBSession.Query<IHazComments>()
+                .SingleOrDefault(x => x.Id == dto.OwningEntity);
+
+            if (owningEntity == null)
+                return NotFoundParameter(dto.OwningEntity, nameof(dto.OwningEntity));
+
+            if (!owningEntity.CanPersonAccessComments(User))
+                return Forbid();
+
+            var item = new Comment
+            {
+                Body = dto.Body,
+                Creator = User,
+                Id = Guid.NewGuid(),
+                OwningEntity = owningEntity,
+                TimeCreated = CallTime
+            };
+
+            var result = item.Validate();
+            if (!result.IsValid)
+                return BadRequest(result.Errors.Select(x => x.ErrorMessage));
+
             using (var transaction = DBSession.BeginTransaction())
             {
-                if (DBSession.QueryOver<IHazComments>().Where(x => x.Id == dto.OwningEntity).ToRowCountQuery().List<int>().Sum() == 0)
-                    return NotFound($"The parameter {nameof(dto.OwningEntity)} could not be found.");
-
-                var owningEntity = DBSession.QueryOver<IHazComments>()
-                    .Where(x => x.Id == dto.OwningEntity)
-                    .SingleOrDefault();
-
-                if (!owningEntity.CanPersonAccessComments(User))
-                    return Forbid();
-
-                var comment = new Comment
-                {
-                    Body = dto.Body,
-                    Creator = User,
-                    Id = Guid.NewGuid(),
-                    OwningEntity = owningEntity,
-                    TimeCreated = CallTime
-                };
-
-                var result = comment.Validate();
-                if (!result.IsValid)
-                    return BadRequest(result.Errors.Select(x => x.ErrorMessage));
-
-                DBSession.Save(comment);
+                DBSession.Save(item);
                 transaction.Commit();
-
-                return CreatedAtAction(nameof(Get), new { id = comment.Id }, new DTOs.Comment.Get
-                {
-                    Body = comment.Body,
-                    Creator = comment.Creator.Id,
-                    Id = comment.Id,
-                    OwningEntity = comment.OwningEntity.Id,
-                    TimeCreated = comment.TimeCreated
-                });
             }
 
+            return CreatedAtAction(nameof(Get), new { id = item.Id }, new DTOs.Comment.Get(item));
         }
 
+        /// <summary>
+        /// Modifies the comment identified by the given id.  The client must own the comment or have access to admin tools to modify a comment.
+        /// </summary>
+        /// <param name="id">An identifier for the comment you want to modify.</param>
+        /// <param name="dto">A dto containing all the information required to modify the given comment.</param>
+        /// <returns></returns>
         [HttpPut("{id}")]
         [RequireAuthentication]
+        [ProducesResponseType(201, Type = typeof(DTOs.Command.Get))]
         public IActionResult Put(Guid id, [FromBody]DTOs.Comment.Put dto)
         {
+            if (dto == null)
+                return BadRequestDTONull();
+
+            var item = DBSession.Get<Comment>(id);
+            if (item == null)
+                return NotFoundParameter(id, nameof(id));
+
+            if (item.Creator != User || !User.CanAccessSubmodules(SubModules.AdminTools))
+                return Forbid();
+
+            item.Body = dto.Body;
+
+            var result = item.Validate();
+            if (!result.IsValid)
+                return BadRequest(result.Errors.Select(x => x.ErrorMessage));
+
             using (var transaction = DBSession.BeginTransaction())
             {
-                var comment = DBSession.Get<Comment>(id);
-
-                if (comment == null)
-                    return NotFound();
-
-                if (!comment.OwningEntity.CanPersonAccessComments(User))
-                    return Forbid();
-
-                if (comment.Creator.Id != User.Id)
-                    return Forbid();
-
-                comment.Body = dto.Body;
-
-                var result = comment.Validate();
-                if (!result.IsValid)
-                    return BadRequest(result.Errors.Select(x => x.ErrorMessage));
-
-                DBSession.Update(comment);
+                DBSession.Update(item);
                 transaction.Commit();
-
-                return NoContent();
             }
+
+            return CreatedAtAction(nameof(Get), new { id = item.Id }, new DTOs.Comment.Get(item));
         }
 
+        /// <summary>
+        /// Deletes the given comment.  The client must own the comment or have access to admin tools to modify a comment.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
+        [RequireAuthentication]
+        [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
         {
+            var item = DBSession.Get<Comment>(id);
+            if (item == null)
+                return NotFoundParameter(id, nameof(id));
+
+            if (item.Creator != User || !User.CanAccessSubmodules(SubModules.AdminTools))
+                return Forbid();
+
             using (var transaction = DBSession.BeginTransaction())
             {
-                var comment = DBSession.Get<Comment>(id);
-
-                if (comment == null)
-                    return NotFound();
-
-                if (!comment.OwningEntity.CanPersonAccessComments(User))
-                    return Forbid();
-
-                if (comment.Creator.Id != User.Id)
-                    return Forbid();
-
-                DBSession.Delete(comment);
+                DBSession.Delete(item);
                 transaction.Commit();
-
-                return NoContent();
             }
+
+            return NoContent();
         }
     }
 }

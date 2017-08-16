@@ -53,7 +53,7 @@ namespace CommandCentral.Controllers
             [FromQuery] string accountabilityType, [FromQuery] bool? exemptsFromWatch, [FromQuery] int limit = 1000, [FromQuery] string orderBy = nameof(TimeRange.Start))
         {
             if (limit <= 0)
-                return BadRequest($"The value '{limit}' for the property '{nameof(limit)}' was invalid.  It must be greater than zero.");
+                return BadRequestLimit(limit, nameof(limit));
 
             Expression<Func<StatusPeriod, bool>> predicate = null;
 
