@@ -13,386 +13,105 @@ using CommandCentral.Enums;
 using NHibernate.Linq;
 using CommandCentral.Entities.Correspondence;
 using System.Linq.Expressions;
+using LinqKit;
 
 namespace CommandCentral.Controllers
 {
+    /// <summary>
+    /// Correspondence items encapsulate all types of correspondence such as SRCs and other administrative documents.  
+    /// Items may be routed with physical, accompanying documentation.  This can be indicated in the .HasPhysicalCounterpart property.  
+    /// A client should not submit reviews for a given item or modify it in any way unless they have seen that physical documentation.  
+    /// This is only a business rule and not enforced in code in any way.  
+    /// Correspondence reviews (/correspondenceitems/reviews) are a linked list containing all the reviews for a given item.  
+    /// The last review is the one awaiting review.  The last review will have .NextReview = null, .ReviewedBy = null, .IsReviewed = false, and .IsRecommended = null.  
+    /// The best way to find an item awaiting review is simply to use the hasBeenCompleted search parameter or the pendingReviewer parameter if you know who you're looking for.  
+    /// </summary>
     [Route("api/[controller]")]
     [Produces("application/json")]
     public class CorrespondenceItemsController : CommandCentralController
     {
+        /// <summary>
+        /// Queries the correspondence items by the given criteria.
+        /// If the client has access to the admin tools sub module, they will see all items; otherwise, 
+        /// the client will only see items for which they are referenced anywhere in the item (reviewer, shared with, final approver, etc.) or are in the .SubmittedFor's chain of command.
+        /// </summary>
+        /// <param name="seriesNumbers">A query containing a list of series numbers to search for.</param>
+        /// <param name="submittedFor">A query for the person who an item was submitted for.</param>
+        /// <param name="submittedBy">A query for the person who submitted an item.</param>
+        /// <param name="timeSubmitted">A time range query for the time an item was submitted.</param>
+        /// <param name="hasAttachments">A boolean query for whether or not any attachments are on an item.</param>
+        /// <param name="commentedBy">A person query for any items that have at least one comment that contains the given person.</param>
+        /// <param name="hasComments">A boolean query for whether or not an item has comments.</param>
+        /// <param name="hasReviews">A boolean query for whether or not a given item has any reviews.  A query of "false" here will show you all items that have not been routed to their first person yet.</param>
+        /// <param name="reviewer">A person query for any item that has at least one review whose reviewer matches this item.</param>
+        /// <param name="reviewedBy">A person query for any item that has at least one review whose reviewed by person matches this item.</param>
+        /// <param name="sharedWith">A person query for any item that has been shared with the given person.</param>
+        /// <param name="finalApprover">A person query for any item whose final approver is the given item.</param>
+        /// <param name="pendingReviewer">A person query for any item that is waiting on the given person.  (Searches for an item with a review that has IsReviewed = false and Reviewer = given person).</param>
+        /// <param name="hasBeenCompleted">A boolean query for any items that have not yet been completed.</param>
+        /// <param name="hasPhysicalCounterpart">A boolean query for any items that were routed with a physical counterpart such as a folder of some kind.</param>
+        /// <param name="body">A string query in the body of an item.</param>
+        /// <param name="type">A reference list query for the type of correspondence item.</param>
+        /// <param name="priorityLevel">An enum/string query for the priority of an item.</param>
+        /// <param name="limit">[Default = 1000] Instructs the service to return no more than the given number of results.</param>
+        /// <param name="orderBy">[Default = TimeSubmitted] Instructs the service to order the results by the given property.</param>
+        /// <returns></returns>
         [HttpGet]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.CorrespondenceItem.Get>))]
         public IActionResult Get([FromQuery] string seriesNumbers, [FromQuery] string submittedFor, [FromQuery] string submittedBy,
-            [FromQuery] DateTime? from, [FromQuery] DateTime? to, [FromQuery] bool? hasAttachments, [FromQuery] string commentedBy,
+            [FromQuery] DTOs.DateTimeRangeQuery timeSubmitted, [FromQuery] bool? hasAttachments, [FromQuery] string commentedBy,
             [FromQuery] bool? hasComments, [FromQuery] bool? hasReviews, [FromQuery] string reviewer, [FromQuery] string reviewedBy,
             [FromQuery] string sharedWith, [FromQuery] string finalApprover, [FromQuery] string pendingReviewer, [FromQuery] bool? hasBeenCompleted,
-            [FromQuery] bool? hasPhyisicalCounterpart, [FromQuery] string body, [FromQuery] string type,
+            [FromQuery] bool? hasPhysicalCounterpart, [FromQuery] string body, [FromQuery] string type, [FromQuery] string priorityLevel,
             [FromQuery] int limit = 1000, [FromQuery] string orderBy = nameof(CorrespondenceItem.TimeSubmitted))
         {
             if (limit <= 0)
-                return BadRequest($"The value '{limit}' for the property '{nameof(limit)}' was invalid.  It must be greater than zero.");
+                return BadRequestLimit(limit, nameof(limit));
 
-            var query = DBSession.Query<CorrespondenceItem>();
+            //Here we're just going to define some subqueries before we do the final search.  This will clean up the query syntax a bit.
+            Expression<Func<Comment, bool>> commentedBySearch = CommonQueryStrategies.GetPersonQueryExpression<Comment>(y => y.Creator, commentedBy);
+            Expression<Func<CorrespondenceReview, bool>> reviewerSearch = CommonQueryStrategies.GetPersonQueryExpression<CorrespondenceReview>(y => y.Reviewer, reviewer);
+            Expression<Func<CorrespondenceReview, bool>> reviewedBySearch = CommonQueryStrategies.GetPersonQueryExpression<CorrespondenceReview>(y => y.ReviewedBy, reviewedBy);
+            Expression<Func<Person, bool>> sharedWithSearch = CommonQueryStrategies.GetPersonQueryExpression<Person>(y => y, reviewedBy);
 
-            if (!String.IsNullOrWhiteSpace(seriesNumbers))
-            {
-                Expression<Func<CorrespondenceItem, bool>> predicate = null;
+            Expression<Func<CorrespondenceItem, bool>> predicate = null;
 
-                foreach (var term in seriesNumbers.Split(',', ' ', '-', ';').Select(x => x.Trim()))
-                {
-                    if (!Int32.TryParse(term, out int number))
-                        return BadRequest($"One or more terms given in your parameter '{nameof(seriesNumbers)}' were not valid.  They must all be integers.");
-
-                    predicate = predicate.NullSafeOr(x => x.SeriesNumber == number);
-                }
-
-                query = query.Where(predicate);
-            }
-
-            if (!String.IsNullOrWhiteSpace(submittedFor))
-            {
-                Expression<Func<CorrespondenceItem, bool>> predicate = null;
-
-                foreach (var phrase in submittedFor.Split(',').Select(x => x.Trim()))
-                {
-                    if (Guid.TryParse(phrase, out Guid id))
-                    {
-                        predicate = predicate.NullSafeOr(x => x.SubmittedFor.Id == id);
-                    }
-                    else
-                    {
-                        var terms = phrase.Split();
-                        Expression<Func<CorrespondenceItem, bool>> subPredicate = null;
-
-                        foreach (var term in phrase.Split())
-                        {
-                            subPredicate = subPredicate.NullSafeAnd(x =>
-                                x.SubmittedFor.FirstName.Contains(term) ||
-                                x.SubmittedFor.LastName.Contains(term) ||
-                                x.SubmittedFor.MiddleName.Contains(term) ||
-                                x.SubmittedFor.Division.Name.Contains(term) ||
-                                x.SubmittedFor.Division.Department.Name.Contains(term) ||
-                                x.SubmittedFor.Paygrade.Value.Contains(term) ||
-                                x.SubmittedFor.UIC.Value.Contains(term) ||
-                                x.SubmittedFor.Designation.Value.Contains(term));
-                        }
-
-                        predicate = predicate.NullSafeOr(subPredicate);
-                    }
-                }
-
-                query = query.Where(predicate);
-            }
-
-            if (!String.IsNullOrWhiteSpace(submittedBy))
-            {
-                Expression<Func<CorrespondenceItem, bool>> predicate = null;
-
-                foreach (var phrase in submittedBy.Split(',').Select(x => x.Trim()))
-                {
-                    if (Guid.TryParse(phrase, out Guid id))
-                    {
-                        predicate = predicate.NullSafeOr(x => x.SubmittedBy.Id == id);
-                    }
-                    else
-                    {
-                        var terms = phrase.Split();
-                        Expression<Func<CorrespondenceItem, bool>> subPredicate = null;
-
-                        foreach (var term in phrase.Split())
-                        {
-                            subPredicate = subPredicate.NullSafeAnd(x =>
-                                x.SubmittedBy.FirstName.Contains(term) ||
-                                x.SubmittedBy.LastName.Contains(term) ||
-                                x.SubmittedBy.MiddleName.Contains(term) ||
-                                x.SubmittedBy.Division.Name.Contains(term) ||
-                                x.SubmittedBy.Division.Department.Name.Contains(term) ||
-                                x.SubmittedBy.Paygrade.Value.Contains(term) ||
-                                x.SubmittedBy.UIC.Value.Contains(term) ||
-                                x.SubmittedBy.Designation.Value.Contains(term));
-                        }
-
-                        predicate = predicate.NullSafeOr(subPredicate);
-                    }
-                }
-
-                query = query.Where(predicate);
-            }
-
-            if (!String.IsNullOrWhiteSpace(commentedBy))
-            {
-                Expression<Func<CorrespondenceItem, bool>> predicate = null;
-
-                foreach (var phrase in commentedBy.Split(',').Select(x => x.Trim()))
-                {
-                    if (Guid.TryParse(phrase, out Guid id))
-                    {
-                        predicate = predicate.NullSafeOr(x => x.Comments.Any(y => y.Creator.Id == id));
-                    }
-                    else
-                    {
-                        var terms = phrase.Split();
-                        Expression<Func<CorrespondenceItem, bool>> subPredicate = null;
-
-                        foreach (var term in phrase.Split())
-                        {
-                            subPredicate = subPredicate.NullSafeAnd(x => x.Comments.Any(y =>
-                                y.Creator.FirstName.Contains(term) ||
-                                y.Creator.LastName.Contains(term) ||
-                                y.Creator.MiddleName.Contains(term) ||
-                                y.Creator.Division.Name.Contains(term) ||
-                                y.Creator.Division.Department.Name.Contains(term) ||
-                                y.Creator.Paygrade.Value.Contains(term) ||
-                                y.Creator.UIC.Value.Contains(term) ||
-                                y.Creator.Designation.Value.Contains(term)));
-                        }
-
-                        predicate = predicate.NullSafeOr(subPredicate);
-                    }
-                }
-
-                query = query.Where(predicate);
-            }
-
-            if (!String.IsNullOrWhiteSpace(reviewer))
-            {
-                Expression<Func<CorrespondenceItem, bool>> predicate = null;
-
-                foreach (var phrase in reviewer.Split(',').Select(x => x.Trim()))
-                {
-                    if (Guid.TryParse(phrase, out Guid id))
-                    {
-                        predicate = predicate.NullSafeOr(x => x.Reviews.Any(y => y.Reviewer.Id == id));
-                    }
-                    else
-                    {
-                        var terms = phrase.Split();
-                        Expression<Func<CorrespondenceItem, bool>> subPredicate = null;
-
-                        foreach (var term in phrase.Split())
-                        {
-                            subPredicate = subPredicate.NullSafeAnd(x => x.Reviews.Any(y =>
-                                y.Reviewer.FirstName.Contains(term) ||
-                                y.Reviewer.LastName.Contains(term) ||
-                                y.Reviewer.MiddleName.Contains(term) ||
-                                y.Reviewer.Division.Name.Contains(term) ||
-                                y.Reviewer.Division.Department.Name.Contains(term) ||
-                                y.Reviewer.Paygrade.Value.Contains(term) ||
-                                y.Reviewer.UIC.Value.Contains(term) ||
-                                y.Reviewer.Designation.Value.Contains(term)));
-                        }
-
-                        predicate = predicate.NullSafeOr(subPredicate);
-                    }
-                }
-
-                query = query.Where(predicate);
-            }
-
-            if (!String.IsNullOrWhiteSpace(reviewedBy))
-            {
-                Expression<Func<CorrespondenceItem, bool>> predicate = null;
-
-                foreach (var phrase in reviewedBy.Split(',').Select(x => x.Trim()))
-                {
-                    if (Guid.TryParse(phrase, out Guid id))
-                    {
-                        predicate = predicate.NullSafeOr(x => x.Reviews.Any(y => y.ReviewedBy.Id == id));
-                    }
-                    else
-                    {
-                        var terms = phrase.Split();
-                        Expression<Func<CorrespondenceItem, bool>> subPredicate = null;
-
-                        foreach (var term in phrase.Split())
-                        {
-                            subPredicate = subPredicate.NullSafeAnd(x => x.Reviews.Any(y =>
-                                y.ReviewedBy.FirstName.Contains(term) ||
-                                y.ReviewedBy.LastName.Contains(term) ||
-                                y.ReviewedBy.MiddleName.Contains(term) ||
-                                y.ReviewedBy.Division.Name.Contains(term) ||
-                                y.ReviewedBy.Division.Department.Name.Contains(term) ||
-                                y.ReviewedBy.Paygrade.Value.Contains(term) ||
-                                y.ReviewedBy.UIC.Value.Contains(term) ||
-                                y.ReviewedBy.Designation.Value.Contains(term)));
-                        }
-
-                        predicate = predicate.NullSafeOr(subPredicate);
-                    }
-                }
-
-                query = query.Where(predicate);
-            }
-
-            if (!String.IsNullOrWhiteSpace(sharedWith))
-            {
-                Expression<Func<CorrespondenceItem, bool>> predicate = null;
-
-                foreach (var phrase in sharedWith.Split(',').Select(x => x.Trim()))
-                {
-                    if (Guid.TryParse(phrase, out Guid id))
-                    {
-                        predicate = predicate.NullSafeOr(x => x.SharedWith.Any(y => y.Id == id));
-                    }
-                    else
-                    {
-                        var terms = phrase.Split();
-                        Expression<Func<CorrespondenceItem, bool>> subPredicate = null;
-
-                        foreach (var term in phrase.Split())
-                        {
-                            subPredicate = subPredicate.NullSafeAnd(x => x.SharedWith.Any(y =>
-                                y.FirstName.Contains(term) ||
-                                y.LastName.Contains(term) ||
-                                y.MiddleName.Contains(term) ||
-                                y.Division.Name.Contains(term) ||
-                                y.Division.Department.Name.Contains(term) ||
-                                y.Paygrade.Value.Contains(term) ||
-                                y.UIC.Value.Contains(term) ||
-                                y.Designation.Value.Contains(term)));
-                        }
-
-                        predicate = predicate.NullSafeOr(subPredicate);
-                    }
-                }
-
-                query = query.Where(predicate);
-            }
-
-            if (!String.IsNullOrWhiteSpace(finalApprover))
-            {
-                Expression<Func<CorrespondenceItem, bool>> predicate = null;
-
-                foreach (var phrase in finalApprover.Split(',').Select(x => x.Trim()))
-                {
-                    if (Guid.TryParse(phrase, out Guid id))
-                    {
-                        predicate = predicate.NullSafeOr(x => x.FinalApprover.Id == id);
-                    }
-                    else
-                    {
-                        var terms = phrase.Split();
-                        Expression<Func<CorrespondenceItem, bool>> subPredicate = null;
-
-                        foreach (var term in phrase.Split())
-                        {
-                            subPredicate = subPredicate.NullSafeAnd(x => 
-                                x.FinalApprover.FirstName.Contains(term) ||
-                                x.FinalApprover.LastName.Contains(term) ||
-                                x.FinalApprover.MiddleName.Contains(term) ||
-                                x.FinalApprover.Division.Name.Contains(term) ||
-                                x.FinalApprover.Division.Department.Name.Contains(term) ||
-                                x.FinalApprover.Paygrade.Value.Contains(term) ||
-                                x.FinalApprover.UIC.Value.Contains(term) ||
-                                x.FinalApprover.Designation.Value.Contains(term));
-                        }
-
-                        predicate = predicate.NullSafeOr(subPredicate);
-                    }
-                }
-
-                query = query.Where(predicate);
-            }
+            predicate = predicate
+                .AddPersonQueryExpression(x => x.FinalApprover, finalApprover)
+                .AddPersonQueryExpression(x => x.SubmittedBy, submittedBy)
+                .AddPersonQueryExpression(x => x.SubmittedFor, submittedFor)
+                .AddNullableBoolQueryExpression(x => x.HasBeenCompleted, hasBeenCompleted)
+                .AddNullableBoolQueryExpression(x => x.HasPhysicalCounterpart, hasPhysicalCounterpart)
+                .AddIntQueryExpression(x => x.SeriesNumber, seriesNumbers)
+                .NullSafeAnd(x => x.Comments.Any(commentedBySearch.Compile()))
+                .NullSafeAnd(x => x.Reviews.Any(reviewerSearch.Compile()))
+                .NullSafeAnd(x => x.Reviews.Any(reviewedBySearch.Compile()))
+                .NullSafeAnd(x => x.SharedWith.Any(sharedWithSearch.Compile()))
+                .AddReferenceListQueryExpression(x => x.Type, type)
+                .AddStringQueryExpression(x => x.Body, body)
+                .AddDateTimeQueryExpression(x => x.TimeSubmitted, timeSubmitted);
 
             if (!String.IsNullOrWhiteSpace(pendingReviewer))
             {
-                Expression<Func<CorrespondenceItem, bool>> predicate = null;
-
-                foreach (var phrase in pendingReviewer.Split(',').Select(x => x.Trim()))
-                {
-                    if (Guid.TryParse(phrase, out Guid id))
-                    {
-                        predicate = predicate.NullSafeOr(x => x.Reviews.Any(y => y.IsReviewed == false && y.Reviewer.Id == id));
-                    }
-                    else
-                    {
-                        var terms = phrase.Split();
-                        Expression<Func<CorrespondenceItem, bool>> subPredicate = null;
-
-                        foreach (var term in phrase.Split())
-                        {
-                            subPredicate = subPredicate.NullSafeAnd(x =>
-                                x.FinalApprover.FirstName.Contains(term) ||
-                                x.FinalApprover.LastName.Contains(term) ||
-                                x.FinalApprover.MiddleName.Contains(term) ||
-                                x.FinalApprover.Division.Name.Contains(term) ||
-                                x.FinalApprover.Division.Department.Name.Contains(term) ||
-                                x.FinalApprover.Paygrade.Value.Contains(term) ||
-                                x.FinalApprover.UIC.Value.Contains(term) ||
-                                x.FinalApprover.Designation.Value.Contains(term));
-                        }
-
-                        predicate = predicate.NullSafeOr(subPredicate);
-                    }
-                }
-
-                query = query.Where(predicate);
+                predicate = predicate.NullSafeAnd(y => y.Reviews.Any(
+                    CommonQueryStrategies.GetPersonQueryExpression<CorrespondenceReview>(x => x.Reviewer, pendingReviewer)
+                    .NullSafeAnd(x => x.IsFinal == false)
+                    .Compile()));
             }
-
-            if (!String.IsNullOrWhiteSpace(type))
-            {
-                Expression<Func<CorrespondenceItem, bool>> predicate = null;
-
-                foreach (var phrase in type.Split(',').Select(x => x.Trim()))
-                {
-                    if (Guid.TryParse(phrase, out Guid id))
-                    {
-                        predicate = predicate.NullSafeOr(x => x.Id == id);
-                    }
-                    else
-                    {
-                        var terms = phrase.Split();
-                        Expression<Func<CorrespondenceItem, bool>> subPredicate = null;
-
-                        foreach (var term in terms)
-                        {
-                            subPredicate = subPredicate.NullSafeOr(x => x.Type.Value.Contains(term));
-                        }
-
-                        predicate = predicate.NullSafeOr(subPredicate);
-                    }
-                }
-
-                query = query.Where(predicate);
-            }
-
-            if (!String.IsNullOrWhiteSpace(body))
-            {
-                Expression<Func<CorrespondenceItem, bool>> predicate = null;
-
-                foreach (var phrase in body.Split(',').Select(x => x.Trim()))
-                {
-                    predicate = predicate.NullSafeOr(x => x.Body.Contains(phrase));
-                }
-
-                query = query.Where(predicate);
-            }
-
-            if (from.HasValue && !to.HasValue)
-                query = query.Where(x => x.TimeSubmitted >= from);
-            else if (to.HasValue && !from.HasValue)
-                query = query.Where(x => x.TimeSubmitted <= to);
-            else if (to.HasValue && to.HasValue)
-                query = query.Where(x => x.TimeSubmitted <= to && x.TimeSubmitted >= from);
 
             if (hasAttachments.HasValue)
-                query = query.Where(x => x.Attachments.Count() > 0);
+                predicate = predicate.NullSafeAnd(x => x.Attachments.Count() > 0);
 
             if (hasComments.HasValue)
-                query = query.Where(x => x.Comments.Count() > 0);
+                predicate = predicate.NullSafeAnd(x => x.Comments.Count() > 0);
 
             if (hasReviews.HasValue)
-                query = query.Where(x => x.Reviews.Count() > 0);
-
-            if (hasBeenCompleted.HasValue)
-                query = query.Where(x => x.HasBeenCompleted == true);
-
-            if (hasPhyisicalCounterpart.HasValue)
-                query = query.Where(x => x.HasPhysicalCounterpart == true);
-
-            //This query will add the permissions restrictions
-            query = query.Where(x => x.SubmittedBy == User || x.SubmittedFor == User || x.Reviews.Any(y => y.Reviewer == User || y.ReviewedBy == User) || x.SharedWith.Contains(User));
+                predicate = predicate.NullSafeAnd(x => x.Reviews.Count() > 0);
+            
+            var query = DBSession.Query<CorrespondenceItem>()
+                .AsExpandable()
+                .Where(predicate);
 
             if (String.Equals(orderBy, nameof(CorrespondenceItem.TimeSubmitted), StringComparison.CurrentCultureIgnoreCase))
                 query = query.OrderByDescending(x => x.TimeSubmitted);
@@ -401,11 +120,31 @@ namespace CommandCentral.Controllers
 
             var result = query
                 .Take(limit)
+                .ToList()
+                .Where(x =>
+                {
+                    if (User.CanAccessSubmodules(SubModules.AdminTools))
+                        return true;
+
+                    if (x.SubmittedBy == User || x.SubmittedFor == User || 
+                        x.Reviews.Any(y => y.Reviewer == User || y.ReviewedBy == User) || x.SharedWith.Contains(User))
+                        return true;
+
+                    if (User.IsInChainOfCommand(x.SubmittedFor))
+                        return true;
+
+                    return false;
+                })
                 .Select(item => new DTOs.CorrespondenceItem.Get(item));
 
             return Ok(result.ToList());
         }
 
+        /// <summary>
+        /// Retrieves the item identified by the given Id.  Client must have access to the admin tools submodules or be referenced in the item.
+        /// </summary>
+        /// <param name="id">The identifier for an item.</param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.CorrespondenceItem.Get))]
@@ -413,16 +152,21 @@ namespace CommandCentral.Controllers
         {
             var item = DBSession.Get<CorrespondenceItem>(id);
             if (item == null)
-                return NotFound();
+                return NotFoundParameter(id, nameof(id));
 
             if (item.SubmittedBy != User && item.SubmittedFor != User &&
                 !item.Reviews.Any(x => x.Reviewer == User || x.ReviewedBy == User) &&
-                !item.SharedWith.Contains(User))
+                !item.SharedWith.Contains(User) && !User.IsInChainOfCommand(item.SubmittedFor))
                 return Forbid();
 
             return Ok(new DTOs.CorrespondenceItem.Get(item));
         }
 
+        /// <summary>
+        /// Creates a new corr item.  Client must have access to the admin tools submodules or be referenced in the item.
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         [HttpPost]
         [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.CorrespondenceItem.Get))]

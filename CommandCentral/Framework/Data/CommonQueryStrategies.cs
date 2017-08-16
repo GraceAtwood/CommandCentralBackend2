@@ -45,6 +45,24 @@ namespace CommandCentral.Framework.Data
             return initial.NullSafeAnd(predicate);
         }
 
+        public static Expression<Func<T, bool>> AddIntQueryExpression<T>(this Expression<Func<T, bool>> initial, Expression<Func<T, int>> selector, string searchValue)
+        {
+            if (String.IsNullOrWhiteSpace(searchValue))
+                return initial;
+
+            Expression<Func<T, bool>> predicate = null;
+
+            foreach (var term in searchValue.SplitByOr())
+            {
+                if (Int32.TryParse(term, out int number))
+                {
+                    predicate = predicate.NullSafeOr(x => selector.Invoke(x) == number);
+                }
+            }
+
+            return initial.NullSafeAnd(predicate);
+        }
+
         public static Expression<Func<T, bool>> AddReferenceListQueryExpression<T, TProperty>(this Expression<Func<T, bool>> initial, Expression<Func<T, TProperty>> selector, string searchValue) where TProperty : ReferenceListItemBase
         {
             if (String.IsNullOrWhiteSpace(searchValue))
@@ -76,8 +94,18 @@ namespace CommandCentral.Framework.Data
 
         public static Expression<Func<T, bool>> AddPersonQueryExpression<T>(this Expression<Func<T, bool>> initial, Expression<Func<T, Person>> selector, string searchValue)
         {
-            if (String.IsNullOrWhiteSpace(searchValue))
+            var expression = GetPersonQueryExpression(selector, searchValue);
+            if (expression == null)
                 return initial;
+
+            return initial.NullSafeAnd(expression);
+        }
+
+        public static Expression<Func<T, bool>> GetPersonQueryExpression<T>(Expression<Func<T, Person>> selector, string searchValue)
+        {
+
+            if (String.IsNullOrWhiteSpace(searchValue))
+                return null;
 
             Expression<Func<T, bool>> predicate = null;
 
@@ -108,7 +136,7 @@ namespace CommandCentral.Framework.Data
                 predicate = predicate.NullSafeOr(subPredicate);
             }
 
-            return initial.NullSafeAnd(predicate);
+            return predicate;
         }
 
         public static Expression<Func<T, bool>> AddDateTimeQueryExpression<T>(this Expression<Func<T, bool>> initial, Expression<Func<T, DateTime?>> selector, DTOs.DateTimeRangeQuery range)

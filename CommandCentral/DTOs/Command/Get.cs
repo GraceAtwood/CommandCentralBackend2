@@ -9,5 +9,13 @@ namespace CommandCentral.DTOs.Command
     {
         public Guid Id { get; set; }
         public List<Guid> Departments { get; set; }
+
+        public Get(Entities.Command item)
+        {
+            Id = item.Id;
+            Name = item.Name;
+            Description = item.Description;
+            Departments = item.Departments.Select(x => x.Id).ToList();
+        }
     }
 }

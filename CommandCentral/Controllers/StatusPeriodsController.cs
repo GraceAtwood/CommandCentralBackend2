@@ -53,7 +53,7 @@ namespace CommandCentral.Controllers
             [FromQuery] string accountabilityType, [FromQuery] bool? exemptsFromWatch, [FromQuery] int limit = 1000, [FromQuery] string orderBy = nameof(TimeRange.Start))
         {
             if (limit <= 0)
-                return BadRequest($"The value '{limit}' for the property '{nameof(limit)}' was invalid.  It must be greater than zero.");
+                return BadRequestLimit(limit, nameof(limit));
 
             Expression<Func<StatusPeriod, bool>> predicate = null;
 
@@ -79,19 +79,7 @@ namespace CommandCentral.Controllers
                 .Take(limit)
                 .ToList()
                 .Where(statusPeriod => User.GetFieldPermissions<Person>(statusPeriod.Person).CanReturn(x => x.StatusPeriods))
-                .Select(statusPeriod =>
-                    new DTOs.StatusPeriod.Get
-                    {
-                        DateSubmitted = statusPeriod.DateSubmitted,
-                        ExemptsFromWatch = statusPeriod.ExemptsFromWatch,
-                        Id = statusPeriod.Id,
-                        Person = statusPeriod.Person.Id,
-                        Range = statusPeriod.Range,
-                        Reason = statusPeriod.AccountabilityType.Id,
-                        SubmittedBy = statusPeriod.SubmittedBy.Id,
-                        DateLastModified = statusPeriod.DateLastModified,
-                        LastModifiedBy = statusPeriod.LastModifiedBy.Id
-                    });
+                .Select(item => new DTOs.StatusPeriod.Get(item));
 
             return Ok(result.ToList());
         }
@@ -113,18 +101,7 @@ namespace CommandCentral.Controllers
             if (!User.GetFieldPermissions<Person>(item.Person).CanReturn(x => x.StatusPeriods))
                 return Forbid();
 
-            return Ok(new DTOs.StatusPeriod.Get
-            {
-                DateSubmitted = item.DateSubmitted,
-                ExemptsFromWatch = item.ExemptsFromWatch,
-                Id = item.Id,
-                Person = item.Person.Id,
-                Range = item.Range,
-                Reason = item.AccountabilityType.Id,
-                SubmittedBy = item.SubmittedBy.Id,
-                DateLastModified = item.DateLastModified,
-                LastModifiedBy = item.LastModifiedBy.Id
-            });
+            return Ok(new DTOs.StatusPeriod.Get(item));
         }
 
         /// <summary>
@@ -177,20 +154,9 @@ namespace CommandCentral.Controllers
             {
                 DBSession.Save(item);
                 transaction.Commit();
-
-                return CreatedAtAction(nameof(Get), new { id = item.Id }, new DTOs.StatusPeriod.Get
-                {
-                    DateSubmitted = item.DateSubmitted,
-                    ExemptsFromWatch = item.ExemptsFromWatch,
-                    Id = item.Id,
-                    Person = item.Person.Id,
-                    Range = item.Range,
-                    Reason = item.AccountabilityType.Id,
-                    SubmittedBy = item.SubmittedBy.Id,
-                    DateLastModified = item.DateLastModified,
-                    LastModifiedBy = item.LastModifiedBy.Id
-                });
             }
+
+            return CreatedAtAction(nameof(Get), new { id = item.Id }, new DTOs.StatusPeriod.Get(item));
         }
 
         /// <summary>
@@ -225,34 +191,23 @@ namespace CommandCentral.Controllers
             if (reason == null)
                 return NotFound($"Unable to find object referenced by parameter: {nameof(dto.Reason)}.");
 
+            item.ExemptsFromWatch = dto.ExemptsFromWatch;
+            item.Range = dto.Range;
+            item.AccountabilityType = reason;
+            item.LastModifiedBy = User;
+            item.DateLastModified = CallTime;
+
+            var result = item.Validate();
+            if (!result.IsValid)
+                return BadRequest(result.Errors.Select(x => x.ErrorMessage));
+
             using (var transaction = DBSession.BeginTransaction())
             {
-                item.ExemptsFromWatch = dto.ExemptsFromWatch;
-                item.Range = dto.Range;
-                item.AccountabilityType = reason;
-                item.LastModifiedBy = User;
-                item.DateLastModified = CallTime;
-
-                var result = item.Validate();
-                if (!result.IsValid)
-                    return BadRequest(result.Errors.Select(x => x.ErrorMessage));
-
                 DBSession.Update(item);
                 transaction.Commit();
-
-                return CreatedAtAction(nameof(Get), new { id = item.Id }, new DTOs.StatusPeriod.Get
-                {
-                    DateSubmitted = item.DateSubmitted,
-                    ExemptsFromWatch = item.ExemptsFromWatch,
-                    Id = item.Id,
-                    Person = item.Person.Id,
-                    Range = item.Range,
-                    Reason = item.AccountabilityType.Id,
-                    SubmittedBy = item.SubmittedBy.Id,
-                    DateLastModified = item.DateLastModified,
-                    LastModifiedBy = item.LastModifiedBy.Id
-                });
             }
+
+            return CreatedAtAction(nameof(Get), new { id = item.Id }, new DTOs.StatusPeriod.Get(item));
         }
 
         /// <summary>
@@ -285,7 +240,6 @@ namespace CommandCentral.Controllers
             using (var transaction = DBSession.BeginTransaction())
             {
                 DBSession.Delete(item);
-
                 transaction.Commit();
             }
 
