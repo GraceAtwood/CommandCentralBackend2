@@ -63,8 +63,10 @@ namespace CommandCentral.Controllers
                 .AddDateTimeQueryExpression(x => x.DateOfBirth, dto.DateOfBirth)
                 .AddDateTimeQueryExpression(x => x.DateOfDeparture, dto.DateOfDeparture)
                 .AddDateTimeQueryExpression(x => x.EAOS, dto.EAOS)
-                .AddDateTimeQueryExpression(x => x.PRD, dto.PRD)
-                .NullSafeAnd(x => x.StatusPeriods.Any(statusPeriodSearch.Compile()));
+                .AddDateTimeQueryExpression(x => x.PRD, dto.PRD);
+
+            if (dto.StatusPeriod != null && !dto.StatusPeriod.HasNeither())
+                predicate = predicate.NullSafeAnd(x => x.StatusPeriods.Any(statusPeriodSearch.Compile()));
 
             var result = DBSession.Query<Person>()
                 .AsExpandable()
