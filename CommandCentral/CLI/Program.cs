@@ -10,12 +10,38 @@ using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.Extensions.DependencyInjection;
 using CommandCentral.Enums;
 using CommandCentral.Utilities;
+using System.Web.Hosting;
 
 namespace CommandCentral.CLI
 {
     public class Program
     {
         public static void Main(string[] args)
+        {
+            if (args.Any())
+            {
+                HandleCommandLine(args);
+            }
+            else
+            {
+                LaunchService();
+            }
+        }
+
+        private static void LaunchService()
+        {
+            var host = new WebHostBuilder()
+                .UseKestrel()
+                .UseContentRoot(Directory.GetCurrentDirectory())
+                .UseIISIntegration()
+                .UseUrls("http://*:1113")
+                .UseStartup<Framework.Startup>()
+                .Build();
+
+            host.Run();
+        }
+
+        private static void HandleCommandLine(string[] args)
         {
             var app = new CommandLineApplication();
 
@@ -51,14 +77,7 @@ namespace CommandCentral.CLI
 
                 config.OnExecute(() =>
                 {
-                    var host = new WebHostBuilder()
-                                .UseKestrel()
-                                .UseContentRoot(Directory.GetCurrentDirectory())
-                                .UseUrls("http://*:1113")
-                                .UseStartup<Framework.Startup>()
-                                .Build();
-
-                    host.Run();
+                    LaunchService();
                     return 0;
                 });
             });
