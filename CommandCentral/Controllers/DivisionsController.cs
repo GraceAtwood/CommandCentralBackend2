@@ -14,6 +14,8 @@ using CommandCentral.Enums;
 namespace CommandCentral.Controllers
 {
     [Route("api/[controller]")]
+    [Produces("application/json")]
+    [Consumes("application/json")]
     public class DivisionsController : CommandCentralController
     {
         [HttpGet("{id}")]

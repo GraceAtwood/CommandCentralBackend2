@@ -28,6 +28,7 @@ namespace CommandCentral.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [Produces("application/json")]
+    [Consumes("application/json")]
     public partial class CorrespondenceItemsController : CommandCentralController
     {
         /// <summary>

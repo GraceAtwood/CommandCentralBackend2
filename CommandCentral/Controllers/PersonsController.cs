@@ -23,6 +23,7 @@ namespace CommandCentral.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [Produces("application/json")]
+    [Consumes("application/json")]
     public partial class PersonsController : CommandCentralController
     {
         [HttpPost("query")]

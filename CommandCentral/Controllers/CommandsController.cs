@@ -21,6 +21,7 @@ namespace CommandCentral.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [Produces("application/json")]
+    [Consumes("application/json")]
     public class CommandsController : CommandCentralController
     {
         /// <summary>

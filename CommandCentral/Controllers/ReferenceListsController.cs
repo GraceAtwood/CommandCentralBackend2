@@ -17,6 +17,7 @@ namespace CommandCentral.Controllers
 {
     [Route("api/[controller]")]
     [Produces("application/json")]
+    [Consumes("application/json")]
     public class ReferenceListsController : CommandCentralController
     {
         [HttpGet]
