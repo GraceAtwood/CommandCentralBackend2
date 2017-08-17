@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="appsettings.json" />
+    <None Remove="appsettings.example.json" />
     <None Remove="Email\Templates\AccountConfirmation_HTML.html" />
     <None Remove="Email\Templates\AssignmentChangedEvent_HTML.html" />
     <None Remove="Email\Templates\BeginPasswordReset_HTML.html" />
@@ -112,7 +112,9 @@
     <EmbeddedResource Include="PreDefs\Def_PhoneNumberTypes.cc" />
     <EmbeddedResource Include="PreDefs\Def_Sexes.cc" />
     <EmbeddedResource Include="PreDefs\Def_WatchQualifications.cc" />
-    <Content Include="appsettings.json" />
+    <Content Include="appsettings.example.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="wwwroot\swagger-ui\basic-auth.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -124,15 +126,15 @@
     <Content Update="appsettings - Copy.example.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Update="appsettings.json">
+    <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Update="appsettings.json">
+    </None>
+    <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Update="appsettings.json">
+    </None>
+    <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </None>
   </ItemGroup>
 
 </Project>

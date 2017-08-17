@@ -30,11 +30,15 @@ namespace CommandCentral.CLI
 
         private static void LaunchService()
         {
+            var url = ConfigurationUtility.Configuration["Server:BaseAddress"];
+            if (String.IsNullOrWhiteSpace(url))
+                throw new ArgumentNullException("The base address for the service was not found in the appsettings.json file.  It should be found at 'Server { BaseAddress = http://address:port/ }'.");
+
             var host = new WebHostBuilder()
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseIISIntegration()
-                .UseUrls("http://*:1114")
+                .UseUrls(url)
                 .UseStartup<Framework.Startup>()
                 .Build();
 
