@@ -26,7 +26,7 @@ namespace CommandCentral.Utilities
         /// NHibernate Proxy object, and not a real object. This method will return the real
         /// Entity-type, doing a full initialization if necessary.
         /// </summary>
-        public static Type GetEntityType(this Entity entity, ISession session)
+        public static Type GetEntityType(this Entity entity, IPersistenceContext persistenceContext)
         {
             if (entity is INHibernateProxy)
             {
@@ -34,40 +34,16 @@ namespace CommandCentral.Utilities
                 var type = lazyInitialiser.PersistentClass;
 
                 if (type.IsAbstract || type.GetNestedTypes().Length > 0)
-                    return entity.Unproxy(session).GetType();
+                    return (entity is INHibernateProxy
+                       ? persistenceContext.Unproxy(entity)
+                       : entity).GetType();
                 else // we don't need to "unbox" the Proxy-object to get the type
                     return lazyInitialiser.PersistentClass;
             }
 
             return entity.GetType();
         }
-
-        /// <summary>
-        /// In some cases, you may need the actual object, not just the type - for example, if
-        /// you're going to cast to a type deeper in the hierarchy, you may need to Unproxy
-        /// the object first.
-        /// </summary>
-        public static TEntity Unproxy<TEntity>(this TEntity entity, ISession session)
-            where TEntity : Entity
-        {
-            return entity is INHibernateProxy
-                       ? (TEntity)session.GetSessionImplementation().PersistenceContext.Unproxy(entity)
-                       : entity;
-        }
-
-        /// <summary>
-        /// Based on the real, underlying Entity-type, this method returns true if the specified
-        /// type matches (or is assignable from) the specified Type.
-        /// </summary>
-        public static bool Is<TEntity>(this Entity entity, ISession session)
-            where TEntity : Entity
-        {
-            var entityType = entity.GetEntityType(session);
-            var type = typeof(TEntity);
-
-            return entityType == type || type.IsAssignableFrom(entityType);
-        }
-
+        
         /// <summary>
         /// Returns a collection of properties that are dirty along with their new and old values.
         /// <para />

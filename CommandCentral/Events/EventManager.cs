@@ -76,10 +76,16 @@ namespace CommandCentral.Events
             NewReviewSubmitted?.Invoke(sender, e);
         }
 
-        public static event EventHandler<CorrespondenceReviewEventArgs> ReviewStatusChanged;
-        public static void OnReviewStatusChanged(CorrespondenceReviewEventArgs e, object sender)
+        public static event EventHandler<CorrespondenceReviewEventArgs> ReviewModified;
+        public static void OnReviewModified(CorrespondenceReviewEventArgs e, object sender)
         {
-            ReviewStatusChanged?.Invoke(sender, e);
+            ReviewModified?.Invoke(sender, e);
+        }
+
+        public static event EventHandler<CorrespondenceReviewEventArgs> ReviewDeleted;
+        public static void OnReviewDeleted(CorrespondenceReviewEventArgs e, object sender)
+        {
+            ReviewDeleted?.Invoke(sender, e);
         }
 
         public static event EventHandler<CorrespondenceItemEventArgs> CorrespondenceRoutedToNextPerson;

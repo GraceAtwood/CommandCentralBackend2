@@ -101,6 +101,8 @@ namespace CommandCentral.Entities
                 Map(x => x.Country);
                 Map(x => x.IsHomeAddress).Not.Nullable();
                 Map(x => x.IsReleasableOutsideCoC).Not.Nullable();
+
+                References(x => x.Person).Not.Nullable();
             }
         }
 
@@ -114,7 +116,7 @@ namespace CommandCentral.Entities
             /// </summary>
             public Validator()
             {
-                CascadeMode = CascadeMode.StopOnFirstFailure;
+                RuleFor(x => x.Person).NotEmpty();
                 
                 RuleFor(x => x.Address)
                     .NotEmpty().WithMessage("Your address must not be empty.")

@@ -128,7 +128,21 @@ namespace CommandCentral.Framework
         [NonAction]
         public NotFoundObjectResult NotFoundParameter(Guid id, string parameterName)
         {
-            return NotFound($"The object with Id '{id}' identified by your parameter '{parameterName}' could not be found.");
+            return NotFound($"An object with Id '{id}' identified by your parameter '{parameterName}' could not be found.");
+        }
+
+        /// <summary>
+        /// Returns a <seealso cref="NotFoundObjectResult"/> with the body set to an error message indicating an object identified by the parameter could not be found.
+        /// </summary>
+        /// <param name="childId"></param>
+        /// <param name="childParameterName"></param>
+        /// <param name="parentId"></param>
+        /// <param name="parentParamenentName"></param>
+        /// <returns></returns>
+        [NonAction]
+        public NotFoundObjectResult NotFoundChildParameter(Guid parentId, string parentParamenentName, Guid childId, string childParameterName)
+        {
+            return NotFound($"An object with Id '{childId}' identified by your parameter '{childParameterName}', child of an object with Id '{parentId}' identified by your parameter '{childParameterName},' could not be found.");
         }
 
         /// <summary>

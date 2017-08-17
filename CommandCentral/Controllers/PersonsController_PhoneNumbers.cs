@@ -16,9 +16,6 @@ using System.Linq.Expressions;
 
 namespace CommandCentral.Controllers
 {
-    /// <summary>
-    /// The person object is the central entry to a person's profile.  Permissions for each field can be attained from the /authorization controller.
-    /// </summary>
     public partial class PersonsController : CommandCentralController
     {
         [HttpGet("{personId}/PhoneNumbers")]

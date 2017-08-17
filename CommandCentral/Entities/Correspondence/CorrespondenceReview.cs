@@ -26,9 +26,14 @@ namespace CommandCentral.Entities.Correspondence
         public virtual Person ReviewedBy { get; set; }
 
         /// <summary>
-        /// The time at which the reviewer was sent this item.
+        /// The person who initiated the creation of this review.  This is not the person who reviewed the review, but rather the person who sent it to the person who reviewed the review... review.
         /// </summary>
-        public virtual DateTime TimeReceived { get; set; }
+        public virtual Person RoutedBy { get; set; }
+
+        /// <summary>
+        /// The time at which the correspondence item was routed to the reviewer by way of the creation of this review.
+        /// </summary>
+        public virtual DateTime TimeRouted { get; set; }
 
         /// <summary>
         /// The time at which the reviewer reviewed the item.
@@ -91,11 +96,12 @@ namespace CommandCentral.Entities.Correspondence
                 Map(x => x.IsReviewed).Not.Nullable();
                 Map(x => x.IsRecommended);
                 Map(x => x.Body).Length(1000);
-                Map(x => x.TimeReceived).Not.Nullable();
+                Map(x => x.TimeRouted).Not.Nullable();
                 Map(x => x.TimeReviewed);
                 Map(x => x.IsFinal).Not.Nullable().Default(false.ToString());
 
                 References(x => x.Reviewer).Not.Nullable();
+                References(x => x.RoutedBy).Not.Nullable();
                 References(x => x.ReviewedBy);
                 References(x => x.NextReview);
                 References(x => x.CorrespondenceItem).Not.Nullable();
@@ -116,9 +122,10 @@ namespace CommandCentral.Entities.Correspondence
 
                 RuleFor(x => x.Body).Length(0, 1000);
 
-                RuleFor(x => x.TimeReceived).NotEmpty();
+                RuleFor(x => x.TimeRouted).NotEmpty();
 
                 RuleFor(x => x.Reviewer).NotEmpty();
+                RuleFor(x => x.RoutedBy).NotEmpty();
                 RuleFor(x => x.CorrespondenceItem).NotEmpty();
 
                 When(x => x.IsReviewed, () =>

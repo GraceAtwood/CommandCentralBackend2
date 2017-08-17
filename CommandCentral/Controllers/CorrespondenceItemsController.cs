@@ -28,7 +28,7 @@ namespace CommandCentral.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [Produces("application/json")]
-    public class CorrespondenceItemsController : CommandCentralController
+    public partial class CorrespondenceItemsController : CommandCentralController
     {
         /// <summary>
         /// Queries the correspondence items by the given criteria.
@@ -219,6 +219,9 @@ namespace CommandCentral.Controllers
             if (item == null)
                 return NotFoundParameter(id, nameof(id));
 
+            if (item.HasBeenCompleted)
+                return Conflict("The correspondence item has been completed.  Further modifications of it and its reviews is no longer allowed.");
+
             if (!item.CanPersonEditItem(User))
                 return Forbid();
 
@@ -257,6 +260,9 @@ namespace CommandCentral.Controllers
             var item = DBSession.Get<CorrespondenceItem>(id);
             if (item == null)
                 return NotFound();
+
+            if (item.HasBeenCompleted)
+                return Conflict("The correspondence item has been completed.  Further modifications of it and its reviews is no longer allowed.");
 
             if (!item.CanPersonEditItem(User))
                 return Forbid();

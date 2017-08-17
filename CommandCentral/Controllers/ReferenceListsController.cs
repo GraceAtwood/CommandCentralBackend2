@@ -62,8 +62,9 @@ namespace CommandCentral.Controllers
                 query = query.Where(predicate);
             }
 
-            var result = query
-                .GroupBy(x => x.GetEntityType(DBSession))
+            var test = query.GroupBy(x => x.GetEntityType(DBSession.GetSessionImplementation().PersistenceContext)).ToList();
+
+            var result = test
                 .Select(x => new DTOs.ReferenceList.GetList(x, x.Key))
                 .ToList();
 

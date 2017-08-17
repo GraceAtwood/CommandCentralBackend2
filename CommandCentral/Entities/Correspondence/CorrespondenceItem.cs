@@ -238,6 +238,28 @@ namespace CommandCentral.Entities.Correspondence
                 RuleFor(x => x.SubmittedFor).NotEmpty();
                 RuleFor(x => x.FinalApprover).NotEmpty();
                 RuleFor(x => x.Type).NotEmpty();
+
+                //This rule will ensure that no more than one review is pending and that, if a review is the final approver, then the final approver from the item must match that person.
+                RuleFor(x => x.Reviews).Must((item, reviews) =>
+                {
+                    bool hasPending = false;
+                    foreach (var review in reviews)
+                    {
+                        if (!review.IsReviewed)
+                        {
+                            if (hasPending)
+                                return false;
+
+                            hasPending = true;
+                        }
+
+                        if (review.IsFinal && item.FinalApprover != review.Reviewer)
+                            return false;
+                    }
+
+                    return true;
+                })
+                .WithMessage("Only one review of a correspondence item may be pending review.  Additionally, in order for a review to be marked as final, the reviewer of that review must match the final approver of the correspondence item.");
             }
         }
     }
