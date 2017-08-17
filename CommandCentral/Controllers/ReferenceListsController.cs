@@ -63,8 +63,8 @@ namespace CommandCentral.Controllers
             }
 
             var result = query
-                .GroupBy(x => x.GetTypeUnproxied().Name)
-                .Select(x => new DTOs.ReferenceList.GetList(x))
+                .GroupBy(x => x.GetEntityType(DBSession))
+                .Select(x => new DTOs.ReferenceList.GetList(x, x.Key))
                 .ToList();
 
             return Ok(result);

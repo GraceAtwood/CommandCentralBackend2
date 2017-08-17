@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using CommandCentral.Utilities;
 
 namespace CommandCentral.DTOs.ReferenceList
 {
@@ -14,19 +15,15 @@ namespace CommandCentral.DTOs.ReferenceList
         public bool IsEditable { get; set; }
         public List<Get> Values { get; set; } = new List<Get>();
 
-        public GetList(IEnumerable<ReferenceListItemBase> items)
+        public GetList(IEnumerable<ReferenceListItemBase> items, Type listType)
         {
             if (items.Any())
             {
-                var type = items.First().GetType();
-                Type = type.Name;
-                IsEditable = type.GetCustomAttribute<EditableReferenceListAttribute>() != null;
+                Type = listType.Name;
+                IsEditable = listType.GetCustomAttribute<EditableReferenceListAttribute>() != null;
 
                 foreach (var item in items)
                 {
-                    if (item.GetType() != type)
-                        throw new ArgumentException("All items must be of the same type.", nameof(items));
-
                     Values.Add(new Get(item));
                 }
             }

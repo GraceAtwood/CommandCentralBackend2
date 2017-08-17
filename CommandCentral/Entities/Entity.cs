@@ -17,16 +17,7 @@ namespace CommandCentral.Entities
         /// </summary>
         [CanNeverEdit]
         public virtual Guid Id { get; set; }
-
-        /// <summary>
-        /// Returns the type of this object without needing to worry about NHibernate proxies.
-        /// </summary>
-        /// <returns></returns>
-        public virtual Type GetTypeUnproxied()
-        {
-            return GetType();
-        }
-
+        
         /// <summary>
         /// Performs Id based equality on two objects.
         /// </summary>
