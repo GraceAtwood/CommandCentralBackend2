@@ -19,7 +19,7 @@ namespace CommandCentral.Utilities
     public static class TestDatabaseBuilder
     {
 
-        public static void BuildDatabase()
+        public static void BuildDatabase(bool buildWithTestData)
         {
 
             var rawConnectionString = ConfigurationUtility.Configuration.GetConnectionString("Main");
@@ -36,22 +36,25 @@ namespace CommandCentral.Utilities
 
             AddAPIKey();
 
-            PreDefUtility.PersistPreDef<WatchQualification>();
-            PreDefUtility.PersistPreDef<Sex>();
-            PreDefUtility.PersistPreDef<PhoneNumberType>();
-            PreDefUtility.PersistPreDef<Paygrade>();
-            PreDefUtility.PersistPreDef<AccountabilityType>();
-            PreDefUtility.PersistPreDef<DutyStatus>();
+            if (buildWithTestData)
+            {
+                PreDefUtility.PersistPreDef<WatchQualification>();
+                PreDefUtility.PersistPreDef<Sex>();
+                PreDefUtility.PersistPreDef<PhoneNumberType>();
+                PreDefUtility.PersistPreDef<Paygrade>();
+                PreDefUtility.PersistPreDef<AccountabilityType>();
+                PreDefUtility.PersistPreDef<DutyStatus>();
 
-            CreateUICs();
-            CreateDesignations();
+                CreateUICs();
+                CreateDesignations();
 
-            CreateCommands(1, 1);
-            CreateDepartments(2, 4);
-            CreateDivisions(2, 4);
+                CreateCommands(1, 1);
+                CreateDepartments(2, 4);
+                CreateDivisions(2, 4);
 
-            CreateDeveloper();
-            CreateUsers(30);
+                CreateDeveloper();
+                CreateUsers(30);
+            }
         }
 
         private static void AddAPIKey()

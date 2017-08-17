@@ -27,7 +27,7 @@ namespace CommandCentral.Controllers
         /// Retrieves all commands.
         /// </summary>
         /// <returns></returns>
-        [HttpGet("{id}")]
+        [HttpGet]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Command.Get>))]
         public IActionResult Get()

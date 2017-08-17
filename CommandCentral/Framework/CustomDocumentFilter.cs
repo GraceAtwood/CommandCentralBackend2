@@ -6,43 +6,72 @@ using Microsoft.AspNetCore.Razor.Runtime.TagHelpers;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web.Http.Description;
+using System.Xml.Linq;
 
 namespace CommandCentral.Framework
 {
     public class CustomDocumentFilter : IDocumentFilter
     {
-        private void AddControllerDescriptions(SwaggerDocument swaggerDoc, ApiDescriptionGroupCollection apiDescriptions)
+        private static XDocument _documentation;
+        private static ConcurrentDictionary<Type, List<string>> _typeSummaries;
+
+        static CustomDocumentFilter()
         {
-            var doc = new XmlDocumentationProvider(GetXmlCommentsPath());
+            string documentationPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "commandcentral.xml");
 
-            List<Tag> lst = new List<Tag>();
+            if (!File.Exists(documentationPath))
+                throw new FileNotFoundException("The xml documentation could not be found.  It should be named 'commandcentral.xml' and should be found colocated with the .exe.", documentationPath);
 
-            var apiGroups = apiDescriptions.Items.First().Items.ToLookup(x => ((ControllerActionDescriptor)x.ActionDescriptor));
-            
-            foreach (var apiGroup in apiGroups)
-            {
-                var tag = new Tag { Name = apiGroup.Key.ControllerName };
-                var test = XmlDocumentationProvider.GetId(apiGroup.Key.ControllerTypeInfo);
-                var apiDoc = doc.GetSummary(XmlDocumentationProvider.GetId(apiGroup.Key.ControllerTypeInfo));
-                if (!String.IsNullOrWhiteSpace(apiDoc))
-                    tag.Description = Formatted(apiDoc);
-                lst.Add(tag);
+            _documentation = XDocument.Load(documentationPath);
 
-            }
-
-            if (lst.Count() > 0)
-                swaggerDoc.Tags = lst.ToList();
+            _typeSummaries = new ConcurrentDictionary<Type, List<string>>(_documentation.Descendants("doc")
+                .Descendants("members")
+                .Descendants("member")
+                .Where(x => x.Attribute("name").Value.StartsWith("T:"))
+                .Select(x => new
+                {
+                    Type = Type.GetType($"{x.Attribute("name").Value.Substring(2)}, {Assembly.GetExecutingAssembly().FullName}"),
+                    Summary = ParseXmlSummary(x.Descendants("summary").FirstOrDefault()).ToList()
+                })
+                .Where(x => x.Type != null)
+                .ToDictionary(x => x.Type, x => x.Summary));
         }
 
-        private static string GetXmlCommentsPath()
+        private static IEnumerable<string> ParseXmlSummary(XElement summary)
         {
-            return @"bin\Debug\net47\win7-x86\commandcentral.xml";
+            return summary.Value.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).Where(x => !String.IsNullOrWhiteSpace(x));
+        }
+
+        private void AddControllerDescriptions(SwaggerDocument swaggerDoc, ApiDescriptionGroupCollection apiDescriptions)
+        {
+            var apiGroups = apiDescriptions.Items.First().Items.ToLookup(x => ((ControllerActionDescriptor)x.ActionDescriptor));
+
+            var tags = new List<Tag>();
+            foreach (var apiGroup in apiGroups)
+            {
+                var tag = new Tag
+                {
+                    Name = apiGroup.Key.ControllerName
+                };
+
+                tags.Add(tag);
+
+                if (_typeSummaries.TryGetValue(apiGroup.Key.ControllerTypeInfo.UnderlyingSystemType, out List<string> summaryLines))
+                {
+                    tag.Description = "<br /><br />" + String.Join("<br /><br />", summaryLines);
+                }
+            }
+
+            swaggerDoc.Tags = tags;
         }
 
         public void Apply(SwaggerDocument swaggerDoc, DocumentFilterContext context)
@@ -52,16 +81,6 @@ namespace CommandCentral.Framework
 
             AddControllerDescriptions(swaggerDoc, context.ApiDescriptionsGroups);
         }
-
-        private string Formatted(string text)
-        {
-            if (text == null) return null;
-            var stringBuilder = new StringBuilder(text);
-
-            return stringBuilder
-                .Replace("<para>", "<p>")
-                .Replace("</para>", "</p>")
-                .ToString();
-        }
+        
     }
 }
