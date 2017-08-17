@@ -61,7 +61,7 @@ namespace CommandCentral.Framework
             {
                 options.DescribeAllEnumsAsStrings();
                 options.DescribeAllParametersInCamelCase();
-                options.IncludeXmlComments(@"bin\Debug\net47\win7-x86\commandcentral.xml");
+                options.IncludeXmlComments(Utilities.ConfigurationUtility.XmlDocumentationPath);
 
                 options.SwaggerDoc("v1", new Info
                 {
@@ -87,7 +87,7 @@ namespace CommandCentral.Framework
             {
                 options.DescribeAllEnumsAsStrings();
                 options.DescribeAllParametersInCamelCase();
-                options.IncludeXmlComments(@"bin\Debug\net47\win7-x86\commandcentral.xml");
+                options.IncludeXmlComments(Utilities.ConfigurationUtility.XmlDocumentationPath);
 
                 options.CustomSchemaIds(x => x.FullName);
             });

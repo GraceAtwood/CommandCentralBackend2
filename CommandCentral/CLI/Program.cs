@@ -17,7 +17,7 @@ namespace CommandCentral.CLI
     {
         public static void Main(string[] args)
         {
-            var app = new Microsoft.Extensions.CommandLineUtils.CommandLineApplication();
+            var app = new CommandLineApplication();
 
             var build = app.Command("build", config =>
             {

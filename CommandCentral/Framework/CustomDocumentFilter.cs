@@ -26,12 +26,12 @@ namespace CommandCentral.Framework
 
         static CustomDocumentFilter()
         {
-            string documentationPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "commandcentral.xml");
+            
 
-            if (!File.Exists(documentationPath))
-                throw new FileNotFoundException("The xml documentation could not be found.  It should be named 'commandcentral.xml' and should be found colocated with the .exe.", documentationPath);
+            if (!File.Exists(Utilities.ConfigurationUtility.XmlDocumentationPath))
+                throw new FileNotFoundException("The xml documentation could not be found.  It should be named 'commandcentral.xml' and should be found colocated with the .exe.", Utilities.ConfigurationUtility.XmlDocumentationPath);
 
-            _documentation = XDocument.Load(documentationPath);
+            _documentation = XDocument.Load(Utilities.ConfigurationUtility.XmlDocumentationPath);
 
             _typeSummaries = new ConcurrentDictionary<Type, List<string>>(_documentation.Descendants("doc")
                 .Descendants("members")

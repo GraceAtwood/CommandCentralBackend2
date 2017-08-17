@@ -10,6 +10,10 @@
     <DocumentationFile>bin\Debug\net47\win7-x86\commandcentral.xml</DocumentationFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\net47\win7-x86\CommandCentral.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="appsettings.json" />
     <None Remove="Email\Templates\AccountConfirmation_HTML.html" />
