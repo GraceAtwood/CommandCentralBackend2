@@ -121,20 +121,7 @@ namespace CommandCentral.Controllers
             var result = query
                 .Take(limit)
                 .ToList()
-                .Where(x =>
-                {
-                    if (User.CanAccessSubmodules(SubModules.AdminTools))
-                        return true;
-
-                    if (x.SubmittedBy == User || x.SubmittedFor == User || 
-                        x.Reviews.Any(y => y.Reviewer == User || y.ReviewedBy == User) || x.SharedWith.Contains(User))
-                        return true;
-
-                    if (User.IsInChainOfCommand(x.SubmittedFor))
-                        return true;
-
-                    return false;
-                })
+                .Where(x => x.CanPersonViewItem(User))
                 .Select(item => new DTOs.CorrespondenceItem.Get(item));
 
             return Ok(result.ToList());
@@ -154,9 +141,7 @@ namespace CommandCentral.Controllers
             if (item == null)
                 return NotFoundParameter(id, nameof(id));
 
-            if (item.SubmittedBy != User && item.SubmittedFor != User &&
-                !item.Reviews.Any(x => x.Reviewer == User || x.ReviewedBy == User) &&
-                !item.SharedWith.Contains(User) && !User.IsInChainOfCommand(item.SubmittedFor))
+            if (!item.CanPersonViewItem(User))
                 return Forbid();
 
             return Ok(new DTOs.CorrespondenceItem.Get(item));
@@ -165,7 +150,7 @@ namespace CommandCentral.Controllers
         /// <summary>
         /// Creates a new corr item.  Client must have access to the admin tools submodules or be referenced in the item.
         /// </summary>
-        /// <param name="dto"></param>
+        /// <param name="dto">A dto containing the information needed to create a new corr item.</param>
         /// <returns></returns>
         [HttpPost]
         [RequireAuthentication]
@@ -173,22 +158,19 @@ namespace CommandCentral.Controllers
         public IActionResult Post([FromBody]DTOs.CorrespondenceItem.Post dto)
         {
             if (dto == null)
-                return BadRequest();
+                return BadRequestDTONull();
 
             var submittedFor = DBSession.Get<Person>(dto.SubmittedFor);
             if (submittedFor == null)
-                return NotFound($"The object identified by your parameter '{nameof(dto.SubmittedFor)}' does not exist.");
-
-            if (!User.CanAccessSubmodules(SubModules.AdminTools) && !User.IsInChainOfCommand(submittedFor))
-                return Forbid();
+                return NotFoundParameter(dto.SubmittedFor, nameof(dto.SubmittedFor));
 
             var finalApprover = DBSession.Get<Person>(dto.FinalApprover);
             if (finalApprover == null)
-                return NotFound($"The object identified by your parameter '{nameof(dto.FinalApprover)}' does not exist.");
+                return NotFoundParameter(dto.FinalApprover, nameof(dto.FinalApprover));
 
             var type = DBSession.Get<CorrespondenceItemType>(dto.Type);
             if (type == null)
-                return NotFound($"The object identified by your parameter '{nameof(dto.Type)}' does not exist.");
+                return NotFoundParameter(dto.Type, nameof(dto.Type));
 
             var item = new CorrespondenceItem
             {
@@ -207,6 +189,9 @@ namespace CommandCentral.Controllers
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
+            if (!item.CanPersonEditItem(User))
+                return Forbid();
+
             using (var transaction = DBSession.BeginTransaction())
             {
                 DBSession.Save(item);
@@ -216,21 +201,30 @@ namespace CommandCentral.Controllers
             return CreatedAtAction(nameof(Get), new { id = item.Id }, new DTOs.CorrespondenceItem.Get(item));
         }
 
+        /// <summary>
+        /// Modifies a correspondence item.
+        /// </summary>
+        /// <param name="id">The id of the corr item to modify.</param>
+        /// <param name="dto">A dto containing the information needed to modify a corr item.</param>
+        /// <returns></returns>
         [HttpPut("{id}")]
         [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.CorrespondenceItem.Get))]
         public IActionResult Put(Guid id, [FromBody]DTOs.CorrespondenceItem.Put dto)
         {
             if (dto == null)
-                return BadRequest();
+                return BadRequestDTONull();
 
             var item = DBSession.Get<CorrespondenceItem>(id);
             if (item == null)
-                return NotFound();
+                return NotFoundParameter(id, nameof(id));
+
+            if (!item.CanPersonEditItem(User))
+                return Forbid();
 
             var finalApprover = DBSession.Get<Person>(dto.FinalApprover);
             if (finalApprover == null)
-                return NotFound($"The object identified by your parameter '{nameof(dto.FinalApprover)}' does not exist.");
+                return NotFoundParameter(dto.FinalApprover, nameof(dto.FinalApprover));
 
             item.FinalApprover = finalApprover;
             item.Body = dto.Body;
@@ -250,16 +244,21 @@ namespace CommandCentral.Controllers
             return CreatedAtAction(nameof(Get), new { id = item.Id }, new DTOs.CorrespondenceItem.Get(item));
         }
 
+        /// <summary>
+        /// Deletes a corr item.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         [RequireAuthentication]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
         {
             var item = DBSession.Get<CorrespondenceItem>(id);
             if (item == null)
                 return NotFound();
 
-            if (!User.CanAccessSubmodules(SubModules.AdminTools) && !User.IsInChainOfCommand(item.SubmittedFor))
+            if (!item.CanPersonEditItem(User))
                 return Forbid();
 
             using (var transaction = DBSession.BeginTransaction())
@@ -273,7 +272,7 @@ namespace CommandCentral.Controllers
                 Item = item
             }, this);
 
-            return Ok();
+            return NoContent();
         }
     }
 }

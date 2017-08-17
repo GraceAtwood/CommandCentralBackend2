@@ -8,6 +8,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation.Results;
 using CommandCentral.Framework;
+using CommandCentral.Authorization;
+using CommandCentral.Enums;
 
 namespace CommandCentral.Entities.Correspondence
 {
@@ -114,6 +116,39 @@ namespace CommandCentral.Entities.Correspondence
         {
             return SubmittedBy == person || SubmittedFor == person ||
                 this.Reviews.Any(x => x.Reviewer == person || x.ReviewedBy == person);
+        }
+
+        /// <summary>
+        /// Determines if the given person can see this correspondence item.
+        /// </summary>
+        /// <param name="person"></param>
+        /// <returns></returns>
+        public virtual bool CanPersonViewItem(Person person)
+        {
+            if (CanPersonEditItem(person))
+                return true;
+
+            if (person.IsInChainOfCommand(SubmittedFor))
+                return true;
+
+            return false;
+        }
+
+        /// <summary>
+        /// Determines if the given person can edit this correspondence item.
+        /// </summary>
+        /// <param name="person"></param>
+        /// <returns></returns>
+        public virtual bool CanPersonEditItem(Person person)
+        {
+            if (person.CanAccessSubmodules(SubModules.AdminTools))
+                return true;
+
+            if (SubmittedBy == person || SubmittedFor == person ||
+                Reviews.Any(y => y.Reviewer == person || y.ReviewedBy == person) || SharedWith.Contains(person))
+                return true;
+
+            return false;
         }
 
         /// <summary>
