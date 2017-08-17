@@ -63,7 +63,7 @@ namespace CommandCentral.Controllers
             }
 
             var result = query
-                .GroupBy(x => x.GetType().Name)
+                .GroupBy(x => x.GetTypeUnproxied().Name)
                 .Select(x => new DTOs.ReferenceList.GetList(x))
                 .ToList();
 
