@@ -59,7 +59,7 @@ namespace CommandCentral.Controllers
 
             var result = DBSession.Query<Comment>()
                 .AsExpandable()
-                .Where(predicate)
+                .NullSafeWhere(predicate)
                 .OrderByDescending(x => x.TimeCreated)
                 .Take(limit)
                 .ToFuture()

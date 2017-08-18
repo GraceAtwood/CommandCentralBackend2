@@ -112,7 +112,7 @@ namespace CommandCentral.Controllers
             
             var query = DBSession.Query<CorrespondenceItem>()
                 .AsExpandable()
-                .Where(predicate);
+                .NullSafeWhere(predicate);
 
             if (String.Equals(orderBy, nameof(CorrespondenceItem.TimeSubmitted), StringComparison.CurrentCultureIgnoreCase))
                 query = query.OrderByDescending(x => x.TimeSubmitted);
