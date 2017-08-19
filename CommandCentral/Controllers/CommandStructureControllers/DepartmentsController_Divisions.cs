@@ -18,6 +18,11 @@ namespace CommandCentral.Controllers
 {
     public partial class DepartmentsController : CommandCentralController
     {
+        /// <summary>
+        /// Retrieves the divisions belonging to a department.
+        /// </summary>
+        /// <param name="departmentId">The id of the department for which to retrieve divisions.</param>
+        /// <returns></returns>
         [HttpGet("{departmentId}/Divisions")]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Division.Get>))]
@@ -34,6 +39,12 @@ namespace CommandCentral.Controllers
             return Ok(results);
         }
 
+        /// <summary>
+        /// Retrieves a single division belonging to a department.
+        /// </summary>
+        /// <param name="departmentId">The id of the department to which your division belongs.</param>
+        /// <param name="divisionId">The id of the division to retrieve.</param>
+        /// <returns></returns>
         [HttpGet("{departmentId}/Divisions/{divisionId}")]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.Division.Get))]
@@ -48,6 +59,12 @@ namespace CommandCentral.Controllers
             return Ok(new DTOs.Division.Get(division));
         }
 
+        /// <summary>
+        /// Creates a new division.
+        /// </summary>
+        /// <param name="departmentId">The id of the department in which you want to create the new division.</param>
+        /// <param name="dto">A dto containing the information needed to create a new division.</param>
+        /// <returns></returns>
         [HttpPost("{departmentId}/Divisions")]
         [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.Division.Get))]
@@ -84,6 +101,13 @@ namespace CommandCentral.Controllers
             return CreatedAtAction(nameof(GetDivision), new { departmentId = division.Department.Id, divisionId = division.Id }, new DTOs.Division.Get(division));
         }
 
+        /// <summary>
+        /// Modifies a division.
+        /// </summary>
+        /// <param name="departmentId">The id of the department containing the division you want to modify.</param>
+        /// <param name="divisionId">The id of the division to modify.</param>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         [HttpPut("{departmentId}/Divisions/{divisionId}")]
         [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.Division.Get))]
