@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CommandCentral.DTOs.Department
+namespace CommandCentral.DTOs.Division
 {
-    public class Update
+    public class Post
     {
-        public Guid Command { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
     }

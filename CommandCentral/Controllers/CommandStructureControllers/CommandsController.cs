@@ -22,7 +22,7 @@ namespace CommandCentral.Controllers
     [Route("api/[controller]")]
     [Produces("application/json")]
     [Consumes("application/json")]
-    public class CommandsController : CommandCentralController
+    public partial class CommandsController : CommandCentralController
     {
         /// <summary>
         /// Retrieves all commands.

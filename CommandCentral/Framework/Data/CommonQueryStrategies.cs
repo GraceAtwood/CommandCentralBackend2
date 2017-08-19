@@ -225,5 +225,34 @@ namespace CommandCentral.Framework.Data
 
             return initial.NullSafeAnd(predicate);
         }
+
+        public static Expression<Func<T, bool>> AddDepartmentQueryExpression<T>(this Expression<Func<T, bool>> initial, Expression<Func<T, Department>> selector, string searchValue)
+        {
+            if (String.IsNullOrWhiteSpace(searchValue))
+                return initial;
+
+            Expression<Func<T, bool>> predicate = null;
+
+            foreach (var phrase in searchValue.SplitByOr())
+            {
+                Expression<Func<T, bool>> subPredicate = null;
+
+                if (Guid.TryParse(phrase, out Guid id))
+                {
+                    subPredicate = subPredicate.And(x => selector.Invoke(x).Id == id);
+                }
+                else
+                {
+                    foreach (var term in phrase.SplitByAnd())
+                    {
+                        subPredicate = subPredicate.And(x => selector.Invoke(x).Name.Contains(term));
+                    }
+                }
+
+                predicate = predicate.NullSafeOr(subPredicate);
+            }
+
+            return initial.NullSafeAnd(predicate);
+        }
     }
 }

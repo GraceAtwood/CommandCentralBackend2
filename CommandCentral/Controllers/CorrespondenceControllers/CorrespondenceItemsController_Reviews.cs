@@ -56,7 +56,9 @@ namespace CommandCentral.Controllers
         [ProducesResponseType(200, Type = typeof(DTOs.CorrespondenceReview.Get))]
         public IActionResult GetReview(Guid correspondenceItemId, Guid reviewId)
         {
-            var review = DBSession.Query<CorrespondenceReview>().SingleOrDefault(x => x.CorrespondenceItem.Id == correspondenceItemId && x.Id == reviewId);
+            var review = DBSession.Query<CorrespondenceReview>()
+                .SingleOrDefault(x => x.CorrespondenceItem.Id == correspondenceItemId && x.Id == reviewId);
+
             if (review == null)
                 return NotFoundChildParameter(correspondenceItemId, nameof(correspondenceItemId), reviewId, nameof(reviewId));
 

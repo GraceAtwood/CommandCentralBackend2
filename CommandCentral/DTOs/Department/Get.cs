@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CommandCentral.DTOs.Department
 {
-    public class Get : Update
+    public class Get : Put
     {
         public Guid Id { get; set; }
 
