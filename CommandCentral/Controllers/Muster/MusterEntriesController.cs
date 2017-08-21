@@ -13,6 +13,8 @@ using CommandCentral.Utilities;
 using CommandCentral.Entities.ReferenceLists;
 using CommandCentral.Entities;
 using CommandCentral.Utilities.Types;
+using CommandCentral.Framework.Data;
+using LinqKit;
 
 namespace CommandCentral.Controllers
 {
@@ -30,148 +32,58 @@ namespace CommandCentral.Controllers
         /// </summary>
         /// <param name="person">The person for whom a muster entry was submitted.  Supports either Id selection or simple search-based query combined with a conjunction.</param>
         /// <param name="submittedBy">The person who submitted a muster entry.  Supports either Id selection or simple search-based query combined with a conjunction.</param>
-        /// <param name="from">Defines the starting date and time of a window in which to search for any muster entry whose muster cycle range overlaps with that window.  If left blank, the search window is assumed to start at the beginning of time.</param>
-        /// <param name="to">Defines the ending date and time of a window in which to search for any muster entry whose muster cycle range overlaps with that window.  If left blank, the search window is assumed to end at the end of time.</param>
+        /// <param name="range">A time range query for the parent cycle's time range.</param>
         /// <param name="accountabilityType">The accountability type or code to search for.  Supports either Id selection or simple search-based query combined with a disjunction.</param>
         /// <param name="musterCycle">The Id of the muster cycle to which your desired muster entries are connected.</param>
         /// <param name="statusPeriodSetBy">The id of the status period that set the muster entries you are interested in.</param>
+        /// <param name="setByStatusPeriod">true/false if a muster entry was set by a status period.</param>
         /// <param name="limit">[Default = 1000] Indicates that the api should return no more than this number of records.</param>
         /// <param name="orderBy">[Default = start][Valid values = start, datesubmitted] Instructs the api to order the results by this field (this also affects which records are returned if limit is given).</param>
         /// <returns></returns>
         [HttpGet]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.MusterEntry.Get>))]
-        public IActionResult Get([FromQuery] string person, [FromQuery] string submittedBy, [FromQuery] DateTime? from, [FromQuery] DateTime? to, [FromQuery] string accountabilityType, 
-            [FromQuery] Guid? musterCycle, [FromQuery] Guid? statusPeriodSetBy, [FromQuery] int limit = 1000, [FromQuery] string orderBy = nameof(TimeRange.Start))
+        public IActionResult Get([FromQuery] string person, [FromQuery] string submittedBy, [FromQuery] DTOs.DateTimeRangeQuery range, [FromQuery] string accountabilityType,
+            [FromQuery] Guid? musterCycle, [FromQuery] Guid? statusPeriodSetBy, [FromQuery] bool? setByStatusPeriod, [FromQuery] int limit = 1000, [FromQuery] string orderBy = nameof(TimeRange.Start))
         {
             if (limit <= 0)
-                return BadRequest($"The value '{limit}' for the property '{nameof(limit)}' was invalid.  It must be greater than zero.");
+                return BadRequestLimit(limit, nameof(limit));
 
-            var query = DBSession.Query<MusterEntry>();
+            Expression<Func<MusterEntry, bool>> predicate = null;
 
-            if (!String.IsNullOrWhiteSpace(person))
-            {
-                Expression<Func<MusterEntry, bool>> predicate = null;
-
-                foreach (var phrase in person.Split(',').Select(x => x.Trim()))
-                {
-                    if (Guid.TryParse(phrase, out Guid id))
-                    {
-                        predicate = predicate.NullSafeOr(x => x.Person.Id == id);
-                    }
-                    else
-                    {
-                        var terms = phrase.Split();
-                        Expression<Func<MusterEntry, bool>> subPredicate = null;
-
-                        foreach (var term in phrase.Split())
-                        {
-                            subPredicate = subPredicate.NullSafeAnd(x =>
-                                x.Person.FirstName.Contains(term) ||
-                                x.Person.LastName.Contains(term) ||
-                                x.Person.MiddleName.Contains(term) ||
-                                x.Person.Division.Name.Contains(term) ||
-                                x.Person.Division.Department.Name.Contains(term) ||
-                                x.Person.Paygrade.Value.Contains(term) ||
-                                x.Person.UIC.Value.Contains(term) ||
-                                x.Person.Designation.Value.Contains(term));
-                        }
-
-                        predicate = predicate.NullSafeOr(subPredicate);
-                    }
-                }
-
-                query = query.Where(predicate);
-            }
-
-            if (!String.IsNullOrWhiteSpace(submittedBy))
-            {
-                Expression<Func<MusterEntry, bool>> predicate = null;
-
-                foreach (var phrase in submittedBy.Split(',').Select(x => x.Trim()))
-                {
-                    if (Guid.TryParse(phrase, out Guid id))
-                    {
-                        predicate = predicate.NullSafeOr(x => x.SubmittedBy.Id == id);
-                    }
-                    else
-                    {
-                        var terms = phrase.Split();
-                        Expression<Func<MusterEntry, bool>> subPredicate = null;
-
-                        foreach (var term in phrase.Split())
-                        {
-                            subPredicate = subPredicate.NullSafeAnd(x =>
-                                x.SubmittedBy.FirstName.Contains(term) ||
-                                x.SubmittedBy.LastName.Contains(term) ||
-                                x.SubmittedBy.MiddleName.Contains(term) ||
-                                x.SubmittedBy.Division.Name.Contains(term) ||
-                                x.SubmittedBy.Division.Department.Name.Contains(term) ||
-                                x.SubmittedBy.Paygrade.Value.Contains(term) ||
-                                x.SubmittedBy.UIC.Value.Contains(term) ||
-                                x.SubmittedBy.Designation.Value.Contains(term));
-                        }
-
-                        predicate = predicate.NullSafeOr(subPredicate);
-                    }
-                }
-
-                query = query.Where(predicate);
-            }
-
-            if (!String.IsNullOrWhiteSpace(accountabilityType))
-            {
-                Expression<Func<MusterEntry, bool>> predicate = null;
-
-                foreach (var phrase in accountabilityType.Split(',').Select(x => x.Trim()))
-                {
-                    if (Guid.TryParse(phrase, out Guid id))
-                    {
-                        predicate = predicate.NullSafeOr(x => x.Id == id);
-                    }
-                    else
-                    {
-                        var terms = phrase.Split();
-                        Expression<Func<MusterEntry, bool>> subPredicate = null;
-
-                        foreach (var term in terms)
-                        {
-                            subPredicate = subPredicate.NullSafeOr(x => x.AccountabilityType.Value.Contains(term));
-                        }
-
-                        predicate = predicate.NullSafeOr(subPredicate);
-                    }
-                }
-
-                query = query.Where(predicate);
-            }
-
-            if (from.HasValue && !to.HasValue)
-                query = query.Where(x => x.MusterCycle.Range.Start >= from || x.MusterCycle.Range.End >= from);
-            else if (to.HasValue && !from.HasValue)
-                query = query.Where(x => x.MusterCycle.Range.Start <= to || x.MusterCycle.Range.End <= to);
-            else if (to.HasValue && to.HasValue)
-                query = query.Where(x => x.MusterCycle.Range.Start <= to && x.MusterCycle.Range.End >= from);
+            predicate = predicate
+                .AddPersonQueryExpression(x => x.Person, person)
+                .AddPersonQueryExpression(x => x.SubmittedBy, submittedBy)
+                .AddTimeRangeQueryExpression(x => x.MusterCycle.Range, range)
+                .AddReferenceListQueryExpression(x => x.AccountabilityType, accountabilityType);
 
             if (musterCycle.HasValue)
-                query = query.Where(x => x.MusterCycle.Id == musterCycle);
+                predicate = predicate.NullSafeAnd(x => x.MusterCycle.Id == musterCycle);
 
             if (statusPeriodSetBy.HasValue)
-                query = query.Where(x => x.StatusPeriodSetBy.Id == statusPeriodSetBy);
+                predicate = predicate.NullSafeAnd(x => x.StatusPeriodSetBy.Id == statusPeriodSetBy);
+
+            if (setByStatusPeriod.HasValue)
+                predicate = predicate.NullSafeAnd(x => x.StatusPeriodSetBy != null);
+
+            var query = DBSession.Query<MusterEntry>()
+                .AsExpandable()
+                .NullSafeWhere(predicate);
 
             if (String.Equals(orderBy, nameof(TimeRange.Start), StringComparison.CurrentCultureIgnoreCase))
                 query = query.OrderByDescending(x => x.MusterCycle.Range.Start);
             else if (String.Equals(orderBy, nameof(MusterEntry.TimeSubmitted), StringComparison.CurrentCultureIgnoreCase))
                 query = query.OrderByDescending(x => x.TimeSubmitted);
             else
-                return BadRequest($"Your requested value '{orderBy}' for the parameter '{nameof(orderBy)}' is not supported.  The supported values are '{nameof(TimeRange.Start)}' (this is the default) and '{nameof(MusterEntry.TimeSubmitted)}'.");
+                return BadRequest("That order by parameter is not supported.");
 
-            var result = query
+            var results = query
                 .Take(limit)
-                .Select(entry => new DTOs.MusterEntry.Get(entry))
+                .ToFuture()
+                .Select(x => new DTOs.MusterEntry.Get(x))
                 .ToList();
 
-            return Ok(result);
+            return Ok(results);
         }
 
         /// <summary>

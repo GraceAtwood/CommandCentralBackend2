@@ -10,6 +10,8 @@ using CommandCentral.Enums;
 using NHibernate.Linq;
 using System.Linq.Expressions;
 using CommandCentral.Utilities;
+using CommandCentral.Framework.Data;
+using LinqKit;
 
 namespace CommandCentral.Controllers
 {
@@ -30,123 +32,43 @@ namespace CommandCentral.Controllers
     {
         /// <summary>
         /// Queries against the muster cycles.
-        /// 
         /// A muster cycle that has isFinalized=false but has FinalizedBy set to a person is a muster cycle that was reopened.  In this instance, FinalizedBy will contain the last person to finalize it, not the person that reopened it.
         /// </summary>
-        /// <param name="from">Defines the starting date and time of a window in which to search for any muster cycle that overlaps with that window.  If left blank, the search window is assumed to start at the beginning of time.</param>
-        /// <param name="to">Defines the ending date and time of a window in which to search for any muster cycle that overlaps with that window.  If left blank, the search window is assumed to end at the end of time.</param>
+        /// <param name="range">Defines a time range query for the time range of a muster cycle.</param>
         /// <param name="isFinalized">true/false</param>
-        /// <param name="finalizedBy">
-        /// The person who finalized this muster cycle.  Supports either Id selection or simple search-based query combined with a conjunction.  
-        /// If looking for cycles that haven't been finalized yet, please use the isFinalized field.  
-        /// You can use the magic string "[system]" to find muster cycles that were automatically finalized by the system at their rollover times.  Using "[system]" will override any given isFinalized parameter.</param>
+        /// <param name="wasFinalizedBySystem">true/false</param>
+        /// <param name="finalizedBy">A person query for the person who finalized a muster cycle.</param>
         /// <param name="command">The command to which a muster cycle belongs.  Supports either Id selection or simple search-based query combined with a disjunction.</param>
         /// <param name="limit">[Default = 1000] Indicates that the api should return no more than this number of records.</param>
         /// <returns></returns>
         [HttpGet]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.MusterCycle.Get>))]
-        public IActionResult Get([FromQuery] DateTime? from, [FromQuery] DateTime? to, [FromQuery] bool? isFinalized, [FromQuery] string finalizedBy, [FromQuery] string command, [FromQuery] int limit = 1000)
+        public IActionResult Get([FromQuery] DTOs.DateTimeRangeQuery range, [FromQuery] bool? isFinalized, [FromQuery] bool? wasFinalizedBySystem,
+            [FromQuery] string finalizedBy, [FromQuery] string command, [FromQuery] int limit = 1000)
         {
             if (limit <= 0)
-                return BadRequest($"The value '{limit}' for the property '{nameof(limit)}' was invalid.  It must be greater than zero.");
+                return BadRequestLimit(limit, nameof(limit));
 
-            var query = DBSession.Query<MusterCycle>();
+            Expression<Func<MusterCycle, bool>> predicate = null;
 
-            if (!String.IsNullOrWhiteSpace(finalizedBy))
-            {
-                Expression<Func<MusterCycle, bool>> predicate = null;
+            predicate = predicate
+                .AddTimeRangeQueryExpression(x => x.Range, range)
+                .AddNullableBoolQueryExpression(x => x.IsFinalized, isFinalized)
+                .AddNullableBoolQueryExpression(x => x.WasFinalizedBySystem, wasFinalizedBySystem)
+                .AddPersonQueryExpression(x => x.FinalizedBy, finalizedBy)
+                .AddCommandQueryExpression(x => x.Command, command);
 
-                foreach (var phrase in finalizedBy.Split(',').Select(x => x.Trim()))
-                {
-                    if (phrase.Equals("[system]", StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        isFinalized = null;
-                        predicate = predicate.NullSafeOr(x => x.FinalizedBy == null && x.IsFinalized == true);
-                    }
-                    else if (Guid.TryParse(phrase, out Guid id))
-                    {
-                        predicate = predicate.NullSafeOr(x => x.FinalizedBy.Id == id);
-                    }
-                    else
-                    {
-                        var terms = phrase.Split();
-                        Expression<Func<MusterCycle, bool>> subPredicate = null;
-
-                        foreach (var term in phrase.Split())
-                        {
-                            subPredicate = subPredicate.NullSafeAnd(x =>
-                                x.FinalizedBy.FirstName.Contains(term) ||
-                                x.FinalizedBy.LastName.Contains(term) ||
-                                x.FinalizedBy.MiddleName.Contains(term) ||
-                                x.FinalizedBy.Division.Name.Contains(term) ||
-                                x.FinalizedBy.Division.Department.Name.Contains(term) ||
-                                x.FinalizedBy.Paygrade.Value.Contains(term) ||
-                                x.FinalizedBy.UIC.Value.Contains(term) ||
-                                x.FinalizedBy.Designation.Value.Contains(term));
-                        }
-
-                        predicate = predicate.NullSafeOr(subPredicate);
-                    }
-                }
-
-                query = query.Where(predicate);
-            }
-
-            if (!String.IsNullOrWhiteSpace(command))
-            {
-                Expression<Func<MusterCycle, bool>> predicate = null;
-
-                foreach (var phrase in command.Split(',').Select(x => x.Trim()))
-                {
-                    if (Guid.TryParse(phrase, out Guid id))
-                    {
-                        predicate = predicate.NullSafeOr(x => x.Command.Id == id);
-                    }
-                    else
-                    {
-                        var terms = phrase.Split();
-                        Expression<Func<MusterCycle, bool>> subPredicate = null;
-
-                        foreach (var term in terms)
-                        {
-                            subPredicate = subPredicate.NullSafeOr(x => x.Command.Name.Contains(term));
-                        }
-
-                        predicate = predicate.NullSafeOr(subPredicate);
-                    }
-                }
-
-                query = query.Where(predicate);
-            }
-
-            if (from.HasValue && !to.HasValue)
-                query = query.Where(x => x.Range.Start >= from || x.Range.End >= from);
-            else if (to.HasValue && !from.HasValue)
-                query = query.Where(x => x.Range.Start <= to || x.Range.End <= to);
-            else if (to.HasValue && to.HasValue)
-                query = query.Where(x => x.Range.Start <= to && x.Range.End >= from);
-
-            if (isFinalized.HasValue)
-                query = query.Where(x => x.IsFinalized == isFinalized);
-
-            var result = query
+            var results = DBSession.Query<MusterCycle>()
+                .AsExpandable()
+                .NullSafeWhere(predicate)
                 .OrderByDescending(x => x.Range.Start)
                 .Take(limit)
-                .Select(cycle =>
-                    new DTOs.MusterCycle.Get
-                    {
-                        Command = cycle.Command.Id,
-                        FinalizedBy = cycle.FinalizedBy == null ? null : (Guid?)cycle.FinalizedBy.Id,
-                        Id = cycle.Id,
-                        IsFinalized = cycle.IsFinalized,
-                        Range = cycle.Range,
-                        TimeFinalized = cycle.TimeFinalized
-                    }
-                )
+                .ToFuture()
+                .Select(x => new DTOs.MusterCycle.Get(x))
                 .ToList();
 
-            return Ok(result);
+            return Ok(results);
         }
 
         /// <summary>
@@ -158,17 +80,7 @@ namespace CommandCentral.Controllers
         [ProducesResponseType(200, Type = typeof(DTOs.MusterCycle.Get))]
         public IActionResult GetCurrent()
         {
-            var musterCycle = User.Command.CurrentMusterCycle;
-
-            return Ok(new DTOs.MusterCycle.Get
-            {
-                Command = musterCycle.Command.Id,
-                FinalizedBy = musterCycle.FinalizedBy == null ? null : (Guid?)musterCycle.FinalizedBy.Id,
-                Id = musterCycle.Id,
-                IsFinalized = musterCycle.IsFinalized,
-                Range = musterCycle.Range,
-                TimeFinalized = musterCycle.TimeFinalized
-            });
+            return Ok(new DTOs.MusterCycle.Get(User.Command.CurrentMusterCycle));
         }
 
         /// <summary>
@@ -183,17 +95,9 @@ namespace CommandCentral.Controllers
         {
             var musterCycle = DBSession.Get<MusterCycle>(id);
             if (musterCycle == null)
-                return NotFound();
+                return NotFoundParameter(id, nameof(id));
 
-            return Ok(new DTOs.MusterCycle.Get
-            {
-                Command = musterCycle.Command.Id,
-                FinalizedBy = musterCycle.FinalizedBy == null ? null : (Guid?)musterCycle.FinalizedBy.Id,
-                Id = musterCycle.Id,
-                IsFinalized = musterCycle.IsFinalized,
-                Range = musterCycle.Range,
-                TimeFinalized = musterCycle.TimeFinalized
-            });
+            return Ok(new DTOs.MusterCycle.Get(musterCycle));
         }
 
         /// <summary>
@@ -202,23 +106,23 @@ namespace CommandCentral.Controllers
         /// <param name="id">The id of the muster cycle to retrieve.</param>
         /// <param name="dto">The dto containing the information required to patch a muster cycle.</param>
         /// <returns></returns>
-        [HttpPatch("{id}")]
+        [HttpPut("{id}")]
         [RequireAuthentication]
-        [ProducesResponseType(200, Type = typeof(DTOs.MusterCycle.Get))]
-        public IActionResult Patch(Guid id, [FromBody]DTOs.MusterCycle.Patch dto)
+        [ProducesResponseType(201, Type = typeof(DTOs.MusterCycle.Get))]
+        public IActionResult Put(Guid id, [FromBody]DTOs.MusterCycle.Put dto)
         {
             if (dto == null)
-                return BadRequest();
+                return BadRequestDTONull();
 
             if (!User.CanAccessSubmodules(SubModules.AdminTools))
                 return Forbid();
 
             var musterCycle = DBSession.Get<MusterCycle>(id);
             if (musterCycle == null)
-                return NotFound();
+                return NotFoundParameter(id, nameof(id));
 
             if (CallTime > musterCycle.Range.End)
-                return BadRequest("You may not patch a muster cycle whose end time has already passed.");
+                return BadRequest("You may not update a muster cycle whose end time has already passed.");
 
             using (var transaction = DBSession.BeginTransaction())
             {
@@ -243,26 +147,16 @@ namespace CommandCentral.Controllers
                 {
                     //The client wants to close the muster.
                     musterCycle.IsFinalized = true;
+                    musterCycle.TimeFinalized = DateTime.UtcNow;
                     musterCycle.FinalizedBy = User;
-                    musterCycle.TimeFinalized = CallTime;
+                    musterCycle.WasFinalizedBySystem = true;
 
-                    //Set all the muster informations as well.
                     foreach (var entry in musterCycle.MusterEntries)
                     {
-                        entry.ArchiveInformation = new MusterArchiveInformation
-                        {
-                            Command = entry.Person.Command?.Name,
-                            Department = entry.Person.Department?.Name,
-                            Designation = entry.Person.Designation?.Value,
-                            Division = entry.Person.Division?.Name,
-                            Id = Guid.NewGuid(),
-                            MusterEntry = entry,
-                            Paygrade = entry.Person.Paygrade?.Value,
-                            UIC = entry.Person.UIC?.Value
-                        };
+                        entry.ArchiveInformation = new MusterArchiveInformation(User, entry);
                     }
 
-                    Events.EventManager.OnMusterOpened(new Events.Args.MusterCycleEventArgs
+                    Events.EventManager.OnMusterFinalized(new Events.Args.MusterCycleEventArgs
                     {
                         MusterCycle = musterCycle
                     }, this);
@@ -272,15 +166,7 @@ namespace CommandCentral.Controllers
                 transaction.Commit();
             }
 
-            return Ok(new DTOs.MusterCycle.Get
-            {
-                Command = musterCycle.Command.Id,
-                FinalizedBy = musterCycle.FinalizedBy == null ? null : (Guid?)musterCycle.FinalizedBy.Id,
-                Id = musterCycle.Id,
-                IsFinalized = musterCycle.IsFinalized,
-                Range = musterCycle.Range,
-                TimeFinalized = musterCycle.TimeFinalized
-            });
+            return Ok(new DTOs.MusterCycle.Get(musterCycle));
         }
     }
 }

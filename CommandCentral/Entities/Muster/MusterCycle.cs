@@ -15,7 +15,6 @@ namespace CommandCentral.Entities.Muster
     /// </summary>
     public class MusterCycle : Entity
     {
-
         #region Properties
 
         /// <summary>
@@ -48,6 +47,11 @@ namespace CommandCentral.Entities.Muster
         /// </summary>
         public virtual IList<MusterEntry> MusterEntries { get; set; }
 
+        /// <summary>
+        /// Indicates that this muster cycle was finalized by the system automatically and not be any user.
+        /// </summary>
+        public virtual bool? WasFinalizedBySystem { get; set; }
+
         #endregion
 
         /// <summary>
@@ -58,21 +62,7 @@ namespace CommandCentral.Entities.Muster
         {
             return new Validator().Validate(this);
         }
-
-        /// <summary>
-        /// Finalizes this muster cycle.
-        /// </summary>
-        /// <param name="person"></param>
-        public virtual void FinalizeMusterCycle(Person person)
-        {
-            if (IsFinalized)
-                throw new InvalidOperationException("A muster cycle may not be finalized if it has already been finalized.");
-
-            IsFinalized = true;
-            TimeFinalized = DateTime.UtcNow;
-            FinalizedBy = person;
-        }
-
+        
         /// <summary>
         /// Maps this object to the database.
         /// </summary>
@@ -87,6 +77,7 @@ namespace CommandCentral.Entities.Muster
 
                 Map(x => x.IsFinalized).Not.Nullable();
                 Map(x => x.TimeFinalized).CustomType<UtcDateTimeType>();
+                Map(x => x.WasFinalizedBySystem);
 
                 Component(x => x.Range, map =>
                 {
@@ -119,7 +110,18 @@ namespace CommandCentral.Entities.Muster
 
                 When(x => x.IsFinalized, () =>
                 {
-                    RuleFor(x => x.FinalizedBy).NotEmpty();
+                    RuleFor(x => x.WasFinalizedBySystem).NotEmpty();
+
+                    When(x => x.WasFinalizedBySystem == true, () =>
+                    {
+                        RuleFor(x => x.FinalizedBy).Empty();
+                    });
+
+                    When(x => x.WasFinalizedBySystem == false, () =>
+                    {
+                        RuleFor(x => x.FinalizedBy).NotEmpty();
+                    });
+
                     RuleFor(x => x.TimeFinalized).Must(x => x.HasValue && x.Value != default(DateTime));
                 });
 

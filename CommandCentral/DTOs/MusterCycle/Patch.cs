@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CommandCentral.DTOs.MusterCycle
 {
-    public class Patch
+    public class Put
     {
         public bool IsFinalized { get; set; }
     }

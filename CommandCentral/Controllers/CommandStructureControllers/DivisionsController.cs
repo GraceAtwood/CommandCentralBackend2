@@ -16,6 +16,9 @@ using LinqKit;
 
 namespace CommandCentral.Controllers
 {
+    /// <summary>
+    /// Provides query and get capability for divisions.
+    /// </summary>
     [Route("api/[controller]")]
     [Produces("application/json")]
     [Consumes("application/json")]

@@ -52,6 +52,31 @@ namespace CommandCentral.Entities.Muster
 
         #endregion
 
+        public MusterArchiveInformation()
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new muster archive information object, setting the Id.
+        /// </summary>
+        /// <param name="person"></param>
+        /// <param name="parent"></param>
+        public MusterArchiveInformation(Person person, MusterEntry parent)
+        {
+            if (person == null)
+                throw new ArgumentNullException(nameof(person));
+
+            Command = person.Command?.Name;
+            Department = person.Department?.Name;
+            Designation = person.Designation?.Value;
+            Division = person.Division?.Name;
+            Id = Guid.NewGuid();
+            MusterEntry = parent ?? throw new ArgumentNullException(nameof(parent));
+            Paygrade = person.Paygrade?.Value;
+            UIC = person.UIC?.Value;
+        }
+
         /// <summary>
         /// Validates this object.
         /// </summary>
