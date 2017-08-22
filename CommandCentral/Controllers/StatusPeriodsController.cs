@@ -40,8 +40,7 @@ namespace CommandCentral.Controllers
         /// </summary>
         /// <param name="person">The person for whom a status period was submitted.  Supports either Id selection or simple search-based query combined with a conjunction.</param>
         /// <param name="submittedBy">The person who submitted a status period.  Supports either Id selection or simple search-based query combined with a conjunction.</param>
-        /// <param name="from">Defines the starting date and time of a window in which to search for any status period that overlaps with that window.  If left blank, the search window is assumed to start at the beginning of time.</param>
-        /// <param name="to">Defines the ending date and time of a window in which to search for any status period that overlaps with that window.  If left blank, the search window is assumed to end at the end of time.</param>
+        /// <param name="range">Defines a time range query for the range of status periods.</param>
         /// <param name="accountabilityType">The accountability type or code to search for.  Supports either Id selection or simple search-based query combined with a disjunction.</param>
         /// <param name="exemptsFromWatch">true/false</param>
         /// <param name="limit">[Default = 1000] Indicates that the api should return no more than this number of records.  Does not guarantee that the api will return at least this many records even if there are more than this number in the database due to after-load authorization checks.</param>
@@ -97,7 +96,7 @@ namespace CommandCentral.Controllers
         {
             var item = DBSession.Get<StatusPeriod>(id);
             if (item == null)
-                return NotFound();
+                return NotFoundParameter(id, nameof(id));
 
             if (!User.GetFieldPermissions<Person>(item.Person).CanReturn(x => x.StatusPeriods))
                 return Forbid();
@@ -112,27 +111,25 @@ namespace CommandCentral.Controllers
         /// <returns></returns>
         [HttpPost]
         [RequireAuthentication]
-        [ProducesResponseType(200, Type = typeof(DTOs.StatusPeriod.Get))]
+        [ProducesResponseType(201, Type = typeof(DTOs.StatusPeriod.Get))]
         public IActionResult Post([FromBody]DTOs.StatusPeriod.Post dto)
         {
             if (dto == null)
-                return BadRequest();
+                return BadRequestDTONull();
 
             var person = DBSession.Get<Person>(dto.Person);
             if (person == null)
-                return NotFound($"Unable to find object referenced by parameter: {nameof(dto.Person)}.");
+                return NotFoundParameter(dto.Person, nameof(dto.Person));
 
             if (dto.ExemptsFromWatch && !User.IsInChainOfCommand(person, ChainsOfCommand.QuarterdeckWatchbill))
-            {
                 return Forbid("Must be in the Watchbill chain of command to exempt a person from watch.");
-            }
 
             if (!User.GetFieldPermissions<Person>(person).CanEdit(x => x.StatusPeriods))
                 return Forbid("Can not submit a status period for this person.");
 
             var reason = DBSession.Get<AccountabilityType>(dto.Reason);
             if (reason == null)
-                return NotFound($"Unable to find object referenced by parameter: {nameof(dto.Reason)}.");
+                return NotFoundParameter(dto.Reason, nameof(dto.Reason));
 
             var item = new StatusPeriod
             {
@@ -168,29 +165,25 @@ namespace CommandCentral.Controllers
         /// <returns></returns>
         [HttpPut("{id}")]
         [RequireAuthentication]
-        [ProducesResponseType(200, Type = typeof(DTOs.StatusPeriod.Get))]
+        [ProducesResponseType(201, Type = typeof(DTOs.StatusPeriod.Get))]
         public IActionResult Put(Guid id, [FromBody]DTOs.StatusPeriod.Put dto)
         {
             if (dto == null)
-                return BadRequest();
+                return BadRequestDTONull();
 
             var item = DBSession.Get<StatusPeriod>(id);
             if (item == null)
-                return NotFound();
+                return NotFoundParameter(id, nameof(id));
 
             if (item.ExemptsFromWatch && !User.IsInChainOfCommand(item.Person, ChainsOfCommand.QuarterdeckWatchbill))
-            {
                 return Forbid("Must be in the Watchbill chain of command to modify a status period that exempts a person from watch.");
-            }
 
             if (!User.GetFieldPermissions<Person>(item.Person).CanEdit(x => x.StatusPeriods))
-            {
                 return Forbid();
-            }
 
             var reason = DBSession.Get<AccountabilityType>(dto.Reason);
             if (reason == null)
-                return NotFound($"Unable to find object referenced by parameter: {nameof(dto.Reason)}.");
+                return NotFoundParameter(dto.Reason, nameof(dto.Reason));
 
             item.ExemptsFromWatch = dto.ExemptsFromWatch;
             item.Range = dto.Range;
@@ -218,22 +211,18 @@ namespace CommandCentral.Controllers
         /// <returns></returns>
         [HttpDelete("{id}")]
         [RequireAuthentication]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
         {
             var item = DBSession.Get<StatusPeriod>(id);
             if (item == null)
-                return NotFound();
+                return NotFoundParameter(id, nameof(id));
 
             if (item.ExemptsFromWatch && !User.IsInChainOfCommand(item.Person, ChainsOfCommand.QuarterdeckWatchbill))
-            {
                 return Forbid("Must be in the Watchbill chain of command to delete a status period that exempts a person from watch.");
-            }
 
             if (!User.GetFieldPermissions<Person>(item.Person).CanEdit(x => x.StatusPeriods))
-            {
                 return Forbid();
-            }
 
             if (item.Range.Start <= DateTime.UtcNow)
                 return Conflict("You may not delete a status period whose time range has already started.  You may only modify its ending time.");

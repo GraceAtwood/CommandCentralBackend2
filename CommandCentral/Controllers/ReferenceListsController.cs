@@ -133,7 +133,7 @@ namespace CommandCentral.Controllers
 
         [HttpDelete("{id}")]
         [RequireAuthentication]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
         {
             if (!User.CanAccessSubmodules(SubModules.AdminTools))
@@ -141,7 +141,7 @@ namespace CommandCentral.Controllers
 
             var item = DBSession.Get<ReferenceListItemBase>(id);
             if (item == null)
-                return NotFoundParameter(id, nameof(id)); return NotFound();
+                return NotFoundParameter(id, nameof(id));
 
             using (var transaction = DBSession.BeginTransaction())
             {
