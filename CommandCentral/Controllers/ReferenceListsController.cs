@@ -12,6 +12,7 @@ using CommandCentral.Authorization;
 using CommandCentral.Enums;
 using NHibernate.Linq;
 using System.Linq.Expressions;
+using LinqKit;
 
 namespace CommandCentral.Controllers
 {
@@ -25,51 +26,37 @@ namespace CommandCentral.Controllers
         [ProducesResponseType(200, Type = typeof(List<DTOs.ReferenceList.GetList>))]
         public IActionResult Get([FromQuery] string value, [FromQuery] string description, [FromQuery] string type)
         {
-            IQueryable<ReferenceListItemBase> query;
+
+            Expression<Func<ReferenceListItemBase, bool>> predicate = null;
+
+            predicate = predicate
+                .AddStringQueryExpression(x => x.Value, value)
+                .AddStringQueryExpression(x => x.Description, description);
+
+            var queries = new List<IQueryable<ReferenceListItemBase>>();
 
             if (!String.IsNullOrWhiteSpace(type))
             {
-                if (!ReferenceListHelper.ReferenceListNamesToType.TryGetValue(type, out Type listType))
-                    return BadRequest($"The reference list type '{type}' supplied by your parameter '{nameof(type)}' does not exist. Allowed, case-insensitive values are: {String.Join(", ", ReferenceListHelper.ReferenceListNamesToType.Keys)}");
+                foreach (var item in type.SplitByOr())
+                {
+                    if (!ReferenceListHelper.ReferenceListNamesToType.TryGetValue(item, out Type listType))
+                        return BadRequest($"One or more reference list types supplied by your parameter '{nameof(type)}' do not exist. Allowed, case-insensitive values are: {String.Join(", ", ReferenceListHelper.ReferenceListNamesToType.Keys)}");
 
-                query = DBSession.Query<ReferenceListItemBase>(SessionManager.ClassMetaData[listType].EntityName);
+                    queries.Add(DBSession.Query<ReferenceListItemBase>(listType.Name));
+                }
             }
             else
             {
-                query = DBSession.Query<ReferenceListItemBase>();
+                queries.Add(DBSession.Query<ReferenceListItemBase>());
             }
 
-            if (!String.IsNullOrWhiteSpace(value))
-            {
-                Expression<Func<ReferenceListItemBase, bool>> predicate = null;
-
-                foreach (var term in value.Split(',').Select(x => x.Trim()))
-                {
-                    predicate = predicate.NullSafeOr(x => x.Value.Contains(term));
-                }
-
-                query = query.Where(predicate);
-            }
-
-            if (!String.IsNullOrWhiteSpace(description))
-            {
-                Expression<Func<ReferenceListItemBase, bool>> predicate = null;
-
-                foreach (var term in description.Split(',').Select(x => x.Trim()))
-                {
-                    predicate = predicate.NullSafeOr(x => x.Description.Contains(term));
-                }
-
-                query = query.Where(predicate);
-            }
-
-            var test = query.GroupBy(x => x.GetEntityType(DBSession.GetSessionImplementation().PersistenceContext)).ToList();
-
-            var result = test
+            var results = queries
+                .SelectMany(x => x.AsExpandable().NullSafeWhere(predicate).ToFuture())
+                .GroupBy(x => x.GetEntityType(DBSession.GetSessionImplementation().PersistenceContext))
                 .Select(x => new DTOs.ReferenceList.GetList(x, x.Key))
                 .ToList();
 
-            return Ok(result);
+            return Ok(results);
         }
 
         [HttpGet("{id}")]

@@ -91,7 +91,8 @@ namespace CommandCentral.Entities
         {
             if (!CurrentMusterCycle.IsFinalized)
             {
-                CurrentMusterCycle.FinalizeMusterCycle(person);
+                //TODO
+                //CurrentMusterCycle.FinalizeMusterCycle(person);
                 EventManager.OnMusterFinalized(new MusterCycleEventArgs
                 {
                     MusterCycle = CurrentMusterCycle
