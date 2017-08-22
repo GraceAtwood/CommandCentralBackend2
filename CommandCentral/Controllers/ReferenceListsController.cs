@@ -26,36 +26,34 @@ namespace CommandCentral.Controllers
         [ProducesResponseType(200, Type = typeof(List<DTOs.ReferenceList.GetList>))]
         public IActionResult Get([FromQuery] string value, [FromQuery] string description, [FromQuery] string type)
         {
-
             Expression<Func<ReferenceListItemBase, bool>> predicate = null;
 
             predicate = predicate
                 .AddStringQueryExpression(x => x.Value, value)
                 .AddStringQueryExpression(x => x.Description, description);
 
-            var queries = new List<IQueryable<ReferenceListItemBase>>();
+            IQueryable<ReferenceListItemBase> query;
 
             if (!String.IsNullOrWhiteSpace(type))
             {
-                foreach (var item in type.SplitByOr())
-                {
-                    if (!ReferenceListHelper.ReferenceListNamesToType.TryGetValue(item, out Type listType))
-                        return BadRequest($"One or more reference list types supplied by your parameter '{nameof(type)}' do not exist. Allowed, case-insensitive values are: {String.Join(", ", ReferenceListHelper.ReferenceListNamesToType.Keys)}");
+                if (!ReferenceListHelper.ReferenceListNamesToType.TryGetValue(type, out Type listType))
+                    return BadRequest($"The reference list type supplied by your parameter '{nameof(type)}' do not exist. Allowed, case-insensitive values are: {String.Join(", ", ReferenceListHelper.ReferenceListNamesToType.Keys)}");
 
-                    queries.Add(DBSession.Query<ReferenceListItemBase>(listType.Name));
-                }
+                query = DBSession.Query<ReferenceListItemBase>(listType.Name);
             }
             else
             {
-                queries.Add(DBSession.Query<ReferenceListItemBase>());
+                query = DBSession.Query<ReferenceListItemBase>();
             }
-
-            var results = queries
-                .SelectMany(x => x.AsExpandable().NullSafeWhere(predicate).ToFuture())
+            
+            var results = query
+                .AsExpandable()
+                .NullSafeWhere(predicate)
+                .ToList()
                 .GroupBy(x => x.GetEntityType(DBSession.GetSessionImplementation().PersistenceContext))
                 .Select(x => new DTOs.ReferenceList.GetList(x, x.Key))
                 .ToList();
-
+            
             return Ok(results);
         }
 
@@ -66,7 +64,7 @@ namespace CommandCentral.Controllers
         {
             var item = DBSession.Get<ReferenceListItemBase>(id);
             if (item == null)
-                return NotFound();
+                return NotFoundParameter(id, nameof(id));
 
             return Ok(new DTOs.ReferenceList.Get(item));
         }
@@ -77,7 +75,7 @@ namespace CommandCentral.Controllers
         public IActionResult Post([FromBody]DTOs.ReferenceList.Post dto)
         {
             if (dto == null)
-                return BadRequest();
+                return BadRequestDTONull();
 
             if (!User.CanAccessSubmodules(SubModules.AdminTools))
                 return Forbid();
@@ -108,14 +106,14 @@ namespace CommandCentral.Controllers
         public IActionResult Put(Guid id, [FromBody]DTOs.ReferenceList.Put dto)
         {
             if (dto == null)
-                return BadRequest();
+                return BadRequestDTONull();
 
             if (!User.CanAccessSubmodules(SubModules.AdminTools))
                 return Forbid();
 
             var item = DBSession.Get<ReferenceListItemBase>(id);
             if (item == null)
-                return NotFound();
+                return NotFoundParameter(id, nameof(id));
 
             item.Value = dto.Value;
             item.Description = dto.Description;
@@ -143,7 +141,7 @@ namespace CommandCentral.Controllers
 
             var item = DBSession.Get<ReferenceListItemBase>(id);
             if (item == null)
-                return NotFound();
+                return NotFoundParameter(id, nameof(id)); return NotFound();
 
             using (var transaction = DBSession.BeginTransaction())
             {
