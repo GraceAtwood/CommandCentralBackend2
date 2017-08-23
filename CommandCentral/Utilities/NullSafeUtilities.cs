@@ -16,10 +16,9 @@ namespace CommandCentral.Utilities
         /// <returns></returns>
         public static int GetSafeHashCode(object obj)
         {
-            if (obj == null)
-                return 0;
-
-            return obj.GetHashCode();
+            return obj == null 
+                ? 0 
+                : obj.GetHashCode();
         }
 
         /// <summary>
@@ -30,10 +29,9 @@ namespace CommandCentral.Utilities
         /// <returns></returns>
         public static IEnumerable<PropertyInfo> GetNonDefaultOrNullProperties<T>(this T obj)
         {
-            if (obj == null)
-                return new List<PropertyInfo>();
-
-            return typeof(T).GetProperties().Where(x => x.GetValue(obj) != null);
+            return obj == null 
+                ? new List<PropertyInfo>() 
+                : typeof(T).GetProperties().Where(x => x.GetValue(obj) != null);
         }
     }
 }

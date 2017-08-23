@@ -57,10 +57,7 @@ namespace CommandCentral.Entities
         public virtual bool IsDoDEmailAddress()
         {
             var elements = Address.Split(new[] { "@" }, StringSplitOptions.RemoveEmptyEntries);
-            if (!elements.Any())
-                return false;
-
-            return elements.Last().InsensitiveEquals("mail.mil");
+            return elements.Any() && elements.Last().InsensitiveEquals("mail.mil");
         }
         
         /// <summary>
@@ -95,9 +92,9 @@ namespace CommandCentral.Entities
             {
                 RuleFor(x => x.Address).EmailAddress().Must((item, address) =>
                 {
-                    return SessionManager.CurrentSession.Query<EmailAddress>().Count(x => x.Id != item.Id && x.Address == address) == 0;
+                    return SessionManager.CurrentSession().Query<EmailAddress>().Count(x => x.Id != item.Id && x.Address == address) == 0;
                 })
-                .WithMessage("Email addresses must be unique."); ;
+                .WithMessage("Email addresses must be unique.");
             }
         }
     }

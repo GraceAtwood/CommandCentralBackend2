@@ -14,18 +14,14 @@ namespace CommandCentral.Framework
 
         public GlobalExceptionFilter(ILoggerFactory logger)
         {
-            if (logger == null)
-            {
-                throw new ArgumentNullException(nameof(logger));
-            }
-
-            this._logger = logger.CreateLogger("Command Central Exception Handler");
+            _logger = logger?.CreateLogger("Command Central Exception Handler") 
+                           ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public void OnException(ExceptionContext context)
         {
             context.Result = new StatusCodeResult(500);
-            this._logger.LogError("GlobalExceptionFilter", context.Exception);
+            _logger.LogError("GlobalExceptionFilter", context.Exception);
         }
     }
 }

@@ -50,7 +50,7 @@ namespace CommandCentral.Utilities
         /// Returns the expression.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="expression"></param>
+        /// <param name="propertyName"></param>
         /// <returns></returns>
         public static Expression<Func<T, object>> SelectExpressionFrom<T>(string propertyName)
         {
@@ -64,7 +64,8 @@ namespace CommandCentral.Utilities
         /// Selects a number of properties from a given type that are all of the same given type.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="expressions"></param>
+        /// <param name="comparison"></param>
+        /// <param name="propertyNames"></param>
         /// <returns></returns>
         public static List<MemberInfo> SelectPropertiesFrom<T>(IEnumerable<string> propertyNames, StringComparison comparison)
         {
@@ -75,7 +76,7 @@ namespace CommandCentral.Utilities
         /// Selects a number of properties from a given type that are all of the same given type.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="expressions"></param>
+        /// <param name="propertyName"></param>
         /// <returns></returns>
         public static PropertyInfo SelectPropertyFrom<T>(string propertyName)
         {

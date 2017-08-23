@@ -14,26 +14,22 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Web.Http.Description;
 using System.Xml.Linq;
 
 namespace CommandCentral.Framework
 {
     public class CustomDocumentFilter : IDocumentFilter
     {
-        private static XDocument _documentation;
-        private static ConcurrentDictionary<Type, List<string>> _typeSummaries;
+        private static readonly ConcurrentDictionary<Type, List<string>> _typeSummaries;
 
         static CustomDocumentFilter()
         {
-            
-
             if (!File.Exists(Utilities.ConfigurationUtility.XmlDocumentationPath))
                 throw new FileNotFoundException("The xml documentation could not be found.  It should be named 'commandcentral.xml' and should be found colocated with the .exe.", Utilities.ConfigurationUtility.XmlDocumentationPath);
 
-            _documentation = XDocument.Load(Utilities.ConfigurationUtility.XmlDocumentationPath);
+            var documentation = XDocument.Load(Utilities.ConfigurationUtility.XmlDocumentationPath);
 
-            _typeSummaries = new ConcurrentDictionary<Type, List<string>>(_documentation.Descendants("doc")
+            _typeSummaries = new ConcurrentDictionary<Type, List<string>>(documentation.Descendants("doc")
                 .Descendants("members")
                 .Descendants("member")
                 .Where(x => x.Attribute("name").Value.StartsWith("T:"))
@@ -53,7 +49,7 @@ namespace CommandCentral.Framework
 
         private void AddControllerDescriptions(SwaggerDocument swaggerDoc, ApiDescriptionGroupCollection apiDescriptions)
         {
-            var apiGroups = apiDescriptions.Items.First().Items.ToLookup(x => ((ControllerActionDescriptor)x.ActionDescriptor));
+            var apiGroups = apiDescriptions.Items.First().Items.ToLookup(x => (ControllerActionDescriptor)x.ActionDescriptor);
 
             var tags = new List<Tag>();
             foreach (var apiGroup in apiGroups)

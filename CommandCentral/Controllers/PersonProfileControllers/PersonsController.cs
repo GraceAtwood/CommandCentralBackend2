@@ -1,22 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using CommandCentral.Framework;
-using CommandCentral.Entities;
-using CommandCentral.Utilities;
-using CommandCentral.Framework.Data;
-using CommandCentral.Entities.ReferenceLists;
-using CommandCentral.Authorization;
-using CommandCentral.Enums;
-using NHibernate.Linq;
-using Microsoft.AspNetCore.JsonPatch;
 using System.Linq.Expressions;
-using LinqKit;
+using CommandCentral.Authorization;
+using CommandCentral.Entities;
 using CommandCentral.Entities.Muster;
+using CommandCentral.Entities.ReferenceLists;
+using CommandCentral.Enums;
+using CommandCentral.Framework;
+using CommandCentral.Framework.Data;
+using CommandCentral.Utilities;
+using LinqKit;
+using Microsoft.AspNetCore.Mvc;
+using NHibernate.Linq;
 
-namespace CommandCentral.Controllers
+namespace CommandCentral.Controllers.PersonProfileControllers
 {
     /// <summary>
     /// The person object is the central entry to a person's profile.  Permissions for each field can be attained from the /authorization controller.
@@ -37,11 +35,9 @@ namespace CommandCentral.Controllers
             if (limit <= 0)
                 return BadRequestLimit(limit, nameof(limit));
 
-            Expression<Func<StatusPeriod, bool>> statusPeriodSearch = CommonQueryStrategies.GetTimeRangeQueryExpression<StatusPeriod>(y => y.Range, dto.StatusPeriod);
+            var statusPeriodSearch = CommonQueryStrategies.GetTimeRangeQueryExpression<StatusPeriod>(y => y.Range, dto.StatusPeriod);
 
-            Expression<Func<Person, bool>> predicate = null;
-
-            predicate = predicate
+            var predicate = ((Expression<Func<Person, bool>>) null)
                 .AddStringQueryExpression(x => x.FirstName, dto.FirstName)
                 .AddStringQueryExpression(x => x.FirstName, dto.FirstName)
                 .AddStringQueryExpression(x => x.LastName, dto.LastName)

@@ -71,7 +71,7 @@ namespace CommandCentral.Authorization
         {
             if (obj is PropertyPermissionsCollection other)
             {
-                return other.Property == this.Property;
+                return other.Property == Property;
             }
 
             return false;
@@ -81,6 +81,5 @@ namespace CommandCentral.Authorization
         {
             return Property.ToString();
         }
-
     }
 }

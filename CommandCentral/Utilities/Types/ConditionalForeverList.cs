@@ -20,8 +20,6 @@ namespace CommandCentral.Utilities.Types
         private Stack<T> _remaining;
         private Stack<T> _original;
 
-        List<T> visitedItems = new List<T>();
-
         /// <summary>
         /// Creates a new forever list from the given source.
         /// </summary>
@@ -43,9 +41,8 @@ namespace CommandCentral.Utilities.Types
         /// <returns></returns>
         public bool TryNext(Func<T, bool> predicate, out T item)
         {
-            int attempts = 0;
-            Stack<T> failures = new Stack<T>();
-            visitedItems = new List<T>();
+            var attempts = 0;
+            var failures = new Stack<T>();
 
             while (attempts < _original.Count)
             {
@@ -55,7 +52,6 @@ namespace CommandCentral.Utilities.Types
                 }
 
                 item = _remaining.Pop();
-                visitedItems.Add(item);
 
                 if (predicate(item))
                 {
@@ -67,14 +63,12 @@ namespace CommandCentral.Utilities.Types
 
                     return true;
                 }
-                else
-                {
-                    if (!failures.Contains(item))
-                    {
-                        failures.Push(item);
-                        attempts++;
-                    }
-                }
+
+                if (failures.Contains(item)) 
+                    continue;
+                
+                failures.Push(item);
+                attempts++;
             }
 
             item = default(T);

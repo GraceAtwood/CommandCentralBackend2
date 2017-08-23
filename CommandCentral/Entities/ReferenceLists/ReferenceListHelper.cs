@@ -14,13 +14,12 @@ namespace CommandCentral.Entities.ReferenceLists
     /// <summary>
     /// Provides generalized methods for helping with reference lists.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     public static class ReferenceListHelper
     {
         /// <summary>
         /// Contains a mapping of all reference list names to their matching types.
         /// </summary>
-        public static ConcurrentDictionary<string, Type> ReferenceListNamesToType;
+        public static readonly ConcurrentDictionary<string, Type> ReferenceListNamesToType;
         static ReferenceListHelper()
         {
             ReferenceListNamesToType = new ConcurrentDictionary<string, Type>(
@@ -36,7 +35,7 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <returns></returns>
         public static bool Exists<T>(string value) where T : ReferenceListItemBase
         {
-            return SessionManager.CurrentSession.QueryOver<T>().Where(x => x.Value.IsInsensitiveLike(value)).RowCount() != 0;
+            return SessionManager.CurrentSession().QueryOver<T>().Where(x => x.Value.IsInsensitiveLike(value)).RowCount() != 0;
         }
 
         /// <summary>
@@ -46,7 +45,7 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <returns></returns>
         public static bool IdExists<T>(Guid id) where T : ReferenceListItemBase
         {
-            return SessionManager.CurrentSession.QueryOver<T>().Where(x => x.Id == id).RowCount() != 0;
+            return SessionManager.CurrentSession().QueryOver<T>().Where(x => x.Id == id).RowCount() != 0;
         }
 
         /// <summary>
@@ -57,7 +56,7 @@ namespace CommandCentral.Entities.ReferenceLists
         public static bool AllExist<T>(params string[] values) where T : ReferenceListItemBase
         {
             var array = values.Distinct().ToArray();
-            return SessionManager.CurrentSession.QueryOver<T>().Where(x => x.Value.IsIn(array)).RowCount() == values.Length;
+            return SessionManager.CurrentSession().QueryOver<T>().Where(x => x.Value.IsIn(array)).RowCount() == values.Length;
         }
 
         /// <summary>
@@ -68,7 +67,7 @@ namespace CommandCentral.Entities.ReferenceLists
         public static bool AllExist<T>(IEnumerable<string> values) where T : ReferenceListItemBase
         {
             var array = values.Distinct().ToArray();
-            return SessionManager.CurrentSession.QueryOver<T>().Where(x => x.Value.IsIn(array)).RowCount() == array.Length;
+            return SessionManager.CurrentSession().QueryOver<T>().Where(x => x.Value.IsIn(array)).RowCount() == array.Length;
         }
 
         /// <summary>
@@ -77,7 +76,7 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <returns></returns>
         public static List<T> All<T>() where T : ReferenceListItemBase
         {
-            return (List<T>)SessionManager.CurrentSession.QueryOver<T>().List();
+            return (List<T>)SessionManager.CurrentSession().QueryOver<T>().List();
         }
 
         /// <summary>
@@ -87,7 +86,7 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <returns></returns>
         public static T Find<T>(string value) where T : ReferenceListItemBase
         {
-            return SessionManager.CurrentSession.QueryOver<T>().Where(x => x.Value.IsInsensitiveLike(value))
+            return SessionManager.CurrentSession().QueryOver<T>().Where(x => x.Value.IsInsensitiveLike(value))
                 .Cacheable()
                 .SingleOrDefault() ??
                 throw new Exception($"Failed to find reference list {value} of type {typeof(T).Name}");
@@ -100,10 +99,7 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <returns></returns>
         public static IEnumerable<T> FindAll<T>(params string[] values) where T : ReferenceListItemBase
         {
-            foreach (var value in values)
-            {
-                yield return Find<T>(value);
-            }
+            return values.Select(Find<T>);
         }
 
         /// <summary>
@@ -116,7 +112,7 @@ namespace CommandCentral.Entities.ReferenceLists
             if (!Guid.TryParse(id, out Guid result))
                 return null;
 
-            return SessionManager.CurrentSession.Get<T>(result);
+            return SessionManager.CurrentSession().Get<T>(result);
         }
 
         /// <summary>
@@ -126,7 +122,7 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <returns></returns>
         public static IEnumerable<T> Random<T>(int count) where T : ReferenceListItemBase
         {
-            var list = SessionManager.CurrentSession.QueryOver<T>().List();
+            var list = SessionManager.CurrentSession().QueryOver<T>().List();
 
             if (count > list.Count)
                 count = list.Count;

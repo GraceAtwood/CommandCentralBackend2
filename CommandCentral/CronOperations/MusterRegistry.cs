@@ -28,9 +28,9 @@ namespace CommandCentral.CronOperations
         /// </summary>
         private void SetupMuster()
         {
-            using (var transaction = SessionManager.CurrentSession.BeginTransaction())
+            using (var transaction = SessionManager.CurrentSession().BeginTransaction())
             {
-                var commands = SessionManager.CurrentSession.QueryOver<Command>().Future();
+                var commands = SessionManager.CurrentSession().QueryOver<Command>().Future();
 
                 foreach (var command in commands)
                 {
@@ -48,7 +48,7 @@ namespace CommandCentral.CronOperations
                         MusterCycle = command.CurrentMusterCycle
                     }, this);
 
-                    SessionManager.CurrentSession.Update(command);
+                    SessionManager.CurrentSession().Update(command);
 
                     Schedule(() => DoRolloverForCommand(command.Id)).ToRunEvery(1).Days().At(command.MusterStartHour, 0);
                 }
@@ -63,9 +63,9 @@ namespace CommandCentral.CronOperations
         /// <param name="commandId"></param>
         private void DoRolloverForCommand(Guid commandId)
         {
-            using (var transaction = SessionManager.CurrentSession.BeginTransaction())
+            using (var transaction = SessionManager.CurrentSession().BeginTransaction())
             {
-                var command = SessionManager.CurrentSession.Get<Command>(commandId);
+                var command = SessionManager.CurrentSession().Get<Command>(commandId);
 
                 if (command == null)
                     throw new ArgumentNullException(nameof(commandId), $"The command identified by the id {commandId} does not exist in the database.  Occurred in the cron operation '{nameof(DoRolloverForCommand)}'.");
@@ -84,7 +84,7 @@ namespace CommandCentral.CronOperations
                     MusterCycle = command.CurrentMusterCycle
                 }, this);
 
-                SessionManager.CurrentSession.Update(command);
+                SessionManager.CurrentSession().Update(command);
 
                 transaction.Commit();
             }

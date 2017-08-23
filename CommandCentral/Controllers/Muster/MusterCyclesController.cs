@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using CommandCentral.Framework;
-using CommandCentral.Entities.Muster;
-using CommandCentral.Authorization;
-using CommandCentral.Enums;
-using NHibernate.Linq;
 using System.Linq.Expressions;
-using CommandCentral.Utilities;
+using CommandCentral.Authorization;
+using CommandCentral.Entities.Muster;
+using CommandCentral.Enums;
+using CommandCentral.Framework;
 using CommandCentral.Framework.Data;
 using LinqKit;
+using Microsoft.AspNetCore.Mvc;
+using NHibernate.Linq;
 
-namespace CommandCentral.Controllers
+namespace CommandCentral.Controllers.Muster
 {
     /// <summary>
     /// Muster cycles are used to encapsulate all of the muster entries for a given period of time.  Essentially, this is a single day's muster.
@@ -50,9 +48,7 @@ namespace CommandCentral.Controllers
             if (limit <= 0)
                 return BadRequestLimit(limit, nameof(limit));
 
-            Expression<Func<MusterCycle, bool>> predicate = null;
-
-            predicate = predicate
+            var predicate = ((Expression<Func<MusterCycle, bool>>) null)
                 .AddTimeRangeQueryExpression(x => x.Range, range)
                 .AddNullableBoolQueryExpression(x => x.IsFinalized, isFinalized)
                 .AddNullableBoolQueryExpression(x => x.WasFinalizedBySystem, wasFinalizedBySystem)

@@ -152,24 +152,12 @@ namespace CommandCentral.Entities
         /// <summary>
         /// Readonly. Returns Division.Department
         /// </summary>
-        public virtual Department Department
-        {
-            get
-            {
-                return Division?.Department;
-            }
-        }
+        public virtual Department Department => Division?.Department;
 
         /// <summary>
         /// Readonly. Returns Department.Command
         /// </summary>
-        public virtual Command Command
-        {
-            get
-            {
-                return Department?.Command;
-            }
-        }
+        public virtual Command Command => Department?.Command;
 
         #endregion
 
@@ -179,7 +167,7 @@ namespace CommandCentral.Entities
         /// The person's NECs.
         /// </summary>
         [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        public virtual IList<NECInfo> NECs { get; set; }
+        public virtual IList<NECInfo> NECs { get; set; } = new List<NECInfo>();
 
         /// <summary>
         /// The person's supervisor
@@ -382,10 +370,10 @@ namespace CommandCentral.Entities
         /// <returns></returns>
         public virtual bool IsInSameCommandAs(Person person)
         {
-            if (person == null || this.Division.Department.Command == null || person.Division.Department.Command == null)
+            if (person == null || Division.Department.Command == null || person.Division.Department.Command == null)
                 return false;
 
-            return this.Command.Id == person.Command.Id;
+            return Command.Id == person.Command.Id;
         }
 
         /// <summary>
@@ -395,10 +383,10 @@ namespace CommandCentral.Entities
         /// <returns></returns>
         public virtual bool IsInSameDepartmentAs(Person person)
         {
-            if (person == null || this.Department == null || person.Department == null)
+            if (person == null || Department == null || person.Department == null)
                 return false;
 
-            return IsInSameCommandAs(person) && this.Department.Id == person.Department.Id;
+            return IsInSameCommandAs(person) && Department.Id == person.Department.Id;
         }
 
         /// <summary>
@@ -408,10 +396,10 @@ namespace CommandCentral.Entities
         /// <returns></returns>
         public virtual bool IsInSameDivisionAs(Person person)
         {
-            if (person == null || this.Division == null || person.Division == null)
+            if (person == null || Division == null || person.Division == null)
                 return false;
 
-            return IsInSameDepartmentAs(person) && this.Division.Id == person.Division.Id;
+            return IsInSameDepartmentAs(person) && Division.Id == person.Division.Id;
         }
 
         /// <summary>
@@ -522,12 +510,12 @@ namespace CommandCentral.Entities
                 RuleFor(x => x.SSN).NotEmpty()
                     .Must(x => System.Text.RegularExpressions.Regex.IsMatch(x, @"^(?!\b(\d)\1+-(\d)\1+-(\d)\1+\b)(?!123-45-6789|219-09-9999|078-05-1120)(?!666|000|9\d{2})\d{3}(?!00)\d{2}(?!0{4})\d{4}$"))
                         .WithMessage("The SSN must be valid and contain only numbers.")
-                    .Must((person, ssn) => SessionManager.CurrentSession.Query<Person>().Count(x => x.SSN == ssn && x.Id != person.Id) == 0)
+                    .Must((person, ssn) => SessionManager.CurrentSession().Query<Person>().Count(x => x.SSN == ssn && x.Id != person.Id) == 0)
                         .WithMessage("That ssn exists on another profile.  SSNs must be unique.");
                 RuleFor(x => x.DoDId).NotEmpty().Length(10)
                     .Must(x => x.All(Char.IsDigit))
                         .WithMessage("All characters of a DoD id must be digits.")
-                    .Must((person, dodId) => SessionManager.CurrentSession.Query<Person>().Count(x => x.DoDId == dodId && x.Id != person.Id) == 0)
+                    .Must((person, dodId) => SessionManager.CurrentSession().Query<Person>().Count(x => x.DoDId == dodId && x.Id != person.Id) == 0)
                         .WithMessage("That DoD id exists on another profile.  DoD Ids must be unique.");
                 RuleFor(x => x.DateOfBirth).NotEmpty()
                     .WithMessage("The DOB must not be left blank.");
@@ -557,7 +545,7 @@ namespace CommandCentral.Entities
                     .WithMessage("Your religious preference was not found.");
                 RuleFor(x => x.Designation).Must(x => ReferenceListHelper.IdExists<Designation>(x.Id))
                     .WithMessage("Your designation was not found.");
-                RuleFor(x => x.Division).Must(x => SessionManager.CurrentSession.Query<Division>().Count(div => div.Id == x.Id) == 1)
+                RuleFor(x => x.Division).Must(x => SessionManager.CurrentSession().Query<Division>().Count(div => div.Id == x.Id) == 1)
                     .WithMessage("Your division was not found.");
                 RuleFor(x => x.Supervisor).Length(0, 255)
                     .WithMessage("The supervisor field may not be longer than 255 characters.");

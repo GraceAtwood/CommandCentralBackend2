@@ -15,6 +15,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Web;
+using Microsoft.AspNetCore.Http;
+using HttpContext = Microsoft.AspNetCore.Http.HttpContext;
+using ISession = NHibernate.ISession;
 
 namespace CommandCentral.Framework.Data
 {
@@ -22,29 +25,26 @@ namespace CommandCentral.Framework.Data
     {
         private static ISessionFactory _sessionFactory;
 
-        public static SchemaExport Schema { get; private set; }
+        public static SchemaExport Schema { get; }
 
-        public static ConcurrentDictionary<Type, IClassMetadata> ClassMetaData { get; private set; }
+        public static ConcurrentDictionary<Type, IClassMetadata> ClassMetaData { get; }
 
-        private static Configuration Config;
+        private static readonly Configuration _config;
 
-        private static object _configLock = new object();
+        private static readonly object _configLock = new object();
 
         static SessionManager()
         {
             lock(_configLock)
             {
-                if (Config != null)
+                if (_config != null)
                     return;
 
                 var mySqlConfig = MySQLConfiguration.Standard.ConnectionString(Utilities.ConfigurationUtility.Configuration.GetConnectionString("Main"));
 
                 mySqlConfig = mySqlConfig.FormatSql().ShowSql();
-                if (Utilities.ConfigurationUtility.Configuration.GetValue<bool>("NHibnerate:PrintSQL"))
-                {
-                }
 
-                Config = Fluently.Configure()
+                _config = Fluently.Configure()
                     .Database(mySqlConfig)
                     .Cache(x => x.UseSecondLevelCache().UseQueryCache()
                     .ProviderClass<SysCacheProvider>())
@@ -52,11 +52,9 @@ namespace CommandCentral.Framework.Data
                     .ExposeConfiguration(x => x.EventListeners.PostLoadEventListeners = new[] { new MyPostLoadListener() })
                     .BuildConfiguration();
 
-                Schema = new SchemaExport(Config);
+                Schema = new SchemaExport(_config);
 
-                var test = Config.BuildSessionFactory();
-
-                ClassMetaData = new ConcurrentDictionary<Type, IClassMetadata>(Config.BuildSessionFactory().GetAllClassMetadata().Select(x => new
+                ClassMetaData = new ConcurrentDictionary<Type, IClassMetadata>(_config.BuildSessionFactory().GetAllClassMetadata().Select(x => new
                 {
                     Type = Assembly.GetExecutingAssembly().GetType(x.Key),
                     MetaData = x.Value
@@ -67,42 +65,36 @@ namespace CommandCentral.Framework.Data
 
         private static ISessionFactory GetFactory<T>() where T : ICurrentSessionContext
         {
-            return Config.CurrentSessionContext<T>().BuildSessionFactory();
+            return _config.CurrentSessionContext<T>().BuildSessionFactory();
         }
         
-        public static ISession CurrentSession
+        public static ISession CurrentSession(HttpContext context = null)
         {
-            get
+            if (_sessionFactory == null)
             {
-                if (_sessionFactory == null)
-                {
-                    if (HttpContext.Current == null)
-                    {
-                        _sessionFactory = GetFactory<ThreadStaticSessionContext>();
-                    }
-                    else
-                    {
-                        _sessionFactory = GetFactory<WebSessionContext>();
-                    }
-                }
-
-                if (CurrentSessionContext.HasBind(_sessionFactory))
-                    return _sessionFactory.GetCurrentSession();
-                ISession session = _sessionFactory.OpenSession();
-                CurrentSessionContext.Bind(session);
-                return session;
+                _sessionFactory = context == null 
+                    ? GetFactory<ThreadStaticSessionContext>() 
+                    : GetFactory<WebSessionContext>();
             }
+
+            if (CurrentSessionContext.HasBind(_sessionFactory))
+                return _sessionFactory.GetCurrentSession();
+            
+            var session = _sessionFactory.OpenSession();
+            CurrentSessionContext.Bind(session);
+            return session;
         }
 
         public static void CloseSession()
         {
             if (_sessionFactory == null)
                 return;
-            if (CurrentSessionContext.HasBind(_sessionFactory))
-            {
-                ISession session = CurrentSessionContext.Unbind(_sessionFactory);
-                session.Close();
-            }
+
+            if (!CurrentSessionContext.HasBind(_sessionFactory)) 
+                return;
+            
+            var session = CurrentSessionContext.Unbind(_sessionFactory);
+            session.Close();
         }
 
         public static void CommitSession(ISession session)
@@ -117,6 +109,5 @@ namespace CommandCentral.Framework.Data
                 throw;
             }
         }
-
     }
 }

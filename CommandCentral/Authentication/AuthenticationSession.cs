@@ -66,10 +66,7 @@ namespace CommandCentral.Authentication
             return true;
             #endif
 
-            if (DateTime.UtcNow.Subtract(LastUsedTime) >= _maxAge)
-                return false;
-
-            return true;
+            return DateTime.UtcNow.Subtract(LastUsedTime) < _maxAge;
         }
 
         #endregion

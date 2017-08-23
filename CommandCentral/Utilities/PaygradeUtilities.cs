@@ -20,7 +20,7 @@ namespace CommandCentral.Utilities
         /// <returns></returns>
         public static bool IsOfficerPaygrade(this Paygrade paygrade)
         {
-            return paygrade.Value.StartsWith("CWO") || (paygrade.Value.Contains("O") && !paygrade.Value.Contains("C"));
+            return paygrade.Value.StartsWith("CWO") || paygrade.Value.Contains("O") && !paygrade.Value.Contains("C");
         }
 
         /// <summary>

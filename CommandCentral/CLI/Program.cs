@@ -10,7 +10,6 @@ using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.Extensions.DependencyInjection;
 using CommandCentral.Enums;
 using CommandCentral.Utilities;
-using System.Web.Hosting;
 
 namespace CommandCentral.CLI
 {
@@ -31,8 +30,9 @@ namespace CommandCentral.CLI
         private static void LaunchService()
         {
             var url = ConfigurationUtility.Configuration["Server:BaseAddress"];
+            
             if (String.IsNullOrWhiteSpace(url))
-                throw new ArgumentNullException("The base address for the service was not found in the appsettings.json file.  It should be found at 'Server { BaseAddress = http://address:port/ }'.");
+                throw new ArgumentException("The base address for the service was not found in the appsettings.json file.  It should be found at 'Server { BaseAddress = http://address:port/ }'.");
 
             var host = new WebHostBuilder()
                 .UseKestrel()
@@ -49,12 +49,12 @@ namespace CommandCentral.CLI
         {
             var app = new CommandLineApplication();
 
-            var build = app.Command("build", config =>
+            app.Command("build", config =>
             {
                 config.Description = "Builds the database and optionally populates it with test data.  Destroys any schema that already exists in the targeted location.";
                 config.HelpOption("-? | -h | --help");
 
-                var testData = config.Command("testdata", innerConfig =>
+                config.Command("testdata", innerConfig =>
                 {
                     innerConfig.Description = "Instructs the database build scripts to also populate the database with random test data.";
                     innerConfig.HelpOption("-? | -h | --help");
@@ -74,7 +74,7 @@ namespace CommandCentral.CLI
                 });
             });
 
-            var launch = app.Command("launch", config =>
+            app.Command("launch", config =>
             {
                 config.Description = "Launches the api.";
                 config.HelpOption("-? | -h | --help");

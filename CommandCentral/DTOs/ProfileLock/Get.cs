@@ -11,5 +11,14 @@ namespace CommandCentral.DTOs.ProfileLock
         public Guid Owner { get; set; }
         public DateTime SubmitTime { get; set; }
         public TimeSpan MaxAge { get; set; }
+
+        public Get(Entities.ProfileLock profileLock)
+        {
+            Id = profileLock.Id;
+            MaxAge = Entities.ProfileLock.MaxAge;
+            Owner = profileLock.Owner.Id;
+            SubmitTime = profileLock.SubmitTime;
+            LockedPerson = profileLock.LockedPerson.Id;
+        }
     }
 }

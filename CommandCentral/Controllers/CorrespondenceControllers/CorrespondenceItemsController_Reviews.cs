@@ -1,24 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using CommandCentral.Framework;
-using CommandCentral.Entities;
-using CommandCentral.Utilities;
-using CommandCentral.Framework.Data;
-using CommandCentral.Entities.ReferenceLists;
 using CommandCentral.Authorization;
-using CommandCentral.Enums;
-using NHibernate.Linq;
+using CommandCentral.Entities;
 using CommandCentral.Entities.Correspondence;
-using System.Linq.Expressions;
-using LinqKit;
+using CommandCentral.Enums;
 using CommandCentral.Events;
+using CommandCentral.Framework;
+using Microsoft.AspNetCore.Mvc;
+using NHibernate.Linq;
 
-namespace CommandCentral.Controllers
+namespace CommandCentral.Controllers.CorrespondenceControllers
 {
-    public partial class CorrespondenceItemsController : CommandCentralController
+    public partial class CorrespondenceItemsController
     {
         /// <summary>
         /// Gets the reviews collection of the given correspondence item.

@@ -28,12 +28,12 @@ namespace CommandCentral.Authorization
 
         public override bool Equals(object obj)
         {
-            return obj is PermissionGroup group && group.Name == this.Name;
+            return obj is PermissionGroup group && group.Name == Name;
         }
 
         public override string ToString()
         {
-            return this.Name;
+            return Name;
         }
     }
 }

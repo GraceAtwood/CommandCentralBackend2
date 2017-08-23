@@ -1,22 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using CommandCentral.Framework;
-using CommandCentral.Entities;
-using CommandCentral.Utilities;
-using CommandCentral.Framework.Data;
-using CommandCentral.Entities.ReferenceLists;
 using CommandCentral.Authorization;
-using CommandCentral.Enums;
+using CommandCentral.Entities;
+using CommandCentral.Framework;
+using Microsoft.AspNetCore.Mvc;
 using NHibernate.Linq;
-using Microsoft.AspNetCore.JsonPatch;
-using System.Linq.Expressions;
 
-namespace CommandCentral.Controllers
+namespace CommandCentral.Controllers.PersonProfileControllers
 {
-    public partial class PersonsController : CommandCentralController
+    public partial class PersonsController
     {
         [HttpGet("{personId}/EmailAddresses")]
         [RequireAuthentication]
@@ -32,23 +25,21 @@ namespace CommandCentral.Controllers
             if (!User.IsInChainOfCommand(items.First().Person))
             {
                 return Ok(items
-                    .Where(x => x.IsReleasableOutsideCoC == true)
+                    .Where(x => x.IsReleasableOutsideCoC)
                     .Select(item => new DTOs.EmailAddress.Get(item))
                     .ToList());
             }
-            else
-            {
-                return Ok(items
-                    .Select(item => new DTOs.EmailAddress.Get(item))
-                    .ToList());
-            }
+            
+            return Ok(items
+                .Select(item => new DTOs.EmailAddress.Get(item))
+                .ToList());
         }
 
         [HttpGet("{personId}/EmailAddresses/{id}")]
         [RequireAuthentication]
         public IActionResult GetEmailAddress(Guid personId, Guid id)
         {
-            var item = DBSession.Query<EmailAddress>().Where(x => x.Id == id && x.Person.Id == personId).FirstOrDefault();
+            var item = DBSession.Query<EmailAddress>().FirstOrDefault(x => x.Id == id && x.Person.Id == personId);
             if (item == null)
                 return NotFound("An email address with that id could not be found for a person with the given id.");
 

@@ -10,13 +10,7 @@ namespace CommandCentral
     {
         private static ILogger _logger;
 
-        public static ILogger LoggerInstance
-        {
-            get
-            {
-                return _logger;
-            }
-        }
+        public static ILogger LoggerInstance => _logger;
 
         public static void Initialize(ILoggerFactory loggerFactory)
         {

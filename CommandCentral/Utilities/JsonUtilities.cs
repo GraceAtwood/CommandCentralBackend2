@@ -34,7 +34,7 @@ namespace CommandCentral.Utilities
         {
             json = json.Trim();
 
-            return (json.StartsWith("{") && json.EndsWith("}")) || (json.StartsWith("[") && json.EndsWith("]"));
+            return json.StartsWith("{") && json.EndsWith("}") || json.StartsWith("[") && json.EndsWith("]");
         }
 
         public static string Serialize(this object obj)
@@ -44,7 +44,7 @@ namespace CommandCentral.Utilities
 
         public static T Deserialize<T>(this string json)
         {
-            return (string.IsNullOrWhiteSpace(json) || !IsValidJson(json)) ? default(T) : JsonConvert.DeserializeObject<T>(json);
+            return string.IsNullOrWhiteSpace(json) || !IsValidJson(json) ? default(T) : JsonConvert.DeserializeObject<T>(json);
         }
 
         public static JObject DeserializeToJObject(this string json)
@@ -73,7 +73,6 @@ namespace CommandCentral.Utilities
         /// <summary>
         /// Casts the object (which is expected to be a JObject) into the requested class.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="value"></param>
         /// <returns></returns>
         public static JToken CastJToken(this object value)
@@ -82,7 +81,7 @@ namespace CommandCentral.Utilities
                 throw new Exception("The value could not be cast to a JToken.");
 
 
-            return ((JToken)value);
+            return (JToken)value;
         }
 
     }

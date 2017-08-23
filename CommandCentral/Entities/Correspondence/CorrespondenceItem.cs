@@ -88,7 +88,7 @@ namespace CommandCentral.Entities.Correspondence
         /// <summary>
         /// This item's priority level.
         /// </summary>
-        public virtual Enums.CorrespondenceItemPriorityLevels PriorityLevel { get; set; }
+        public virtual CorrespondenceItemPriorityLevels PriorityLevel { get; set; }
 
         #endregion
 
@@ -102,7 +102,7 @@ namespace CommandCentral.Entities.Correspondence
         public virtual bool CanPersonAccessComments(Person person)
         {
             return SubmittedBy == person || SubmittedFor == person || 
-                this.Reviews.Any(x => x.Reviewer == person || x.ReviewedBy == person);
+                Reviews.Any(x => x.Reviewer == person || x.ReviewedBy == person);
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace CommandCentral.Entities.Correspondence
         public virtual bool CanPersonAccessAttachments(Person person)
         {
             return SubmittedBy == person || SubmittedFor == person ||
-                this.Reviews.Any(x => x.Reviewer == person || x.ReviewedBy == person);
+                Reviews.Any(x => x.Reviewer == person || x.ReviewedBy == person);
         }
 
         /// <summary>
@@ -216,7 +216,7 @@ namespace CommandCentral.Entities.Correspondence
                 RuleFor(x => x.SeriesNumber).GreaterThan(0)
                     .Must((item, num) =>
                     {
-                        if (SessionManager.CurrentSession.Query<CorrespondenceItem>().Count(x => x.Id != item.Id && x.SeriesNumber == num) != 0)
+                        if (SessionManager.CurrentSession().Query<CorrespondenceItem>().Count(x => x.Id != item.Id && x.SeriesNumber == num) != 0)
                             return false;
 
                         return true;
@@ -242,7 +242,7 @@ namespace CommandCentral.Entities.Correspondence
                 //This rule will ensure that no more than one review is pending and that, if a review is the final approver, then the final approver from the item must match that person.
                 RuleFor(x => x.Reviews).Must((item, reviews) =>
                 {
-                    bool hasPending = false;
+                    var hasPending = false;
                     foreach (var review in reviews)
                     {
                         if (!review.IsReviewed)

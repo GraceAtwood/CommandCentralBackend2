@@ -18,8 +18,8 @@ namespace CommandCentral.Utilities
 
         public static string GenerateDoDId()
         {
-            string result = "";
-            for (int x = 0; x < 10; x++)
+            var result = "";
+            for (var x = 0; x < 10; x++)
             {
                 result += GetRandomNumber(1, 9).ToString();
             }
@@ -28,10 +28,10 @@ namespace CommandCentral.Utilities
 
         public static string GenerateSSN(string delimiter = "")
         {
-            int iThree = GetRandomNumber(132, 921);
-            int iTwo = GetRandomNumber(12, 83);
-            int iFour = GetRandomNumber(1423, 9211);
-            return iThree.ToString() + delimiter + iTwo.ToString() + delimiter + iFour.ToString();
+            var iThree = GetRandomNumber(132, 921);
+            var iTwo = GetRandomNumber(12, 83);
+            var iFour = GetRandomNumber(1423, 9211);
+            return iThree + delimiter + iTwo + delimiter + iFour;
         }
 
         public static int GetRandomNumber(int min, int max)

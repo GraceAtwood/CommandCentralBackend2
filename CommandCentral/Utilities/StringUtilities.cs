@@ -17,7 +17,7 @@ namespace CommandCentral.Utilities
         /// <returns></returns>
         public static bool InsensitiveEquals(this string str1, string str)
         {
-            return str != null && (str1.Equals(str, StringComparison.CurrentCultureIgnoreCase));
+            return str != null && str1.Equals(str, StringComparison.CurrentCultureIgnoreCase);
         }
 
         public static bool ContainsInsensitive(this string str, string other, CultureInfo culture)

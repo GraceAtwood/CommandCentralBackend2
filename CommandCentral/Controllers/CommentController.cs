@@ -47,9 +47,7 @@ namespace CommandCentral.Controllers
             if (limit <= 0)
                 return BadRequestLimit(limit, nameof(limit));
 
-            Expression<Func<Comment, bool>> predicate = null;
-
-            predicate = predicate
+            var predicate = ((Expression<Func<Comment, bool>>) null)
                 .AddStringQueryExpression(x => x.Body, body)
                 .AddPersonQueryExpression(x => x.Creator, creator)
                 .AddDateTimeQueryExpression(x => x.TimeCreated, timeCreated);

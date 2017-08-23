@@ -1,21 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using CommandCentral.Framework;
-using CommandCentral.Entities;
-using CommandCentral.Utilities;
-using CommandCentral.Framework.Data;
-using CommandCentral.Entities.ReferenceLists;
-using CommandCentral.Authorization;
-using CommandCentral.Enums;
-using NHibernate.Linq;
-using CommandCentral.Entities.Correspondence;
 using System.Linq.Expressions;
+using CommandCentral.Entities;
+using CommandCentral.Entities.Correspondence;
+using CommandCentral.Entities.ReferenceLists;
+using CommandCentral.Framework;
+using CommandCentral.Framework.Data;
+using CommandCentral.Utilities;
 using LinqKit;
+using Microsoft.AspNetCore.Mvc;
+using NHibernate.Linq;
 
-namespace CommandCentral.Controllers
+namespace CommandCentral.Controllers.CorrespondenceControllers
 {
     /// <summary>
     /// Correspondence items encapsulate all types of correspondence such as SRCs and other administrative documents.  
@@ -71,14 +68,12 @@ namespace CommandCentral.Controllers
                 return BadRequestLimit(limit, nameof(limit));
 
             //Here we're just going to define some subqueries before we do the final search.  This will clean up the query syntax a bit.
-            Expression<Func<Comment, bool>> commentedBySearch = CommonQueryStrategies.GetPersonQueryExpression<Comment>(y => y.Creator, commentedBy);
-            Expression<Func<CorrespondenceReview, bool>> reviewerSearch = CommonQueryStrategies.GetPersonQueryExpression<CorrespondenceReview>(y => y.Reviewer, reviewer);
-            Expression<Func<CorrespondenceReview, bool>> reviewedBySearch = CommonQueryStrategies.GetPersonQueryExpression<CorrespondenceReview>(y => y.ReviewedBy, reviewedBy);
-            Expression<Func<Person, bool>> sharedWithSearch = CommonQueryStrategies.GetPersonQueryExpression<Person>(y => y, reviewedBy);
+            var commentedBySearch = CommonQueryStrategies.GetPersonQueryExpression<Comment>(y => y.Creator, commentedBy);
+            var reviewerSearch = CommonQueryStrategies.GetPersonQueryExpression<CorrespondenceReview>(y => y.Reviewer, reviewer);
+            var reviewedBySearch = CommonQueryStrategies.GetPersonQueryExpression<CorrespondenceReview>(y => y.ReviewedBy, reviewedBy);
+            var sharedWithSearch = CommonQueryStrategies.GetPersonQueryExpression<Person>(y => y, reviewedBy);
 
-            Expression<Func<CorrespondenceItem, bool>> predicate = null;
-
-            predicate = predicate
+            var predicate = ((Expression<Func<CorrespondenceItem, bool>>) null)
                 .AddPersonQueryExpression(x => x.FinalApprover, finalApprover)
                 .AddPersonQueryExpression(x => x.SubmittedBy, submittedBy)
                 .AddPersonQueryExpression(x => x.SubmittedFor, submittedFor)
@@ -102,13 +97,13 @@ namespace CommandCentral.Controllers
             }
 
             if (hasAttachments.HasValue)
-                predicate = predicate.NullSafeAnd(x => x.Attachments.Count() > 0);
+                predicate = predicate.NullSafeAnd(x => x.Attachments.Any());
 
             if (hasComments.HasValue)
-                predicate = predicate.NullSafeAnd(x => x.Comments.Count() > 0);
+                predicate = predicate.NullSafeAnd(x => x.Comments.Any());
 
             if (hasReviews.HasValue)
-                predicate = predicate.NullSafeAnd(x => x.Reviews.Count() > 0);
+                predicate = predicate.NullSafeAnd(x => x.Reviews.Any());
             
             var query = DBSession.Query<CorrespondenceItem>()
                 .AsExpandable()

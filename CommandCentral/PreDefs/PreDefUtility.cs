@@ -51,11 +51,11 @@ namespace CommandCentral.PreDefs
 
         public static void PersistPreDef<T>(PreDefOf<T> preDef) where T : class
         {
-            using (var transaction = SessionManager.CurrentSession.BeginTransaction())
+            using (var transaction = SessionManager.CurrentSession().BeginTransaction())
             {
                 foreach (var item in preDef.Definitions)
                 {
-                    SessionManager.CurrentSession.Save(item);
+                    SessionManager.CurrentSession().Save(item);
                 }
 
                 transaction.Commit();

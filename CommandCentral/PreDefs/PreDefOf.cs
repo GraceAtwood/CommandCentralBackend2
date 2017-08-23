@@ -9,14 +9,7 @@ namespace CommandCentral.PreDefs
 {
     public class PreDefOf<T> : IPreDef where T : class
     {
-
-        public string TypeFullName
-        {
-            get
-            {
-                return typeof(T).FullName;
-            }
-        }
+        public string TypeFullName => typeof(T).FullName;
 
         public List<T> Definitions { get; set; }
 
@@ -24,6 +17,5 @@ namespace CommandCentral.PreDefs
         {
             return (PreDefOf<T>)PreDefUtility.Predefs.FirstOrDefault(x => x.TypeFullName == typeof(T).FullName);
         }
-
     }
 }

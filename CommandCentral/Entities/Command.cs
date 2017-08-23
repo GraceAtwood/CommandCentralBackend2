@@ -100,10 +100,9 @@ namespace CommandCentral.Entities
             }
 
             DateTime startTime;
-            if (DateTime.UtcNow.Hour < MusterStartHour)
-                startTime = DateTime.UtcNow.Date.AddDays(-1).AddHours(MusterStartHour);
-            else
-                startTime = DateTime.UtcNow.Date.AddHours(MusterStartHour);
+            startTime = DateTime.UtcNow.Hour < MusterStartHour 
+                ? DateTime.UtcNow.Date.AddDays(-1).AddHours(MusterStartHour) 
+                : DateTime.UtcNow.Date.AddHours(MusterStartHour);
 
             CurrentMusterCycle = new Muster.MusterCycle
             {

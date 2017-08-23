@@ -74,7 +74,7 @@ namespace CommandCentral.Entities.Muster
         /// <returns></returns>
         public virtual bool CanPersonAccessComments(Person person)
         {
-            return person.GetFieldPermissions<Person>(this.Person).CanReturn(x => x.StatusPeriods);
+            return person.GetFieldPermissions<Person>(Person).CanReturn(x => x.StatusPeriods);
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace CommandCentral.Entities.Muster
 
                 RuleFor(x => x.AccountabilityType).NotEmpty()
                     .Must(x => !x.Value.Equals("Present", StringComparison.CurrentCultureIgnoreCase))
-                    .WithMessage("A status period's accountability type may not be 'Present'.  You can not project that someone is going to be present for a given period of time."); ;
+                    .WithMessage("A status period's accountability type may not be 'Present'.  You can not project that someone is going to be present for a given period of time.");
             }
         }
     }

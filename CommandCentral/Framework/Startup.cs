@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.Diagnostics;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.Swagger;
-using Swashbuckle.Application;
 using System.Reflection;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using FluentScheduler;

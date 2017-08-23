@@ -24,7 +24,6 @@ namespace CommandCentral.Utilities
 
             var rawConnectionString = ConfigurationUtility.Configuration.GetConnectionString("Main");
 
-            var connectionString = new MySqlConnectionStringBuilder(rawConnectionString);
             var connectionStringWithoutDatabase = new MySqlConnectionStringBuilder(rawConnectionString);
             var database = connectionStringWithoutDatabase.Database;
             connectionStringWithoutDatabase.Database = null;
@@ -36,39 +35,39 @@ namespace CommandCentral.Utilities
 
             AddAPIKey();
 
-            if (buildWithTestData)
-            {
-                PreDefUtility.PersistPreDef<WatchQualification>();
-                PreDefUtility.PersistPreDef<Sex>();
-                PreDefUtility.PersistPreDef<PhoneNumberType>();
-                PreDefUtility.PersistPreDef<Paygrade>();
-                PreDefUtility.PersistPreDef<AccountabilityType>();
-                PreDefUtility.PersistPreDef<DutyStatus>();
+            if (!buildWithTestData) 
+                return;
+            
+            PreDefUtility.PersistPreDef<WatchQualification>();
+            PreDefUtility.PersistPreDef<Sex>();
+            PreDefUtility.PersistPreDef<PhoneNumberType>();
+            PreDefUtility.PersistPreDef<Paygrade>();
+            PreDefUtility.PersistPreDef<AccountabilityType>();
+            PreDefUtility.PersistPreDef<DutyStatus>();
 
-                CreateUICs();
-                CreateDesignations();
+            CreateUICs();
+            CreateDesignations();
 
-                CreateCommands(1, 1);
-                CreateDepartments(2, 4);
-                CreateDivisions(2, 4);
+            CreateCommands();
+            CreateDepartments(2, 4);
+            CreateDivisions(2, 4);
 
-                CreateDeveloper();
-                CreateUsers(30);
-            }
+            CreateDeveloper();
+            CreateUsers(30);
         }
 
         private static void AddAPIKey()
         {
-            using (var transaction = SessionManager.CurrentSession.BeginTransaction())
+            using (var transaction = SessionManager.CurrentSession().BeginTransaction())
             {
 
-                SessionManager.CurrentSession.Save(new APIKey
+                SessionManager.CurrentSession().Save(new APIKey
                 {
                     ApplicationName = "Command Central Official Frontend",
                     Id = Guid.Parse("90FDB89F-282B-4BD6-840B-CEF597615728")
                 });
 
-                SessionManager.CurrentSession.Save(new APIKey
+                SessionManager.CurrentSession().Save(new APIKey
                 {
                     ApplicationName = "Swagger Documentation Page",
                     Id = Guid.Parse("E28235AC-57A1-42AC-AA85-1547B755EA7E")
@@ -80,11 +79,11 @@ namespace CommandCentral.Utilities
 
         private static void CreateUICs()
         {
-            using (var transaction = SessionManager.CurrentSession.BeginTransaction())
+            using (var transaction = SessionManager.CurrentSession().BeginTransaction())
             {
-                for (int x = 0; x < Random.GetRandomNumber(5, 10); x++)
+                for (var x = 0; x < Random.GetRandomNumber(5, 10); x++)
                 {
-                    SessionManager.CurrentSession.Save(new UIC
+                    SessionManager.CurrentSession().Save(new UIC
                     {
                         Value = Random.RandomString(5),
                         Description = Random.RandomString(8),
@@ -99,11 +98,11 @@ namespace CommandCentral.Utilities
 
         private static void CreateDesignations()
         {
-            using (var transaction = SessionManager.CurrentSession.BeginTransaction())
+            using (var transaction = SessionManager.CurrentSession().BeginTransaction())
             {
-                for (int x = 0; x < Random.GetRandomNumber(5, 10); x++)
+                for (var x = 0; x < Random.GetRandomNumber(5, 10); x++)
                 {
-                    SessionManager.CurrentSession.Save(new Designation
+                    SessionManager.CurrentSession().Save(new Designation
                     {
                         Value = Random.RandomString(3),
                         Description = Random.RandomString(8),
@@ -116,11 +115,11 @@ namespace CommandCentral.Utilities
             }
         }
 
-        private static void CreateCommands(int min, int max)
+        private static void CreateCommands()
         {
-            using (var transaction = SessionManager.CurrentSession.BeginTransaction())
+            using (var transaction = SessionManager.CurrentSession().BeginTransaction())
             {
-                for (int x = 0; x < Random.GetRandomNumber(2, 4); x++)
+                for (var x = 0; x < Random.GetRandomNumber(2, 4); x++)
                 {
                     var command = new Command
                     {
@@ -135,11 +134,9 @@ namespace CommandCentral.Utilities
                         MusterStartHour = 16
                     };
 
-                    DateTime startTime;
-                    if (DateTime.UtcNow.Hour < command.MusterStartHour)
-                        startTime = DateTime.UtcNow.Date.AddDays(-1).AddHours(command.MusterStartHour);
-                    else
-                        startTime = DateTime.UtcNow.Date.AddHours(command.MusterStartHour);
+                    var startTime = DateTime.UtcNow.Hour < command.MusterStartHour 
+                        ? DateTime.UtcNow.Date.AddDays(-1).AddHours(command.MusterStartHour) 
+                        : DateTime.UtcNow.Date.AddHours(command.MusterStartHour);
 
                     var cycle = new MusterCycle
                     {
@@ -154,7 +151,7 @@ namespace CommandCentral.Utilities
 
                     command.CurrentMusterCycle = cycle;
 
-                    SessionManager.CurrentSession.SaveOrUpdate(command);
+                    SessionManager.CurrentSession().SaveOrUpdate(command);
                 }
 
                 transaction.Commit();
@@ -163,25 +160,25 @@ namespace CommandCentral.Utilities
 
         private static void CreateDepartments(int min, int max)
         {
-            using (var transaction = SessionManager.CurrentSession.BeginTransaction())
+            using (var transaction = SessionManager.CurrentSession().BeginTransaction())
             {
-                var commands = SessionManager.CurrentSession.QueryOver<Command>().List();
+                var commands = SessionManager.CurrentSession().QueryOver<Command>().List();
 
                 foreach (var command in commands)
                 {
-                    for (int x = 0; x < Random.GetRandomNumber(min, max); x++)
+                    for (var x = 0; x < Random.GetRandomNumber(min, max); x++)
                     {
                         var dep = new Department
                         {
                             Command = command,
                             Description = Random.RandomString(8),
-                            Name = $"{command.Name}.{x.ToString()}",
+                            Name = $"{command.Name}.{x}",
                             Id = Guid.NewGuid()
                         };
 
                         command.Departments.Add(dep);
 
-                        SessionManager.CurrentSession.Update(command);
+                        SessionManager.CurrentSession().Update(command);
                     }
                 }
 
@@ -191,24 +188,24 @@ namespace CommandCentral.Utilities
 
         private static void CreateDivisions(int min, int max)
         {
-            using (var transaction = SessionManager.CurrentSession.BeginTransaction())
+            using (var transaction = SessionManager.CurrentSession().BeginTransaction())
             {
-                var departments = SessionManager.CurrentSession.QueryOver<Department>().List();
+                var departments = SessionManager.CurrentSession().QueryOver<Department>().List();
 
                 foreach (var department in departments)
                 {
-                    for (int x = 0; x < Random.GetRandomNumber(min, max); x++)
+                    for (var x = 0; x < Random.GetRandomNumber(min, max); x++)
                     {
                         var div = new Division
                         {
                             Department = department,
                             Description = Random.RandomString(8),
-                            Name = $"{department.Name}.{x.ToString()}",
+                            Name = $"{department.Name}.{x}",
                             Id = Guid.NewGuid()
                         };
 
                         department.Divisions.Add(div);
-                        SessionManager.CurrentSession.Update(department);
+                        SessionManager.CurrentSession().Update(department);
                     }
                 }
 
@@ -216,13 +213,13 @@ namespace CommandCentral.Utilities
             }
         }
 
-        private static Dictionary<string, int> emailAddresses = new Dictionary<string, int>();
+        private static readonly Dictionary<string, int> _emailAddresses = new Dictionary<string, int>();
 
         private static Person CreatePerson(Division division,
             UIC uic, string lastName, string username, IEnumerable<PermissionGroup> permissionGroups,
             IEnumerable<WatchQualification> watchQuals, Paygrade paygrade, Designation designation)
         {
-            var person = new Person()
+            var person = new Person
             {
                 Id = Guid.NewGuid(),
                 LastName = lastName,
@@ -233,7 +230,7 @@ namespace CommandCentral.Utilities
                 DoDId = Random.GenerateDoDId(),
                 IsClaimed = true,
                 Username = username,
-                PasswordHash = Authentication.PasswordHash.CreateHash("a"),
+                PasswordHash = PasswordHash.CreateHash("a"),
                 Sex = ReferenceListHelper.Random<Sex>(1).First(),
                 DateOfBirth = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12), Random.GetRandomNumber(1, 28)),
                 DateOfArrival = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12), Random.GetRandomNumber(1, 28)),
@@ -250,16 +247,16 @@ namespace CommandCentral.Utilities
 
             var emailAddress = $"{person.FirstName}.{person.MiddleName[0]}.{person.LastName}.mil@mail.mil";
 
-            if (emailAddresses.ContainsKey(emailAddress))
+            if (_emailAddresses.ContainsKey(emailAddress))
             {
-                emailAddresses[emailAddress]++;
+                _emailAddresses[emailAddress]++;
             }
             else
             {
-                emailAddresses.Add(emailAddress, 1);
+                _emailAddresses.Add(emailAddress, 1);
             }
 
-            emailAddress = $"{person.FirstName}.{person.MiddleName[0]}.{person.LastName}{emailAddresses[emailAddress]}.mil@mail.mil";
+            emailAddress = $"{person.FirstName}.{person.MiddleName[0]}.{person.LastName}{_emailAddresses[emailAddress]}.mil@mail.mil";
 
             person.EmailAddresses = new List<EmailAddress> { new EmailAddress
                 {
@@ -286,9 +283,9 @@ namespace CommandCentral.Utilities
 
         private static void CreateDeveloper()
         {
-            using (var transaction = SessionManager.CurrentSession.BeginTransaction())
+            using (var transaction = SessionManager.CurrentSession().BeginTransaction())
             {
-                var command = SessionManager.CurrentSession.QueryOver<Command>().CacheMode(NHibernate.CacheMode.Ignore).List().First();
+                var command = SessionManager.CurrentSession().QueryOver<Command>().CacheMode(NHibernate.CacheMode.Ignore).List().First();
                 var department = command.Departments.First();
                 var division = department.Divisions.First();
                 var uic = ReferenceListHelper.Random<UIC>(1).First();
@@ -297,9 +294,9 @@ namespace CommandCentral.Utilities
                     new[] { PermissionsCache.PermissionGroupsCache["Developers"] },
                     ReferenceListHelper.All<WatchQualification>(), ReferenceListHelper.Find<Paygrade>("E5"), ReferenceListHelper.Random<Designation>(1).First());
 
-                SessionManager.CurrentSession.Save(person);
+                SessionManager.CurrentSession().Save(person);
 
-                SessionManager.CurrentSession.Update(person);
+                SessionManager.CurrentSession().Update(person);
 
                 transaction.Commit();
             }
@@ -307,19 +304,19 @@ namespace CommandCentral.Utilities
 
         private static void CreateUsers(int sailorsPerDivision)
         {
-            int created = 0;
-            using (var transaction = SessionManager.CurrentSession.BeginTransaction())
+            var created = 0;
+            using (var transaction = SessionManager.CurrentSession().BeginTransaction())
             {
-                var paygrades = ReferenceListHelper.All<Paygrade>().Where(x => (x.Value.Contains("E") && !x.Value.Contains("O")) || (x.Value.Contains("O") && !x.Value.Contains("C")));
+                var paygrades = ReferenceListHelper.All<Paygrade>().Where(x => x.Value.Contains("E") && !x.Value.Contains("O") || x.Value.Contains("O") && !x.Value.Contains("C"));
 
-                var divPermGroups = Authorization.PermissionsCache.PermissionGroupsCache.Values
+                var divPermGroups = PermissionsCache.PermissionGroupsCache.Values
                     .Where(x => x.AccessLevels.Values.Any(y => y == ChainOfCommandLevels.Division) && x.IsMemberOfChainOfCommand).ToList();
-                var depPermGroups = Authorization.PermissionsCache.PermissionGroupsCache.Values
+                var depPermGroups = PermissionsCache.PermissionGroupsCache.Values
                     .Where(x => x.AccessLevels.Values.Any(y => y == ChainOfCommandLevels.Department) && x.IsMemberOfChainOfCommand).ToList();
-                var comPermGroups = Authorization.PermissionsCache.PermissionGroupsCache.Values
+                var comPermGroups = PermissionsCache.PermissionGroupsCache.Values
                     .Where(x => x.AccessLevels.Values.Any(y => y == ChainOfCommandLevels.Command) && x.IsMemberOfChainOfCommand).ToList();
 
-                foreach (var command in SessionManager.CurrentSession.QueryOver<Command>().List())
+                foreach (var command in SessionManager.CurrentSession().QueryOver<Command>().List())
                 {
                     foreach (var department in command.Departments)
                     {
@@ -327,13 +324,13 @@ namespace CommandCentral.Utilities
                         {
 
                             //Add Sailors
-                            for (int x = 0; x < sailorsPerDivision; x++)
+                            for (var x = 0; x < sailorsPerDivision; x++)
                             {
                                 var paygrade = paygrades.Shuffle().First();
                                 var uic = ReferenceListHelper.Random<UIC>(1).First();
 
-                                List<WatchQualification> quals = new List<WatchQualification>();
-                                List<PermissionGroup> permGroups = new List<PermissionGroup>();
+                                var quals = new List<WatchQualification>();
+                                var permGroups = new List<PermissionGroup>();
 
                                 var permChance = Random.GetRandomNumber(0, 100);
 
@@ -360,7 +357,7 @@ namespace CommandCentral.Utilities
                                     }
                                     else if (permChance >= 95 && permChance <= 100)
                                     {
-                                        permGroups.Add(Authorization.PermissionsCache.PermissionGroupsCache["Admin"]);
+                                        permGroups.Add(PermissionsCache.PermissionGroupsCache["Admin"]);
                                     }
                                 }
 
@@ -399,19 +396,17 @@ namespace CommandCentral.Utilities
                                     throw new Exception($"An unknown paygrade was found! {paygrade}");
                                 }
 
-                                var person = CreatePerson(division, uic, "user" + created.ToString(), "user" + created.ToString(), permGroups, quals, paygrade, ReferenceListHelper.Random<Designation>(1).First());
+                                var person = CreatePerson(division, uic, "user" + created, "user" + created, permGroups, quals, paygrade, ReferenceListHelper.Random<Designation>(1).First());
 
-                                SessionManager.CurrentSession.Save(person);
+                                SessionManager.CurrentSession().Save(person);
                                 
                                 created++;
-
                             }
                         }
                     }
                 }
 
                 transaction.Commit();
-
             }
         }
     }

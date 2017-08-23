@@ -17,7 +17,7 @@ namespace CommandCentral.Utilities.Types
 
         public new bool Equals(object x, object y)
         {
-            if (Object.ReferenceEquals(x, y))
+            if (ReferenceEquals(x, y))
                 return true;
 
             if (x == null || y == null)
@@ -28,10 +28,9 @@ namespace CommandCentral.Utilities.Types
 
         public int GetHashCode(object x)
         {
-            if (x == null)
-                return 0;
-
-            return x.GetHashCode();
+            return x == null 
+                ? 0 
+                : x.GetHashCode();
         }
 
         public object NullSafeGet(IDataReader rs, string[] names, object owner)
@@ -39,7 +38,7 @@ namespace CommandCentral.Utilities.Types
             if (names.Length == 0)
                 throw new ArgumentException("Expecting at least one column!", nameof(names));
 
-            string name = NHibernateUtil.String.NullSafeGet(rs, names[0]) as string;
+            var name = NHibernateUtil.String.NullSafeGet(rs, names[0]) as string;
 
             if (!PermissionsCache.PermissionGroupsCache.TryGetValue(name, out PermissionGroup group))
                 throw new Exception($"Unable to find permission group named {name}");
@@ -77,28 +76,10 @@ namespace CommandCentral.Utilities.Types
             return value;
         }
 
-        public SqlType[] SqlTypes
-        {
-            get
-            {
-                return new[] { new SqlType(DbType.Guid) };
-            }
-        }
+        public SqlType[] SqlTypes => new[] { new SqlType(DbType.Guid) };
 
-        public Type ReturnedType
-        {
-            get
-            {
-                return typeof(PermissionGroup);
-            }
-        }
+        public Type ReturnedType => typeof(PermissionGroup);
 
-        public bool IsMutable
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public bool IsMutable => false;
     }
 }

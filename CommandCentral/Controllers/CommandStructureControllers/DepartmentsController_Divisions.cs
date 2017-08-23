@@ -1,22 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using CommandCentral.Framework;
-using CommandCentral.Entities;
-using CommandCentral.Utilities;
-using CommandCentral.Framework.Data;
-using CommandCentral.Entities.ReferenceLists;
 using CommandCentral.Authorization;
+using CommandCentral.Entities;
 using CommandCentral.Enums;
+using CommandCentral.Framework;
+using Microsoft.AspNetCore.Mvc;
 using NHibernate.Linq;
-using System.Linq.Expressions;
-using LinqKit;
 
-namespace CommandCentral.Controllers
+namespace CommandCentral.Controllers.CommandStructureControllers
 {
-    public partial class DepartmentsController : CommandCentralController
+    public partial class DepartmentsController
     {
         /// <summary>
         /// Retrieves the divisions belonging to a department.

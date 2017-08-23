@@ -15,17 +15,17 @@ namespace CommandCentral.DTOs.ReferenceList
         public bool IsEditable { get; set; }
         public List<Get> Values { get; set; } = new List<Get>();
 
-        public GetList(IEnumerable<ReferenceListItemBase> items, Type listType)
+        public GetList(IEnumerable<ReferenceListItemBase> items, MemberInfo listType)
         {
-            if (items.Any())
-            {
-                Type = listType.Name;
-                IsEditable = listType.GetCustomAttribute<EditableReferenceListAttribute>() != null;
+            Type = listType.Name;
+            IsEditable = listType.GetCustomAttribute<EditableReferenceListAttribute>() != null;
+            
+            if (!items.Any()) 
+                return;
 
-                foreach (var item in items)
-                {
-                    Values.Add(new Get(item));
-                }
+            foreach (var item in items)
+            {
+                Values.Add(new Get(item));
             }
         }
     }

@@ -15,10 +15,9 @@ namespace CommandCentral.Framework
     {
         protected override JsonContract CreateContract(Type objectType)
         {
-            if (typeof(NHibernate.Proxy.INHibernateProxy).IsAssignableFrom(objectType))
-                return base.CreateContract(objectType.BaseType);
-            else
-                return base.CreateContract(objectType);
+            return base.CreateContract(typeof(NHibernate.Proxy.INHibernateProxy).IsAssignableFrom(objectType) 
+                ? objectType.BaseType 
+                : objectType);
         }
     }
 }

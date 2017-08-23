@@ -27,15 +27,30 @@ namespace CommandCentral.Entities
         /// </summary>
         public virtual DateTime Time { get; set; }
 
+        /// <summary>
+        /// Indicates that this account confirmation has been completed.
+        /// </summary>
+        public virtual bool IsCompleted { get; set; }
+
+        /// <summary>
+        /// The time that this account registration was completed.
+        /// </summary>
+        public virtual DateTime? TimeCompleted { get; set; }
+
+        /// <summary>
+        /// The token that was sent to the client via email.
+        /// </summary>
+        public virtual Guid ConfirmationToken { get; set; }
+
         #endregion
 
         #region Helper Methods
 
         /// <summary>
-        /// returns a boolean indicating whether or not this account confirmation is still valid or if it has aged off.
+        /// Returns a boolean indicating whether or not this account confirmation is still valid or if it has aged off.
         /// </summary>
         /// <returns></returns>
-        public virtual bool IsValid()
+        public virtual bool IsAgedOff()
         {
             return DateTime.UtcNow.Subtract(Time) < _maxAge;
         }
@@ -63,9 +78,12 @@ namespace CommandCentral.Entities
             {
                 Id(x => x.Id).GeneratedBy.Assigned();
 
-                References(x => x.Person).Not.Nullable().Unique();
-
                 Map(x => x.Time).Not.Nullable().CustomType<UtcDateTimeType>();
+                Map(x => x.IsCompleted).Not.Nullable();
+                Map(x => x.TimeCompleted).CustomType<UtcDateTimeType>();
+                Map(x => x.ConfirmationToken).Not.Nullable();
+
+                References(x => x.Person).Not.Nullable().Unique();
             }
         }
     }

@@ -28,20 +28,18 @@ namespace CommandCentral.Utilities
         /// </summary>
         public static Type GetEntityType(this Entity entity, IPersistenceContext persistenceContext)
         {
-            if (entity is INHibernateProxy)
-            {
-                var lazyInitialiser = ((INHibernateProxy)entity).HibernateLazyInitializer;
-                var type = lazyInitialiser.PersistentClass;
+            if (!(entity is INHibernateProxy)) 
+                return entity.GetType();
+            
+            var lazyInitialiser = ((INHibernateProxy)entity).HibernateLazyInitializer;
+            var type = lazyInitialiser.PersistentClass;
 
-                if (type.IsAbstract || type.GetNestedTypes().Length > 0)
-                    return (entity is INHibernateProxy
-                       ? persistenceContext.Unproxy(entity)
-                       : entity).GetType();
-                else // we don't need to "unbox" the Proxy-object to get the type
-                    return lazyInitialiser.PersistentClass;
-            }
-
-            return entity.GetType();
+            if (type.IsAbstract || type.GetNestedTypes().Length > 0)
+                return (entity is INHibernateProxy
+                    ? persistenceContext.Unproxy(entity)
+                    : entity).GetType();
+            
+            return lazyInitialiser.PersistentClass;
         }
         
         /// <summary>
@@ -54,14 +52,14 @@ namespace CommandCentral.Utilities
         /// <returns></returns>
         public static IEnumerable<Change> GetChangesFromDirtyProperties<T>(this ISession session, T entity) where T : class, new()
         {
-            string entityName = session.GetSessionImplementation().Factory.TryGetGuessEntityName(typeof(T)) ??
+            var entityName = session.GetSessionImplementation().Factory.TryGetGuessEntityName(typeof(T)) ??
                 throw new Exception($"We attempted to find the entity name for a non-entity: {typeof(T)}");
 
             var persister = session.GetSessionImplementation().GetEntityPersister(entityName, entity);
             var key = new EntityKey(persister.GetIdentifier(entity, EntityMode.Poco), persister, EntityMode.Poco);
             var entityEntry = session.GetSessionImplementation().PersistenceContext.GetEntry(session.GetSessionImplementation().PersistenceContext.GetEntity(key));
 
-            object[] currentState = persister.GetPropertyValues(entity, EntityMode.Poco);
+            var currentState = persister.GetPropertyValues(entity, EntityMode.Poco);
 
             //Find dirty will give us all the properties that are dirty, but because of some grade A NHibernate level bullshit, it won't look at collection for us.
             var indices = persister.FindDirty(currentState.ToArray(), entityEntry.LoadedState, entity, session.GetSessionImplementation());
@@ -81,20 +79,20 @@ namespace CommandCentral.Utilities
             }
 
             //Here we walk through the collections ourselves in order to determine what has changed.
-            for (int x = 0; x < persister.PropertyTypes.Length; x++)
+            for (var x = 0; x < persister.PropertyTypes.Length; x++)
             {
-                if (typeof(CollectionType).IsAssignableFrom(persister.PropertyTypes[x].GetType()))
+                if (!(persister.PropertyTypes[x] is CollectionType)) 
+                    continue;
+                
+                if (!CollectionUtilities.ScrambledEquals((dynamic)currentState[x], (dynamic)entityEntry.LoadedState[x]))
                 {
-                    if (!Utilities.CollectionUtilities.ScrambledEquals((dynamic)currentState[x], (dynamic)entityEntry.LoadedState[x]))
+                    yield return new Change
                     {
-                        yield return new Change
-                        {
-                            Id = Guid.NewGuid(),
-                            NewValue = String.Join(", ", (dynamic)currentState[x]),
-                            OldValue = String.Join(", ", (dynamic)entityEntry.LoadedState[x]),
-                            PropertyName = persister.PropertyNames[x]
-                        };
-                    }
+                        Id = Guid.NewGuid(),
+                        NewValue = String.Join(", ", (dynamic)currentState[x]),
+                        OldValue = String.Join(", ", (dynamic)entityEntry.LoadedState[x]),
+                        PropertyName = persister.PropertyNames[x]
+                    };
                 }
             }
         }
@@ -111,14 +109,14 @@ namespace CommandCentral.Utilities
         public static TProperty GetLoadedPropertyValue<T, TProperty>(this ISession session, T entity, Expression<Func<T, TProperty>> selector) where T: class
         {
 
-            string entityName = session.GetSessionImplementation().Factory.TryGetGuessEntityName(typeof(T)) ??
+            var entityName = session.GetSessionImplementation().Factory.TryGetGuessEntityName(typeof(T)) ??
                 throw new Exception($"We attempted to find the entity name for a non-entity: {typeof(T)}");
 
             var persister = session.GetSessionImplementation().GetEntityPersister(entityName, entity);
             var key = new EntityKey(persister.GetIdentifier(entity, EntityMode.Poco), persister, EntityMode.Poco);
             var entityEntry = session.GetSessionImplementation().PersistenceContext.GetEntry(session.GetSessionImplementation().PersistenceContext.GetEntity(key));
 
-            return (TProperty)entityEntry.GetLoadedValue((selector.Body as MemberExpression)?.Member?.Name);
+            return (TProperty)entityEntry.GetLoadedValue((selector.Body as MemberExpression)?.Member.Name);
         }
     }
 }

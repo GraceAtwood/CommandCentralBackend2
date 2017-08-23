@@ -1,20 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using CommandCentral.Framework;
-using CommandCentral.Entities;
-using CommandCentral.Utilities;
-using CommandCentral.Framework.Data;
-using CommandCentral.Entities.ReferenceLists;
-using CommandCentral.Authorization;
-using CommandCentral.Enums;
 using System.Linq.Expressions;
-using NHibernate.Linq;
+using CommandCentral.Entities;
+using CommandCentral.Framework;
+using CommandCentral.Framework.Data;
 using LinqKit;
+using Microsoft.AspNetCore.Mvc;
+using NHibernate.Linq;
 
-namespace CommandCentral.Controllers
+namespace CommandCentral.Controllers.CommandStructureControllers
 {
     /// <summary>
     /// Provides query and get capability for divisions.
@@ -36,9 +31,7 @@ namespace CommandCentral.Controllers
         [ProducesResponseType(200, Type = typeof(List<DTOs.Division.Get>))]
         public IActionResult Get([FromQuery] string name, [FromQuery] string description, [FromQuery] string department)
         {
-            Expression<Func<Division, bool>> predicate = null;
-
-            predicate = predicate
+            var predicate = ((Expression<Func<Division, bool>>) null)
                 .AddStringQueryExpression(x => x.Name, name)
                 .AddStringQueryExpression(x => x.Description, description)
                 .AddDepartmentQueryExpression(x => x.Department, department);

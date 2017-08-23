@@ -32,46 +32,22 @@ namespace CommandCentral.Framework
         /// <summary>
         /// Represents the currently logged in user for this HTTP context.  Invalid outside a web request context.
         /// </summary>
-        public new Person User
-        {
-            get
-            {
-                return (Person)HttpContext.Items["User"];
-            }
-        }
+        public new Person User => (Person)HttpContext.Items["User"];
 
         /// <summary>
         /// The earliest time at which the client called the web service.
         /// </summary>
-        public DateTime CallTime
-        {
-            get
-            {
-                return (DateTime)HttpContext.Items["CallTime"];
-            }
-        }
+        public DateTime CallTime => (DateTime)HttpContext.Items["CallTime"];
 
         /// <summary>
         /// Represents a database session for this web request session.
         /// </summary>
-        public ISession DBSession
-        {
-            get
-            {
-                return Data.SessionManager.CurrentSession;
-            }
-        }
+        public ISession DBSession => Data.SessionManager.CurrentSession(HttpContext);
 
         /// <summary>
         /// The logging instance that should be used for logging... things.
         /// </summary>
-        private ILogger Logger
-        {
-            get
-            {
-                return Log.LoggerInstance;
-            }
-        }
+        private static ILogger Logger => Log.LoggerInstance;
 
         #region Logging
 
@@ -240,7 +216,7 @@ namespace CommandCentral.Framework
                 }
 
                 HttpContext.Items["User"] = authSession.Person;
-                authSession.LastUsedTime = this.CallTime;
+                authSession.LastUsedTime = CallTime;
 
                 DBSession.Update(authSession);
             }

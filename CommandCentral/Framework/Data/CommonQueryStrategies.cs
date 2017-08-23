@@ -17,10 +17,9 @@ namespace CommandCentral.Framework.Data
     {
         public static IQueryable<T> NullSafeWhere<T>(this IQueryable<T> query, Expression<Func<T, bool>> predicate)
         {
-            if (predicate == null)
-                return query;
-
-            return query.Where(predicate);
+            return predicate == null 
+                ? query 
+                : query.Where(predicate);
         }
 
         public static Expression<Func<T, bool>> AddStringQueryExpression<T>(this Expression<Func<T, bool>> initial, Expression<Func<T, string>> selector, string searchValue)
@@ -28,19 +27,13 @@ namespace CommandCentral.Framework.Data
             if (String.IsNullOrWhiteSpace(searchValue))
                 return initial;
 
-            Expression<Func<T, bool>> predicate = null;
-
-            foreach (var phrase in searchValue.SplitByOr())
-            {
-                Expression<Func<T, bool>> subPredicate = null;
-
-                foreach (var term in phrase.SplitByAnd())
-                {
-                    subPredicate = subPredicate.NullSafeAnd(x => selector.Invoke(x).Contains(term));
-                }
-
-                predicate = predicate.NullSafeOr(subPredicate);
-            }
+            var predicate = searchValue
+                .SplitByOr()
+                .Select(phrase => 
+                    phrase.SplitByAnd()
+                        .Aggregate<string, Expression<Func<T, bool>>>(null, (current, term) => 
+                            current.NullSafeAnd(x => selector.Invoke(x).Contains(term))))
+                .Aggregate<Expression<Func<T, bool>>, Expression<Func<T, bool>>>(null, (current1, subPredicate) => current1.NullSafeOr(subPredicate));
 
             return initial.NullSafeAnd(predicate);
         }
@@ -68,26 +61,17 @@ namespace CommandCentral.Framework.Data
             if (String.IsNullOrWhiteSpace(searchValue))
                 return initial;
 
-            Expression<Func<T, bool>> predicate = null;
-
-            foreach (var phrase in searchValue.SplitByOr())
-            {
-                Expression<Func<T, bool>> subPredicate = null;
-
-                if (Guid.TryParse(phrase, out Guid id))
+            var predicate = searchValue.SplitByOr()
+                .Select(phrase =>
                 {
-                    subPredicate = subPredicate.And(x => selector.Invoke(x).Id == id);
-                }
-                else
-                {
-                    foreach (var term in phrase.SplitByAnd())
-                    {
-                        subPredicate = subPredicate.And(x => selector.Invoke(x).Value.Contains(term));
-                    }
-                }
-
-                predicate = predicate.NullSafeOr(subPredicate);
-            }
+                    if (Guid.TryParse(phrase, out Guid id))
+                        return ((Expression<Func<T, bool>>) null).And(x => selector.Invoke(x).Id == id);
+                    
+                    return phrase.SplitByAnd()
+                        .Aggregate((Expression<Func<T, bool>>) null,
+                            (current, term) => current.And(x => selector.Invoke(x).Value.Contains(term)));
+                })
+                .Aggregate<Expression<Func<T, bool>>, Expression<Func<T, bool>>>(null, (current1, subPredicate) => current1.NullSafeOr(subPredicate));
 
             return initial.NullSafeAnd(predicate);
         }
@@ -95,10 +79,9 @@ namespace CommandCentral.Framework.Data
         public static Expression<Func<T, bool>> AddPersonQueryExpression<T>(this Expression<Func<T, bool>> initial, Expression<Func<T, Person>> selector, string searchValue)
         {
             var expression = GetPersonQueryExpression(selector, searchValue);
-            if (expression == null)
-                return initial;
-
-            return initial.NullSafeAnd(expression);
+            return expression == null 
+                ? initial : 
+                initial.NullSafeAnd(expression);
         }
 
         public static Expression<Func<T, bool>> GetPersonQueryExpression<T>(Expression<Func<T, Person>> selector, string searchValue)
@@ -107,36 +90,25 @@ namespace CommandCentral.Framework.Data
             if (String.IsNullOrWhiteSpace(searchValue))
                 return null;
 
-            Expression<Func<T, bool>> predicate = null;
-
-            foreach (var phrase in searchValue.SplitByOr())
-            {
-                Expression<Func<T, bool>> subPredicate = null;
-
-                if (Guid.TryParse(phrase, out Guid id))
+            return searchValue.SplitByOr()
+                .Select(phrase =>
                 {
-                    subPredicate = subPredicate.NullSafeAnd(x => selector.Invoke(x).Id == id);
-                }
-                else
-                {
-                    foreach (var term in phrase.SplitByAnd())
-                    {
-                        subPredicate = subPredicate.NullSafeAnd(x =>
-                            selector.Invoke(x).FirstName.Contains(term) ||
-                            selector.Invoke(x).LastName.Contains(term) ||
-                            selector.Invoke(x).MiddleName.Contains(term) ||
-                            selector.Invoke(x).Division.Name.Contains(term) ||
-                            selector.Invoke(x).Division.Department.Name.Contains(term) ||
-                            selector.Invoke(x).Paygrade.Value.Contains(term) ||
-                            selector.Invoke(x).UIC.Value.Contains(term) ||
-                            selector.Invoke(x).Designation.Value.Contains(term));
-                    }
-                }
-
-                predicate = predicate.NullSafeOr(subPredicate);
-            }
-
-            return predicate;
+                    if (Guid.TryParse(phrase, out Guid id))
+                        return ((Expression<Func<T, bool>>) null).NullSafeAnd(x => selector.Invoke(x).Id == id);
+                    
+                    return phrase.SplitByAnd()
+                        .Aggregate((Expression<Func<T, bool>>) null,
+                            (current, term) => current.NullSafeAnd(x =>
+                                selector.Invoke(x).FirstName.Contains(term) ||
+                                selector.Invoke(x).LastName.Contains(term) ||
+                                selector.Invoke(x).MiddleName.Contains(term) ||
+                                selector.Invoke(x).Division.Name.Contains(term) ||
+                                selector.Invoke(x).Division.Department.Name.Contains(term) ||
+                                selector.Invoke(x).Paygrade.Value.Contains(term) ||
+                                selector.Invoke(x).UIC.Value.Contains(term) ||
+                                selector.Invoke(x).Designation.Value.Contains(term)));
+                })
+                .Aggregate<Expression<Func<T, bool>>, Expression<Func<T, bool>>>(null, (current1, subPredicate) => current1.NullSafeOr(subPredicate));
         }
 
         public static Expression<Func<T, bool>> AddDateTimeQueryExpression<T>(this Expression<Func<T, bool>> initial, Expression<Func<T, DateTime?>> selector, DTOs.DateTimeRangeQuery range)
@@ -148,10 +120,10 @@ namespace CommandCentral.Framework.Data
 
             if (range.HasFromNotTo())
                 return initial.NullSafeAnd(x => selector.Invoke(x) >= range.From);
-            else if (range.HasToNotFrom())
-                return initial.NullSafeAnd(x => selector.Invoke(x) <= range.To);
-            else
-                return initial.NullSafeAnd(x => selector.Invoke(x) <= range.To && selector.Invoke(x) >= range.From);
+            
+            return range.HasToNotFrom() 
+                ? initial.NullSafeAnd(x => selector.Invoke(x) <= range.To) 
+                : initial.NullSafeAnd(x => selector.Invoke(x) <= range.To && selector.Invoke(x) >= range.From);
         }
 
         public static Expression<Func<T, bool>> AddDateTimeQueryExpression<T>(this Expression<Func<T, bool>> initial, Expression<Func<T, DateTime>> selector, DTOs.DateTimeRangeQuery range)
@@ -161,19 +133,18 @@ namespace CommandCentral.Framework.Data
 
             if (range.HasFromNotTo())
                 return initial.NullSafeAnd(x => selector.Invoke(x) >= range.From);
-            else if (range.HasToNotFrom())
-                return initial.NullSafeAnd(x => selector.Invoke(x) <= range.To);
-            else
-                return initial.NullSafeAnd(x => selector.Invoke(x) <= range.To && selector.Invoke(x) >= range.From);
+            
+            return range.HasToNotFrom() 
+                ? initial.NullSafeAnd(x => selector.Invoke(x) <= range.To) 
+                : initial.NullSafeAnd(x => selector.Invoke(x) <= range.To && selector.Invoke(x) >= range.From);
         }
 
         public static Expression<Func<T, bool>> AddTimeRangeQueryExpression<T>(this Expression<Func<T, bool>> initial, Expression<Func<T, TimeRange>> selector, DTOs.DateTimeRangeQuery range)
         {
             var expression = GetTimeRangeQueryExpression(selector, range);
-            if (expression == null)
-                return initial;
-
-            return initial.NullSafeAnd(expression);
+            return expression == null 
+                ? initial 
+                : initial.NullSafeAnd(expression);
         }
 
         public static Expression<Func<T, bool>> GetTimeRangeQueryExpression<T>(Expression<Func<T, TimeRange>> selector, DTOs.DateTimeRangeQuery range)
@@ -183,18 +154,18 @@ namespace CommandCentral.Framework.Data
 
             if (range.HasFromNotTo())
                 return x => selector.Invoke(x).Start >= range.From || selector.Invoke(x).End >= range.From;
-            else if (range.HasToNotFrom())
+            
+            if (range.HasToNotFrom())
                 return x => selector.Invoke(x).Start <= range.To || selector.Invoke(x).End <= range.To;
-            else
-                return x => selector.Invoke(x).Start <= range.To && selector.Invoke(x).End >= range.From;
+            
+            return x => selector.Invoke(x).Start <= range.To && selector.Invoke(x).End >= range.From;
         }
 
         public static Expression<Func<T, bool>> AddNullableBoolQueryExpression<T>(this Expression<Func<T, bool>> initial, Expression<Func<T, bool?>> selector, bool? value)
         {
-            if (!value.HasValue)
-                return initial;
-
-            return initial.NullSafeAnd(x => selector.Invoke(x) == value);
+            return !value.HasValue 
+                ? initial 
+                : initial.NullSafeAnd(x => selector.Invoke(x) == value);
         }
 
         public static Expression<Func<T, bool>> AddCommandQueryExpression<T>(this Expression<Func<T, bool>> initial, Expression<Func<T, Command>> selector, string searchValue)
@@ -202,26 +173,17 @@ namespace CommandCentral.Framework.Data
             if (String.IsNullOrWhiteSpace(searchValue))
                 return initial;
 
-            Expression<Func<T, bool>> predicate = null;
-
-            foreach (var phrase in searchValue.SplitByOr())
-            {
-                Expression<Func<T, bool>> subPredicate = null;
-
-                if (Guid.TryParse(phrase, out Guid id))
+            var predicate = searchValue.SplitByOr()
+                .Select(phrase =>
                 {
-                    subPredicate = subPredicate.And(x => selector.Invoke(x).Id == id);
-                }
-                else
-                {
-                    foreach (var term in phrase.SplitByAnd())
-                    {
-                        subPredicate = subPredicate.And(x => selector.Invoke(x).Name.Contains(term));
-                    }
-                }
-
-                predicate = predicate.NullSafeOr(subPredicate);
-            }
+                    if (Guid.TryParse(phrase, out Guid id))
+                        return ((Expression<Func<T, bool>>) null).And(x => selector.Invoke(x).Id == id);
+                    
+                    return phrase.SplitByAnd()
+                        .Aggregate((Expression<Func<T, bool>>) null,
+                            (current, term) => current.And(x => selector.Invoke(x).Name.Contains(term)));
+                })
+                .Aggregate<Expression<Func<T, bool>>, Expression<Func<T, bool>>>(null, (current1, subPredicate) => current1.NullSafeOr(subPredicate));
 
             return initial.NullSafeAnd(predicate);
         }
@@ -231,26 +193,17 @@ namespace CommandCentral.Framework.Data
             if (String.IsNullOrWhiteSpace(searchValue))
                 return initial;
 
-            Expression<Func<T, bool>> predicate = null;
-
-            foreach (var phrase in searchValue.SplitByOr())
-            {
-                Expression<Func<T, bool>> subPredicate = null;
-
-                if (Guid.TryParse(phrase, out Guid id))
+            var predicate = searchValue.SplitByOr()
+                .Select(phrase =>
                 {
-                    subPredicate = subPredicate.And(x => selector.Invoke(x).Id == id);
-                }
-                else
-                {
-                    foreach (var term in phrase.SplitByAnd())
-                    {
-                        subPredicate = subPredicate.And(x => selector.Invoke(x).Name.Contains(term));
-                    }
-                }
-
-                predicate = predicate.NullSafeOr(subPredicate);
-            }
+                    if (Guid.TryParse(phrase, out Guid id))
+                        return ((Expression<Func<T, bool>>) null).And(x => selector.Invoke(x).Id == id);
+                    
+                    return phrase.SplitByAnd()
+                        .Aggregate((Expression<Func<T, bool>>) null,
+                            (current, term) => current.And(x => selector.Invoke(x).Name.Contains(term)));
+                })
+                .Aggregate<Expression<Func<T, bool>>, Expression<Func<T, bool>>>(null, (current1, subPredicate) => current1.NullSafeOr(subPredicate));
 
             return initial.NullSafeAnd(predicate);
         }

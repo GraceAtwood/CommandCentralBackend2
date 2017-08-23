@@ -32,25 +32,13 @@ namespace CommandCentral.Entities
         /// <summary>
         /// Returns the file path for the attachment itself.
         /// </summary>
-        public virtual string AttachmentFilePath
-        {
-            get
-            {
-                return Path.Combine(Directory.GetCurrentDirectory(), AttachmentsDirectory, Id.ToString() + ".ccatt");
-            }
-        }
+        public virtual string AttachmentFilePath => Path.Combine(Directory.GetCurrentDirectory(), AttachmentsDirectory, Id + ".ccatt");
 
         /// <summary>
         /// Returns the file path to the overlay image for this file attachment.
         /// </summary>
-        public virtual string OverlayFilePath
-        {
-            get
-            {
-                return Path.Combine(Directory.GetCurrentDirectory(), AttachmentsDirectory, Id.ToString() + ".ccover");
-            }
-        }
-        
+        public virtual string OverlayFilePath => Path.Combine(Directory.GetCurrentDirectory(), AttachmentsDirectory, Id + ".ccover");
+
         /// <summary>
         /// Not implemented.
         /// </summary>

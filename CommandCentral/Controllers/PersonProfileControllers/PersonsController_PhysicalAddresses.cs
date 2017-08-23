@@ -1,22 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using CommandCentral.Framework;
-using CommandCentral.Entities;
-using CommandCentral.Utilities;
-using CommandCentral.Framework.Data;
-using CommandCentral.Entities.ReferenceLists;
 using CommandCentral.Authorization;
-using CommandCentral.Enums;
+using CommandCentral.Entities;
+using CommandCentral.Framework;
+using Microsoft.AspNetCore.Mvc;
 using NHibernate.Linq;
-using Microsoft.AspNetCore.JsonPatch;
-using System.Linq.Expressions;
 
-namespace CommandCentral.Controllers
+namespace CommandCentral.Controllers.PersonProfileControllers
 {
-    public partial class PersonsController : CommandCentralController
+    public partial class PersonsController
     {
         [HttpGet("{personId}/PhysicalAddresses")]
         [RequireAuthentication]
@@ -32,23 +25,23 @@ namespace CommandCentral.Controllers
             if (!User.IsInChainOfCommand(items.First().Person))
             {
                 return Ok(items
-                    .Where(x => x.IsReleasableOutsideCoC == true)
+                    .Where(x => x.IsReleasableOutsideCoC)
                     .Select(item => new DTOs.PhysicalAddress.Get(item))
                     .ToList());
             }
-            else
-            {
-                return Ok(items
-                    .Select(item => new DTOs.PhysicalAddress.Get(item))
-                    .ToList());
-            }
+            
+            return Ok(items
+                .Select(item => new DTOs.PhysicalAddress.Get(item))
+                .ToList());
         }
 
         [HttpGet("{personId}/PhysicalAddresses/{id}")]
         [RequireAuthentication]
         public IActionResult GetPhysicalAddress(Guid personId, Guid id)
         {
-            var item = DBSession.Query<PhysicalAddress>().Where(x => x.Id == id && x.Person.Id == personId).FirstOrDefault();
+            var item = DBSession.Query<PhysicalAddress>()
+                .FirstOrDefault(x => x.Id == id && x.Person.Id == personId);
+            
             if (item == null)
                 return NotFound("A physical address with that id could not be found for a person with the given id.");
 

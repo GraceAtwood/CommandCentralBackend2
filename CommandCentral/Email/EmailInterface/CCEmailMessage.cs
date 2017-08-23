@@ -67,8 +67,7 @@ namespace CommandCentral.Email.EmailInterface
         /// <returns></returns>
         public static CCEmailMessage CreateDefault()
         {
-            return CCEmailMessage
-                    .From(DeveloperAddress)
+            return From(DeveloperAddress)
                     .BCC(DeveloperAddress)
                     .ReplyTo(DeveloperAddress)
                     .HighProperty()
@@ -327,7 +326,7 @@ namespace CommandCentral.Email.EmailInterface
         public CCEmailMessage Attach(Attachment attachment)
         {
             if (Message.Attachments.Contains(attachment))
-                throw new ArgumentException("Your attachment is already in the attachments!", "attachment");
+                throw new ArgumentException("Your attachment is already in the attachments!", nameof(attachment));
 
             Message.Attachments.Add(attachment);
 
@@ -344,7 +343,7 @@ namespace CommandCentral.Email.EmailInterface
             foreach (var attachment in attachments)
             {
                 if (Message.Attachments.Contains(attachment))
-                    throw new ArgumentException("Your attachment is already in the attachments!", "attachment");
+                    throw new ArgumentException("Your attachment is already in the attachments!", nameof(attachments));
 
                 Message.Attachments.Add(attachment);
             }
@@ -357,17 +356,16 @@ namespace CommandCentral.Email.EmailInterface
         /// </summary>
         /// <param name="resourcePath"></param>
         /// <param name="model"></param>
-        /// <param name="assembly"></param>
         /// <returns></returns>
-        public CCEmailMessage HTMLAlternateViewUsingTemplateFromEmbedded(string resourcePath, object model, Assembly assembly = null)
+        public CCEmailMessage HTMLAlternateViewUsingTemplateFromEmbedded(string resourcePath, object model)
         {
-            assembly = typeof(CCEmailMessage).Assembly;
+            var assembly = typeof(CCEmailMessage).Assembly;
 
-            ContentType mimeType = new ContentType("text/html");
+            var mimeType = new ContentType("text/html");
 
             var content = TemplateHelper.RenderTemplate(resourcePath, model, assembly);
 
-            AlternateView view = AlternateView.CreateAlternateViewFromString(content, mimeType);
+            var view = AlternateView.CreateAlternateViewFromString(content, mimeType);
 
             Message.AlternateViews.Add(view);
 
@@ -407,16 +405,14 @@ namespace CommandCentral.Email.EmailInterface
         /// <returns></returns>
         public void SendWithRetryAndFailure(TimeSpan retryDelay, Action<Exception, TimeSpan, int> retryCallback = null, Action<Exception> failureCallback = null)
         {
-            if (_clients == null)
-                throw new ArgumentNullException("clients");
+            if (!_clients.Any()) 
+                return;
+            
+            var attemptClient = _clients.First();
 
-            if (_clients.Any())
+            Task.Run(() =>
             {
-                SmtpClient attemptClient = _clients.First();
-
-                Task.Run(() =>
-                {
-                    var result = Policy
+                var result = Policy
                     .Handle<SmtpException>()
                     .WaitAndRetry(_clients.Count - 1, count => retryDelay, (exception, waitDuration, retryCount, context) =>
                     {
@@ -428,12 +424,11 @@ namespace CommandCentral.Email.EmailInterface
                         attemptClient.Send(Message);
                     });
 
-                    if (result.Outcome == OutcomeType.Failure)
-                    {
-                        failureCallback?.Invoke(result.FinalException);
-                    }
-                });
-            }
+                if (result.Outcome == OutcomeType.Failure)
+                {
+                    failureCallback?.Invoke(result.FinalException);
+                }
+            });
         }
 
         #endregion
@@ -445,7 +440,7 @@ namespace CommandCentral.Email.EmailInterface
         /// </summary>
         public static void InitializeEmail(params string[] smtpHosts)
         {
-            if (!smtpHosts.All(x => String.IsNullOrWhiteSpace(x)))
+            if (!smtpHosts.All(String.IsNullOrWhiteSpace))
                 SMTPHostAddresses = smtpHosts.ToList();
         }
 

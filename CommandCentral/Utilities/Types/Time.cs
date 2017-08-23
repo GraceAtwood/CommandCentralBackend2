@@ -67,13 +67,14 @@ namespace CommandCentral.Utilities.Types
         {
             return String.Format(
                 "{0:00}:{1:00}:{2:00}",
-                this.Hours, this.Minutes, this.Seconds);
+                Hours, Minutes, Seconds);
         }
 
         /// <summary>
         /// Turns a string in the format 00:00:00 into a Time object.
         /// </summary>
         /// <param name="input"></param>
+        /// <param name="time"></param>
         /// <returns></returns>
         public static bool TryParse(string input, out Time time)
         {
@@ -113,7 +114,7 @@ namespace CommandCentral.Utilities.Types
         /// <returns></returns>
         public int GetSeconds()
         {
-            return (Hours * 3600) + (Minutes * 60) + Seconds;
+            return Hours * 3600 + Minutes * 60 + Seconds;
         }
     }
 }

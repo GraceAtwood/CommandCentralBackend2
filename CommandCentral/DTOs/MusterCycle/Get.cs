@@ -17,12 +17,12 @@ namespace CommandCentral.DTOs.MusterCycle
 
         public Get(Entities.Muster.MusterCycle cycle)
         {
-            this.Command = cycle.Command.Id;
-            this.FinalizedBy = cycle.FinalizedBy?.Id;
-            this.IsFinalized = cycle.IsFinalized;
-            this.Range = cycle.Range;
-            this.TimeFinalized = cycle.TimeFinalized;
-            this.WasFinalizedBySystem = cycle.WasFinalizedBySystem;
+            Command = cycle.Command.Id;
+            FinalizedBy = cycle.FinalizedBy?.Id;
+            IsFinalized = cycle.IsFinalized;
+            Range = cycle.Range;
+            TimeFinalized = cycle.TimeFinalized;
+            WasFinalizedBySystem = cycle.WasFinalizedBySystem;
         }
     }
 }

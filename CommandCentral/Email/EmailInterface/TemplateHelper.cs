@@ -23,7 +23,7 @@ namespace CommandCentral.Email.EmailInterface
         public static string RenderTemplate(string resourcePath, object model, Assembly assembly)
         {
 
-            if (!_compiledTemplates.TryGetValue(resourcePath, out string template))
+            /*if (!_compiledTemplates.TryGetValue(resourcePath, out string template))
             {
                 using (var stream = assembly.GetManifestResourceStream(resourcePath))
                 using (var reader = new StreamReader(stream))
@@ -41,7 +41,9 @@ namespace CommandCentral.Email.EmailInterface
             if (model == null)
                 throw new ArgumentNullException("model");
 
-            return RazorEngine.Razor.Parse(template, model);
+            return RazorEngine.Engine.Razor..Parse(template, model);*/
+            
+            throw new NotImplementedException();
         }
     }
 }

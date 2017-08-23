@@ -37,10 +37,10 @@ namespace CommandCentral.Authorization
             if (other == null)
                 throw new ArgumentNullException(nameof(other));
 
-            HashSet<ChainsOfCommand> chainsToCheck = new HashSet<ChainsOfCommand>(chainsOfCommand);
+            var chainsToCheck = new HashSet<ChainsOfCommand>(chainsOfCommand);
             if (!chainsToCheck.Any())
             {
-                foreach (var chain in (((ChainsOfCommand[])Enum.GetValues(typeof(ChainsOfCommand)))))
+                foreach (var chain in (ChainsOfCommand[])Enum.GetValues(typeof(ChainsOfCommand)))
                     chainsToCheck.Add(chain);
             }
 

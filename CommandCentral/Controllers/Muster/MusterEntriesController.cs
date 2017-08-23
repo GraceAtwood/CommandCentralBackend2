@@ -1,22 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using CommandCentral.Framework;
-using CommandCentral.Entities.Muster;
-using CommandCentral.Authorization;
-using CommandCentral.Enums;
-using NHibernate.Linq;
 using System.Linq.Expressions;
-using CommandCentral.Utilities;
-using CommandCentral.Entities.ReferenceLists;
+using CommandCentral.Authorization;
 using CommandCentral.Entities;
-using CommandCentral.Utilities.Types;
+using CommandCentral.Entities.Muster;
+using CommandCentral.Entities.ReferenceLists;
+using CommandCentral.Enums;
+using CommandCentral.Framework;
 using CommandCentral.Framework.Data;
+using CommandCentral.Utilities;
+using CommandCentral.Utilities.Types;
 using LinqKit;
+using Microsoft.AspNetCore.Mvc;
+using NHibernate.Linq;
 
-namespace CommandCentral.Controllers
+namespace CommandCentral.Controllers.Muster
 {
     /// <summary>
     /// A muster entry represents a single accounting of a person during a muster cycle.
@@ -49,9 +48,7 @@ namespace CommandCentral.Controllers
             if (limit <= 0)
                 return BadRequestLimit(limit, nameof(limit));
 
-            Expression<Func<MusterEntry, bool>> predicate = null;
-
-            predicate = predicate
+            var predicate = ((Expression<Func<MusterEntry, bool>>) null)
                 .AddPersonQueryExpression(x => x.Person, person)
                 .AddPersonQueryExpression(x => x.SubmittedBy, submittedBy)
                 .AddTimeRangeQueryExpression(x => x.MusterCycle.Range, range)

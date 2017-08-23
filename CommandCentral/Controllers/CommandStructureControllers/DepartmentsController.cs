@@ -1,20 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using CommandCentral.Framework;
-using CommandCentral.Entities;
-using CommandCentral.Utilities;
-using CommandCentral.Framework.Data;
-using CommandCentral.Entities.ReferenceLists;
-using CommandCentral.Authorization;
-using CommandCentral.Enums;
-using NHibernate.Linq;
 using System.Linq.Expressions;
+using CommandCentral.Entities;
+using CommandCentral.Framework;
+using CommandCentral.Framework.Data;
 using LinqKit;
+using Microsoft.AspNetCore.Mvc;
+using NHibernate.Linq;
 
-namespace CommandCentral.Controllers
+namespace CommandCentral.Controllers.CommandStructureControllers
 {
     /// <summary>
     /// Provides access to departments and a department's collection of divisions.
@@ -36,9 +31,7 @@ namespace CommandCentral.Controllers
         [ProducesResponseType(200, Type = typeof(List<DTOs.Department.Get>))]
         public IActionResult Get([FromQuery] string name, [FromQuery] string description, [FromQuery] string command)
         {
-            Expression<Func<Department, bool>> predicate = null;
-
-            predicate = predicate
+            var predicate = ((Expression<Func<Department, bool>>) null)
                 .AddStringQueryExpression(x => x.Name, name)
                 .AddStringQueryExpression(x => x.Description, description)
                 .AddCommandQueryExpression(x => x.Command, command);

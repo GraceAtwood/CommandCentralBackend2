@@ -9,14 +9,9 @@ namespace CommandCentral.DTOs.CorrespondenceItem
     {
         public Guid Id { get; set; }
         public int SeriesNumber { get; set; }
-        public Guid SubmittedFor { get; set; }
         public Guid SubmittedBy { get; set; }
         public DateTime TimeSubmitted { get; set; }
-        public Guid FinalApprover { get; set; }
         public bool HasBeenCompleted { get; set; }
-        public Guid Type { get; set; }
-        public string Body { get; set; }
-        public bool HasPhysicalCounterpart { get; set; }
 
         public Get(Entities.Correspondence.CorrespondenceItem item)
         {

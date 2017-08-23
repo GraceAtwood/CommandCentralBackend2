@@ -26,13 +26,13 @@ namespace CommandCentral.Controllers
         [ProducesResponseType(200, Type = typeof(List<DTOs.ReferenceList.GetList>))]
         public IActionResult Get([FromQuery] string value, [FromQuery] string description, [FromQuery] string type)
         {
-            Expression<Func<ReferenceListItemBase, bool>> predicate = null;
+            /*Expression<Func<ReferenceListItemBase, bool>> predicate = null;
 
             predicate = predicate
                 .AddStringQueryExpression(x => x.Value, value)
                 .AddStringQueryExpression(x => x.Description, description);
 
-            IQueryable<ReferenceListItemBase> query;
+            IQueryable<ReferenceListItemBase> query = ;
 
             if (!String.IsNullOrWhiteSpace(type))
             {
@@ -54,7 +54,9 @@ namespace CommandCentral.Controllers
                 .Select(x => new DTOs.ReferenceList.GetList(x, x.Key))
                 .ToList();
             
-            return Ok(results);
+            return Ok(results);*/
+            
+            throw new NotImplementedException();
         }
 
         [HttpGet("{id}")]

@@ -55,9 +55,7 @@ namespace CommandCentral.Controllers
             if (limit <= 0)
                 return BadRequestLimit(limit, nameof(limit));
 
-            Expression<Func<StatusPeriod, bool>> predicate = null;
-
-            predicate = predicate
+            var predicate = ((Expression<Func<StatusPeriod, bool>>) null)
                 .AddPersonQueryExpression(x => x.Person, person)
                 .AddPersonQueryExpression(x => x.SubmittedBy, submittedBy)
                 .AddReferenceListQueryExpression(x => x.AccountabilityType, accountabilityType)

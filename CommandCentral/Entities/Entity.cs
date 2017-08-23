@@ -25,7 +25,7 @@ namespace CommandCentral.Entities
         /// <returns></returns>
         public override bool Equals(object obj)
         {
-            return obj is Entity entity && entity.Id == this.Id;
+            return obj is Entity entity && entity.Id == Id;
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace CommandCentral.Entities
         /// <returns></returns>
         public override int GetHashCode()
         {
-            return this.Id.GetHashCode();
+            return Id.GetHashCode();
         }
 
         /// <summary>
@@ -45,8 +45,8 @@ namespace CommandCentral.Entities
         /// <returns></returns>
         public static bool operator ==(Entity x, Entity y)
         {
-            if (object.ReferenceEquals(null, x))
-                return object.ReferenceEquals(null, y);
+            if (ReferenceEquals(null, x))
+                return ReferenceEquals(null, y);
 
             return x.Equals(y);
         }
@@ -68,7 +68,7 @@ namespace CommandCentral.Entities
         /// <returns></returns>
         public override string ToString()
         {
-            return this.Id.ToString();
+            return Id.ToString();
         }
 
         /// <summary>

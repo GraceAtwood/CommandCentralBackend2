@@ -11,7 +11,7 @@ namespace CommandCentral.Utilities
         public static bool ScrambledEquals<T>(IEnumerable<T> list1, IEnumerable<T> list2)
         {
             var cnt = new Dictionary<T, int>();
-            foreach (T s in list1)
+            foreach (var s in list1)
             {
                 if (cnt.ContainsKey(s))
                 {
@@ -22,7 +22,7 @@ namespace CommandCentral.Utilities
                     cnt.Add(s, 1);
                 }
             }
-            foreach (T s in list2)
+            foreach (var s in list2)
             {
                 if (cnt.ContainsKey(s))
                 {
@@ -40,25 +40,24 @@ namespace CommandCentral.Utilities
         /// Does a shuffle using the Fisher-Yates shuffle algorithm.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="list"></param>
+        /// <param name="source"></param>
         /// <returns></returns>
         public static List<T> Shuffle<T>(this IEnumerable<T> source)
         {
             var list = source.ToList();
 
-            int n = list.Count;
+            var n = list.Count;
             while (n > 1)
             {
                 n--;
-                int k = Random.Instance.Next(n + 1);
+                var k = Random.Instance.Next(n + 1);
 
-                T t = list[k];
+                var t = list[k];
                 list[k] = list[n];
                 list[n] = t;
             }
 
             return list;
         }
-
     }
 }

@@ -28,6 +28,7 @@ namespace CommandCentral.Entities
         public virtual string Description { get; set; }
 
 
+        /// <summary>
         /// The command to which this department belongs.
         /// </summary>
         public virtual Command Command { get; set; }
