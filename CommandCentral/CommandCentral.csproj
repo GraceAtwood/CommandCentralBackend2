@@ -1,19 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-
   <PropertyGroup>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <TargetFramework>net47</TargetFramework>
     <RuntimeIdentifier>win7-x86</RuntimeIdentifier>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>bin\Debug\net47\win7-x86\commandcentral.xml</DocumentationFile>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>bin\Release\net47\win7-x86\CommandCentral.xml</DocumentationFile>
   </PropertyGroup>
-
   <ItemGroup>
     <None Remove="appsettings.example.json" />
     <None Remove="Email\Templates\AccountConfirmation_HTML.html" />
@@ -47,7 +43,6 @@
     <None Remove="PreDefs\Def_WatchQualifications.cc" />
     <None Remove="wwwroot\swagger-ui\basic-auth.js" />
   </ItemGroup>
-
   <ItemGroup>
     <Folder Include="Authentication\" />
   </ItemGroup>
@@ -136,5 +131,4 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
 </Project>
