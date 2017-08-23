@@ -1,28 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using CommandCentral.Enums;
-using Microsoft.AspNetCore.Mvc.Cors.Internal;
-using System.Net;
-using Microsoft.AspNetCore.Diagnostics;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.Swagger;
 using System.Reflection;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using FluentScheduler;
 
 namespace CommandCentral.Framework
 {
+    /// <summary>
+    /// This class is passed to the WebHostBuilder to start up our service.
+    /// </summary>
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        /// <summary>
+        /// The constructor for our class, which simply sets up Cron jobs.
+        /// </summary>
+        public Startup()
         {
             RegisterCronOperations();
         }
