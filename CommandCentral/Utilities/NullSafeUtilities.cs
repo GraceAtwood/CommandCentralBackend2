@@ -16,9 +16,7 @@ namespace CommandCentral.Utilities
         /// <returns></returns>
         public static int GetSafeHashCode(object obj)
         {
-            return obj == null 
-                ? 0 
-                : obj.GetHashCode();
+            return obj?.GetHashCode() ?? 0;
         }
 
         /// <summary>

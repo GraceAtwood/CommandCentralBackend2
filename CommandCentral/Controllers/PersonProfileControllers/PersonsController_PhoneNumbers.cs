@@ -40,7 +40,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         [RequireAuthentication]
         public IActionResult GetPhoneNumber(Guid personId, Guid id)
         {
-            var item = DBSession.Query<PhoneNumber>().Where(x => x.Id == id && x.Person.Id == personId).FirstOrDefault();
+            var item = DBSession.Query<PhoneNumber>().FirstOrDefault(x => x.Id == id && x.Person.Id == personId);
             if (item == null)
                 return NotFound("A phone number with that id could not be found for a person with the given id.");
 
@@ -101,7 +101,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (dto == null)
                 return BadRequestDTONull();
 
-            var item = DBSession.Query<PhoneNumber>().Where(x => x.Id == id && x.Person.Id == personId).FirstOrDefault();
+            var item = DBSession.Query<PhoneNumber>().FirstOrDefault(x => x.Id == id && x.Person.Id == personId);
             if (item == null)
                 return NotFound("A phone number with that id could not be found for a person with the given id.");
 
@@ -130,7 +130,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         [RequireAuthentication]
         public IActionResult DeletePhoneNumber(Guid personId, Guid id)
         {
-            var item = DBSession.Query<PhoneNumber>().Where(x => x.Id == id && x.Person.Id == personId).FirstOrDefault();
+            var item = DBSession.Query<PhoneNumber>().FirstOrDefault(x => x.Id == id && x.Person.Id == personId);
             if (item == null)
                 return NotFound("A phone number with that id could not be found for a person with the given id.");
 

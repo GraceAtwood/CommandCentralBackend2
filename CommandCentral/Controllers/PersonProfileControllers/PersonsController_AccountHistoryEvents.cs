@@ -37,7 +37,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         [RequireAuthentication]
         public IActionResult GetAccountHistoryItem(Guid personId, Guid id)
         {
-            var item = DBSession.Query<AccountHistoryEvent>().Where(x => x.Id == id && x.Person.Id == personId).FirstOrDefault();
+            var item = DBSession.Query<AccountHistoryEvent>().FirstOrDefault(x => x.Id == id && x.Person.Id == personId);
             if (item == null)
                 return NotFound("An account history event item with that id could not be found for a person with the given id.");
 
