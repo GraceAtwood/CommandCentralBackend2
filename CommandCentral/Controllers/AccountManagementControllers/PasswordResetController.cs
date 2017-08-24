@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using CommandCentral.Authentication;
 using CommandCentral.Authorization;
 using CommandCentral.Entities;
 using CommandCentral.Enums;
@@ -16,6 +17,9 @@ using Random = CommandCentral.Utilities.Random;
 
 namespace CommandCentral.Controllers.AccountManagementControllers
 {
+    /// <summary>
+    /// The controller for all password reset actions
+    /// </summary>
     [Route("api/[controller]")]
     [Produces("application/json")]
     [Consumes("application/json")]
@@ -69,7 +73,12 @@ namespace CommandCentral.Controllers.AccountManagementControllers
             return Ok(new DTOs.PasswordReset.Get(confirmation));
         }
 
-        [HttpPost("/start")]
+        /// <summary>
+        /// Start the password reset process
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        [HttpPost("start")]
         [ProducesResponseType(204)]
         public IActionResult Post([FromBody] DTOs.PasswordReset.PostStart dto)
         {
@@ -138,5 +147,74 @@ namespace CommandCentral.Controllers.AccountManagementControllers
             return NoContent();
 
         }
+
+        /// <summary>
+        /// Completes the password reset process
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        [HttpPost("complete")]
+        [ProducesResponseType(204)]
+        public IActionResult Post([FromBody] DTOs.PasswordReset.PostComplete dto)
+        {
+            if (dto == null)
+                return BadRequestDTONull();
+
+            var reset = DBSession.Query<PasswordReset>()
+                .SingleOrDefault(x => x.ResetToken == dto.ResetToken);
+
+            if (reset == null)
+                return NotFoundParameter(dto.ResetToken, nameof(dto.ResetToken));
+
+            if (String.IsNullOrWhiteSpace(dto.Password) || dto.Password.Length < 10)
+                return BadRequest("Password must be at least 10 characters.");
+            
+            if (!reset.Person.IsClaimed)
+                throw new Exception("Somehow someone started the password reset process on a profile that has not" +
+                                    "been claimed. Start panicking.");
+
+            reset.Person.PasswordHash = PasswordHash.CreateHash(dto.Password);
+
+            var personValidationResult = reset.Person.Validate();
+            if (!personValidationResult.IsValid)
+                return BadRequest(personValidationResult.Errors.Select(x => x.ErrorMessage));
+            
+            reset.Person.AccountHistory.Add(new AccountHistoryEvent
+            {
+                AccountHistoryEventType = AccountHistoryTypes.PasswordResetCompleted,
+                EventTime = CallTime,
+                Id = Guid.NewGuid(),
+                Person = reset.Person
+            });
+
+            using (var transaction = DBSession.BeginTransaction())
+            {
+                DBSession.Update(reset.Person);
+                DBSession.Delete(reset);
+                transaction.Commit();
+            }
+
+            return NoContent();
+        }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -16,6 +16,9 @@ using Random = CommandCentral.Utilities.Random;
 
 namespace CommandCentral.Controllers.AccountManagementControllers
 {
+    /// <summary>
+    /// The controller for all registration actions
+    /// </summary>
     [Route("api/[controller]")]
     [Produces("application/json")]
     [Consumes("application/json")]
@@ -81,7 +84,7 @@ namespace CommandCentral.Controllers.AccountManagementControllers
         /// <param name="dto"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        [HttpPost("/start")]
+        [HttpPost("start")]
         [ProducesResponseType(204)]
         public IActionResult Post([FromBody] DTOs.Registration.PostStart dto)
         {
@@ -155,7 +158,13 @@ namespace CommandCentral.Controllers.AccountManagementControllers
             return NoContent();
         }
 
-        [HttpPost("/complete")]
+        /// <summary>
+        /// Completes the registration process
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        [HttpPost("complete")]
         [ProducesResponseType(204)]
         public IActionResult Post([FromBody] DTOs.Registration.PostComplete dto)
         {
