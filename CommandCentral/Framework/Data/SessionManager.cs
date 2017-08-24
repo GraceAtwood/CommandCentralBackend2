@@ -11,6 +11,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
+using System.Web;
+using CommandCentral.Utilities;
+using Microsoft.AspNetCore.Http;
 using HttpContext = Microsoft.AspNetCore.Http.HttpContext;
 using ISession = NHibernate.ISession;
 
@@ -36,8 +40,10 @@ namespace CommandCentral.Framework.Data
                     return;
 
                 var mySqlConfig = MySQLConfiguration.Standard.ConnectionString(Utilities.ConfigurationUtility.Configuration.GetConnectionString("Main"));
-
-                mySqlConfig = mySqlConfig.FormatSql().ShowSql();
+                
+                // If appsettings.json says we're in debug, show SQL in the CLI
+                if (Boolean.TryParse(ConfigurationUtility.Configuration["DebugMode"], out bool debugMode) && debugMode)
+                    mySqlConfig = mySqlConfig.FormatSql().ShowSql();
 
                 _config = Fluently.Configure()
                     .Database(mySqlConfig)

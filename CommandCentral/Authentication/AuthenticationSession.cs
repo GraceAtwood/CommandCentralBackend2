@@ -2,6 +2,9 @@
 using FluentNHibernate.Mapping;
 using CommandCentral.Entities;
 using FluentValidation.Results;
+using CommandCentral.Framework;
+using CommandCentral.Utilities;
+using NHibernate.Cfg;
 
 namespace CommandCentral.Authentication
 {
