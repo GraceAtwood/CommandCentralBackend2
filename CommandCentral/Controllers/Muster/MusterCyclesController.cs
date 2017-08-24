@@ -60,7 +60,7 @@ namespace CommandCentral.Controllers.Muster
                 .NullSafeWhere(predicate)
                 .OrderByDescending(x => x.Range.Start)
                 .Take(limit)
-                .ToFuture()
+                .ToList()
                 .Select(x => new DTOs.MusterCycle.Get(x))
                 .ToList();
 

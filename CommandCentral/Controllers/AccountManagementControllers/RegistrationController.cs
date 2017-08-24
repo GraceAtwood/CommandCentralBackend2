@@ -16,6 +16,9 @@ using Random = CommandCentral.Utilities.Random;
 
 namespace CommandCentral.Controllers.AccountManagementControllers
 {
+    [Route("api/[controller]")]
+    [Produces("application/json")]
+    [Consumes("application/json")]
     public class RegistrationController : CommandCentralController
     {
         /// <summary>
@@ -44,7 +47,7 @@ namespace CommandCentral.Controllers.AccountManagementControllers
             var results = DBSession.Query<AccountRegistration>()
                 .AsExpandable()
                 .NullSafeWhere(predicate)
-                .ToFuture()
+                .ToList()
                 .Select(x => new DTOs.Registration.Get(x))
                 .ToList();
 

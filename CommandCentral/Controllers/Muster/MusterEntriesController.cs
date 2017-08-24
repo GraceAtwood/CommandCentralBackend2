@@ -76,7 +76,7 @@ namespace CommandCentral.Controllers.Muster
 
             var results = query
                 .Take(limit)
-                .ToFuture()
+                .ToList()
                 .Select(x => new DTOs.MusterEntry.Get(x))
                 .ToList();
 

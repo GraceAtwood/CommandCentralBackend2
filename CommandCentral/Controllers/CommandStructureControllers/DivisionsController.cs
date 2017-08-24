@@ -39,7 +39,7 @@ namespace CommandCentral.Controllers.CommandStructureControllers
             var result = DBSession.Query<Division>()
                 .AsExpandable()
                 .NullSafeWhere(predicate)
-                .ToFuture()
+                .ToList()
                 .Select(item => new DTOs.Division.Get(item))
                 .ToList();
 

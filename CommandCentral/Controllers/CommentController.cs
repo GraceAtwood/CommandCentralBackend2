@@ -57,7 +57,7 @@ namespace CommandCentral.Controllers
                 .NullSafeWhere(predicate)
                 .OrderByDescending(x => x.TimeCreated)
                 .Take(limit)
-                .ToFuture()
+                .ToList()
                 .Where(item => item.OwningEntity.CanPersonAccessComments(User))
                 .Select(item => new DTOs.Comment.Get(item))
                 .ToList();
