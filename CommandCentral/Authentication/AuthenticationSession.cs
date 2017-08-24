@@ -4,6 +4,8 @@ using CommandCentral.Authorization;
 using FluentNHibernate.Mapping;
 using CommandCentral.Entities;
 using CommandCentral.Framework;
+using CommandCentral.Utilities;
+using NHibernate.Cfg;
 
 namespace CommandCentral.Authentication
 {
@@ -62,9 +64,9 @@ namespace CommandCentral.Authentication
             if (!IsActive)
                 return false;
 
-            #if DEBUG
-            return true;
-            #endif
+            // If appsettings.json says we're in debug, don't ever make sessions expire
+            if (Boolean.TryParse(ConfigurationUtility.Configuration["DebugMode"], out bool debugMode) && debugMode)
+                return true;
 
             return DateTime.UtcNow.Subtract(LastUsedTime) < _maxAge;
         }
