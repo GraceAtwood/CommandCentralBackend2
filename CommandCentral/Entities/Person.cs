@@ -4,20 +4,14 @@ using System.Linq;
 using CommandCentral.Entities.ReferenceLists;
 using FluentNHibernate.Mapping;
 using FluentValidation;
-using System.Reflection;
 using NHibernate.Type;
-using Newtonsoft.Json;
-using System.Runtime.Serialization;
 using CommandCentral.Framework.Data;
-using CommandCentral.Utilities;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
 using CommandCentral.Authorization;
 using CommandCentral.Authorization.Rules;
 using FluentValidation.Results;
 using CommandCentral.Entities.Muster;
-using NHibernate;
-using System.Linq.Expressions;
 using NHibernate.Linq;
 
 namespace CommandCentral.Entities

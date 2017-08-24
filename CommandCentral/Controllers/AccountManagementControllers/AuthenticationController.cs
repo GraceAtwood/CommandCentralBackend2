@@ -4,6 +4,7 @@ using CommandCentral.Entities;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
 using Microsoft.AspNetCore.Mvc;
+using Random = CommandCentral.Utilities.Random;
 
 namespace CommandCentral.Controllers.AccountManagementControllers
 {
@@ -62,14 +63,12 @@ namespace CommandCentral.Controllers.AccountManagementControllers
             var authSession = new AuthenticationSession
             {
                 Id = Guid.NewGuid(),
+                Token = Random.CreateCryptographicallySecureGuid(),
                 IsActive = true,
                 LastUsedTime = CallTime,
                 LoginTime = CallTime,
                 Person = person
             };
-
-            //Now insert it
-            DBSession.Save(authSession);
 
             //Also put the account history on the client.
             person.AccountHistory.Add(new AccountHistoryEvent
@@ -81,7 +80,7 @@ namespace CommandCentral.Controllers.AccountManagementControllers
             });
 
             Response.Headers.Add("Access-Control-Expose-Headers", "X-Session-Id");
-            Response.Headers["X-Session-Id"] = new Microsoft.Extensions.Primitives.StringValues(authSession.Id.ToString());
+            Response.Headers["X-Session-Id"] = new Microsoft.Extensions.Primitives.StringValues(authSession.Token.ToString());
 
             using (var transaction = DBSession.BeginTransaction())
             {

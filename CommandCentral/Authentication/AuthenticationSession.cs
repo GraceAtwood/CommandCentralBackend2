@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using CommandCentral.Authorization;
 using FluentNHibernate.Mapping;
 using CommandCentral.Entities;
-using CommandCentral.Framework;
+using FluentValidation.Results;
 
 namespace CommandCentral.Authentication
 {
     /// <summary>
     /// Describes a single authentication session and provides members for interacting with that session.
     /// </summary>
-    public class AuthenticationSession
+    public class AuthenticationSession : Entity
     {
         /// <summary>
         /// The max age after which a session will have expired and it will become invalid.
@@ -20,9 +18,9 @@ namespace CommandCentral.Authentication
         #region Properties
 
         /// <summary>
-        /// The Id of the session.  This Id should also be used as the authentication token by the client.
+        /// This is the actual token that should be served to the client.
         /// </summary>
-        public virtual Guid Id { get; set; }
+        public virtual Guid Token { get; set; }
 
         /// <summary>
         /// The time this session was created which is the time the client logged in.
@@ -69,6 +67,16 @@ namespace CommandCentral.Authentication
             return DateTime.UtcNow.Subtract(LastUsedTime) < _maxAge;
         }
 
+        /// <summary>
+        /// Not Implemented.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override ValidationResult Validate()
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
 
         /// <summary>
@@ -87,9 +95,9 @@ namespace CommandCentral.Authentication
                 Map(x => x.LogoutTime).Nullable();
                 Map(x => x.IsActive).Not.Nullable();
                 Map(x => x.LastUsedTime);
+                Map(x => x.Token).Not.Nullable().Unique();
+                
                 References(x => x.Person).LazyLoad(Laziness.False);
-
-                Cache.ReadWrite();
             }
         }
     }

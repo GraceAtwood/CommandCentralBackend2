@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CommandCentral.Enums
+﻿namespace CommandCentral.Enums
 {
     /// <summary>
     /// Indicates the different ways a value can be searched.

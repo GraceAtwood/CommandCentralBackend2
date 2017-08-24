@@ -6,12 +6,12 @@ using NHibernate.Type;
 namespace CommandCentral.Entities
 {
     /// <summary>
-    /// Describes a single account confirmation.  This is created when a client attempts to register an account.
+    /// Describes a single account registration.  This is created when a client attempts to register an account.
     /// </summary>
-    public class PendingAccountConfirmation : Entity
+    public class AccountRegistration : Entity
     {
         /// <summary>
-        /// The max age after which an account confirmation will have expired and it will become invalid.
+        /// The max age after which an account registration will have expired and it will become invalid.
         /// </summary>
         private static readonly TimeSpan _maxAge = TimeSpan.FromDays(1);
 
@@ -25,10 +25,10 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The time at which this was created.
         /// </summary>
-        public virtual DateTime Time { get; set; }
+        public virtual DateTime TimeSubmitted { get; set; }
 
         /// <summary>
-        /// Indicates that this account confirmation has been completed.
+        /// Indicates that this account registration has been completed.
         /// </summary>
         public virtual bool IsCompleted { get; set; }
 
@@ -40,19 +40,19 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The token that was sent to the client via email.
         /// </summary>
-        public virtual Guid ConfirmationToken { get; set; }
+        public virtual Guid RegistrationToken { get; set; }
 
         #endregion
 
         #region Helper Methods
 
         /// <summary>
-        /// Returns a boolean indicating whether or not this account confirmation is still valid or if it has aged off.
+        /// Returns a boolean indicating whether or not this account registration is still valid or if it has aged off.
         /// </summary>
         /// <returns></returns>
         public virtual bool IsAgedOff()
         {
-            return DateTime.UtcNow.Subtract(Time) < _maxAge;
+            return DateTime.UtcNow.Subtract(TimeSubmitted) < _maxAge;
         }
 
         #endregion
@@ -69,7 +69,7 @@ namespace CommandCentral.Entities
         /// <summary>
         /// Maps this class to the database.
         /// </summary>
-        public class PendingAccountConfirmationMapping : ClassMap<PendingAccountConfirmation>
+        public class PendingAccountConfirmationMapping : ClassMap<AccountRegistration>
         {
             /// <summary>
             /// Maps this class to the database.
@@ -78,10 +78,10 @@ namespace CommandCentral.Entities
             {
                 Id(x => x.Id).GeneratedBy.Assigned();
 
-                Map(x => x.Time).Not.Nullable().CustomType<UtcDateTimeType>();
+                Map(x => x.TimeSubmitted).Not.Nullable().CustomType<UtcDateTimeType>();
                 Map(x => x.IsCompleted).Not.Nullable();
                 Map(x => x.TimeCompleted).CustomType<UtcDateTimeType>();
-                Map(x => x.ConfirmationToken).Not.Nullable();
+                Map(x => x.RegistrationToken).Not.Nullable().Unique();
 
                 References(x => x.Person).Not.Nullable().Unique();
             }

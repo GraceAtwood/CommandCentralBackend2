@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace CommandCentral.DTOs.CorrespondenceReview
+﻿namespace CommandCentral.DTOs.CorrespondenceReview
 {
     public class Put
     {

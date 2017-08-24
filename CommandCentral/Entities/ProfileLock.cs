@@ -1,7 +1,5 @@
 ﻿using System;
 using FluentNHibernate.Mapping;
-using System.Collections.Generic;
-using System.Linq;
 using NHibernate.Type;
 using FluentValidation.Results;
 

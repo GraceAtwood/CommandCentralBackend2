@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using FluentNHibernate.Mapping;
 using FluentValidation;
 using NHibernate.Type;
-using CommandCentral.Utilities.Types;
 using FluentValidation.Results;
 using CommandCentral.Framework;
 

@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Linq;
-using System.Collections.Generic;
-using FluentValidation.Results;
-using NHibernate.Criterion;
-using CommandCentral.Authorization;
-using NHibernate.Transform;
-using System.Reflection;
-
-namespace CommandCentral.Entities.ReferenceLists
+﻿namespace CommandCentral.Entities.ReferenceLists
 {
     /// <summary>
     /// Provides abstracted access to a reference list such as Ranks or Rates.

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace CommandCentral.DTOs.NewsItem
+﻿namespace CommandCentral.DTOs.NewsItem
 {
     public class Update
     {

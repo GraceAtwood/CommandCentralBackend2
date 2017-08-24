@@ -5,7 +5,6 @@ using NHibernate.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using FluentValidation.Results;
 using CommandCentral.Framework;
 using CommandCentral.Authorization;

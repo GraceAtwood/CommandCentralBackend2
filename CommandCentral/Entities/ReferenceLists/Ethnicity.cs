@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using FluentValidation;
-using System.Linq;
-using NHibernate.Criterion;
 using CommandCentral.Framework;
 
 namespace CommandCentral.Entities.ReferenceLists

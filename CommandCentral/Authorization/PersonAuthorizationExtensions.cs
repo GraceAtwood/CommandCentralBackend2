@@ -1,12 +1,8 @@
 ﻿using CommandCentral.Entities;
 using CommandCentral.Enums;
-using CommandCentral.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Threading.Tasks;
 
 namespace CommandCentral.Authorization
 {

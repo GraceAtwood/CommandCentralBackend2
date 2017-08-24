@@ -1,7 +1,6 @@
 ﻿using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
 using Microsoft.Extensions.Configuration;
-using MySql.Data.MySqlClient;
 using NHibernate;
 using NHibernate.Caches.SysCache;
 using NHibernate.Cfg;
@@ -10,12 +9,8 @@ using NHibernate.Metadata;
 using NHibernate.Tool.hbm2ddl;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
-using System.Web;
-using Microsoft.AspNetCore.Http;
 using HttpContext = Microsoft.AspNetCore.Http.HttpContext;
 using ISession = NHibernate.ISession;
 

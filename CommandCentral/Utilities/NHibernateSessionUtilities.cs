@@ -1,15 +1,10 @@
 ﻿using NHibernate;
 using NHibernate.Engine;
-using NHibernate.Persister.Entity;
 using NHibernate.Proxy;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections;
 using CommandCentral.Entities;
-using NHibernate.Collection;
 using NHibernate.Type;
 using System.Linq.Expressions;
 

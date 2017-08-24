@@ -2,9 +2,7 @@
 using System.Linq;
 using FluentNHibernate.Mapping;
 using FluentValidation;
-using System.Collections.Generic;
 using CommandCentral.Utilities;
-using CommandCentral.Authorization.Rules;
 using FluentValidation.Results;
 using CommandCentral.Framework.Data;
 using NHibernate.Linq;

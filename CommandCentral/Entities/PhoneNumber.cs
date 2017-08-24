@@ -3,8 +3,6 @@ using CommandCentral.Entities.ReferenceLists;
 using FluentNHibernate.Mapping;
 using FluentValidation;
 using System.Linq;
-using System.Collections.Generic;
-using CommandCentral.Utilities;
 using FluentValidation.Results;
 
 namespace CommandCentral.Entities

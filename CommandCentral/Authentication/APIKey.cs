@@ -1,7 +1,5 @@
 ﻿using System;
 using FluentNHibernate.Mapping;
-using CommandCentral.Authorization;
-using System.Linq;
 
 namespace CommandCentral.Authentication
 {

@@ -1,22 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using System.Reflection;
-using Microsoft.AspNetCore.Mvc.Abstractions;
-using FluentValidation.Attributes;
-using FluentValidation;
-using FluentValidation.Results;
 using CommandCentral.Entities;
 using NHibernate;
 using CommandCentral.Authentication;
 using Microsoft.Extensions.Logging;
-using System.IO;
 using System.Net;
-using Microsoft.AspNetCore.Routing;
+using NHibernate.Linq;
 
 namespace CommandCentral.Framework
 {
@@ -102,9 +95,9 @@ namespace CommandCentral.Framework
         /// <param name="parameterName"></param>
         /// <returns></returns>
         [NonAction]
-        public NotFoundObjectResult NotFoundParameter(Guid id, string parameterName)
+        public NotFoundObjectResult NotFoundParameter(object id, string parameterName)
         {
-            return NotFound($"An object with Id '{id}' identified by your parameter '{parameterName}' could not be found.");
+            return NotFound($"An object with the identifier '{id}', identified by your parameter '{parameterName}', could not be found.");
         }
 
         /// <summary>
@@ -205,7 +198,7 @@ namespace CommandCentral.Framework
                     return;
                 }
 
-                var authSession = DBSession.Get<AuthenticationSession>(sessionId);
+                var authSession = DBSession.Query<AuthenticationSession>().SingleOrDefault(x => x.Token == sessionId);
 
                 if (authSession == null || !authSession.IsValid())
                 {

@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Security.Cryptography;
 
 namespace CommandCentral.Utilities
 {
@@ -37,6 +36,21 @@ namespace CommandCentral.Utilities
         public static int GetRandomNumber(int min, int max)
         {
             return Instance.Next(min, max);
+        }
+        
+        /// <summary>
+        /// Returns a cryptograhically secure Guid.
+        /// </summary>
+        /// <returns></returns>
+        public static Guid CreateCryptographicallySecureGuid() 
+        {
+            using (var provider = RandomNumberGenerator.Create()) 
+            {
+                var bytes = new byte[16];
+                provider.GetBytes(bytes);
+
+                return new Guid(bytes);
+            }
         }
     }
 }

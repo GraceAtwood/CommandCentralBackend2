@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using FluentScheduler;
 using CommandCentral.Framework.Data;
 using CommandCentral.Entities;
-using CommandCentral.Entities.Muster;
-using CommandCentral.Utilities.Types;
 
 namespace CommandCentral.CronOperations
 {

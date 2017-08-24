@@ -1,11 +1,5 @@
-﻿using System;
-using System.IO;
-using System.Net;
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using FluentValidation;
-using CommandCentral.Framework.Data;
-using CommandCentral.Enums;
-using CommandCentral.Utilities;
 using FluentValidation.Results;
 
 namespace CommandCentral.Entities

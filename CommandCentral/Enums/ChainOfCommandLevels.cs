@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CommandCentral.Enums
+﻿namespace CommandCentral.Enums
 {
     /// <summary>
     /// Describes the levels of chain of command.

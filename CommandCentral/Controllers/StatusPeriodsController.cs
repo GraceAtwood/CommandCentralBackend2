@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using CommandCentral.Framework;
 using CommandCentral.Entities.Muster;
-using NHibernate.Criterion;
 using CommandCentral.Authorization;
 using CommandCentral.Entities;
 using CommandCentral.Entities.ReferenceLists;
@@ -13,7 +11,6 @@ using CommandCentral.Enums;
 using CommandCentral.Utilities.Types;
 using NHibernate.Linq;
 using System.Linq.Expressions;
-using CommandCentral.Utilities;
 using CommandCentral.Framework.Data;
 using LinqKit;
 

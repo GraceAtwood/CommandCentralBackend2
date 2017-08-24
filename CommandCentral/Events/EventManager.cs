@@ -1,8 +1,5 @@
 ﻿using CommandCentral.Events.Args;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace CommandCentral.Events
 {
@@ -42,12 +39,18 @@ namespace CommandCentral.Events
 
         #endregion
 
-        #region Authentication 
+        #region Account Management 
 
         public static event EventHandler<LoginFailedEventArgs> LoginFailed;
         public static void OnLoginFailed(LoginFailedEventArgs e, object sender)
         {
             LoginFailed?.Invoke(sender, e);
+        }
+
+        public static event EventHandler<AccountRegistrationEventArgs> RegistrationStarted;
+        public static void OnRegistrationStarted(AccountRegistrationEventArgs e, object sender)
+        {
+            RegistrationStarted?.Invoke(sender, e);
         }
 
         #endregion
