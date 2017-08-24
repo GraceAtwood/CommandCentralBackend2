@@ -65,10 +65,7 @@ namespace CommandCentral.Authentication
                 return false;
 
             // If appsettings.json says we're in debug, don't ever make sessions expire
-            string debugStr = ConfigurationUtility.Configuration["DebugMode"];
-            bool debugMode;
-            
-            if (Boolean.TryParse(debugStr, out debugMode) && debugMode)
+            if (Boolean.TryParse(ConfigurationUtility.Configuration["DebugMode"], out bool debugMode) && debugMode)
                 return true;
 
             return DateTime.UtcNow.Subtract(LastUsedTime) < _maxAge;
