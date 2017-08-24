@@ -88,8 +88,14 @@ namespace CommandCentral.Entities
             }
         }
 
+        /// <summary>
+        /// Validator for AccountRegistration
+        /// </summary>
         public class Validator : AbstractValidator<AccountRegistration>
         {
+            /// <summary>
+            /// Validate this AccountRegistration entity
+            /// </summary>
             public Validator()
             {
                 RuleFor(x => x.Id).NotEmpty();
