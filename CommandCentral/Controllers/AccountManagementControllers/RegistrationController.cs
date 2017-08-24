@@ -183,10 +183,11 @@ namespace CommandCentral.Controllers.AccountManagementControllers
             
             registration.Person.Username = dto.Username;
             registration.Person.PasswordHash = PasswordHash.CreateHash(dto.Password);
+            registration.Person.IsClaimed = true;
 
-            var result = registration.Person.Validate();
-            if (!result.IsValid)
-                return BadRequest(result.Errors.Select(x => x.ErrorMessage));
+            var personValidationResult = registration.Person.Validate();
+            if (!personValidationResult.IsValid)
+                return BadRequest(personValidationResult.Errors.Select(x => x.ErrorMessage));
 
             registration.Person.AccountHistory.Add(new AccountHistoryEvent
             {
@@ -195,9 +196,16 @@ namespace CommandCentral.Controllers.AccountManagementControllers
                 Id = Guid.NewGuid(),
                 Person = registration.Person
             });
-            
+
+            registration.IsCompleted = true;
+            registration.TimeCompleted = CallTime;
+
+            var registrationValidationResult = registration.Validate();
+            if (!registrationValidationResult.IsValid)
+                return BadRequest(registrationValidationResult.Errors.Select(x => x.ErrorMessage));
             using (var transaction = DBSession.BeginTransaction())
             {
+                DBSession.Update(registration);
                 DBSession.Update(registration.Person);
                 transaction.Commit();
             }
