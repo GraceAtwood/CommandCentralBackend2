@@ -49,10 +49,10 @@ namespace CommandCentral.Entities
         /// <summary>
         /// Returns a boolean indicating whether or not this account registration is still valid or if it has aged off.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns true if registration is expired, false otherwise.</returns>
         public virtual bool IsAgedOff()
         {
-            return DateTime.UtcNow.Subtract(TimeSubmitted) < _maxAge;
+            return DateTime.UtcNow.Subtract(TimeSubmitted) > _maxAge;
         }
 
         #endregion
@@ -69,12 +69,12 @@ namespace CommandCentral.Entities
         /// <summary>
         /// Maps this class to the database.
         /// </summary>
-        public class PendingAccountConfirmationMapping : ClassMap<AccountRegistration>
+        public class AccountRegistrationMapping : ClassMap<AccountRegistration>
         {
             /// <summary>
             /// Maps this class to the database.
             /// </summary>
-            public PendingAccountConfirmationMapping()
+            public AccountRegistrationMapping()
             {
                 Id(x => x.Id).GeneratedBy.Assigned();
 
