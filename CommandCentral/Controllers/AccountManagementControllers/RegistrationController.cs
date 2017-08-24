@@ -16,6 +16,14 @@ using Random = CommandCentral.Utilities.Random;
 
 namespace CommandCentral.Controllers.AccountManagementControllers
 {
+    /// <summary>
+    /// Registration is the process by which clients can claim an account.  
+    /// The client should send a request to start registration to the /start endpoint along with the client's SSN.  
+    /// If registration hasn't already been started for the profile with that SSN, an email will be sent to the client.  
+    /// It's important to note that the profile must have a .mil email address or else registration will fail.  
+    /// The email will contain a link which is built by replacing the text '[RegistrationToken]' in your continue link with the actual token.
+    /// When the client clicks that link, you should submit the given registration token along with a username and password for your client to the /complete endpoint.
+    /// </summary>
     [Route("api/[controller]")]
     [Produces("application/json")]
     [Consumes("application/json")]
@@ -113,7 +121,7 @@ namespace CommandCentral.Controllers.AccountManagementControllers
                 TimeSubmitted = CallTime
             };
 
-            var finalRedirectURL = dto.ContinueLink.Replace($"[{nameof(AccountRegistration.RegistrationToken)}]",
+            var finalRedirectURL = dto.ContinueLink.Replace("[RegistrationToken]",
                 registration.RegistrationToken.ToString());
             
             if (!Uri.IsWellFormedUriString(finalRedirectURL, UriKind.RelativeOrAbsolute))

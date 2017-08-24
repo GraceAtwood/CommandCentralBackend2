@@ -36,7 +36,7 @@ namespace CommandCentral.Entities
         /// returns a boolean indicating whether or not this password reset is still valid or if it has aged off.
         /// </summary>
         /// <returns></returns>
-        public virtual bool IsValid()
+        public virtual bool IsAgedOff()
         {
             return DateTime.UtcNow.Subtract(Time) < _maxAge;
         }
