@@ -34,6 +34,6 @@ namespace CommandCentral.DTOs.Person
         public DateTimeRangeQuery DateOfBirth { get; set; }
         public DateTimeRangeQuery DateOfArrival { get; set; }
         public DateTimeRangeQuery StatusPeriod { get; set; }
-        public Dictionary<ChangeEvents, ChainOfCommandLevels> SubscribedEvents { get; set; }
+        public Dictionary<SubscribableEvents, ChainOfCommandLevels> SubscribedEvents { get; set; }
     }
 }

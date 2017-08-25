@@ -1,10 +1,28 @@
 ﻿using CommandCentral.Events.Args;
 using System;
+using System.Collections.Concurrent;
+using System.Linq;
+using System.Reflection;
 
 namespace CommandCentral.Events
 {
+    /// <summary>
+    /// Contains all of the events that can be fired in the application.
+    /// </summary>
     public static class EventManager
     {
+        /// <summary>
+        /// Contains all of the classes that define the event handlers.
+        /// </summary>
+        public static ConcurrentBag<IEventHandler> EventHandlers;
+
+        static EventManager()
+        {
+            EventHandlers = new ConcurrentBag<IEventHandler>(Assembly.GetExecutingAssembly().GetTypes()
+                .Where(x => typeof(IEventHandler).IsAssignableFrom(x) && x != typeof(IEventHandler))
+                .Select(x => (IEventHandler) Activator.CreateInstance(x)));
+        }
+        
         #region Muster
 
         public static event EventHandler<MusterCycleEventArgs> MusterFinalized;

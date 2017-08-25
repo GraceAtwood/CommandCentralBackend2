@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net.Mail;
 using FluentNHibernate.Mapping;
 using FluentValidation;
 using CommandCentral.Utilities;
@@ -57,6 +58,23 @@ namespace CommandCentral.Entities
             var elements = Address.Split(new[] { "@" }, StringSplitOptions.RemoveEmptyEntries);
             return elements.Any() && elements.Last().InsensitiveEquals("mail.mil");
         }
+
+        /// <summary>
+        /// Returns a display name built from the owning person.
+        /// </summary>
+        /// <returns></returns>
+        public virtual string GetDisplayName()
+        {
+            return $"{Person.LastName}, {Person.FirstName} {Person.MiddleName}";
+        }
+
+        /// <summary>
+        /// Returns a <seealso cref="MailAddress"/> 
+        /// </summary>
+        public virtual MailAddress ToMailAddress()
+        {
+            return new MailAddress(Address, GetDisplayName());
+        }
         
         /// <summary>
         /// Maps an email address to the database.
@@ -90,7 +108,7 @@ namespace CommandCentral.Entities
             {
                 RuleFor(x => x.Address).EmailAddress().Must((item, address) =>
                 {
-                    return SessionManager.CurrentSession().Query<EmailAddress>().Count(x => x.Id != item.Id && x.Address == address) == 0;
+                    return SessionManager.GetCurrentSession().Query<EmailAddress>().Count(x => x.Id != item.Id && x.Address == address) == 0;
                 })
                 .WithMessage("Email addresses must be unique.");
             }

@@ -11,10 +11,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
-using System.Web;
 using CommandCentral.Utilities;
-using Microsoft.AspNetCore.Http;
 using HttpContext = Microsoft.AspNetCore.Http.HttpContext;
 using ISession = NHibernate.ISession;
 
@@ -69,7 +66,7 @@ namespace CommandCentral.Framework.Data
             return _config.CurrentSessionContext<T>().BuildSessionFactory();
         }
         
-        public static ISession CurrentSession(HttpContext context = null)
+        public static ISession GetCurrentSession(HttpContext context = null)
         {
             if (_sessionFactory == null)
             {

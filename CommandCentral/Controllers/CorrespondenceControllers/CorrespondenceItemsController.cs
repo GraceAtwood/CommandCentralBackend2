@@ -80,13 +80,21 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
                 .AddNullableBoolQueryExpression(x => x.HasBeenCompleted, hasBeenCompleted)
                 .AddNullableBoolQueryExpression(x => x.HasPhysicalCounterpart, hasPhysicalCounterpart)
                 .AddIntQueryExpression(x => x.SeriesNumber, seriesNumbers)
-                .NullSafeAnd(x => x.Comments.Any(commentedBySearch.Compile()))
-                .NullSafeAnd(x => x.Reviews.Any(reviewerSearch.Compile()))
-                .NullSafeAnd(x => x.Reviews.Any(reviewedBySearch.Compile()))
-                .NullSafeAnd(x => x.SharedWith.Any(sharedWithSearch.Compile()))
                 .AddReferenceListQueryExpression(x => x.Type, type)
                 .AddStringQueryExpression(x => x.Body, body)
                 .AddDateTimeQueryExpression(x => x.TimeSubmitted, timeSubmitted);
+
+            if (!String.IsNullOrWhiteSpace(commentedBy))
+                predicate = predicate.NullSafeAnd(x => x.Comments.Any(commentedBySearch.Compile()));
+            
+            if (!String.IsNullOrWhiteSpace(reviewedBy))
+                predicate = predicate.NullSafeAnd(x => x.Reviews.Any(reviewerSearch.Compile()));
+            
+            if (!String.IsNullOrWhiteSpace(reviewer))
+                predicate = predicate.NullSafeAnd(x => x.Reviews.Any(reviewedBySearch.Compile()));
+            
+            if (!String.IsNullOrWhiteSpace(sharedWith))
+                predicate = predicate.NullSafeAnd(x => x.SharedWith.Any(sharedWithSearch.Compile()));
 
             if (!String.IsNullOrWhiteSpace(pendingReviewer))
             {
@@ -175,7 +183,7 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
                 FinalApprover = finalApprover,
                 HasPhysicalCounterpart = dto.HasPhysicalCounterpart,
                 Id = Guid.NewGuid(),
-                SeriesNumber = DBSession.Query<CorrespondenceItem>().Max(x => x.SeriesNumber) + 1,
+                SeriesNumber = (DBSession.Query<CorrespondenceItem>().Max(x => (int?)x.SeriesNumber) ?? 0) + 1,
                 SubmittedBy = User,
                 SubmittedFor = submittedFor,
                 TimeSubmitted = CallTime

@@ -1,6 +1,6 @@
 ﻿namespace CommandCentral.Enums
 {
-    public enum ChangeEvents
+    public enum SubscribableEvents
     {
         MusterFinalized,
         MusterOpened,

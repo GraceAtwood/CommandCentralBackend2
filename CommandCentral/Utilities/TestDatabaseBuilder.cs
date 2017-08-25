@@ -57,16 +57,16 @@ namespace CommandCentral.Utilities
 
         private static void AddAPIKey()
         {
-            using (var transaction = SessionManager.CurrentSession().BeginTransaction())
+            using (var transaction = SessionManager.GetCurrentSession().BeginTransaction())
             {
 
-                SessionManager.CurrentSession().Save(new APIKey
+                SessionManager.GetCurrentSession().Save(new APIKey
                 {
                     ApplicationName = "Command Central Official Frontend",
                     Id = Guid.Parse("90FDB89F-282B-4BD6-840B-CEF597615728")
                 });
 
-                SessionManager.CurrentSession().Save(new APIKey
+                SessionManager.GetCurrentSession().Save(new APIKey
                 {
                     ApplicationName = "Swagger Documentation Page",
                     Id = Guid.Parse("E28235AC-57A1-42AC-AA85-1547B755EA7E")
@@ -78,11 +78,11 @@ namespace CommandCentral.Utilities
 
         private static void CreateUICs()
         {
-            using (var transaction = SessionManager.CurrentSession().BeginTransaction())
+            using (var transaction = SessionManager.GetCurrentSession().BeginTransaction())
             {
                 for (var x = 0; x < Random.GetRandomNumber(5, 10); x++)
                 {
-                    SessionManager.CurrentSession().Save(new UIC
+                    SessionManager.GetCurrentSession().Save(new UIC
                     {
                         Value = Random.RandomString(5),
                         Description = Random.RandomString(8),
@@ -97,11 +97,11 @@ namespace CommandCentral.Utilities
 
         private static void CreateDesignations()
         {
-            using (var transaction = SessionManager.CurrentSession().BeginTransaction())
+            using (var transaction = SessionManager.GetCurrentSession().BeginTransaction())
             {
                 for (var x = 0; x < Random.GetRandomNumber(5, 10); x++)
                 {
-                    SessionManager.CurrentSession().Save(new Designation
+                    SessionManager.GetCurrentSession().Save(new Designation
                     {
                         Value = Random.RandomString(3),
                         Description = Random.RandomString(8),
@@ -116,7 +116,7 @@ namespace CommandCentral.Utilities
 
         private static void CreateCommands()
         {
-            using (var transaction = SessionManager.CurrentSession().BeginTransaction())
+            using (var transaction = SessionManager.GetCurrentSession().BeginTransaction())
             {
                 for (var x = 0; x < Random.GetRandomNumber(2, 4); x++)
                 {
@@ -150,7 +150,7 @@ namespace CommandCentral.Utilities
 
                     command.CurrentMusterCycle = cycle;
 
-                    SessionManager.CurrentSession().SaveOrUpdate(command);
+                    SessionManager.GetCurrentSession().SaveOrUpdate(command);
                 }
 
                 transaction.Commit();
@@ -159,9 +159,9 @@ namespace CommandCentral.Utilities
 
         private static void CreateDepartments(int min, int max)
         {
-            using (var transaction = SessionManager.CurrentSession().BeginTransaction())
+            using (var transaction = SessionManager.GetCurrentSession().BeginTransaction())
             {
-                var commands = SessionManager.CurrentSession().QueryOver<Command>().List();
+                var commands = SessionManager.GetCurrentSession().QueryOver<Command>().List();
 
                 foreach (var command in commands)
                 {
@@ -177,7 +177,7 @@ namespace CommandCentral.Utilities
 
                         command.Departments.Add(dep);
 
-                        SessionManager.CurrentSession().Update(command);
+                        SessionManager.GetCurrentSession().Update(command);
                     }
                 }
 
@@ -187,9 +187,9 @@ namespace CommandCentral.Utilities
 
         private static void CreateDivisions(int min, int max)
         {
-            using (var transaction = SessionManager.CurrentSession().BeginTransaction())
+            using (var transaction = SessionManager.GetCurrentSession().BeginTransaction())
             {
-                var departments = SessionManager.CurrentSession().QueryOver<Department>().List();
+                var departments = SessionManager.GetCurrentSession().QueryOver<Department>().List();
 
                 foreach (var department in departments)
                 {
@@ -204,7 +204,7 @@ namespace CommandCentral.Utilities
                         };
 
                         department.Divisions.Add(div);
-                        SessionManager.CurrentSession().Update(department);
+                        SessionManager.GetCurrentSession().Update(department);
                     }
                 }
 
@@ -282,9 +282,9 @@ namespace CommandCentral.Utilities
 
         private static void CreateDeveloper()
         {
-            using (var transaction = SessionManager.CurrentSession().BeginTransaction())
+            using (var transaction = SessionManager.GetCurrentSession().BeginTransaction())
             {
-                var command = SessionManager.CurrentSession().QueryOver<Command>().CacheMode(NHibernate.CacheMode.Ignore).List().First();
+                var command = SessionManager.GetCurrentSession().QueryOver<Command>().CacheMode(NHibernate.CacheMode.Ignore).List().First();
                 var department = command.Departments.First();
                 var division = department.Divisions.First();
                 var uic = ReferenceListHelper.Random<UIC>(1).First();
@@ -293,9 +293,9 @@ namespace CommandCentral.Utilities
                     new[] { PermissionsCache.PermissionGroupsCache["Developers"] },
                     ReferenceListHelper.All<WatchQualification>(), ReferenceListHelper.Find<Paygrade>("E5"), ReferenceListHelper.Random<Designation>(1).First());
 
-                SessionManager.CurrentSession().Save(person);
+                SessionManager.GetCurrentSession().Save(person);
 
-                SessionManager.CurrentSession().Update(person);
+                SessionManager.GetCurrentSession().Update(person);
 
                 transaction.Commit();
             }
@@ -304,7 +304,7 @@ namespace CommandCentral.Utilities
         private static void CreateUsers(int sailorsPerDivision)
         {
             var created = 0;
-            using (var transaction = SessionManager.CurrentSession().BeginTransaction())
+            using (var transaction = SessionManager.GetCurrentSession().BeginTransaction())
             {
                 var paygrades = ReferenceListHelper.All<Paygrade>().Where(x => x.Value.Contains("E") && !x.Value.Contains("O") || x.Value.Contains("O") && !x.Value.Contains("C"));
 
@@ -315,7 +315,7 @@ namespace CommandCentral.Utilities
                 var comPermGroups = PermissionsCache.PermissionGroupsCache.Values
                     .Where(x => x.AccessLevels.Values.Any(y => y == ChainOfCommandLevels.Command) && x.IsMemberOfChainOfCommand).ToList();
 
-                foreach (var command in SessionManager.CurrentSession().QueryOver<Command>().List())
+                foreach (var command in SessionManager.GetCurrentSession().QueryOver<Command>().List())
                 {
                     foreach (var department in command.Departments)
                     {
@@ -397,7 +397,7 @@ namespace CommandCentral.Utilities
 
                                 var person = CreatePerson(division, uic, "user" + created, "user" + created, permGroups, quals, paygrade, ReferenceListHelper.Random<Designation>(1).First());
 
-                                SessionManager.CurrentSession().Save(person);
+                                SessionManager.GetCurrentSession().Save(person);
                                 
                                 created++;
                             }

@@ -35,7 +35,7 @@ namespace CommandCentral.Framework
         /// <summary>
         /// Represents a database session for this web request session.
         /// </summary>
-        public ISession DBSession => Data.SessionManager.CurrentSession(HttpContext);
+        public ISession DBSession => Data.SessionManager.GetCurrentSession(HttpContext);
 
         /// <summary>
         /// The logging instance that should be used for logging... things.

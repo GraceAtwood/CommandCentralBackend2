@@ -42,22 +42,22 @@ namespace CommandCentral.Entities.Correspondence
         /// <summary>
         /// The list of all attachments included in this correspondence.
         /// </summary>
-        public virtual IList<FileAttachment> Attachments { get; set; }
+        public virtual IList<FileAttachment> Attachments { get; set; } = new List<FileAttachment>();
 
         /// <summary>
         /// The list of comments for this item.
         /// </summary>
-        public virtual IList<Comment> Comments { get; set; }
+        public virtual IList<Comment> Comments { get; set; } = new List<Comment>();
 
         /// <summary>
         /// The list of all reviews that have been submitted for this correspondence.
         /// </summary>
-        public virtual IList<CorrespondenceReview> Reviews { get; set; }
+        public virtual IList<CorrespondenceReview> Reviews { get; set; } = new List<CorrespondenceReview>();
 
         /// <summary>
         /// The list of persons this correspondence item has been shared with.
         /// </summary>
-        public virtual IList<Person> SharedWith { get; set; }
+        public virtual IList<Person> SharedWith { get; set; } = new List<Person>();
 
         /// <summary>
         /// The person who is ultimately responsible for approving or denying this correspondence.
@@ -215,7 +215,7 @@ namespace CommandCentral.Entities.Correspondence
                 RuleFor(x => x.SeriesNumber).GreaterThan(0)
                     .Must((item, num) =>
                     {
-                        if (SessionManager.CurrentSession().Query<CorrespondenceItem>().Count(x => x.Id != item.Id && x.SeriesNumber == num) != 0)
+                        if (SessionManager.GetCurrentSession().Query<CorrespondenceItem>().Count(x => x.Id != item.Id && x.SeriesNumber == num) != 0)
                             return false;
 
                         return true;

@@ -326,7 +326,7 @@ namespace CommandCentral.Entities
         [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         [CanEditIfInChainOfCommand(ChainsOfCommand.QuarterdeckWatchbill, ChainOfCommandLevels.Division)]
         [CanEditIfInChainOfCommand(ChainsOfCommand.Muster, ChainOfCommandLevels.Division)]
-        public virtual IDictionary<ChangeEvents, ChainOfCommandLevels> SubscribedEvents { get; set; }
+        public virtual IDictionary<SubscribableEvents, ChainOfCommandLevels> SubscribedEvents { get; set; }
 
         /// <summary>
         /// The list of comments.
@@ -471,7 +471,7 @@ namespace CommandCentral.Entities
 
                 HasMany(x => x.SubscribedEvents)
                     .AsMap<string>(index =>
-                        index.Column("ChangeEvent").Type<ChangeEvents>(), element =>
+                        index.Column("ChangeEvent").Type<SubscribableEvents>(), element =>
                         element.Column("Level").Type<ChainOfCommandLevels>())
                     .Cascade.All();
 
@@ -504,12 +504,12 @@ namespace CommandCentral.Entities
                 RuleFor(x => x.SSN).NotEmpty()
                     .Must(x => System.Text.RegularExpressions.Regex.IsMatch(x, @"^(?!\b(\d)\1+-(\d)\1+-(\d)\1+\b)(?!123-45-6789|219-09-9999|078-05-1120)(?!666|000|9\d{2})\d{3}(?!00)\d{2}(?!0{4})\d{4}$"))
                         .WithMessage("The SSN must be valid and contain only numbers.")
-                    .Must((person, ssn) => SessionManager.CurrentSession().Query<Person>().Count(x => x.SSN == ssn && x.Id != person.Id) == 0)
+                    .Must((person, ssn) => SessionManager.GetCurrentSession().Query<Person>().Count(x => x.SSN == ssn && x.Id != person.Id) == 0)
                         .WithMessage("That ssn exists on another profile.  SSNs must be unique.");
                 RuleFor(x => x.DoDId).NotEmpty().Length(10)
                     .Must(x => x.All(Char.IsDigit))
                         .WithMessage("All characters of a DoD id must be digits.")
-                    .Must((person, dodId) => SessionManager.CurrentSession().Query<Person>().Count(x => x.DoDId == dodId && x.Id != person.Id) == 0)
+                    .Must((person, dodId) => SessionManager.GetCurrentSession().Query<Person>().Count(x => x.DoDId == dodId && x.Id != person.Id) == 0)
                         .WithMessage("That DoD id exists on another profile.  DoD Ids must be unique.");
                 RuleFor(x => x.DateOfBirth).NotEmpty()
                     .WithMessage("The DOB must not be left blank.");
@@ -539,7 +539,7 @@ namespace CommandCentral.Entities
                     .WithMessage("Your religious preference was not found.");
                 RuleFor(x => x.Designation).Must(x => ReferenceListHelper.IdExists<Designation>(x.Id))
                     .WithMessage("Your designation was not found.");
-                RuleFor(x => x.Division).Must(x => SessionManager.CurrentSession().Query<Division>().Count(div => div.Id == x.Id) == 1)
+                RuleFor(x => x.Division).Must(x => SessionManager.GetCurrentSession().Query<Division>().Count(div => div.Id == x.Id) == 1)
                     .WithMessage("Your division was not found.");
                 RuleFor(x => x.Supervisor).Length(0, 255)
                     .WithMessage("The supervisor field may not be longer than 255 characters.");
