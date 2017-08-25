@@ -28,8 +28,8 @@ namespace CommandCentral.Controllers.AccountManagementControllers
         /// <summary>
         /// Allows only clients with admin tools to query the password resets.
         /// </summary>
-        /// <param name="person"></param>
-        /// <param name="timeSubmitted"></param>
+        /// <param name="person">A person query for the person being reset.</param>
+        /// <param name="timeSubmitted">A time range query for the time a password reset was submitted.</param>
         /// <returns></returns>
         [HttpGet]
         [RequireAuthentication]
@@ -66,17 +66,17 @@ namespace CommandCentral.Controllers.AccountManagementControllers
             if (!User.CanAccessSubmodules(SubModules.AdminTools))
                 return Forbid();
 
-            var confirmation = DBSession.Get<PasswordReset>(id);
-            if (confirmation == null)
+            var reset = DBSession.Get<PasswordReset>(id);
+            if (reset == null)
                 return NotFoundParameter(id, nameof(id));
 
-            return Ok(new DTOs.PasswordReset.Get(confirmation));
+            return Ok(new DTOs.PasswordReset.Get(reset));
         }
 
         /// <summary>
-        /// Start the password reset process
+        /// Start the password reset process.
         /// </summary>
-        /// <param name="dto"></param>
+        /// <param name="dto">A dto containing all of the information necessary to start the password reset process.</param>
         /// <returns></returns>
         [HttpPost("start")]
         [ProducesResponseType(204)]
@@ -89,13 +89,10 @@ namespace CommandCentral.Controllers.AccountManagementControllers
                 return BadRequest($"The parameter '{nameof(dto.ContinueLink)} must not be empty.");
 
             var email = DBSession.Query<EmailAddress>()
-                .SingleOrDefault(x => x.Address == dto.Email);
+                .SingleOrDefault(x => x.Address == dto.Email && x.Person.SSN == dto.SSN);
 
             if (email == null)
-                return NotFoundParameter(dto.Email, nameof(dto.Email));
-
-            if (email.Person.SSN != dto.SSN)
-                return BadRequest("This SSN and email combination does not match.");
+                return NotFound("That email and ssn combination did not exist.");
                 
             if (!email.Person.IsClaimed)
                 return BadRequest("This profile has not been claimed. Please register to set your passowrd.");
@@ -108,15 +105,14 @@ namespace CommandCentral.Controllers.AccountManagementControllers
                 ResetToken = Random.CreateCryptographicallySecureGuid()
             };
 
-            var redirectUrl = dto.ContinueLink.Replace($"[{nameof(PasswordReset.ResetToken)}]",
+            var redirectUrl = dto.ContinueLink.Replace($"[ResetToken]",
                 reset.ResetToken.ToString());
 
-            if (Uri.IsWellFormedUriString(redirectUrl, UriKind.RelativeOrAbsolute))
-                return BadRequest($"The given value of '{nameof(dto.ContinueLink)}' plus the confirmation token was " +
+            if (!Uri.IsWellFormedUriString(redirectUrl, UriKind.RelativeOrAbsolute))
+                return BadRequest($"The given value of '{nameof(dto.ContinueLink)}' plus the reset token was " +
                                   $"not a valid URI.");
 
             var results = reset.Validate();
-
             if (!results.IsValid)
                 return BadRequest(results.Errors.Select(x => x.ErrorMessage));
 
@@ -145,15 +141,13 @@ namespace CommandCentral.Controllers.AccountManagementControllers
             //TODO: Send email to client with reset complete link
 
             return NoContent();
-
         }
 
         /// <summary>
-        /// Completes the password reset process
+        /// Completes the password reset process.
         /// </summary>
-        /// <param name="dto"></param>
+        /// <param name="dto">A dto containing all of the necessary information to coplete password reset.</param>
         /// <returns></returns>
-        /// <exception cref="Exception"></exception>
         [HttpPost("complete")]
         [ProducesResponseType(204)]
         public IActionResult Post([FromBody] DTOs.PasswordReset.PostComplete dto)

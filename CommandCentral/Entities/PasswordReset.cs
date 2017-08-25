@@ -19,12 +19,12 @@ namespace CommandCentral.Entities
         #region Properties
         
         /// <summary>
-        /// The person who's password we're resetting
+        /// The person who's password we're resetting.
         /// </summary>
         public virtual Person Person { get; set; }
         
         /// <summary>
-        /// The time this password reset was initiated
+        /// The time this password reset was initiated.
         /// </summary>
         public virtual DateTime TimeSubmitted { get; set; }
         
@@ -38,9 +38,9 @@ namespace CommandCentral.Entities
         #region Helper Methods
 
         /// <summary>
-        /// Returns a boolean indicating if this reset has expired.
+        /// Returns true if this reset is expired, false otherwise.
         /// </summary>
-        /// <returns>Returns true if this reset is expired, false otherwise.</returns>
+        /// <returns></returns>
         public virtual bool IsAgedOff()
         {
             return DateTime.UtcNow.Subtract(TimeSubmitted) > _maxAge;
