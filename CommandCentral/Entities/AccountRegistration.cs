@@ -1,5 +1,6 @@
 ﻿using System;
 using FluentNHibernate.Mapping;
+using FluentValidation;
 using FluentValidation.Results;
 using NHibernate.Type;
 
@@ -63,7 +64,7 @@ namespace CommandCentral.Entities
         /// <returns></returns>
         public override ValidationResult Validate()
         {
-            throw new NotImplementedException();
+            return new Validator().Validate(this);
         }
 
         /// <summary>
@@ -84,6 +85,28 @@ namespace CommandCentral.Entities
                 Map(x => x.RegistrationToken).Not.Nullable().Unique();
 
                 References(x => x.Person).Not.Nullable().Unique();
+            }
+        }
+
+        /// <summary>
+        /// Validator for AccountRegistration
+        /// </summary>
+        public class Validator : AbstractValidator<AccountRegistration>
+        {
+            /// <summary>
+            /// Validate this AccountRegistration entity
+            /// </summary>
+            public Validator()
+            {
+                RuleFor(x => x.Id).NotEmpty();
+                RuleFor(x => x.Person).NotEmpty();
+                RuleFor(x => x.RegistrationToken).NotEmpty();
+                RuleFor(x => x.TimeSubmitted).NotEmpty();
+                When(x => x.IsCompleted || x.TimeCompleted.HasValue, () =>
+                {
+                    RuleFor(x => x.IsCompleted).Equal(true);
+                    RuleFor(x => x.TimeCompleted).NotEmpty();
+                });
             }
         }
     }
