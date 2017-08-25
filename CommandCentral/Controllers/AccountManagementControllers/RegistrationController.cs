@@ -88,7 +88,7 @@ namespace CommandCentral.Controllers.AccountManagementControllers
         /// <param name="dto"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        [HttpPost("/start")]
+        [HttpPost("start")]
         [ProducesResponseType(204)]
         public IActionResult Post([FromBody] DTOs.Registration.PostStart dto)
         {
@@ -162,7 +162,12 @@ namespace CommandCentral.Controllers.AccountManagementControllers
             return NoContent();
         }
 
-        [HttpPost("/complete")]
+        /// <summary>
+        /// Completes the registration process.
+        /// </summary>
+        /// <param name="dto">A dto containing the information needed to complete the registration process.</param>
+        /// <returns></returns>
+        [HttpPost("complete")]
         [ProducesResponseType(204)]
         public IActionResult Post([FromBody] DTOs.Registration.PostComplete dto)
         {
