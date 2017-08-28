@@ -139,6 +139,12 @@ namespace CommandCentral.Events
             CorrespondenceModified?.Invoke(sender, e);
         }
 
+        public static event EventHandler<AccountRegistrationEventArgs> AccountRegistered;
+        public static void OnAccountRegistered(AccountRegistrationEventArgs e, object sender)
+        {
+            AccountRegistered?.Invoke(sender, e);
+        }
+
         #endregion
 
     }
