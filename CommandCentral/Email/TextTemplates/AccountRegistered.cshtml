@@ -1,0 +1,13 @@
+@using CommandCentral.Email
+@model CommandCentral.Email.Models.AccountRegistered
+
+Hello @Model.To.ToDisplayName()!
+
+A profile has been created for: @Model.AccountRegistration.Person.LastName, @Model.AccountRegistration.Person.FirstName @Model.AccountRegistration.Person.MiddleName .
+
+This person is in:
+Division: @Model.AccountRegistration.Person.Division.Name
+Department: @Model.AccountRegistration.Person.Department.Name
+Command: @Model.AccountRegistration.Person.Command.Name
+
+Registration completed at: @Model.AccountRegistration.TimeCompleted

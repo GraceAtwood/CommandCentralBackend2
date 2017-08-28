@@ -1,5 +1,7 @@
 ﻿using System.Linq;
 using CommandCentral.Authorization;
+using CommandCentral.Email;
+using CommandCentral.Email.Models;
 using CommandCentral.Entities;
 using CommandCentral.Enums;
 using CommandCentral.Events.Args;
@@ -25,13 +27,33 @@ namespace CommandCentral.Events.Handlers.Email
             using (var session = SessionManager.GetCurrentSession())
             {
                 var interestedPersons = session.Query<Person>()
-                    .Where(x => x.SubscribedEvents.ContainsKey(SubscribableEvents.PersonCreated))
-                    .Where(x => x.SubscribedEvents[SubscribableEvents.PersonCreated] == ChainOfCommandLevels.Division &&
-                                x.Division == e.AccountRegistration.Person.Division || 
-                                x.SubscribedEvents[SubscribableEvents.PersonCreated] == ChainOfCommandLevels.Department &&
-                                x.Department == e.AccountRegistration.Person.Department || 
-                                x.SubscribedEvents[SubscribableEvents.PersonCreated] == ChainOfCommandLevels.Command &&
-                                x.Command == e.AccountRegistration.Person.Command);
+                    .Where(CommonQueryStrategies.GetPersonsSubscribedToEventForPersonExpression(
+                        SubscribableEvents.PersonCreated, e.AccountRegistration.Person));
+
+                var message = new CCEmailMessage()
+                    .Subject("Account Registered")
+                    .HighPriority();
+
+                var sendToAddress = e.AccountRegistration.Person.EmailAddresses.FirstOrDefault();
+                if (sendToAddress != null)
+                {
+                    message.To(sendToAddress)
+                        .BodyFromTemplate(Templates.AccountRegistedTemplate,
+                            new AccountRegistered(e.AccountRegistration.Person, e.AccountRegistration))
+                        .Send();
+                }
+
+                foreach (var person in interestedPersons.Distinct())
+                {
+                    sendToAddress = person.EmailAddresses.FirstOrDefault(x => x.IsPreferred);
+                    if (sendToAddress == null)
+                        continue;
+
+                    message.To(sendToAddress)
+                        .BodyFromTemplate(Templates.AccountRegistedTemplate,
+                            new AccountRegistered(person, e.AccountRegistration))
+                        .Send();
+                }
                 
             }
         }
