@@ -553,6 +553,9 @@ namespace CommandCentral.Entities
                     .WithMessage("Your uic was not found.");
                 RuleFor(x => x.JobTitle).Length(0, 255)
                     .WithMessage("The job title may not be longer than 255 characters.");
+
+                RuleFor(x => x.EmailAddresses).Must(x => x.Count(y => y.IsPreferred) <= 1)
+                    .WithMessage("Only one email address may be marked as 'Preferred'.");
             }
         }
     }
