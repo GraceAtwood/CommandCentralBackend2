@@ -49,11 +49,7 @@ Command Central sits atop the shoulders of giants.  Without their work, this pro
 * [TimePeriodLibrary] - Simplifies dealing with time periods, because that's boring to do yourself.
 
 __*Important Note:*__ We currently are very slightly dependant on the .NET Framework. As soon as [NHibernate] is updated
-to [.NET Core] 2.0, we'll be moving completely to that, and you'll be able to develop on *nix as well. Weeeeee!  
-
-### Acknowledgements
-
-TODO
+to [.NET Core] 2.0, we'll be moving completely to that, and you'll be able to develop on *nix as well. Weeeeee!
 
 ### Operation
 
@@ -65,17 +61,12 @@ The service may by launched in two modes:
 
 Launching the service in interactive mode means little more than executing the service from the command line. 
 
-_Note: In this mode, the service does not require elevated permissions._
+Make sure you have `appsettings.json` set up properly. There's an example file,
+[`appsettings.example.json`](CommandCentral/appsettings.example.json).
 
 ```sh
-CCServ.exe launch -u %mysql username% -p %mysql password% -s %mysql database address% -d %mysql database/schema%
+CommandCentral.exe launch
 ```
-
-TODO
-
-#### Windows Service
-
-TODO
 
 ### Development
 
