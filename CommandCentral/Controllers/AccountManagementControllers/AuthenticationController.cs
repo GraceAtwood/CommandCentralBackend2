@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Linq;
 using CommandCentral.Authentication;
 using CommandCentral.Entities;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
 using Microsoft.AspNetCore.Mvc;
+using NHibernate.Linq;
 using Random = CommandCentral.Utilities.Random;
 
 namespace CommandCentral.Controllers.AccountManagementControllers
@@ -26,7 +28,7 @@ namespace CommandCentral.Controllers.AccountManagementControllers
             if (dto == null)
                 return BadRequestDTONull();
 
-            var person = DBSession.QueryOver<Person>().Where(x => x.Username == dto.Username).SingleOrDefault();
+            var person = DBSession.Query<Person>().SingleOrDefault(x => x.Username == dto.Username);
 
             if (person == null)
                 return Unauthorized();

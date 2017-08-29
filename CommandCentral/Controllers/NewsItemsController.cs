@@ -6,6 +6,7 @@ using CommandCentral.Framework;
 using CommandCentral.Entities;
 using CommandCentral.Authorization;
 using CommandCentral.Enums;
+using NHibernate.Linq;
 
 namespace CommandCentral.Controllers
 {
@@ -16,7 +17,7 @@ namespace CommandCentral.Controllers
         [ProducesResponseType(200, Type = typeof(List<DTOs.NewsItem.Get>))]
         public IActionResult Get()
         {
-            var items = DBSession.QueryOver<NewsItem>().List();
+            var items = DBSession.Query<NewsItem>().ToList();
 
             return Ok(items.Select(x => new DTOs.NewsItem.Get(x)));
         }

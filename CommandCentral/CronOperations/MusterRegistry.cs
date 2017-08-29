@@ -2,6 +2,7 @@
 using FluentScheduler;
 using CommandCentral.Framework.Data;
 using CommandCentral.Entities;
+using NHibernate.Linq;
 
 namespace CommandCentral.CronOperations
 {
@@ -25,7 +26,7 @@ namespace CommandCentral.CronOperations
         {
             using (var transaction = SessionManager.GetCurrentSession().BeginTransaction())
             {
-                var commands = SessionManager.GetCurrentSession().QueryOver<Command>().Future();
+                var commands = SessionManager.GetCurrentSession().Query<Command>().ToFuture();
 
                 foreach (var command in commands)
                 {
