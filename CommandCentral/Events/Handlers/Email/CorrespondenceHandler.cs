@@ -9,6 +9,7 @@ using CommandCentral.Events.Args;
 using CommandCentral.Framework.Data;
 using CommandCentral.Utilities;
 using LinqKit;
+using Microsoft.AspNetCore.Razor.Language;
 using NHibernate.Criterion;
 using NHibernate.Linq;
 
@@ -60,8 +61,8 @@ namespace CommandCentral.Events.Handlers.Email
                     SubscribableEvents.CorrespondenceShared, e.Item.SubmittedFor))
                 .ToList());
 
-            var message = new CCEmailMessage()
-                .Subject($"Correspondence #{e.Item.SeriesNumber} ICO {e.Item.SubmittedFor.ToDisplayName()}: Shared")
+            var sharedMessage = new CCEmailMessage()
+                .Subject($"Correspondence #{e.Item.SeriesNumber} ICO {e.Item.SubmittedFor.ToDisplayName()}: Shared with Different People")
                 .HighPriority();
 
             foreach (var person in interestedPersons.Distinct())
@@ -70,10 +71,27 @@ namespace CommandCentral.Events.Handlers.Email
                 if (sendToAddress == null)
                     continue;
 
-                message
+                sharedMessage
                     .To(sendToAddress)
                     .BodyFromTemplate(Templates.CorrespondenceSharedTemplate,
-                        new CorrespondenceShared(person, e.Item, e.NewPersons))
+                        new CorrespondenceShared(person, e.Item, e.Added, e.Removed))
+                    .Send();
+            }
+
+            var unsharedMessage = new CCEmailMessage()
+                .Subject($"Correspondence #{e.Item.SeriesNumber} ICO {e.Item.SubmittedFor.ToDisplayName()}: Unshared")
+                .HighPriority();
+
+            foreach (var person in e.Removed)
+            {
+                var sendToAddress = person.EmailAddresses.SingleOrDefault(x => x.IsPreferred);
+                if (sendToAddress == null)
+                    continue;
+                
+                unsharedMessage
+                    .To(sendToAddress)
+                    .BodyFromTemplate(Templates.CorrespondenceUnsharedTemplate,
+                        new CorrespondenceGeneric(person, e.Item))
                     .Send();
             }
         }

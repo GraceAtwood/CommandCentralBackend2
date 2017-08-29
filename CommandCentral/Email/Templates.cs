@@ -30,11 +30,16 @@ namespace CommandCentral.Email
         /// <summary>
         /// The template meant to be used for the correspondence email when it is routed to a new person.
         /// </summary>
-        public static readonly CCEmailTemplate<CorrespondenceRouted> CorrespondenceRoutedTemplate = new CCEmailTemplate<CorrespondenceRouted>("CorrespondenceRoutedRouted.cshtml");
+        public static readonly CCEmailTemplate<CorrespondenceRouted> CorrespondenceRoutedTemplate = new CCEmailTemplate<CorrespondenceRouted>("CorrespondenceRouted.cshtml");
         
         /// <summary>
         /// The template meant to be used in the email for when a corr item is shared to new people.
         /// </summary>
-        public static readonly CCEmailTemplate<CorrespondenceShared> CorrespondenceSharedTemplate = new CCEmailTemplate<CorrespondenceShared>("CorrespondenceRoutedShared.cshtml"); 
+        public static readonly CCEmailTemplate<CorrespondenceShared> CorrespondenceSharedTemplate = new CCEmailTemplate<CorrespondenceShared>("CorrespondenceShared.cshtml"); 
+        
+        /// <summary>
+        /// The template meant to be used in the email for when a corr item unshared from a person.
+        /// </summary>
+        public static readonly CCEmailTemplate<CorrespondenceGeneric> CorrespondenceUnsharedTemplate = new CCEmailTemplate<CorrespondenceGeneric>("CorrespondenceUnshared.cshtml");
     }
 }

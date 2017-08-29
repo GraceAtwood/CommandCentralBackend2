@@ -22,19 +22,27 @@ namespace CommandCentral.Email.Models
         /// <summary>
         /// The list of new persons this corr item was just shared with.
         /// </summary>
-        public List<Person> NewPersons { get; }
+        public List<Person> Added { get; }
+        
+        /// <summary>
+        /// The list of persons that were removed from the corr item.
+        /// </summary>
+        public List<Person> Removed { get; }
 
         /// <summary>
         /// Creates a new email model.
         /// </summary>
         /// <param name="to"></param>
         /// <param name="item"></param>
-        /// <param name="newPersons"></param>
-        public CorrespondenceShared(Person to, CorrespondenceItem item, IEnumerable<Person> newPersons)
+        /// <param name="added"></param>
+        /// <param name="removed"></param>
+        public CorrespondenceShared(Person to, CorrespondenceItem item, IEnumerable<Person> added,
+            IEnumerable<Person> removed)
         {
             To = to;
             CorrespondenceItem = item;
-            NewPersons = new List<Person>(newPersons);
+            Added = new List<Person>(added);
+            Removed = new List<Person>(removed);
         }
     }
 }
