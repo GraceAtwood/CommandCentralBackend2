@@ -121,8 +121,8 @@ namespace CommandCentral.Events
             CorrespondenceCompleted?.Invoke(sender, e);
         }
 
-        public static event EventHandler<CorrespondenceItemEventArgs> CorrespondenceShared;
-        public static void OnCorrespondenceShared(CorrespondenceItemEventArgs e, object sender)
+        public static event EventHandler<CorrespondenceItemSharedEventArgs> CorrespondenceShared;
+        public static void OnCorrespondenceShared(CorrespondenceItemSharedEventArgs e, object sender)
         {
             CorrespondenceShared?.Invoke(sender, e);
         }

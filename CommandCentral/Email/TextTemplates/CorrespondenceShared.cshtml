@@ -1,0 +1,12 @@
+@using CommandCentral.Email
+@model CommandCentral.Email.Models.CorrespondenceShared
+
+Hello @Model.To.ToDisplayName()!
+
+The correspondence @Model.CorrespondenceItem.SeriesNumber has been shared with new people!
+
+New people:
+@foreach (var person in Model.NewPersons)
+{
+    <text>@person.ToDisplayName()</text>
+}

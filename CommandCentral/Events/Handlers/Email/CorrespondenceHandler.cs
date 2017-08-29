@@ -36,8 +36,46 @@ namespace CommandCentral.Events.Handlers.Email
         {
         }
 
-        private void OnCorrespondenceShared(object sender, CorrespondenceItemEventArgs e)
+        private void OnCorrespondenceShared(object sender, CorrespondenceItemSharedEventArgs e)
         {
+            var groupsWithAccessToAdminModules = PermissionsCache.PermissionGroupsCache
+                .Values.Where(x => x.AccessibleSubmodules.Contains(SubModules.AdminTools))
+                .Select(x => x.Name)
+                .ToArray();
+
+            var interestedPersons = new[]
+                    {e.Item.FinalApprover, e.Item.SubmittedBy, e.Item.SubmittedFor}
+                .Concat(e.Item.SharedWith)
+                .Concat(e.Item.Reviews.Select(x => x.ReviewedBy))
+                .Concat(e.Item.Reviews.Select(x => x.Reviewer))
+                .Concat(e.Item.Reviews.Select(x => x.RoutedBy));
+
+            var chainOfCommandQuery = CommonQueryStrategies.IsPersonInChainOfCommandExpression(e.Item.SubmittedFor);
+
+            interestedPersons = interestedPersons.Concat(SessionManager.GetCurrentSession().Query<Person>()
+                .AsExpandable()
+                .Where(chainOfCommandQuery.NullSafeOr(x =>
+                    x.PermissionGroups.Any(group => groupsWithAccessToAdminModules.Contains(group.Name))))
+                .Where(CommonQueryStrategies.GetPersonsSubscribedToEventForPersonExpression(
+                    SubscribableEvents.CorrespondenceShared, e.Item.SubmittedFor))
+                .ToList());
+
+            var message = new CCEmailMessage()
+                .Subject($"Correspondence #{e.Item.SeriesNumber} ICO {e.Item.SubmittedFor.ToDisplayName()}: Shared")
+                .HighPriority();
+
+            foreach (var person in interestedPersons.Distinct())
+            {
+                var sendToAddress = person.EmailAddresses.SingleOrDefault(x => x.IsPreferred);
+                if (sendToAddress == null)
+                    continue;
+
+                message
+                    .To(sendToAddress)
+                    .BodyFromTemplate(Templates.CorrespondenceSharedTemplate,
+                        new CorrespondenceShared(person, e.Item, e.NewPersons))
+                    .Send();
+            }
         }
 
         private void OnCorrespondenceRouted(object sender, CorrespondenceItemRoutedEventArgs e)
