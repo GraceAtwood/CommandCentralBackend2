@@ -50,10 +50,86 @@ namespace CommandCentral.Events.Handlers.Email
 
         private void OnCorrespondenceDeleted(object sender, CorrespondenceItemEventArgs e)
         {
+            var groupsWithAccessToAdminModules = PermissionsCache.PermissionGroupsCache
+                .Values.Where(x => x.AccessibleSubmodules.Contains(SubModules.AdminTools))
+                .Select(x => x.Name)
+                .ToArray();
+
+            var interestedPersons = new[]
+                    {e.Item.FinalApprover, e.Item.SubmittedBy, e.Item.SubmittedFor}
+                .Concat(e.Item.SharedWith)
+                .Concat(e.Item.Reviews.Select(x => x.ReviewedBy))
+                .Concat(e.Item.Reviews.Select(x => x.Reviewer))
+                .Concat(e.Item.Reviews.Select(x => x.RoutedBy));
+
+            var chainOfCommandQuery = CommonQueryStrategies.IsPersonInChainOfCommandExpression(e.Item.SubmittedFor);
+
+            interestedPersons = interestedPersons.Concat(SessionManager.GetCurrentSession().Query<Person>()
+                .AsExpandable()
+                .Where(chainOfCommandQuery.NullSafeOr(x =>
+                    x.PermissionGroups.Any(group => groupsWithAccessToAdminModules.Contains(group.Name))))
+                .Where(CommonQueryStrategies.GetPersonsSubscribedToEventForPersonExpression(
+                    SubscribableEvents.CorrespondenceDeleted, e.Item.SubmittedFor))
+                .ToList());
+
+            var message = new CCEmailMessage()
+                .Subject($"Correspondence #{e.Item.SeriesNumber} ICO {e.Item.SubmittedFor.ToDisplayName()}: Created")
+                .HighPriority();
+
+            foreach (var person in interestedPersons.Distinct())
+            {
+                var sendToAddress = person.EmailAddresses.SingleOrDefault(x => x.IsPreferred);
+                if (sendToAddress == null)
+                    continue;
+
+                message
+                    .To(sendToAddress)
+                    .BodyFromTemplate(Templates.CorrespondenceDeletedTemplate,
+                        new CorrespondenceGeneric(person, e.Item))
+                    .Send();
+            }
         }
 
         private void OnCorrespondenceCreated(object sender, CorrespondenceItemEventArgs e)
         {
+            var groupsWithAccessToAdminModules = PermissionsCache.PermissionGroupsCache
+                .Values.Where(x => x.AccessibleSubmodules.Contains(SubModules.AdminTools))
+                .Select(x => x.Name)
+                .ToArray();
+
+            var interestedPersons = new[]
+                    {e.Item.FinalApprover, e.Item.SubmittedBy, e.Item.SubmittedFor}
+                .Concat(e.Item.SharedWith)
+                .Concat(e.Item.Reviews.Select(x => x.ReviewedBy))
+                .Concat(e.Item.Reviews.Select(x => x.Reviewer))
+                .Concat(e.Item.Reviews.Select(x => x.RoutedBy));
+
+            var chainOfCommandQuery = CommonQueryStrategies.IsPersonInChainOfCommandExpression(e.Item.SubmittedFor);
+
+            interestedPersons = interestedPersons.Concat(SessionManager.GetCurrentSession().Query<Person>()
+                .AsExpandable()
+                .Where(chainOfCommandQuery.NullSafeOr(x =>
+                    x.PermissionGroups.Any(group => groupsWithAccessToAdminModules.Contains(group.Name))))
+                .Where(CommonQueryStrategies.GetPersonsSubscribedToEventForPersonExpression(
+                    SubscribableEvents.CorrespondenceCreated, e.Item.SubmittedFor))
+                .ToList());
+
+            var message = new CCEmailMessage()
+                .Subject($"Correspondence #{e.Item.SeriesNumber} ICO {e.Item.SubmittedFor.ToDisplayName()}: Created")
+                .HighPriority();
+
+            foreach (var person in interestedPersons.Distinct())
+            {
+                var sendToAddress = person.EmailAddresses.SingleOrDefault(x => x.IsPreferred);
+                if (sendToAddress == null)
+                    continue;
+
+                message
+                    .To(sendToAddress)
+                    .BodyFromTemplate(Templates.CorrespondenceCreatedTemplate,
+                        new CorrespondenceGeneric(person, e.Item))
+                    .Send();
+            }
         }
 
         private void OnCorrespondenceCompleted(object sender, CorrespondenceItemEventArgs e)
@@ -81,7 +157,7 @@ namespace CommandCentral.Events.Handlers.Email
                 .ToList());
 
             var message = new CCEmailMessage()
-                .Subject($"Correspondence #{e.Item.SeriesNumber} Completed")
+                .Subject($"Correspondence #{e.Item.SeriesNumber} ICO {e.Item.SubmittedFor.ToDisplayName()}: Completed")
                 .HighPriority();
 
             foreach (var person in interestedPersons.Distinct())
@@ -92,8 +168,8 @@ namespace CommandCentral.Events.Handlers.Email
 
                 message
                     .To(sendToAddress)
-                    .BodyFromTemplate(Templates.CorrespondenceModifiedTemplate,
-                        new CorrespondenceModified(person, e.Item))
+                    .BodyFromTemplate(Templates.CorrespondenceCompletedTemplate,
+                        new CorrespondenceGeneric(person, e.Item))
                     .Send();
             }
         }

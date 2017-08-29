@@ -10,6 +10,16 @@ namespace CommandCentral.Email
         /// <summary>
         /// The template meant to be used for the correspondence modified email.
         /// </summary>
-        public static readonly CCEmailTemplate<CorrespondenceModified> CorrespondenceModifiedTemplate = new CCEmailTemplate<CorrespondenceModified>("CorrespondenceModified.cshtml");
+        public static readonly CCEmailTemplate<CorrespondenceGeneric> CorrespondenceCompletedTemplate = new CCEmailTemplate<CorrespondenceGeneric>("CorrespondenceModified.cshtml");
+        
+        /// <summary>
+        /// The template meant to be used for the correspondence created email.
+        /// </summary>
+        public static readonly CCEmailTemplate<CorrespondenceGeneric> CorrespondenceCreatedTemplate = new CCEmailTemplate<CorrespondenceGeneric>("CorrespondenceCreated.cshtml");
+        
+        /// <summary>
+        /// The template meant to be used for the correspondence deleted email.
+        /// </summary>
+        public static readonly CCEmailTemplate<CorrespondenceGeneric> CorrespondenceDeletedTemplate = new CCEmailTemplate<CorrespondenceGeneric>("CorrespondenceDeleted.cshtml");
     }
 }

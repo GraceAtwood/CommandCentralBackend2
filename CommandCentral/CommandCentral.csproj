@@ -93,6 +93,12 @@
     <Content Include="Email\TextTemplates\CorrespondenceModified.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Email\TextTemplates\CorrespondenceCreated.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+      <Content Include="Email\TextTemplates\CorrespondenceDeleted.cshtml">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Web" />
