@@ -42,6 +42,44 @@ namespace CommandCentral.Events.Handlers.Email
 
         private void OnCorrespondenceRouted(object sender, CorrespondenceItemRoutedEventArgs e)
         {
+            var groupsWithAccessToAdminModules = PermissionsCache.PermissionGroupsCache
+                .Values.Where(x => x.AccessibleSubmodules.Contains(SubModules.AdminTools))
+                .Select(x => x.Name)
+                .ToArray();
+
+            var interestedPersons = new[]
+                    {e.Item.FinalApprover, e.Item.SubmittedBy, e.Item.SubmittedFor}
+                .Concat(e.Item.SharedWith)
+                .Concat(e.Item.Reviews.Select(x => x.ReviewedBy))
+                .Concat(e.Item.Reviews.Select(x => x.Reviewer))
+                .Concat(e.Item.Reviews.Select(x => x.RoutedBy));
+
+            var chainOfCommandQuery = CommonQueryStrategies.IsPersonInChainOfCommandExpression(e.Item.SubmittedFor);
+
+            interestedPersons = interestedPersons.Concat(SessionManager.GetCurrentSession().Query<Person>()
+                .AsExpandable()
+                .Where(chainOfCommandQuery.NullSafeOr(x =>
+                    x.PermissionGroups.Any(group => groupsWithAccessToAdminModules.Contains(group.Name))))
+                .Where(CommonQueryStrategies.GetPersonsSubscribedToEventForPersonExpression(
+                    SubscribableEvents.CorrespondenceRouted, e.Item.SubmittedFor))
+                .ToList());
+
+            var message = new CCEmailMessage()
+                .Subject($"Correspondence #{e.Item.SeriesNumber} ICO {e.Item.SubmittedFor.ToDisplayName()}: Routed")
+                .HighPriority();
+
+            foreach (var person in interestedPersons.Distinct())
+            {
+                var sendToAddress = person.EmailAddresses.SingleOrDefault(x => x.IsPreferred);
+                if (sendToAddress == null)
+                    continue;
+
+                message
+                    .To(sendToAddress)
+                    .BodyFromTemplate(Templates.CorrespondenceRoutedTemplate,
+                        new CorrespondenceRouted(person, e.Item, e.NewPersonRoutedTo))
+                    .Send();
+            }
         }
 
         private void OnCorrespondenceModified(object sender, CorrespondenceItemEventArgs e)
