@@ -70,11 +70,9 @@ namespace CommandCentral.Events.Handlers.Email
                 .Concat(e.Item.Reviews.Select(x => x.Reviewer))
                 .Concat(e.Item.Reviews.Select(x => x.RoutedBy));
 
-            var session = SessionManager.GetCurrentSession();
-
             var chainOfCommandQuery = CommonQueryStrategies.IsPersonInChainOfCommandExpression(e.Item.SubmittedFor);
 
-            interestedPersons = interestedPersons.Concat(session.Query<Person>()
+            interestedPersons = interestedPersons.Concat(SessionManager.GetCurrentSession().Query<Person>()
                 .AsExpandable()
                 .Where(chainOfCommandQuery.NullSafeOr(x =>
                     x.PermissionGroups.Any(group => groupsWithAccessToAdminModules.Contains(group.Name))))
