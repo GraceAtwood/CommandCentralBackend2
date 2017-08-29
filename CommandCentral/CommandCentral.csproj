@@ -102,6 +102,9 @@
         <Content Include="Email\TextTemplates\CorrespondenceModified.cshtml">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
+        <Content Include="Email\TextTemplates\CorrespondenceRouted.cshtml">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
     <ItemGroup>
         <Reference Include="System.Web"/>

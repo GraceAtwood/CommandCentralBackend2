@@ -114,9 +114,10 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
                 transaction.Commit();
             }
 
-            EventManager.OnCorrespondenceRoutedToNextPerson(new Events.Args.CorrespondenceItemEventArgs
+            EventManager.OnCorrespondenceRouted(new Events.Args.CorrespondenceItemRoutedEventArgs()
             {
-                Item = correspondenceItem
+                Item = correspondenceItem,
+                NewPersonRoutedTo = review.Reviewer
             }, this);
 
             return CreatedAtAction(nameof(GetReview), new { correspondenceItemId = correspondenceItem.Id, reviewId = review.Id }, new DTOs.CorrespondenceReview.Get(review));

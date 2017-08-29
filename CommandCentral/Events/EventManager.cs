@@ -109,10 +109,10 @@ namespace CommandCentral.Events
             ReviewDeleted?.Invoke(sender, e);
         }
 
-        public static event EventHandler<CorrespondenceItemEventArgs> CorrespondenceRoutedToNextPerson;
-        public static void OnCorrespondenceRoutedToNextPerson(CorrespondenceItemEventArgs e, object sender)
+        public static event EventHandler<CorrespondenceItemRoutedEventArgs> CorrespondenceRouted;
+        public static void OnCorrespondenceRouted(CorrespondenceItemRoutedEventArgs e, object sender)
         {
-            CorrespondenceRoutedToNextPerson?.Invoke(sender, e);
+            CorrespondenceRouted?.Invoke(sender, e);
         }
 
         public static event EventHandler<CorrespondenceItemEventArgs> CorrespondenceCompleted;

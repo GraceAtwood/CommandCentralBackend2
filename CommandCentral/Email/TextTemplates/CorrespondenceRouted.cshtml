@@ -1,0 +1,8 @@
+@using CommandCentral.Email
+@model CommandCentral.Email.Models.CorrespondenceRouted
+
+Hello @Model.To.ToDisplayName()!
+
+The correspondence @Model.CorrespondenceItem.SeriesNumber has been routed to a new person!
+
+New person: @Model.NewPersonRoutedTo.ToDisplayName()

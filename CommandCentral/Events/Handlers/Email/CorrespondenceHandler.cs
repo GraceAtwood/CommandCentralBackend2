@@ -22,7 +22,7 @@ namespace CommandCentral.Events.Handlers.Email
             EventManager.CorrespondenceCreated += OnCorrespondenceCreated;
             EventManager.CorrespondenceDeleted += OnCorrespondenceDeleted;
             EventManager.CorrespondenceModified += OnCorrespondenceModified;
-            EventManager.CorrespondenceRoutedToNextPerson += OnCorrespondenceRoutedToNextPerson;
+            EventManager.CorrespondenceRouted += OnCorrespondenceRouted;
             EventManager.CorrespondenceShared += OnCorrespondenceShared;
             EventManager.ReviewDeleted += OnReviewDeleted;
             EventManager.ReviewModified += OnReviewModified;
@@ -40,7 +40,7 @@ namespace CommandCentral.Events.Handlers.Email
         {
         }
 
-        private void OnCorrespondenceRoutedToNextPerson(object sender, CorrespondenceItemEventArgs e)
+        private void OnCorrespondenceRouted(object sender, CorrespondenceItemRoutedEventArgs e)
         {
         }
 

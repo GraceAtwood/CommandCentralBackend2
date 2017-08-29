@@ -26,5 +26,10 @@ namespace CommandCentral.Email
         /// The template meant to be used for the correspondence modified email.
         /// </summary>
         public static readonly CCEmailTemplate<CorrespondenceGeneric> CorrespondenceModifiedTemplate = new CCEmailTemplate<CorrespondenceGeneric>("CorrespondenceModified.cshtml");
+        
+        /// <summary>
+        /// The template meant to be used for the correspondence email when it is routed to a new person.
+        /// </summary>
+        public static readonly CCEmailTemplate<CorrespondenceRouted> CorrespondenceRoutedTemplate = new CCEmailTemplate<CorrespondenceRouted>("CorrespondenceRoutedRouted.cshtml");
     }
 }
