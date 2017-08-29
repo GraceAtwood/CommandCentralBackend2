@@ -29,17 +29,12 @@ namespace CommandCentral.Email
         public CCEmailTemplate(string templateName)
         {
             TemplateName = templateName;
-            
-            using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("CommandCentral.Email.TextTemplates." + templateName))
-            {
-                if (resourceStream == null)
-                    throw new  FileNotFoundException("The resource could not be found.", "CommandCentral.Email.TextTemplates." + templateName);
-                
-                using (var reader = new StreamReader(resourceStream))
-                {
-                    _templateRunner = Engine.Razor.CompileRunner<TModel>(reader.ReadToEnd());
-                }
-            }
+            var filePath = Path.Combine("Email", "TextTemplates", templateName);
+
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException("The resource could not be found.", filePath);
+
+            _templateRunner = Engine.Razor.CompileRunner<TModel>(File.ReadAllText(filePath));
         }
 
         /// <summary>

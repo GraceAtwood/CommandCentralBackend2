@@ -13,5 +13,7 @@ namespace CommandCentral.Email
         public static readonly CCEmailTemplate<CorrespondenceModified> CorrespondenceModifiedTemplate = new CCEmailTemplate<CorrespondenceModified>("CorrespondenceModified.cshtml");
 
         public static readonly CCEmailTemplate<AccountRegistered> AccountRegistedTemplate = new CCEmailTemplate<AccountRegistered>("AccountRegistered.cshtml");
+        
+        public static readonly CCEmailTemplate<RegistrationStarted> RegistrationStartedTemplate = new CCEmailTemplate<RegistrationStarted>("RegistrationStarted.cshtml");
     }
 }

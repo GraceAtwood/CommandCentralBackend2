@@ -1,112 +1,121 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-  <PropertyGroup>
-    <EnableDefaultContentItems>false</EnableDefaultContentItems>
-    <TargetFramework>net47</TargetFramework>
-    <RuntimeIdentifier>win7-x86</RuntimeIdentifier>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\Debug\net47\win7-x86\commandcentral.xml</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>bin\Release\net47\win7-x86\CommandCentral.xml</DocumentationFile>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Remove="appsettings.example.json" />
-    <None Remove="Email\Templates\AccountConfirmation_HTML.html" />
-    <None Remove="Email\Templates\AssignmentChangedEvent_HTML.html" />
-    <None Remove="Email\Templates\BeginPasswordReset_HTML.html" />
-    <None Remove="Email\Templates\CompletedAccountRegistration_HTML.html" />
-    <None Remove="Email\Templates\FailedAccountLogin_HTML.html" />
-    <None Remove="Email\Templates\FatalError_HTML.html" />
-    <None Remove="Email\Templates\Feedback_HTML.html" />
-    <None Remove="Email\Templates\FinishPasswordReset_HTML.html" />
-    <None Remove="Email\Templates\ForgotUsername_HTML.html" />
-    <None Remove="Email\Templates\NameChangedEvent_HTML.html" />
-    <None Remove="Email\Templates\NewPersonChangeEvent_HTML.html" />
-    <None Remove="Email\Templates\PasswordChanged_HTML.html" />
-    <None Remove="Email\Templates\ReregistrationError_HTML.html" />
-    <None Remove="Email\Templates\UpcomingWatch_HTML.html" />
-    <None Remove="Email\Templates\WatchAssigned_HTML.html" />
-    <None Remove="Email\Templates\WatchbillClosedForInputs_HTML.html" />
-    <None Remove="Email\Templates\WatchbillInputRequired_HTML.html" />
-    <None Remove="Email\Templates\WatchbillOpenForInputs_HTML.html" />
-    <None Remove="Email\Templates\WatchbillPublished_HTML.html" />
-    <None Remove="Email\Templates\WatchbillUnderReview_HTML.html" />
-    <None Remove="Email\Templates\WatchInputRequirements_HTML.html" />
-    <None Remove="Email\Templates\WatchReassignedAdded_HTML.html" />
-    <None Remove="Email\Templates\WatchReassignedRemoved_HTML.html" />
-    <None Remove="PreDefs\Def_BilletAssignments.cc" />
-    <None Remove="PreDefs\Def_DutyStatuses.cc" />
-    <None Remove="PreDefs\Def_Paygrades.cc" />
-    <None Remove="PreDefs\Def_PhoneNumberTypes.cc" />
-    <None Remove="PreDefs\Def_Sexes.cc" />
-    <None Remove="PreDefs\Def_WatchQualifications.cc" />
-    <None Remove="wwwroot\swagger-ui\basic-auth.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Authentication\" />
-    <Folder Include="Email\Templates" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="1.9.71" />
-    <PackageReference Include="FluentNHibernate" Version="2.0.3" />
-    <PackageReference Include="FluentScheduler" Version="5.3.0" />
-    <PackageReference Include="FluentValidation.AspNetCore" Version="7.1.1" />
-    <PackageReference Include="LINQKit.Core" Version="1.1.9" />
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
-    <PackageReference Include="MySql.Data" Version="6.9.9" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="NHibernate" Version="4.1.1.4000" />
-    <PackageReference Include="NHibernate.Caches.SysCache" Version="4.0.0.4000" />
-    <PackageReference Include="Polly" Version="5.3.1" />
-    <PackageReference Include="RazorEngine" Version="3.10.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="1.0.0" />
-    <PackageReference Include="Swashbuckle.Core" Version="5.6.0" />
-    <PackageReference Include="TimePeriodLibrary.NET" Version="2.1.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="PreDefs\Def_BilletAssignments.cc" />
-    <EmbeddedResource Include="PreDefs\Def_DutyStatuses.cc" />
-    <EmbeddedResource Include="PreDefs\Def_PermissionGroups.cc" />
-    <EmbeddedResource Include="PreDefs\Def_AccountabilityTypes.cc" />
-    <EmbeddedResource Include="PreDefs\Def_Paygrades.cc" />
-    <EmbeddedResource Include="PreDefs\Def_PhoneNumberTypes.cc" />
-    <EmbeddedResource Include="PreDefs\Def_Sexes.cc" />
-    <EmbeddedResource Include="PreDefs\Def_WatchQualifications.cc" />
-    <Content Include="appsettings.example.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="wwwroot\swagger-ui\basic-auth.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System.Web" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Update="appsettings - Copy.example.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+    <PropertyGroup>
+        <EnableDefaultContentItems>false</EnableDefaultContentItems>
+        <TargetFramework>net47</TargetFramework>
+        <RuntimeIdentifier>win7-x86</RuntimeIdentifier>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <DocumentationFile>bin\Debug\net47\win7-x86\commandcentral.xml</DocumentationFile>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <DocumentationFile>bin\Release\net47\win7-x86\CommandCentral.xml</DocumentationFile>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Remove="appsettings.example.json"/>
+        <None Remove="Email\Templates\AccountConfirmation_HTML.html"/>
+        <None Remove="Email\Templates\AssignmentChangedEvent_HTML.html"/>
+        <None Remove="Email\Templates\BeginPasswordReset_HTML.html"/>
+        <None Remove="Email\Templates\CompletedAccountRegistration_HTML.html"/>
+        <None Remove="Email\Templates\FailedAccountLogin_HTML.html"/>
+        <None Remove="Email\Templates\FatalError_HTML.html"/>
+        <None Remove="Email\Templates\Feedback_HTML.html"/>
+        <None Remove="Email\Templates\FinishPasswordReset_HTML.html"/>
+        <None Remove="Email\Templates\ForgotUsername_HTML.html"/>
+        <None Remove="Email\Templates\NameChangedEvent_HTML.html"/>
+        <None Remove="Email\Templates\NewPersonChangeEvent_HTML.html"/>
+        <None Remove="Email\Templates\PasswordChanged_HTML.html"/>
+        <None Remove="Email\Templates\ReregistrationError_HTML.html"/>
+        <None Remove="Email\Templates\UpcomingWatch_HTML.html"/>
+        <None Remove="Email\Templates\WatchAssigned_HTML.html"/>
+        <None Remove="Email\Templates\WatchbillClosedForInputs_HTML.html"/>
+        <None Remove="Email\Templates\WatchbillInputRequired_HTML.html"/>
+        <None Remove="Email\Templates\WatchbillOpenForInputs_HTML.html"/>
+        <None Remove="Email\Templates\WatchbillPublished_HTML.html"/>
+        <None Remove="Email\Templates\WatchbillUnderReview_HTML.html"/>
+        <None Remove="Email\Templates\WatchInputRequirements_HTML.html"/>
+        <None Remove="Email\Templates\WatchReassignedAdded_HTML.html"/>
+        <None Remove="Email\Templates\WatchReassignedRemoved_HTML.html"/>
+        <None Remove="PreDefs\Def_BilletAssignments.cc"/>
+        <None Remove="PreDefs\Def_DutyStatuses.cc"/>
+        <None Remove="PreDefs\Def_Paygrades.cc"/>
+        <None Remove="PreDefs\Def_PhoneNumberTypes.cc"/>
+        <None Remove="PreDefs\Def_Sexes.cc"/>
+        <None Remove="PreDefs\Def_WatchQualifications.cc"/>
+        <None Remove="wwwroot\swagger-ui\basic-auth.js"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Folder Include="Authentication\"/>
+        <Folder Include="Email\Templates"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="CommandLineParser" Version="1.9.71"/>
+        <PackageReference Include="FluentNHibernate" Version="2.0.3"/>
+        <PackageReference Include="FluentScheduler" Version="5.3.0"/>
+        <PackageReference Include="FluentValidation.AspNetCore" Version="7.1.1"/>
+        <PackageReference Include="LINQKit.Core" Version="1.1.9"/>
+        <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.1.1"/>
+        <PackageReference Include="Microsoft.AspNetCore" Version="2.0.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.0.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.0.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.0.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0"/>
+        <PackageReference Include="MySql.Data" Version="6.9.9"/>
+        <PackageReference Include="Newtonsoft.Json" Version="10.0.3"/>
+        <PackageReference Include="NHibernate" Version="4.1.1.4000"/>
+        <PackageReference Include="NHibernate.Caches.SysCache" Version="4.0.0.4000"/>
+        <PackageReference Include="Polly" Version="5.3.1"/>
+        <PackageReference Include="RazorEngine" Version="3.10.0"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="1.0.0"/>
+        <PackageReference Include="Swashbuckle.Core" Version="5.6.0"/>
+        <PackageReference Include="TimePeriodLibrary.NET" Version="2.1.1"/>
+    </ItemGroup>
+    <ItemGroup>
+        <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1"/>
+    </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="PreDefs\Def_BilletAssignments.cc"/>
+        <EmbeddedResource Include="PreDefs\Def_DutyStatuses.cc"/>
+        <EmbeddedResource Include="PreDefs\Def_PermissionGroups.cc"/>
+        <EmbeddedResource Include="PreDefs\Def_AccountabilityTypes.cc"/>
+        <EmbeddedResource Include="PreDefs\Def_Paygrades.cc"/>
+        <EmbeddedResource Include="PreDefs\Def_PhoneNumberTypes.cc"/>
+        <EmbeddedResource Include="PreDefs\Def_Sexes.cc"/>
+        <EmbeddedResource Include="PreDefs\Def_WatchQualifications.cc"/>
+        <Content Include="appsettings.example.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="wwwroot\swagger-ui\basic-auth.js">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Email\TextTemplates\CorrespondenceModified.cshtml">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Email\TextTemplates\RegistrationStarted.cshtml">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Email\TextTemplates\AccountRegistered.cshtml">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+    <ItemGroup>
+        <Reference Include="System.Web"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Content Update="appsettings - Copy.example.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <None Update="appsettings.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="appsettings.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="appsettings.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
 </Project>
