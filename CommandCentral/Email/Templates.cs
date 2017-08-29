@@ -8,7 +8,7 @@ namespace CommandCentral.Email
     public static class Templates
     {
         /// <summary>
-        /// The template meant to be used for the correspondence modified email.
+        /// The template meant to be used for the correspondence completed email.
         /// </summary>
         public static readonly CCEmailTemplate<CorrespondenceGeneric> CorrespondenceCompletedTemplate = new CCEmailTemplate<CorrespondenceGeneric>("CorrespondenceCompleted.cshtml");
         
@@ -21,5 +21,10 @@ namespace CommandCentral.Email
         /// The template meant to be used for the correspondence deleted email.
         /// </summary>
         public static readonly CCEmailTemplate<CorrespondenceGeneric> CorrespondenceDeletedTemplate = new CCEmailTemplate<CorrespondenceGeneric>("CorrespondenceDeleted.cshtml");
+        
+        /// <summary>
+        /// The template meant to be used for the correspondence modified email.
+        /// </summary>
+        public static readonly CCEmailTemplate<CorrespondenceGeneric> CorrespondenceModifiedTemplate = new CCEmailTemplate<CorrespondenceGeneric>("CorrespondenceModified.cshtml");
     }
 }
