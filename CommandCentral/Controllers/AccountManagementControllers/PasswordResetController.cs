@@ -20,9 +20,6 @@ namespace CommandCentral.Controllers.AccountManagementControllers
     /// <summary>
     /// The controller for all password reset actions
     /// </summary>
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [Consumes("application/json")]
     public class PasswordResetController : CommandCentralController
     {
         /// <summary>

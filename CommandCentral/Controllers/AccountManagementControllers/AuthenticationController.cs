@@ -12,9 +12,6 @@ namespace CommandCentral.Controllers.AccountManagementControllers
     /// Authentication is the means by which a client identifies him or herself and obtains a session id.  
     /// A session id is expected to be passed in every subsequent request in order to identify a user's current session.
     /// </summary>
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [Consumes("application/json")]
     public class AuthenticationController : CommandCentralController
     {
         /// <summary>

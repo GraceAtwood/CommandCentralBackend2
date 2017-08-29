@@ -20,6 +20,9 @@ namespace CommandCentral.Framework
     /// I don't know how yet and I gotta do other things.
     /// Until Command Central moves away from NIPR net, the added functionality the asp.net core identity provider gives us is pretty useless.
     /// </summary>
+    [Route("api/[controller]")]
+    [Produces("application/json")]
+    [Consumes("application/json")]
     public class CommandCentralController : Controller
     {
         /// <summary>

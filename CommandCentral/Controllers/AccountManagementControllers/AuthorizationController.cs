@@ -13,9 +13,6 @@ namespace CommandCentral.Controllers.AccountManagementControllers
     /// Authorization is the method through which a client can ask questions about their permissions with respect to another person.  
     /// From authorization, a client can also learn what submodules they have access to and other things.
     /// </summary>
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [Consumes("application/json")]
     public class AuthorizationController : CommandCentralController
     {
         /// <summary>

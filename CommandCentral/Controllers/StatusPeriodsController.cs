@@ -21,9 +21,6 @@ namespace CommandCentral.Controllers
     /// <para>Status periods are used to inform the muster each day by pre-setting a person's muster status and to indicate that person is unavailable for watch (by setting the ExemptsFromWatch field).</para>
     /// <para>Clients in a person's chain of command may submit status periods; however, if a status period is said to exempt a person from watch, then membership in a person's watchbill chain of command is also required.</para>
     /// </summary>
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [Consumes("application/json")]
     public class StatusPeriodsController : CommandCentralController
     {
         /// <summary>

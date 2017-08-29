@@ -19,9 +19,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
     /// <summary>
     /// The person object is the central entry to a person's profile.  Permissions for each field can be attained from the /authorization controller.
     /// </summary>
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [Consumes("application/json")]
     public partial class PersonsController : CommandCentralController
     {
         [HttpPost("query")]

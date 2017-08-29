@@ -14,9 +14,6 @@ namespace CommandCentral.Controllers.CommandStructureControllers
     /// <summary>
     /// Provides query and get capability for divisions.
     /// </summary>
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [Consumes("application/json")]
     public class DivisionsController : CommandCentralController
     {
         /// <summary>

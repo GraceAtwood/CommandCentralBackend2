@@ -15,9 +15,6 @@ namespace CommandCentral.Controllers.CommandStructureControllers
     /// Does not provide access to all persons in a command.  GET /api/persons?command=commandId will provide you that functionality.  
     /// Due to the numerous places a command can be referenced, no command may be deleted.
     /// </summary>
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [Consumes("application/json")]
     public partial class CommandsController : CommandCentralController
     {
         /// <summary>
