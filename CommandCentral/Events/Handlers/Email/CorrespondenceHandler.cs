@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using CommandCentral.Authorization;
 using CommandCentral.Email;
 using CommandCentral.Email.Models;
@@ -6,6 +7,8 @@ using CommandCentral.Entities;
 using CommandCentral.Enums;
 using CommandCentral.Events.Args;
 using CommandCentral.Framework.Data;
+using CommandCentral.Utilities;
+using LinqKit;
 using NHibernate.Criterion;
 using NHibernate.Linq;
 
@@ -66,29 +69,34 @@ namespace CommandCentral.Events.Handlers.Email
                 .Concat(e.Item.Reviews.Select(x => x.ReviewedBy))
                 .Concat(e.Item.Reviews.Select(x => x.Reviewer))
                 .Concat(e.Item.Reviews.Select(x => x.RoutedBy));
-            
-            using (var session = SessionManager.GetCurrentSession())
+
+            var session = SessionManager.GetCurrentSession();
+
+            var chainOfCommandQuery = CommonQueryStrategies.IsPersonInChainOfCommandExpression(e.Item.SubmittedFor);
+
+            interestedPersons = interestedPersons.Concat(session.Query<Person>()
+                .AsExpandable()
+                .Where(chainOfCommandQuery.NullSafeOr(x =>
+                    x.PermissionGroups.Any(group => groupsWithAccessToAdminModules.Contains(group.Name))))
+                .Where(CommonQueryStrategies.GetPersonsSubscribedToEventForPersonExpression(
+                    SubscribableEvents.CorrespondenceCompleted, e.Item.SubmittedFor))
+                .ToList());
+
+            var message = new CCEmailMessage()
+                .Subject($"Correspondence #{e.Item.SeriesNumber} Completed")
+                .HighPriority();
+
+            foreach (var person in interestedPersons.Distinct())
             {
-                interestedPersons = interestedPersons.Concat(session.Query<Person>()
-                    .Where(x => x.PermissionGroups.Any(y => y.Name.IsIn(groupsWithAccessToAdminModules)))
-                    .ToFuture());
+                var sendToAddress = person.EmailAddresses.SingleOrDefault(x => x.IsPreferred);
+                if (sendToAddress == null)
+                    continue;
 
-                var message = new CCEmailMessage()
-                    .Subject("Correspondence Completed")
-                    .HighPriority();
-
-                foreach (var person in interestedPersons.Distinct())
-                {
-                    var sendToAddress = person.EmailAddresses.FirstOrDefault(x => x.IsPreferred);
-                    if (sendToAddress == null)
-                        continue;
-
-                    message.To(sendToAddress)
-                        .BodyFromTemplate(Templates.CorrespondenceModifiedTemplate,
-                            new CorrespondenceModified(person, e.Item))
-                        .Send();
-
-                }
+                message
+                    .To(sendToAddress)
+                    .BodyFromTemplate(Templates.CorrespondenceModifiedTemplate,
+                        new CorrespondenceModified(person, e.Item))
+                    .Send();
             }
         }
     }

@@ -22,24 +22,19 @@ namespace CommandCentral.Email
         private readonly ITemplateRunner<TModel> _templateRunner;
 
         /// <summary>
-        /// Creates a new template and loads the text template from the resources manifest.
+        /// Creates a new template and loads the text template from the file system.
         /// </summary>
         /// <param name="templateName"></param>
         /// <exception cref="FileNotFoundException"></exception>
         public CCEmailTemplate(string templateName)
         {
             TemplateName = templateName;
+            var filePath = Path.Combine("Email", "TextTemplates", templateName);
             
-            using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("CommandCentral.Email.TextTemplates." + templateName))
-            {
-                if (resourceStream == null)
-                    throw new  FileNotFoundException("The resource could not be found.", "CommandCentral.Email.TextTemplates." + templateName);
-                
-                using (var reader = new StreamReader(resourceStream))
-                {
-                    _templateRunner = Engine.Razor.CompileRunner<TModel>(reader.ReadToEnd());
-                }
-            }
+            if (!File.Exists(filePath))
+                throw new  FileNotFoundException("The resource could not be found.", filePath);
+
+            _templateRunner = Engine.Razor.CompileRunner<TModel>(File.ReadAllText(filePath));
         }
 
         /// <summary>
