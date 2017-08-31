@@ -67,7 +67,6 @@ namespace CommandCentral.Controllers
                 .GroupBy(x => x.GetEntityType(DBSession.GetSessionImplementation().PersistenceContext))
                 .Select(x => new DTOs.ReferenceList.GetList(x, x.Key))
                 .ToList();
-
             //Insert an empty list for all queries types that returned no results.
             foreach (var type in queriedTypes)
             {
@@ -120,6 +119,7 @@ namespace CommandCentral.Controllers
             if (type.GetCustomAttribute<EditableReferenceListAttribute>() == null)
                 return Forbid($"The reference list type {type.Name} is not editable.");
 
+
             var item = (ReferenceListItemBase) Activator.CreateInstance(type);
             item.Value = dto.Value;
             item.Description = dto.Description;
@@ -128,11 +128,8 @@ namespace CommandCentral.Controllers
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Save(item);
-                transaction.Commit();
-            }
+            DBSession.Save(item);
+            CommitChanges();
 
             return CreatedAtAction(nameof(Get), new {id = item.Id}, new DTOs.ReferenceList.Get(item));
         }
@@ -168,12 +165,8 @@ namespace CommandCentral.Controllers
             var result = item.Validate();
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
-
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Update(item);
-                transaction.Commit();
-            }
+            
+            CommitChanges();
 
             return CreatedAtAction(nameof(Get), new {id = item.Id}, new DTOs.ReferenceList.Get(item));
         }
@@ -198,12 +191,10 @@ namespace CommandCentral.Controllers
             var type = item.GetEntityType(DBSession.GetSessionImplementation().PersistenceContext);
             if (type.GetCustomAttribute<EditableReferenceListAttribute>() == null)
                 return Forbid($"The reference list type {type.Name} is not editable.");
-
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Delete(item);
-                transaction.Commit();
-            }
+            
+            DBSession.Delete(item);
+            
+            CommitChanges();
 
             return NoContent();
         }

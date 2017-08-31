@@ -49,11 +49,7 @@ namespace CommandCentral.Controllers.AccountManagementControllers
                     Person = person
                 });
 
-                using (var transaction = DBSession.BeginTransaction())
-                {
-                    DBSession.Update(person);
-                    transaction.Commit();
-                }
+                CommitChanges();
 
                 return Unauthorized();
             }
@@ -79,14 +75,12 @@ namespace CommandCentral.Controllers.AccountManagementControllers
             });
 
             Response.Headers.Add("Access-Control-Expose-Headers", "X-Session-Id");
-            Response.Headers["X-Session-Id"] = new Microsoft.Extensions.Primitives.StringValues(authSession.Token.ToString());
+            Response.Headers["X-Session-Id"] =
+                new Microsoft.Extensions.Primitives.StringValues(authSession.Token.ToString());
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Save(authSession);
-                DBSession.Update(person);
-                transaction.Commit();
-            }
+            DBSession.Save(authSession);
+
+            CommitChanges();
 
             return NoContent();
         }
@@ -115,11 +109,7 @@ namespace CommandCentral.Controllers.AccountManagementControllers
             authSession.IsActive = false;
             authSession.LogoutTime = CallTime;
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Update(authSession);
-                transaction.Commit();
-            }
+            CommitChanges();
 
             return NoContent();
         }

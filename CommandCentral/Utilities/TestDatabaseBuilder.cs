@@ -177,8 +177,6 @@ namespace CommandCentral.Utilities
                         };
 
                         command.Departments.Add(dep);
-
-                        SessionManager.GetCurrentSession().Update(command);
                     }
                 }
 
@@ -205,7 +203,6 @@ namespace CommandCentral.Utilities
                         };
 
                         department.Divisions.Add(div);
-                        SessionManager.GetCurrentSession().Update(department);
                     }
                 }
 
@@ -295,8 +292,6 @@ namespace CommandCentral.Utilities
                     ReferenceListHelper.All<WatchQualification>(), ReferenceListHelper.Find<Paygrade>("E5"), ReferenceListHelper.Random<Designation>(1).First());
 
                 SessionManager.GetCurrentSession().Save(person);
-
-                SessionManager.GetCurrentSession().Update(person);
 
                 transaction.Commit();
             }

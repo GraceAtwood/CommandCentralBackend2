@@ -78,11 +78,7 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
                 item.SharedWith.Add(person);
             }
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Update(item);
-                transaction.Commit();
-            }
+            CommitChanges();
 
             EventManager.OnCorrespondenceShared(new CorrespondenceItemSharedEventArgs
             {
