@@ -37,17 +37,15 @@ namespace CommandCentral.Controllers
                             $"One or more reference list types supplied in your '{nameof(types)}'" +
                             " parameter were not actual reference list types.");
 
-                    //TODO: figure out how to do type querying in the Linq to SQL provider.  Might have to move to QueryOver for this one.
-                    subPredicateTypeQuery = subPredicateTypeQuery.NullSafeOr(x => x is Paygrade);
+                    subPredicateTypeQuery = subPredicateTypeQuery.NullSafeOr(x => x.GetType() == type);
                 }
 
                 predicate = predicate.NullSafeAnd(subPredicateTypeQuery);
             }
 
-            var results = DBSession.Query<ReferenceListItemBase>()
-                .AsExpandable()
-                .NullSafeWhere(predicate)
-                .ToList()
+            var results = DBSession.QueryOver<ReferenceListItemBase>()
+                .Where(predicate)
+                .List()
                 .GroupBy(x => x.GetEntityType(DBSession.GetSessionImplementation().PersistenceContext))
                 .Select(x => new DTOs.ReferenceList.GetList(x, x.Key))
                 .ToList();
