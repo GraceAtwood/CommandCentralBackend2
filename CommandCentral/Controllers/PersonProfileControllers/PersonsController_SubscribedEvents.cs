@@ -31,7 +31,8 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                     additionalEvents.Add(subscribableEvent, ChainOfCommandLevels.None);
             }
 
-            return Ok(person.SubscribedEvents.Concat(additionalEvents));
+            return Ok(person.SubscribedEvents.Concat(additionalEvents)
+                .Select(x => new DTOs.SubscribedEvents.Generic(x)));
         }
 
         [HttpPut("{personId}/SubscribedEvents")]
@@ -56,7 +57,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             }
 
             CommitChanges();
-            
+
             var additionalEvents = new Dictionary<SubscribableEvents, ChainOfCommandLevels>();
 
             foreach (var subscribableEvent in (SubscribableEvents[]) Enum.GetValues(typeof(SubscribableEvents)))
@@ -65,7 +66,8 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                     additionalEvents.Add(subscribableEvent, ChainOfCommandLevels.None);
             }
 
-            return Ok(person.SubscribedEvents.Concat(additionalEvents));
+            return Ok(person.SubscribedEvents.Concat(additionalEvents)
+                .Select(x => new DTOs.SubscribedEvents.Generic(x)));
         }
     }
 }
