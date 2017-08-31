@@ -13,6 +13,11 @@ using NHibernate.Linq;
 
 namespace CommandCentral.Controllers
 {
+    /// <summary>
+    /// Provides query access to the changes collection.  
+    /// Changes themselves are controlled from within the API.  
+    /// Clients do not have the ability to create new changes or modify changes directly.
+    /// </summary>
     public class ChangesController : CommandCentralController
     {
         /// <summary>
