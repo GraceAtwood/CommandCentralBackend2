@@ -54,7 +54,7 @@ namespace CommandCentral.Framework
         /// <summary>
         /// Rolls back any transaction associated with the <seealso cref="DBSession"/> within this controller and clears all pending changes from the <seealso cref="DBSession"/>.
         /// <para />
-        /// NOTE: Entities associated with the session may reapply their changes after the session is closed.  If it's absolutely necessary, consider using .Evict on an entity to disable NHibernate's tracking of that entity.
+        /// NOTE: Entities associated with the session may reapply their changes after the session is reverted/cleared.  If it's absolutely necessary, consider using .Evict on an entity to disable NHibernate's tracking of that entity.
         /// </summary>
         public void RevertChanges()
         {
