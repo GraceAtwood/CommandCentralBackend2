@@ -4,6 +4,7 @@ namespace CommandCentral.DTOs.Change
 {
     public class Get
     {
+        public Guid Id { get; set; }
         public Guid Editor { get; set; }
         public Guid Person { get; set; }
         public string PropertyName { get; set; }
@@ -13,6 +14,7 @@ namespace CommandCentral.DTOs.Change
 
         public Get(Entities.Change change)
         {
+            Id = change.Id;
             Editor = change.Editor.Id;
             Person = change.Person.Id;
             PropertyName = change.PropertyName;

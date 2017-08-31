@@ -51,7 +51,7 @@ namespace CommandCentral.Controllers
 
             var changes = DBSession.Query<Change>()
                 .AsExpandable()
-                .Where(predicate)
+                .NullSafeWhere(predicate)
                 .OrderByDescending(x => x.ChangeTime)
                 .Take(limit);
 
