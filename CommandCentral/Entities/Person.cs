@@ -471,8 +471,8 @@ namespace CommandCentral.Entities
 
                 HasMany(x => x.SubscribedEvents)
                     .AsMap<string>(index =>
-                        index.Column("ChangeEvent").Type<SubscribableEvents>(), element =>
-                        element.Column("Level").Type<ChainOfCommandLevels>())
+                        index.Column("ChangeEvent").Type<GenericEnumMapper<SubscribableEvents>>(), element =>
+                        element.Column("Level").Type<GenericEnumMapper<ChainOfCommandLevels>>())
                     .Cascade.All();
 
                 HasMany(x => x.PermissionGroups).Table("persontopermissiongroups").Component(x =>
