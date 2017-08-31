@@ -45,8 +45,6 @@ namespace CommandCentral.Framework
         /// </summary>
         public void CommitChanges()
         {
-            Console.WriteLine("Committing changes");
-            
             using (var transaction = DBSession.BeginTransaction())
                 transaction.Commit();
         }
@@ -58,8 +56,6 @@ namespace CommandCentral.Framework
         /// </summary>
         public void RevertChanges()
         {
-            Console.WriteLine("Reverting changes");
-            
             if (DBSession.Transaction.IsActive && !DBSession.Transaction.WasCommitted &&
                 !DBSession.Transaction.WasRolledBack)
                 DBSession.Transaction.Rollback();
