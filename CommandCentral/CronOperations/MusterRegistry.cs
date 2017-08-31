@@ -44,8 +44,6 @@ namespace CommandCentral.CronOperations
                         MusterCycle = command.CurrentMusterCycle
                     }, this);
 
-                    SessionManager.GetCurrentSession().Update(command);
-
                     Schedule(() => DoRolloverForCommand(command.Id)).ToRunEvery(1).Days().At(command.MusterStartHour, 0);
                 }
 
@@ -79,8 +77,6 @@ namespace CommandCentral.CronOperations
                 {
                     MusterCycle = command.CurrentMusterCycle
                 }, this);
-
-                SessionManager.GetCurrentSession().Update(command);
 
                 transaction.Commit();
             }

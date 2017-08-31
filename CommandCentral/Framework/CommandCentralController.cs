@@ -251,12 +251,8 @@ namespace CommandCentral.Framework
 
                 HttpContext.Items["User"] = authSession.Person;
                 authSession.LastUsedTime = CallTime;
-
-                using (var transaction = DBSession.BeginTransaction())
-                {
-                    DBSession.Update(authSession);
-                    transaction.Commit();
-                }
+                
+                CommitChanges();
             }
 
             base.OnActionExecuting(context);
@@ -268,9 +264,12 @@ namespace CommandCentral.Framework
         /// <param name="context"></param>
         public override void OnActionExecuted(ActionExecutedContext context)
         {
-            //Here we choose to revert any changes before cleaning up the session.  The assumption is that any changes should've been explictly handled by the controller.
+            //Here we choose to revert any changes before cleaning up the session.  
+            //The assumption is that any changes should've been explictly handled by the controller.
+            //Any changes not handled by the controller must not have been intended to be committed.
             RevertChanges();
             Data.SessionManager.UnbindSession();
+            
             base.OnActionExecuted(context);
         }
 
