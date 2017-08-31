@@ -70,6 +70,19 @@ namespace CommandCentral.Framework
         #region Return Actions
 
         /// <summary>
+        /// Returns a 422 Unprocessable entity result, indicating The server understands the content type of the request entity 
+        /// (hence a 415 Unsupported Media Type status code is inappropriate), and the syntax of the request entity is correct 
+        /// (thus a 400 Bad Request status code is inappropriate) but was unable to process the contained instructions.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [NonAction]
+        public ObjectResult UnprocessableEntity(object data = null)
+        {
+            return StatusCode(422, data);
+        }
+        
+        /// <summary>
         /// Returns a <seealso cref="BadRequestObjectResult"/> that indicates the limit must be greater than 0.
         /// </summary>
         /// <param name="limit"></param>

@@ -4,12 +4,10 @@ using System.Linq;
 using CommandCentral.Authorization;
 using CommandCentral.Entities;
 using CommandCentral.Entities.Correspondence;
-using CommandCentral.Enums;
 using CommandCentral.Events;
 using CommandCentral.Events.Args;
 using CommandCentral.Framework;
 using Microsoft.AspNetCore.Mvc;
-using NHibernate.Dialect.Schema;
 using NHibernate.Linq;
 
 namespace CommandCentral.Controllers.CorrespondenceControllers

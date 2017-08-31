@@ -1,34 +1,50 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using CommandCentral.Framework;
 using CommandCentral.Entities.ReferenceLists;
 using CommandCentral.Authorization;
 using CommandCentral.Enums;
-using CommandCentral.Framework.Data;
 using CommandCentral.Utilities;
-using LinqKit;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using NHibernate.Linq;
+using NHibernate.Criterion;
 
 namespace CommandCentral.Controllers
 {
+    /// <summary>
+    /// Provides access to the reference lists and their individual items.  Reference lists are used to provide (sometimes editable) options to different fields throughout the application.
+    /// In addition to requiring access to admin tools to modify a list, a list itself must also be editable.
+    /// Information on the editability of a list can be obtained from the GET endpoint.
+    /// </summary>
     public class ReferenceListsController : CommandCentralController
     {
+        /// <summary>
+        /// Retrieves reference lists.
+        /// We highly recommend using the 'types' filter if possible in order to load only the data you need and avoid wasting data.
+        /// </summary>
+        /// <param name="types">An OR-combined string representing a query/filter for the types of a reference list.</param>
+        /// <returns></returns>
         [HttpGet]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.ReferenceList.GetList>))]
-        public IActionResult Get([FromQuery] string value, [FromQuery] string description, [FromQuery] string types)
+        public IActionResult Get([FromQuery] string types)
         {
-            var predicate = ((Expression<Func<ReferenceListItemBase, bool>>) null)
-                .AddStringQueryExpression(x => x.Value, value)
-                .AddStringQueryExpression(x => x.Description, description);
+            // I'm using Query Over here because the Query (Linq to SQL) provider doesn't support multiple
+            // type/class queries.  Instead, I needed to use query over in order to use the disjunction stuff.
+            // The use of queryover here is ok because we're not doing any joins, so we don't have to deal
+            // with the ass syntax of joins that queryover makes us use.  String queries would usually use 
+            // the string query from the CommonStrategies class which use Query (Linq to SQL)-specific syntax
+            // that QueryOver can't understand.  For this reason, I am also not providing the ability to query
+            // the value or description of a reference list as it would require QueryOver-specific methods.
+
+            var query = DBSession.QueryOver<ReferenceListItemBase>();
+
+            var queriedTypes = new List<Type>();
 
             if (!String.IsNullOrWhiteSpace(types))
             {
-                var subPredicateTypeQuery = (Expression<Func<ReferenceListItemBase, bool>>) null;
+                var disjunction = Restrictions.Disjunction();
 
                 foreach (var typeName in types.SplitByOr())
                 {
@@ -37,22 +53,38 @@ namespace CommandCentral.Controllers
                             $"One or more reference list types supplied in your '{nameof(types)}'" +
                             " parameter were not actual reference list types.");
 
-                    subPredicateTypeQuery = subPredicateTypeQuery.NullSafeOr(x => x.GetType() == type);
+                    // The "class" property is a special/magic property provided by NHibernate to allow queries against
+                    // the type of a class.  This will get translated to a WHERE `clazz` = # query in the post union query.
+                    disjunction.Add(Restrictions.Eq("class", type));
+                    queriedTypes.Add(type);
                 }
 
-                predicate = predicate.NullSafeAnd(subPredicateTypeQuery);
+                query.Where(disjunction);
             }
 
-            var results = DBSession.QueryOver<ReferenceListItemBase>()
-                .Where(predicate)
+            var results = query
                 .List()
                 .GroupBy(x => x.GetEntityType(DBSession.GetSessionImplementation().PersistenceContext))
                 .Select(x => new DTOs.ReferenceList.GetList(x, x.Key))
                 .ToList();
 
+            //Insert an empty list for all queries types that returned no results.
+            foreach (var type in queriedTypes)
+            {
+                if (results.All(x => x.Type != type.Name))
+                {
+                    results.Add(new DTOs.ReferenceList.GetList(new List<ReferenceListItemBase>(), type));
+                }
+            }
+
             return Ok(results);
         }
 
+        /// <summary>
+        /// Retrieves a single reference list item.
+        /// </summary>
+        /// <param name="id">The id of the reference list item to retrieve.</param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.ReferenceList.Get))]
@@ -65,6 +97,11 @@ namespace CommandCentral.Controllers
             return Ok(new DTOs.ReferenceList.Get(item));
         }
 
+        /// <summary>
+        /// Creates a new reference list item.  Requires access to admin tools.
+        /// </summary>
+        /// <param name="dto">A dto containg the necessary information to create a new reference list item.</param>
+        /// <returns></returns>
         [HttpPost]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.ReferenceList.Get))]
@@ -79,6 +116,9 @@ namespace CommandCentral.Controllers
             if (!ReferenceListHelper.ReferenceListNamesToType.TryGetValue(dto.Type, out Type type))
                 return BadRequest(
                     $"The reference list type identified by your parameter '{nameof(dto.Type)}' does not exist.");
+
+            if (type.GetCustomAttribute<EditableReferenceListAttribute>() == null)
+                return Forbid($"The reference list type {type.Name} is not editable.");
 
             var item = (ReferenceListItemBase) Activator.CreateInstance(type);
             item.Value = dto.Value;
@@ -97,6 +137,12 @@ namespace CommandCentral.Controllers
             return CreatedAtAction(nameof(Get), new {id = item.Id}, new DTOs.ReferenceList.Get(item));
         }
 
+        /// <summary>
+        /// Modifies a reference list item.  Requires access to admin tools.
+        /// </summary>
+        /// <param name="id">The id of the reference list item to modify.</param>
+        /// <param name="dto">A dto containing the information to modify the reference list item.</param>
+        /// <returns></returns>
         [HttpPut("{id}")]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.ReferenceList.Get))]
@@ -111,6 +157,10 @@ namespace CommandCentral.Controllers
             var item = DBSession.Get<ReferenceListItemBase>(id);
             if (item == null)
                 return NotFoundParameter(id, nameof(id));
+
+            var type = item.GetEntityType(DBSession.GetSessionImplementation().PersistenceContext);
+            if (type.GetCustomAttribute<EditableReferenceListAttribute>() == null)
+                return Forbid($"The reference list type {type.Name} is not editable.");
 
             item.Value = dto.Value;
             item.Description = dto.Description;
@@ -128,6 +178,11 @@ namespace CommandCentral.Controllers
             return CreatedAtAction(nameof(Get), new {id = item.Id}, new DTOs.ReferenceList.Get(item));
         }
 
+        /// <summary>
+        /// Removes a reference list item.  Requires access to admin tools.
+        /// </summary>
+        /// <param name="id">The id of the reference list item to remove.</param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         [RequireAuthentication]
         [ProducesResponseType(204)]
@@ -139,6 +194,10 @@ namespace CommandCentral.Controllers
             var item = DBSession.Get<ReferenceListItemBase>(id);
             if (item == null)
                 return NotFoundParameter(id, nameof(id));
+
+            var type = item.GetEntityType(DBSession.GetSessionImplementation().PersistenceContext);
+            if (type.GetCustomAttribute<EditableReferenceListAttribute>() == null)
+                return Forbid($"The reference list type {type.Name} is not editable.");
 
             using (var transaction = DBSession.BeginTransaction())
             {
