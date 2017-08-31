@@ -11,17 +11,8 @@ namespace CommandCentral.Entities.ReferenceLists
             throw new NotImplementedException();
         }
 
-        public class PaygradeMapping : ClassMap<Paygrade>
+        public class PaygradeMapping : SubclassMap<Paygrade>
         {
-            public PaygradeMapping()
-            {
-                Id(x => x.Id).GeneratedBy.Assigned();
-
-                Map(x => x.Value).Not.Nullable().Unique();
-                Map(x => x.Description);
-
-                Cache.ReadWrite();
-            }
         }
     }
 }

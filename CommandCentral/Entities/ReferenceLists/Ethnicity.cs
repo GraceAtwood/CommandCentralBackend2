@@ -22,20 +22,8 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <summary>
         /// Maps an ethnicity to the database.
         /// </summary>
-        public class EthnicityMapping : ClassMap<Ethnicity>
+        public class EthnicityMapping : SubclassMap<Ethnicity>
         {
-            /// <summary>
-            /// Maps an ethnicity to the database.
-            /// </summary>
-            public EthnicityMapping()
-            {
-                Id(x => x.Id).GeneratedBy.Assigned();
-
-                Map(x => x.Value).Not.Nullable().Unique();
-                Map(x => x.Description);
-
-                Cache.ReadWrite();
-            }
         }
 
         /// <summary>

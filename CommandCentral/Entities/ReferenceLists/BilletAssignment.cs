@@ -17,20 +17,8 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <summary>
         /// Maps this object to the database.
         /// </summary>
-        public class BilletAssignmentMapping : ClassMap<BilletAssignment>
+        public class BilletAssignmentMapping : SubclassMap<BilletAssignment>
         {
-            /// <summary>
-            /// Maps this object to the database.
-            /// </summary>
-            public BilletAssignmentMapping()
-            {
-                Id(x => x.Id).GeneratedBy.Assigned();
-
-                Map(x => x.Value).Not.Nullable().Unique();
-                Map(x => x.Description);
-
-                Cache.ReadWrite();
-            }
         }
     }
 }

@@ -23,7 +23,7 @@ namespace CommandCentral.Entities.ReferenceLists
             ReferenceListNamesToType = new ConcurrentDictionary<string, Type>(
                 Assembly.GetExecutingAssembly().GetTypes()
                     .Where(x => typeof(ReferenceListItemBase).IsAssignableFrom(x))
-                    .ToDictionary(x => x.Name, x => x, StringComparer.CurrentCultureIgnoreCase));
+                    .ToDictionary(x => x.Name, x => x), StringComparer.CurrentCultureIgnoreCase);
         }
 
         /// <summary>

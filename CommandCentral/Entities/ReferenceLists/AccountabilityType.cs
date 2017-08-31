@@ -11,17 +11,8 @@ namespace CommandCentral.Entities.ReferenceLists
             throw new NotImplementedException();
         }
 
-        public class AccountabilityTypeMapping : ClassMap<AccountabilityType>
+        public class AccountabilityTypeMapping : SubclassMap<AccountabilityType>
         {
-            public AccountabilityTypeMapping()
-            {
-                Id(x => x.Id).GeneratedBy.Assigned();
-
-                Map(x => x.Value).Not.Nullable().Unique();
-                Map(x => x.Description);
-
-                Cache.ReadWrite();
-            }
         }
     }
 }

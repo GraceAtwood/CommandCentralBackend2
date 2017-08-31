@@ -11,17 +11,8 @@ namespace CommandCentral.Entities.ReferenceLists
             throw new NotImplementedException();
         }
 
-        public class PhoneNumberTypeMapping : ClassMap<PhoneNumberType>
+        public class PhoneNumberTypeMapping : SubclassMap<PhoneNumberType>
         {
-            public PhoneNumberTypeMapping()
-            {
-                Id(x => x.Id).GeneratedBy.Assigned();
-
-                Map(x => x.Value).Not.Nullable().Unique();
-                Map(x => x.Description);
-
-                Cache.ReadWrite();
-            }
         }
     }
 }
