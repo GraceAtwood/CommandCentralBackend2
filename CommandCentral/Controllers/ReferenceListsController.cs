@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Microsoft.AspNetCore.Mvc;
 using CommandCentral.Framework;
 using CommandCentral.Entities.ReferenceLists;
 using CommandCentral.Authorization;
 using CommandCentral.Enums;
+using CommandCentral.Framework.Data;
+using CommandCentral.Utilities;
+using LinqKit;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using NHibernate.Linq;
 
 namespace CommandCentral.Controllers
 {
@@ -14,39 +20,39 @@ namespace CommandCentral.Controllers
         [HttpGet]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.ReferenceList.GetList>))]
-        public IActionResult Get([FromQuery] string value, [FromQuery] string description, [FromQuery] string type)
+        public IActionResult Get([FromQuery] string value, [FromQuery] string description, [FromQuery] string types)
         {
-            /*Expression<Func<ReferenceListItemBase, bool>> predicate = null;
-
-            predicate = predicate
+            var predicate = ((Expression<Func<ReferenceListItemBase, bool>>) null)
                 .AddStringQueryExpression(x => x.Value, value)
                 .AddStringQueryExpression(x => x.Description, description);
 
-            IQueryable<ReferenceListItemBase> query = ;
-
-            if (!String.IsNullOrWhiteSpace(type))
+            if (!String.IsNullOrWhiteSpace(types))
             {
-                if (!ReferenceListHelper.ReferenceListNamesToType.TryGetValue(type, out Type listType))
-                    return BadRequest($"The reference list type supplied by your parameter '{nameof(type)}' do not exist. Allowed, case-insensitive values are: {String.Join(", ", ReferenceListHelper.ReferenceListNamesToType.Keys)}");
+                var subPredicateTypeQuery = (Expression<Func<ReferenceListItemBase, bool>>) null;
 
-                query = DBSession.Query<ReferenceListItemBase>(listType.Name);
+                foreach (var typeName in types.SplitByOr())
+                {
+                    if (!ReferenceListHelper.ReferenceListNamesToType.TryGetValue(typeName, out Type type))
+                        return BadRequest(
+                            $"One or more reference list types supplied in your '{nameof(types)}'" +
+                            " parameter were not actual reference list types.");
+
+                    //TODO: figure out how to do type querying in the Linq to SQL provider.  Might have to move to QueryOver for this one.
+                    subPredicateTypeQuery = subPredicateTypeQuery.NullSafeOr(x => x is Paygrade);
+                }
+
+                predicate = predicate.NullSafeAnd(subPredicateTypeQuery);
             }
-            else
-            {
-                query = DBSession.Query<ReferenceListItemBase>();
-            }
-            
-            var results = query
+
+            var results = DBSession.Query<ReferenceListItemBase>()
                 .AsExpandable()
                 .NullSafeWhere(predicate)
                 .ToList()
                 .GroupBy(x => x.GetEntityType(DBSession.GetSessionImplementation().PersistenceContext))
                 .Select(x => new DTOs.ReferenceList.GetList(x, x.Key))
                 .ToList();
-            
-            return Ok(results);*/
-            
-            throw new NotImplementedException();
+
+            return Ok(results);
         }
 
         [HttpGet("{id}")]
@@ -64,7 +70,7 @@ namespace CommandCentral.Controllers
         [HttpPost]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.ReferenceList.Get))]
-        public IActionResult Post([FromBody]DTOs.ReferenceList.Post dto)
+        public IActionResult Post([FromBody] DTOs.ReferenceList.Post dto)
         {
             if (dto == null)
                 return BadRequestDTONull();
@@ -73,9 +79,10 @@ namespace CommandCentral.Controllers
                 return Forbid();
 
             if (!ReferenceListHelper.ReferenceListNamesToType.TryGetValue(dto.Type, out Type type))
-                return BadRequest($"The reference list type identified by your parameter '{nameof(dto.Type)}' does not exist.");
+                return BadRequest(
+                    $"The reference list type identified by your parameter '{nameof(dto.Type)}' does not exist.");
 
-            var item = (ReferenceListItemBase)Activator.CreateInstance(type);
+            var item = (ReferenceListItemBase) Activator.CreateInstance(type);
             item.Value = dto.Value;
             item.Description = dto.Description;
 
@@ -89,13 +96,13 @@ namespace CommandCentral.Controllers
                 transaction.Commit();
             }
 
-            return CreatedAtAction(nameof(Get), new { id = item.Id }, new DTOs.ReferenceList.Get(item));
+            return CreatedAtAction(nameof(Get), new {id = item.Id}, new DTOs.ReferenceList.Get(item));
         }
 
         [HttpPut("{id}")]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.ReferenceList.Get))]
-        public IActionResult Put(Guid id, [FromBody]DTOs.ReferenceList.Put dto)
+        public IActionResult Put(Guid id, [FromBody] DTOs.ReferenceList.Put dto)
         {
             if (dto == null)
                 return BadRequestDTONull();
@@ -120,7 +127,7 @@ namespace CommandCentral.Controllers
                 transaction.Commit();
             }
 
-            return CreatedAtAction(nameof(Get), new { id = item.Id }, new DTOs.ReferenceList.Get(item));
+            return CreatedAtAction(nameof(Get), new {id = item.Id}, new DTOs.ReferenceList.Get(item));
         }
 
         [HttpDelete("{id}")]

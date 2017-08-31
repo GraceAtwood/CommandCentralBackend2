@@ -19,23 +19,12 @@ namespace CommandCentral.Entities.ReferenceLists
         {
             return new ReligiousPreferenceValidator().Validate(this);
         }
+
         /// <summary>
         /// Maps a Religious Preference to the database.
         /// </summary>
-        public class ReligiousPreferenceMapping : ClassMap<ReligiousPreference>
+        public class ReligiousPreferenceMapping : SubclassMap<ReligiousPreference>
         {
-            /// <summary>
-            /// Maps a Religious Preference to the database.
-            /// </summary>
-            public ReligiousPreferenceMapping()
-            {
-                Id(x => x.Id).GeneratedBy.Assigned();
-
-                Map(x => x.Value).Not.Nullable().Unique();
-                Map(x => x.Description);
-
-                Cache.ReadWrite();
-            }
         }
 
         /// <summary>
@@ -54,6 +43,5 @@ namespace CommandCentral.Entities.ReferenceLists
                     .WithMessage("The value must not be empty.");
             }
         }
-
     }
 }
