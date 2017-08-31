@@ -111,6 +111,7 @@ namespace CommandCentral.Entities
                     return SessionManager.GetCurrentSession().Query<EmailAddress>().Count(x => x.Id != item.Id && x.Address == address) == 0;
                 })
                 .WithMessage("Email addresses must be unique.");
+                
             }
         }
     }

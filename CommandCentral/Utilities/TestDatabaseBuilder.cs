@@ -12,6 +12,7 @@ using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NHibernate.Linq;
 
 namespace CommandCentral.Utilities
 {
@@ -161,7 +162,7 @@ namespace CommandCentral.Utilities
         {
             using (var transaction = SessionManager.GetCurrentSession().BeginTransaction())
             {
-                var commands = SessionManager.GetCurrentSession().QueryOver<Command>().List();
+                var commands = SessionManager.GetCurrentSession().Query<Command>().ToList();
 
                 foreach (var command in commands)
                 {
@@ -189,7 +190,7 @@ namespace CommandCentral.Utilities
         {
             using (var transaction = SessionManager.GetCurrentSession().BeginTransaction())
             {
-                var departments = SessionManager.GetCurrentSession().QueryOver<Department>().List();
+                var departments = SessionManager.GetCurrentSession().Query<Department>().ToList();
 
                 foreach (var department in departments)
                 {
@@ -284,7 +285,7 @@ namespace CommandCentral.Utilities
         {
             using (var transaction = SessionManager.GetCurrentSession().BeginTransaction())
             {
-                var command = SessionManager.GetCurrentSession().QueryOver<Command>().CacheMode(NHibernate.CacheMode.Ignore).List().First();
+                var command = SessionManager.GetCurrentSession().Query<Command>().CacheMode(NHibernate.CacheMode.Ignore).First();
                 var department = command.Departments.First();
                 var division = department.Divisions.First();
                 var uic = ReferenceListHelper.Random<UIC>(1).First();
@@ -315,7 +316,7 @@ namespace CommandCentral.Utilities
                 var comPermGroups = PermissionsCache.PermissionGroupsCache.Values
                     .Where(x => x.AccessLevels.Values.Any(y => y == ChainOfCommandLevels.Command) && x.IsMemberOfChainOfCommand).ToList();
 
-                foreach (var command in SessionManager.GetCurrentSession().QueryOver<Command>().List())
+                foreach (var command in SessionManager.GetCurrentSession().Query<Command>())
                 {
                     foreach (var department in command.Departments)
                     {

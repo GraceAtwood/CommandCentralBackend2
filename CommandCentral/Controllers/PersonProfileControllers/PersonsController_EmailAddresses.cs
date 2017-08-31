@@ -6,6 +6,7 @@ using CommandCentral.Entities;
 using CommandCentral.Framework;
 using Microsoft.AspNetCore.Mvc;
 using NHibernate.Linq;
+using NHibernate.Util;
 
 namespace CommandCentral.Controllers.PersonProfileControllers
 {
@@ -78,6 +79,9 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             var result = item.Validate();
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
+            
+            if (item.IsPreferred)
+                item.Person.EmailAddresses.ForEach(x => x.IsPreferred = false);
 
             using (var transaction = DBSession.BeginTransaction())
             {
@@ -105,6 +109,16 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             item.Address = dto.Address;
             item.IsPreferred = dto.IsPreferred;
             item.IsReleasableOutsideCoC = dto.IsReleasableOutsideCoC;
+
+            var result = item.Validate();
+            if (!result.IsValid)
+                return BadRequest(result.Errors.Select(x => x.ErrorMessage));
+
+            if (item.IsPreferred)
+            {
+                item.Person.EmailAddresses.ForEach(x => x.IsPreferred = false);
+                item.IsPreferred = true;
+            }
 
             using (var transaction = DBSession.BeginTransaction())
             {

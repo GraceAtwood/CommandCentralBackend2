@@ -21,9 +21,6 @@ namespace CommandCentral.Controllers.Muster
     /// A muster entry represents a single accounting of a person during a muster cycle.
     /// Anyone can see all muster entries; however, modification of muster entries requires that you be in the given person's muster chain of command.
     /// </summary>
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [Consumes("application/json")]
     public class MusterEntriesController : CommandCentralController
     {
         /// <summary>

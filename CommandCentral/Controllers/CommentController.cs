@@ -19,9 +19,6 @@ namespace CommandCentral.Controllers
     /// Comments are implemented by multiple entities and allow clients to post... well... comments to an entity.
     /// Permissions for who can access and post comments to an entity are controlled by that entity.
     /// </summary>
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [Consumes("application/json")]
     public class CommentController : CommandCentralController
     {
         /// <summary>

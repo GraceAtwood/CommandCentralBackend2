@@ -23,9 +23,6 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
     /// The last review is the one awaiting review.  The last review will have .NextReview = null, .ReviewedBy = null, .IsReviewed = false, and .IsRecommended = null.  
     /// The best way to find an item awaiting review is simply to use the hasBeenCompleted search parameter or the pendingReviewer parameter if you know who you're looking for.  
     /// </summary>
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [Consumes("application/json")]
     public partial class CorrespondenceItemsController : CommandCentralController
     {
         /// <summary>

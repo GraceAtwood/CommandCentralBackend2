@@ -23,9 +23,6 @@ namespace CommandCentral.Controllers.Muster
     /// The only thing consumers may modify about a muster cycle is the isFinalized property (requires access to the admin tools submodule).  
     /// This is how you close or reopen the muster cycle.  The rest of the muster cycle's life cycle is handled automatically.
     /// </summary>
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [Consumes("application/json")]
     public class MusterCyclesController : CommandCentralController
     {
         /// <summary>

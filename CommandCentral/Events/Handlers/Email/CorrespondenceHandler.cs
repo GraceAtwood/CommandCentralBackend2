@@ -9,8 +9,6 @@ using CommandCentral.Events.Args;
 using CommandCentral.Framework.Data;
 using CommandCentral.Utilities;
 using LinqKit;
-using Microsoft.AspNetCore.Razor.Language;
-using NHibernate.Criterion;
 using NHibernate.Linq;
 
 namespace CommandCentral.Events.Handlers.Email

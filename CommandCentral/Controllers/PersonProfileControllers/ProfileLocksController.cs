@@ -9,9 +9,6 @@ using NHibernate.Linq;
 
 namespace CommandCentral.Controllers.PersonProfileControllers
 {
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [Consumes("application/json")]
     public class ProfileLocksController : CommandCentralController
     {
         [HttpGet("me")]

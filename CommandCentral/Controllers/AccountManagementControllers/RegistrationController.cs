@@ -23,9 +23,6 @@ namespace CommandCentral.Controllers.AccountManagementControllers
     /// The email will contain a link which is built by replacing the text '[RegistrationToken]' in your continue link with the actual token.
     /// When the client clicks that link, you should submit the given registration token along with a username and password for your client to the /complete endpoint.
     /// </summary>
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [Consumes("application/json")]
     public class RegistrationController : CommandCentralController
     {
         /// <summary>

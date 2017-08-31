@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NHibernate.Criterion;
 using CommandCentral.Framework.Data;
 using CommandCentral.Utilities;
 using System.Reflection;
 using System.Collections.Concurrent;
+using NHibernate.Linq;
 
 namespace CommandCentral.Entities.ReferenceLists
 {
@@ -33,7 +33,7 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <returns></returns>
         public static bool Exists<T>(string value) where T : ReferenceListItemBase
         {
-            return SessionManager.GetCurrentSession().QueryOver<T>().Where(x => x.Value.IsInsensitiveLike(value)).RowCount() != 0;
+            return SessionManager.GetCurrentSession().Query<T>().Count(x => x.Value == value) != 0;
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <returns></returns>
         public static bool IdExists<T>(Guid id) where T : ReferenceListItemBase
         {
-            return SessionManager.GetCurrentSession().QueryOver<T>().Where(x => x.Id == id).RowCount() != 0;
+            return SessionManager.GetCurrentSession().Query<T>().Count(x => x.Id == id) != 0;
         }
 
         /// <summary>
@@ -53,8 +53,7 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <returns></returns>
         public static bool AllExist<T>(params string[] values) where T : ReferenceListItemBase
         {
-            var array = values.Distinct().ToArray();
-            return SessionManager.GetCurrentSession().QueryOver<T>().Where(x => x.Value.IsIn(array)).RowCount() == values.Length;
+            return SessionManager.GetCurrentSession().Query<T>().Count(x => values.Contains(x.Value)) == values.Length;
         }
 
         /// <summary>
@@ -64,8 +63,8 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <returns></returns>
         public static bool AllExist<T>(IEnumerable<string> values) where T : ReferenceListItemBase
         {
-            var array = values.Distinct().ToArray();
-            return SessionManager.GetCurrentSession().QueryOver<T>().Where(x => x.Value.IsIn(array)).RowCount() == array.Length;
+            var list = values.ToList();
+            return SessionManager.GetCurrentSession().Query<T>().Count(x => list.Contains(x.Value)) == list.Count();
         }
 
         /// <summary>
@@ -74,7 +73,7 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <returns></returns>
         public static List<T> All<T>() where T : ReferenceListItemBase
         {
-            return (List<T>)SessionManager.GetCurrentSession().QueryOver<T>().List();
+            return (List<T>)SessionManager.GetCurrentSession().Query<T>().ToList();
         }
 
         /// <summary>
@@ -84,7 +83,7 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <returns></returns>
         public static T Find<T>(string value) where T : ReferenceListItemBase
         {
-            return SessionManager.GetCurrentSession().QueryOver<T>().Where(x => x.Value.IsInsensitiveLike(value))
+            return SessionManager.GetCurrentSession().Query<T>().Where(x => x.Value == value)
                 .Cacheable()
                 .SingleOrDefault() ??
                 throw new Exception($"Failed to find reference list {value} of type {typeof(T).Name}");
@@ -120,7 +119,7 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <returns></returns>
         public static IEnumerable<T> Random<T>(int count) where T : ReferenceListItemBase
         {
-            var list = SessionManager.GetCurrentSession().QueryOver<T>().List();
+            var list = SessionManager.GetCurrentSession().Query<T>().ToList();
 
             if (count > list.Count)
                 count = list.Count;

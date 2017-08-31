@@ -10,8 +10,6 @@ using CommandCentral.Framework;
 using CommandCentral.Framework.Data;
 using LinqKit;
 using Microsoft.AspNetCore.Mvc;
-using NHibernate.Cfg.XmlHbmBinding;
-using NHibernate.Criterion;
 using NHibernate.Linq;
 using Random = CommandCentral.Utilities.Random;
 
@@ -20,9 +18,6 @@ namespace CommandCentral.Controllers.AccountManagementControllers
     /// <summary>
     /// The controller for all password reset actions
     /// </summary>
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [Consumes("application/json")]
     public class PasswordResetController : CommandCentralController
     {
         /// <summary>
