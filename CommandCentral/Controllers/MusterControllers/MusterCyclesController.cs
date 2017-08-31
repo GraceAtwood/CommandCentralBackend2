@@ -11,7 +11,7 @@ using LinqKit;
 using Microsoft.AspNetCore.Mvc;
 using NHibernate.Linq;
 
-namespace CommandCentral.Controllers.Muster
+namespace CommandCentral.Controllers.MusterControllers
 {
     /// <summary>
     /// Muster cycles are used to encapsulate all of the muster entries for a given period of time.  Essentially, this is a single day's muster.

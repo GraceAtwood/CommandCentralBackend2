@@ -15,7 +15,7 @@ using LinqKit;
 using Microsoft.AspNetCore.Mvc;
 using NHibernate.Linq;
 
-namespace CommandCentral.Controllers.Muster
+namespace CommandCentral.Controllers.MusterControllers
 {
     /// <summary>
     /// A muster entry represents a single accounting of a person during a muster cycle.
