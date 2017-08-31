@@ -20,7 +20,7 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The person who was edited.
         /// </summary>
-        public virtual Person Editee { get; set; }
+        public virtual Person Person { get; set; }
 
         /// <summary>
         /// The name of the property of the object that changed.
@@ -40,7 +40,7 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The time this change was made.
         /// </summary>
-        public virtual DateTime Time { get; set; }
+        public virtual DateTime ChangeTime { get; set; }
 
         #endregion
 
@@ -79,9 +79,9 @@ namespace CommandCentral.Entities
                 Id(x => x.Id).GeneratedBy.Assigned();
 
                 References(x => x.Editor).Not.Nullable();
-                References(x => x.Editee).Not.Nullable();
+                References(x => x.Person).Not.Nullable();
 
-                Map(x => x.Time).Not.Nullable().CustomType<UtcDateTimeType>();
+                Map(x => x.ChangeTime).Not.Nullable().CustomType<UtcDateTimeType>();
                 Map(x => x.PropertyName).Not.Nullable();
                 Map(x => x.OldValue);
                 Map(x => x.NewValue);
