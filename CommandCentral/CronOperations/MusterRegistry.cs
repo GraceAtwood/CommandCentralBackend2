@@ -26,9 +26,7 @@ namespace CommandCentral.CronOperations
         {
             using (var transaction = SessionManager.GetCurrentSession().BeginTransaction())
             {
-                var commands = SessionManager.GetCurrentSession().Query<Command>().ToFuture();
-
-                foreach (var command in commands)
+                foreach (var command in SessionManager.GetCurrentSession().Query<Command>())
                 {
                     if (command.CurrentMusterCycle == null)
                         throw new ArgumentNullException(nameof(command.CurrentMusterCycle));
