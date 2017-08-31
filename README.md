@@ -1,8 +1,8 @@
 # Command Central Backend 2
 
-This is the new repository for the new version Command Central's Backend, rewritten from the ground up.
+This is the repository for the new version of Command Central's Backend, rewritten from the ground up.
  
-The Command Central Backend is a RESTful service that provides data access, authentication, validation, and
+The Command Central Backend is a RESTful service that provides standardized data access, authentication, validation, and
 authorization services to Navy personnel data.  The service includes a few features which we've encapsulated in
 "modules":
 
@@ -28,7 +28,7 @@ authorization services to Navy personnel data.  The service includes a few featu
 
 > Provide a common access point for personnel data from across the command, creating a more simple user experience for the Sailors, reducing administrative overhead, and opening new avenues of synergy.
 
-### References
+### Dependencies
 
 Command Central sits atop the shoulders of giants.  Without their work, this project simply would never have happened.  In no particular order:
 
@@ -53,17 +53,12 @@ to [.NET Core] 2.0, we'll be moving completely to that, and you'll be able to de
 
 ### Operation
 
-The service may by launched in two modes:
-* Interactive
-* Windows Service
-
-#### Interactive
-
-Launching the service in interactive mode means little more than executing the service from the command line. 
+Currently the service may only be launched in interactive mode - as a console application.  To do so: 
 
 Make sure you have `appsettings.json` set up properly. There's an example file,
 [`appsettings.example.json`](CommandCentral/appsettings.example.json).
 
+Then execute the following command from the relevant directory.
 ```sh
 CommandCentral.exe launch
 ```
@@ -73,12 +68,14 @@ CommandCentral.exe launch
 Want to contribute? Great!
 
 __*Important Note:*__ This application is developed with JetBrain's Rider, and a .editorconfig file to keep things
-consistent where need be. We don't maintain support for Visual Studio. It shouldn't be too hard to get it working on
+consistent where necessary. We don't maintain support for Visual Studio. It shouldn't be too hard to get it working on
 Visual Studio, but you're on your own. Just pony up the dough for Rider, and thank us later.
 
-Atwood and McLean are responsible for all changes to the branches master, Pre-Production and Production.  Please feel free to fork or make ask for access to the repository and make your own branch.
+Atwood and McLean are responsible for all changes to the branches master, Pre-Production and Production.  Please feel free to fork or ask for access to the repository and make your own branch.
 
-Please communicate with the development team to understand the current direction of the project and what we're working on next.
+Please communicate with the development team to understand the current direction of the project and what we're working on next.  
+
+The current primary objective for development is constantly changing, but you can find a list of secondary objectives in the issues.
 
 #### Building from source
 
@@ -99,12 +96,12 @@ elevated/administer command prompt and enter the following, with the same port i
 Alternatively, you can open Rider as an administrator every time.
 
 Once we've moved completely to .NET Core, and you can develop on Linux, this won't be necessary, because why in the fuck
-is that necessary anywhere.
+is that necessary anyway.
 
 Create two launch configurations, targeting the .NET Framework v4.7:
   1. A 'build db' configuration with the command line arguments "build testdata". This will build the database and
   insert random test data to play with. You can also simply use "build" to build an empty database.
-  2. A 'launch' configuration with the command line arguments "launch". Guess what this does.
+  2. A 'launch' configuration with the command line argument "launch". Guess what this does.
 
  
 License
