@@ -75,13 +75,11 @@ namespace CommandCentral.Controllers.CommandStructureControllers
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Save(item);
-                transaction.Commit();
-            }
+            DBSession.Save(item);
 
-            return CreatedAtAction(nameof(Get), new { id = item.Id }, new DTOs.Command.Get(item));
+            CommitChanges();
+
+            return CreatedAtAction(nameof(Get), new {id = item.Id}, new DTOs.Command.Get(item));
         }
 
         /// <summary>
@@ -93,7 +91,7 @@ namespace CommandCentral.Controllers.CommandStructureControllers
         [HttpPut("{id}")]
         [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.Command.Get))]
-        public IActionResult Put(Guid id, [FromBody]DTOs.Command.Update dto)
+        public IActionResult Put(Guid id, [FromBody] DTOs.Command.Update dto)
         {
             if (dto == null)
                 return BadRequestDTONull();
@@ -112,13 +110,9 @@ namespace CommandCentral.Controllers.CommandStructureControllers
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Update(item);
-                transaction.Commit();
-            }
+            CommitChanges();
 
-            return CreatedAtAction(nameof(Put), new { id = item.Id }, new DTOs.Command.Get(item));
+            return CreatedAtAction(nameof(Put), new {id = item.Id}, new DTOs.Command.Get(item));
         }
     }
 }

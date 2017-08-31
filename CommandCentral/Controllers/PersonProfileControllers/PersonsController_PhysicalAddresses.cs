@@ -29,7 +29,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                     .Select(item => new DTOs.PhysicalAddress.Get(item))
                     .ToList());
             }
-            
+
             return Ok(items
                 .Select(item => new DTOs.PhysicalAddress.Get(item))
                 .ToList());
@@ -41,7 +41,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         {
             var item = DBSession.Query<PhysicalAddress>()
                 .FirstOrDefault(x => x.Id == id && x.Person.Id == personId);
-            
+
             if (item == null)
                 return NotFound("A physical address with that id could not be found for a person with the given id.");
 
@@ -85,13 +85,12 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Save(item);
-                transaction.Commit();
-            }
+            DBSession.Save(item);
 
-            return CreatedAtAction(nameof(GetPhysicalAddress), new { personId = person.Id, id = item.Id }, new DTOs.PhysicalAddress.Get(item));
+            CommitChanges();
+
+            return CreatedAtAction(nameof(GetPhysicalAddress), new {personId = person.Id, id = item.Id},
+                new DTOs.PhysicalAddress.Get(item));
         }
 
         [HttpPut("{personId}/PhysicalAddresses/{id}")]
@@ -116,13 +115,10 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             item.State = dto.State;
             item.ZipCode = dto.ZipCode;
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Update(item);
-                transaction.Commit();
-            }
+            CommitChanges();
 
-            return CreatedAtAction(nameof(GetPhysicalAddress), new { personId = item.Person.Id, id = item.Id }, new DTOs.PhysicalAddress.Get(item));
+            return CreatedAtAction(nameof(GetPhysicalAddress), new {personId = item.Person.Id, id = item.Id},
+                new DTOs.PhysicalAddress.Get(item));
         }
 
         [HttpDelete("{personId}/PhysicalAddresses/{id}")]
@@ -136,14 +132,11 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (!User.GetFieldPermissions<Person>(item.Person).CanEdit(x => x.PhysicalAddresses))
                 return Forbid();
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Delete(item);
-                transaction.Commit();
-            }
+            DBSession.Delete(item);
+
+            CommitChanges();
 
             return NoContent();
         }
     }
 }
-

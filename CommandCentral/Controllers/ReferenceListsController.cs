@@ -45,7 +45,7 @@ namespace CommandCentral.Controllers
                 .ToList();
             
             return Ok(results);*/
-            
+
             throw new NotImplementedException();
         }
 
@@ -64,7 +64,7 @@ namespace CommandCentral.Controllers
         [HttpPost]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.ReferenceList.Get))]
-        public IActionResult Post([FromBody]DTOs.ReferenceList.Post dto)
+        public IActionResult Post([FromBody] DTOs.ReferenceList.Post dto)
         {
             if (dto == null)
                 return BadRequestDTONull();
@@ -73,9 +73,10 @@ namespace CommandCentral.Controllers
                 return Forbid();
 
             if (!ReferenceListHelper.ReferenceListNamesToType.TryGetValue(dto.Type, out Type type))
-                return BadRequest($"The reference list type identified by your parameter '{nameof(dto.Type)}' does not exist.");
+                return BadRequest(
+                    $"The reference list type identified by your parameter '{nameof(dto.Type)}' does not exist.");
 
-            var item = (ReferenceListItemBase)Activator.CreateInstance(type);
+            var item = (ReferenceListItemBase) Activator.CreateInstance(type);
             item.Value = dto.Value;
             item.Description = dto.Description;
 
@@ -83,19 +84,17 @@ namespace CommandCentral.Controllers
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Save(item);
-                transaction.Commit();
-            }
+            DBSession.Save(item);
 
-            return CreatedAtAction(nameof(Get), new { id = item.Id }, new DTOs.ReferenceList.Get(item));
+            CommitChanges();
+
+            return CreatedAtAction(nameof(Get), new {id = item.Id}, new DTOs.ReferenceList.Get(item));
         }
 
         [HttpPut("{id}")]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.ReferenceList.Get))]
-        public IActionResult Put(Guid id, [FromBody]DTOs.ReferenceList.Put dto)
+        public IActionResult Put(Guid id, [FromBody] DTOs.ReferenceList.Put dto)
         {
             if (dto == null)
                 return BadRequestDTONull();
@@ -113,14 +112,10 @@ namespace CommandCentral.Controllers
             var result = item.Validate();
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
+            
+            CommitChanges();
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Update(item);
-                transaction.Commit();
-            }
-
-            return CreatedAtAction(nameof(Get), new { id = item.Id }, new DTOs.ReferenceList.Get(item));
+            return CreatedAtAction(nameof(Get), new {id = item.Id}, new DTOs.ReferenceList.Get(item));
         }
 
         [HttpDelete("{id}")]
@@ -134,12 +129,10 @@ namespace CommandCentral.Controllers
             var item = DBSession.Get<ReferenceListItemBase>(id);
             if (item == null)
                 return NotFoundParameter(id, nameof(id));
-
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Delete(item);
-                transaction.Commit();
-            }
+            
+            DBSession.Delete(item);
+            
+            CommitChanges();
 
             return NoContent();
         }

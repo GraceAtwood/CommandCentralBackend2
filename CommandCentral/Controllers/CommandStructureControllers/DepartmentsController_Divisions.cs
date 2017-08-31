@@ -86,11 +86,9 @@ namespace CommandCentral.Controllers.CommandStructureControllers
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Save(division);
-                transaction.Commit();
-            }
+            DBSession.Save(division);
+            
+            CommitChanges();
 
             return CreatedAtAction(nameof(GetDivision), new { departmentId = division.Department.Id, divisionId = division.Id }, new DTOs.Division.Get(division));
         }
@@ -135,11 +133,7 @@ namespace CommandCentral.Controllers.CommandStructureControllers
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Update(division);
-                transaction.Commit();
-            }
+            CommitChanges();
 
             return CreatedAtAction(nameof(GetDivision), new { departmentId = division.Department.Id, divisionId = division.Id }, new DTOs.Division.Get(division));
         }

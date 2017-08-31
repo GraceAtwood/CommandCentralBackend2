@@ -140,11 +140,9 @@ namespace CommandCentral.Controllers
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Save(item);
-                transaction.Commit();
-            }
+            DBSession.Save(item);
+            
+            CommitChanges();
 
             return CreatedAtAction(nameof(Get), new { id = item.Id }, new DTOs.StatusPeriod.Get(item));
         }
@@ -187,11 +185,7 @@ namespace CommandCentral.Controllers
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Update(item);
-                transaction.Commit();
-            }
+            CommitChanges();
 
             return CreatedAtAction(nameof(Get), new { id = item.Id }, new DTOs.StatusPeriod.Get(item));
         }
@@ -219,11 +213,9 @@ namespace CommandCentral.Controllers
             if (item.Range.Start <= DateTime.UtcNow)
                 return Conflict("You may not delete a status period whose time range has already started.  You may only modify its ending time.");
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Delete(item);
-                transaction.Commit();
-            }
+            DBSession.Delete(item);
+            
+            CommitChanges();
 
             return NoContent();
         }

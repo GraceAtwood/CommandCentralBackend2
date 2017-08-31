@@ -88,10 +88,10 @@ namespace CommandCentral.Controllers.AccountManagementControllers
 
             if (email == null)
                 return NotFound("That email and ssn combination did not exist.");
-                
+
             if (!email.Person.IsClaimed)
                 return BadRequest("This profile has not been claimed. Please register to set your passowrd.");
-            
+
             var reset = new PasswordReset
             {
                 Id = Guid.NewGuid(),
@@ -113,7 +113,7 @@ namespace CommandCentral.Controllers.AccountManagementControllers
 
             var existingReset = DBSession.Query<PasswordReset>()
                 .SingleOrDefault(x => x.Person == reset.Person);
-            
+
             reset.Person.AccountHistory.Add(new AccountHistoryEvent
             {
                 AccountHistoryEventType = AccountHistoryTypes.PasswordResetStarted,
@@ -122,17 +122,13 @@ namespace CommandCentral.Controllers.AccountManagementControllers
                 Person = reset.Person
             });
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                if (existingReset != null)
-                    DBSession.Delete(existingReset);
+            if (existingReset != null)
+                DBSession.Delete(existingReset);
 
-                DBSession.Save(reset);
-                
-                DBSession.Update(reset.Person);
-                transaction.Commit();
-            }
-            
+            DBSession.Save(reset);
+
+            CommitChanges();
+
             //TODO: Send email to client with reset complete link
 
             return NoContent();
@@ -158,7 +154,7 @@ namespace CommandCentral.Controllers.AccountManagementControllers
 
             if (String.IsNullOrWhiteSpace(dto.Password) || dto.Password.Length < 10)
                 return BadRequest("Password must be at least 10 characters.");
-            
+
             if (!reset.Person.IsClaimed)
                 throw new Exception("Somehow someone started the password reset process on a profile that has not" +
                                     "been claimed. Start panicking.");
@@ -168,7 +164,7 @@ namespace CommandCentral.Controllers.AccountManagementControllers
             var personValidationResult = reset.Person.Validate();
             if (!personValidationResult.IsValid)
                 return BadRequest(personValidationResult.Errors.Select(x => x.ErrorMessage));
-            
+
             reset.Person.AccountHistory.Add(new AccountHistoryEvent
             {
                 AccountHistoryEventType = AccountHistoryTypes.PasswordResetCompleted,
@@ -177,12 +173,9 @@ namespace CommandCentral.Controllers.AccountManagementControllers
                 Person = reset.Person
             });
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Update(reset.Person);
-                DBSession.Delete(reset);
-                transaction.Commit();
-            }
+            DBSession.Delete(reset);
+
+            CommitChanges();
 
             return NoContent();
         }

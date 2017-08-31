@@ -17,13 +17,18 @@ using ISession = NHibernate.ISession;
 
 namespace CommandCentral.Framework.Data
 {
+    /// <summary>
+    /// Provides management and access to the current session for this context.  Context is derived from either the current HTTP context or the current thead static context.
+    /// </summary>
     public static class SessionManager
     {
         private static ISessionFactory _sessionFactory;
 
+        /// <summary>
+        /// This object contains a description of the database schema as NHibnerate expects it to look.  
+        /// In an ideal situation, if the database hasn't been updated manually, this schema will be an in-code representation of the schema as it exists in the database.
+        /// </summary>
         public static SchemaExport Schema { get; }
-
-        public static ConcurrentDictionary<Type, IClassMetadata> ClassMetaData { get; }
 
         private static readonly Configuration _config;
 
@@ -51,13 +56,6 @@ namespace CommandCentral.Framework.Data
                     .BuildConfiguration();
 
                 Schema = new SchemaExport(_config);
-
-                ClassMetaData = new ConcurrentDictionary<Type, IClassMetadata>(_config.BuildSessionFactory().GetAllClassMetadata().Select(x => new
-                {
-                    Type = Assembly.GetExecutingAssembly().GetType(x.Key),
-                    MetaData = x.Value
-                })
-                .ToDictionary(x => x.Type, x => x.MetaData));
             }
         }
 
@@ -66,6 +64,11 @@ namespace CommandCentral.Framework.Data
             return _config.CurrentSessionContext<T>().BuildSessionFactory();
         }
         
+        /// <summary>
+        /// Returns the current session associated with the given context.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public static ISession GetCurrentSession(HttpContext context = null)
         {
             if (_sessionFactory == null)
@@ -79,11 +82,15 @@ namespace CommandCentral.Framework.Data
                 return _sessionFactory.GetCurrentSession();
             
             var session = _sessionFactory.OpenSession();
+            session.FlushMode = FlushMode.Commit;
             CurrentSessionContext.Bind(session);
             return session;
         }
 
-        public static void CloseSession()
+        /// <summary>
+        /// Unbinds the session from the current session context.  After this call, calls to GetCurrentSession will fail for the current session.
+        /// </summary>
+        public static void UnbindSession()
         {
             if (_sessionFactory == null)
                 return;
@@ -91,21 +98,7 @@ namespace CommandCentral.Framework.Data
             if (!CurrentSessionContext.HasBind(_sessionFactory)) 
                 return;
             
-            var session = CurrentSessionContext.Unbind(_sessionFactory);
-            session.Close();
-        }
-
-        public static void CommitSession(ISession session)
-        {
-            try
-            {
-                session.Transaction.Commit();
-            }
-            catch (Exception)
-            {
-                session.Transaction.Rollback();
-                throw;
-            }
+            CurrentSessionContext.Unbind(_sessionFactory);
         }
     }
 }

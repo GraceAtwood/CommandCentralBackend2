@@ -58,11 +58,9 @@ namespace CommandCentral.Controllers
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Save(item);
-                transaction.Commit();
-            }
+            DBSession.Save(item);
+            
+            CommitChanges();
 
             return CreatedAtAction(nameof(Get), new { id = item.Id }, new DTOs.NewsItem.Get(item));
         }
@@ -89,11 +87,7 @@ namespace CommandCentral.Controllers
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Update(item);
-                transaction.Commit();
-            }
+            CommitChanges();
 
             return CreatedAtAction(nameof(Put), new { id = item.Id }, new DTOs.NewsItem.Get(item));
         }
@@ -110,11 +104,9 @@ namespace CommandCentral.Controllers
             if (item == null)
                 return NotFoundParameter(id, nameof(id));
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Delete(item);
-                transaction.Commit();
-            }
+            DBSession.Delete(item);
+            
+            CommitChanges();
 
             return NoContent();
         }

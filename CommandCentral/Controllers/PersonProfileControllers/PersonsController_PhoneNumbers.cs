@@ -30,7 +30,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                     .Select(item => new DTOs.PhoneNumber.Get(item))
                     .ToList());
             }
-            
+
             return Ok(items
                 .Select(item => new DTOs.PhoneNumber.Get(item))
                 .ToList());
@@ -85,13 +85,12 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Save(item);
-                transaction.Commit();
-            }
+            DBSession.Save(item);
 
-            return CreatedAtAction(nameof(GetPhoneNumbers), new { personId = person.Id, id = item.Id }, new DTOs.PhoneNumber.Get(item));
+            CommitChanges();
+
+            return CreatedAtAction(nameof(GetPhoneNumbers), new {personId = person.Id, id = item.Id},
+                new DTOs.PhoneNumber.Get(item));
         }
 
         [HttpPut("{personId}/PhoneNumbers/{id}")]
@@ -117,13 +116,10 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             item.IsReleasableOutsideCoC = dto.IsReleasableOutsideCoC;
             item.PhoneType = phoneType;
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Update(item);
-                transaction.Commit();
-            }
+            CommitChanges();
 
-            return CreatedAtAction(nameof(GetPhoneNumber), new { personId = item.Person.Id, id = item.Id }, new DTOs.PhoneNumber.Get(item));
+            return CreatedAtAction(nameof(GetPhoneNumber), new {personId = item.Person.Id, id = item.Id},
+                new DTOs.PhoneNumber.Get(item));
         }
 
         [HttpDelete("{personId}/PhoneNumbers/{id}")]
@@ -137,14 +133,11 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (!User.GetFieldPermissions<Person>(item.Person).CanEdit(x => x.PhoneNumbers))
                 return Forbid();
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Delete(item);
-                transaction.Commit();
-            }
+            DBSession.Delete(item);
+
+            CommitChanges();
 
             return NoContent();
         }
     }
 }
-
