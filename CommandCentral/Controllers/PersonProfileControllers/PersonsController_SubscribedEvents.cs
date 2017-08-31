@@ -12,8 +12,14 @@ namespace CommandCentral.Controllers.PersonProfileControllers
 {
     public partial class PersonsController
     {
+        /// <summary>
+        /// Retrieves all events to which the identified person is subscribed.
+        /// </summary>
+        /// <param name="personId">The person for whom to retrieve subscribed events.</param>
+        /// <returns></returns>
         [HttpGet("{personId}/SubscribedEvents")]
         [RequireAuthentication]
+        [ProducesResponseType(200, Type = typeof(List<DTOs.SubscribedEvents.Generic>))]
         public IActionResult GetSubscribedEvents(Guid personId)
         {
             var person = DBSession.Get<Person>(personId);
@@ -35,8 +41,17 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 .Select(x => new DTOs.SubscribedEvents.Generic(x)));
         }
 
+        /// <summary>
+        /// Modifies the subscribed events collection for the identified person.  
+        /// This endpoint simply replaces all of the subscribed events on the person with the given collection. 
+        /// Clients may only modify a given person's subscribed events if they have access to that person's SubScribedEvents property.
+        /// </summary>
+        /// <param name="personId">The person for whom to modify subscribed events.</param>
+        /// <param name="dto">A dto containing a collection of subscribed events and levels to subscribe the client to.</param>
+        /// <returns></returns>
         [HttpPut("{personId}/SubscribedEvents")]
         [RequireAuthentication]
+        [ProducesResponseType(200, Type = typeof(List<DTOs.SubscribedEvents.Generic>))]
         public IActionResult PutSubscribedEvent(Guid personId,
             [FromBody] List<KeyValuePair<SubscribableEvents, ChainOfCommandLevels>> dto)
         {
