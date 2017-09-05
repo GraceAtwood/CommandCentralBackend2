@@ -111,13 +111,6 @@ namespace CommandCentral.Entities.CollateralDutyTracking
             {
                 RuleFor(x => x.Id).NotEmpty();
                 RuleFor(x => x.CollateralDuty).NotEmpty();
-
-                When(x => x.HasDesignationLetter, () =>
-                {
-                    RuleFor(x => x.Attachments).Must(x => x.Any()).WithMessage(
-                        "A membership can not have a designation " +
-                        "letter if the file attachments collection for it is empty.");
-                });
             }
         }
     }
