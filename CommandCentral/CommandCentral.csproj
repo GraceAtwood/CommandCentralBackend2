@@ -3,6 +3,7 @@
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <TargetFramework>net47</TargetFramework>
     <RuntimeIdentifier>win7-x86</RuntimeIdentifier>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>bin\Debug\net47\win7-x86\commandcentral.xml</DocumentationFile>
