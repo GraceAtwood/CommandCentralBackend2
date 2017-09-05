@@ -88,7 +88,7 @@ namespace CommandCentral.Entities
         {
             get
             {
-                if (DateOfBirth == default(DateTime))
+                if (DateOfBirth == default)
                     return 0;
 
                 if (DateTime.Today.Month < DateOfBirth.Month ||

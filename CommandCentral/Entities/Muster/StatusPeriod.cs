@@ -133,7 +133,7 @@ namespace CommandCentral.Entities.Muster
                 RuleFor(x => x.LastModifiedBy).NotEmpty();
                 RuleFor(x => x.DateLastModified).NotEmpty();
                 RuleFor(x => x.Range)
-                    .Must(range => range.Start <= range.End && range.Start != default(DateTime) && range.End != default(DateTime))
+                    .Must(range => range.Start <= range.End && range.Start != default && range.End != default)
                         .WithMessage("A status period must start before it ends.")
                     .Must((period, range) => range.Start >= period.DateSubmitted)
                         .WithMessage("A status period must start after or at the same time it was submitted.  For example, you may not submit a retroactive status period.")
