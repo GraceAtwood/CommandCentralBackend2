@@ -16,6 +16,8 @@
         CorrespondenceCompleted,
         CorrespondenceShared,
         CorrespondenceDeleted,
-        CorrespondenceModified
+        CorrespondenceModified,
+        CollateralDutyCreated,
+        CollateralDutyDeleted
     }
 }
