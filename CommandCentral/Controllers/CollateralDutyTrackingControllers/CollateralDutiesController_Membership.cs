@@ -17,27 +17,22 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
 {
     public partial class CollateralDutiesController : CommandCentralController
     {
-        [HttpGet]
+        [HttpGet("{dutyId}/Membership")]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.CollateralDuty.Get>))]
-        public IActionResult Get([FromQuery] string name, [FromQuery] string command)
+        public IActionResult Get(Guid dutyId, [FromQuery] string level, [FromQuery] string role)
         {
-            var predicate = ((Expression<Func<CollateralDuty, bool>>) null)
-                .AddCommandQueryExpression(x => x.Command, command)
-                .AddStringQueryExpression(x => x.Name, name);
+            if (DBSession.Query<CollateralDuty>().Count(x => x.Id == dutyId) == 0)
+                return NotFoundParameter(dutyId, nameof(dutyId));
 
-            var result = DBSession.Query<CollateralDuty>()
-                .AsExpandable()
-                .NullSafeWhere(predicate)
-                .OrderByDescending(x => x.Name)
-                .ToList()
-                .Select(x => new DTOs.CollateralDuty.Get(x))
+            var results = DBSession.Query<CollateralDutyMembership>()
+                .Where(x => x.CollateralDuty.Id == dutyId)
                 .ToList();
 
             return Ok(result);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("id")]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.CollateralDuty.Get))]
         public IActionResult Get(Guid id)
@@ -83,7 +78,7 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
             return CreatedAtAction(nameof(Get), new {id = item.Id}, new DTOs.CollateralDuty.Get(item));
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("id")]
         [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.CollateralDuty.Get))]
         public IActionResult Put(Guid id, [FromBody] DTOs.CollateralDuty.Update dto)
@@ -109,7 +104,7 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
             return CreatedAtAction(nameof(Get), new {id = item.Id}, new DTOs.CollateralDuty.Get(item));
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("id")]
         [RequireAuthentication]
         [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
