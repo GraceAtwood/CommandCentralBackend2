@@ -1,11 +1,14 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using CommandCentral.Authentication;
 using CommandCentral.Authorization;
+using CommandCentral.Email;
+using CommandCentral.Email.Models;
 using CommandCentral.Entities;
 using CommandCentral.Enums;
+using CommandCentral.Events.Args;
 using CommandCentral.Framework;
 using CommandCentral.Framework.Data;
 using LinqKit;
@@ -144,13 +147,27 @@ namespace CommandCentral.Controllers.AccountManagementControllers
             });
 
             if (existingRegistration != null)
+            {
                 DBSession.Delete(existingRegistration);
-
+                CommitChanges();
+            }
+            
             DBSession.Save(registration);
 
             CommitChanges();
 
-            //TODO: Send email to client with details.
+            var message = new CCEmailMessage()
+                .Subject("Registration Started")
+                .HighPriority();
+
+            var sendToAddress = person.EmailAddresses.FirstOrDefault();
+            if (sendToAddress != null)
+            {
+                message.To(sendToAddress)
+                    .BodyFromTemplate(Templates.RegistrationStartedTemplate,
+                        new RegistrationStarted(person, finalRedirectURL))
+                    .Send();
+            }
 
             return NoContent();
         }
@@ -210,6 +227,8 @@ namespace CommandCentral.Controllers.AccountManagementControllers
                 return BadRequest(registrationValidationResult.Errors.Select(x => x.ErrorMessage));
 
             CommitChanges();
+            
+            Events.EventManager.OnAccountRegistered(new AccountRegistrationEventArgs(registration), this);
 
             return NoContent();
         }

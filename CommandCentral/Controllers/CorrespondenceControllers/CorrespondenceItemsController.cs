@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using CommandCentral.Entities;
 using CommandCentral.Entities.Correspondence;
 using CommandCentral.Entities.ReferenceLists;
+using CommandCentral.Events.Args;
 using CommandCentral.Framework;
 using CommandCentral.Framework.Data;
 using CommandCentral.Utilities;
@@ -207,6 +208,7 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
             DBSession.Save(item);
 
             CommitChanges();
+            Events.EventManager.OnCorrespondenceCreated(new CorrespondenceItemEventArgs {Item = item}, this);
 
             return CreatedAtAction(nameof(Get), new {id = item.Id}, new DTOs.CorrespondenceItem.Get(item));
         }

@@ -24,37 +24,36 @@ namespace CommandCentral.Events.Handlers.Email
                 .Select(x => x.Name)
                 .ToArray();
 
-            using (var session = SessionManager.GetCurrentSession())
+            var session = SessionManager.GetCurrentSession();
+
+            var interestedPersons = session.Query<Person>()
+                .Where(CommonQueryStrategies.GetPersonsSubscribedToEventForPersonExpression(
+                    SubscribableEvents.PersonCreated, e.AccountRegistration.Person));
+
+            var message = new CCEmailMessage()
+                .Subject("Account Registered")
+                .HighPriority();
+
+            var sendToAddress = e.AccountRegistration.Person.EmailAddresses.FirstOrDefault();
+            if (sendToAddress != null)
             {
-                var interestedPersons = session.Query<Person>()
-                    .Where(CommonQueryStrategies.GetPersonsSubscribedToEventForPersonExpression(
-                        SubscribableEvents.PersonCreated, e.AccountRegistration.Person));
+                var accountRegistered = new AccountRegistered(e.AccountRegistration.Person, e.AccountRegistration);
+                message.To(sendToAddress)
+                    .BodyFromTemplate(Templates.AccountRegisteredTemplate,
+                        accountRegistered)
+                    .Send();
+            }
 
-                var message = new CCEmailMessage()
-                    .Subject("Account Registered")
-                    .HighPriority();
+            foreach (var person in interestedPersons.Distinct())
+            {
+                sendToAddress = person.EmailAddresses.FirstOrDefault(x => x.IsPreferred);
+                if (sendToAddress == null)
+                    continue;
 
-                var sendToAddress = e.AccountRegistration.Person.EmailAddresses.FirstOrDefault();
-                if (sendToAddress != null)
-                {
-                    message.To(sendToAddress)
-                        .BodyFromTemplate(Templates.AccountRegisteredTemplate,
-                            new AccountRegistered(e.AccountRegistration.Person, e.AccountRegistration))
-                        .Send();
-                }
-
-                foreach (var person in interestedPersons.Distinct())
-                {
-                    sendToAddress = person.EmailAddresses.FirstOrDefault(x => x.IsPreferred);
-                    if (sendToAddress == null)
-                        continue;
-
-                    message.To(sendToAddress)
-                        .BodyFromTemplate(Templates.AccountRegisteredTemplate,
-                            new AccountRegistered(person, e.AccountRegistration))
-                        .Send();
-                }
-                
+                message.To(sendToAddress)
+                    .BodyFromTemplate(Templates.AccountRegisteredTemplate,
+                        new AccountRegistered(person, e.AccountRegistration))
+                    .Send();
             }
         }
     }
