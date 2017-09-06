@@ -19,15 +19,13 @@ namespace CommandCentral.Controllers.PersonProfileControllers
     /// <summary>
     /// The person object is the central entry to a person's profile.  Permissions for each field can be attained from the /authorization controller.
     /// </summary>
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [Consumes("application/json")]
     public partial class PersonsController : CommandCentralController
     {
         [HttpPost("query")]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Person.Get>))]
-        public IActionResult Query([FromBody] DTOs.Person.Query dto, [FromQuery] int limit = 1000, [FromQuery] string orderBy = nameof(Person.LastName))
+        public IActionResult Query([FromBody] DTOs.Person.Query dto, [FromQuery] int limit = 1000,
+            [FromQuery] string orderBy = nameof(Person.LastName))
         {
             if (dto == null)
                 return BadRequestDTONull();
@@ -35,7 +33,8 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (limit <= 0)
                 return BadRequestLimit(limit, nameof(limit));
 
-            var statusPeriodSearch = CommonQueryStrategies.GetTimeRangeQueryExpression<StatusPeriod>(y => y.Range, dto.StatusPeriod);
+            var statusPeriodSearch =
+                CommonQueryStrategies.GetTimeRangeQueryExpression<StatusPeriod>(y => y.Range, dto.StatusPeriod);
 
             var predicate = ((Expression<Func<Person, bool>>) null)
                 .AddStringQueryExpression(x => x.FirstName, dto.FirstName)
@@ -151,11 +150,9 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Save(person);
-                transaction.Commit();
-            }
+            DBSession.Save(person);
+
+            CommitChanges();
 
             Events.EventManager.OnPersonCreated(new Events.Args.PersonCreatedEventArgs
             {
@@ -163,8 +160,8 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 Person = person
             }, this);
 
-            return CreatedAtAction(nameof(Get), new { id = person.Id }, new DTOs.Person.Get(person, User.GetFieldPermissions<Person>(person)));
+            return CreatedAtAction(nameof(Get), new {id = person.Id},
+                new DTOs.Person.Get(person, User.GetFieldPermissions<Person>(person)));
         }
     }
 }
-

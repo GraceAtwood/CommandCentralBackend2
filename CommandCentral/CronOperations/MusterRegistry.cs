@@ -2,6 +2,7 @@
 using FluentScheduler;
 using CommandCentral.Framework.Data;
 using CommandCentral.Entities;
+using NHibernate.Linq;
 
 namespace CommandCentral.CronOperations
 {
@@ -25,9 +26,7 @@ namespace CommandCentral.CronOperations
         {
             using (var transaction = SessionManager.GetCurrentSession().BeginTransaction())
             {
-                var commands = SessionManager.GetCurrentSession().QueryOver<Command>().Future();
-
-                foreach (var command in commands)
+                foreach (var command in SessionManager.GetCurrentSession().Query<Command>())
                 {
                     if (command.CurrentMusterCycle == null)
                         throw new ArgumentNullException(nameof(command.CurrentMusterCycle));
@@ -42,8 +41,6 @@ namespace CommandCentral.CronOperations
                     {
                         MusterCycle = command.CurrentMusterCycle
                     }, this);
-
-                    SessionManager.GetCurrentSession().Update(command);
 
                     Schedule(() => DoRolloverForCommand(command.Id)).ToRunEvery(1).Days().At(command.MusterStartHour, 0);
                 }
@@ -78,8 +75,6 @@ namespace CommandCentral.CronOperations
                 {
                     MusterCycle = command.CurrentMusterCycle
                 }, this);
-
-                SessionManager.GetCurrentSession().Update(command);
 
                 transaction.Commit();
             }

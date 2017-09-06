@@ -6,6 +6,7 @@ using CommandCentral.Entities;
 using CommandCentral.Framework;
 using Microsoft.AspNetCore.Mvc;
 using NHibernate.Linq;
+using NHibernate.Util;
 
 namespace CommandCentral.Controllers.PersonProfileControllers
 {
@@ -79,11 +80,12 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Save(item);
-                transaction.Commit();
-            }
+            if (item.IsPreferred)
+                item.Person.EmailAddresses.ForEach(x => x.IsPreferred = false);
+
+            DBSession.Save(item);
+            
+            CommitChanges();
 
             return CreatedAtAction(nameof(GetEmailAddress), new { personId = person.Id, id = item.Id }, new DTOs.EmailAddress.Get(item));
         }
@@ -106,11 +108,17 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             item.IsPreferred = dto.IsPreferred;
             item.IsReleasableOutsideCoC = dto.IsReleasableOutsideCoC;
 
-            using (var transaction = DBSession.BeginTransaction())
+            var result = item.Validate();
+            if (!result.IsValid)
+                return BadRequest(result.Errors.Select(x => x.ErrorMessage));
+
+            if (item.IsPreferred)
             {
-                DBSession.Update(item);
-                transaction.Commit();
+                item.Person.EmailAddresses.ForEach(x => x.IsPreferred = false);
+                item.IsPreferred = true;
             }
+
+            CommitChanges();
 
             return CreatedAtAction(nameof(GetEmailAddress), new { personId = item.Person.Id, id = item.Id }, new DTOs.EmailAddress.Get(item));
         }
@@ -126,11 +134,9 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (!User.GetFieldPermissions<Person>(item.Person).CanEdit(x => x.EmailAddresses))
                 return Forbid();
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Delete(item);
-                transaction.Commit();
-            }
+            DBSession.Delete(item);
+            
+            CommitChanges();
 
             return NoContent();
         }

@@ -17,20 +17,8 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <summary>
         /// Maps this object to the database.
         /// </summary>
-        public class WatchQualificationMapping : ClassMap<WatchQualification>
+        public class WatchQualificationMapping : SubclassMap<WatchQualification>
         {
-            /// <summary>
-            /// Maps this object to the database.
-            /// </summary>
-            public WatchQualificationMapping()
-            {
-                Id(x => x.Id).GeneratedBy.Assigned();
-
-                Map(x => x.Value).Not.Nullable().Unique();
-                Map(x => x.Description);
-
-                Cache.ReadWrite();
-            }
         }
     }
 }

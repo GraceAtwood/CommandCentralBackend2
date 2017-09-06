@@ -20,6 +20,9 @@ namespace CommandCentral.Framework
     /// I don't know how yet and I gotta do other things.
     /// Until Command Central moves away from NIPR net, the added functionality the asp.net core identity provider gives us is pretty useless.
     /// </summary>
+    [Route("api/[controller]")]
+    [Produces("application/json")]
+    [Consumes("application/json")]
     public class CommandCentralController : Controller
     {
         /// <summary>
@@ -38,24 +41,59 @@ namespace CommandCentral.Framework
         public ISession DBSession => Data.SessionManager.GetCurrentSession(HttpContext);
 
         /// <summary>
+        /// Flush the <seealso cref="DBSession"/> associated with this controller within a transaction.  Automatically rolls back any changes if an exception is thrown.
+        /// </summary>
+        public void CommitChanges()
+        {
+            using (var transaction = DBSession.BeginTransaction())
+                transaction.Commit();
+        }
+
+        /// <summary>
+        /// Rolls back any transaction associated with the <seealso cref="DBSession"/> within this controller and clears all pending changes from the <seealso cref="DBSession"/>.
+        /// <para />
+        /// NOTE: Entities associated with the session may reapply their changes after the session is reverted/cleared.  If it's absolutely necessary, consider using .Evict on an entity to disable NHibernate's tracking of that entity.
+        /// </summary>
+        public void RevertChanges()
+        {
+            if (DBSession.Transaction.IsActive && !DBSession.Transaction.WasCommitted &&
+                !DBSession.Transaction.WasRolledBack)
+                DBSession.Transaction.Rollback();
+            
+            DBSession.Clear();
+        }
+        
+        /// <summary>
         /// The logging instance that should be used for logging... things.
         /// </summary>
         private static ILogger Logger => Log.LoggerInstance;
 
         #region Logging
 
+        /// <summary>
+        /// Logs an exception.
+        /// </summary>
+        /// <param name="e"></param>
         [NonAction]
         public void LogException(Exception e)
         {
             Logger.LogError(new EventId(), e, e.ToString());
         }
 
+        /// <summary>
+        /// Logs information.
+        /// </summary>
+        /// <param name="message"></param>
         [NonAction]
         public void LogInformation(string message)
         {
             Logger.LogInformation(message);
         }
 
+        /// <summary>
+        /// Logs a debug message.
+        /// </summary>
+        /// <param name="message"></param>
         [NonAction]
         public void LogDebug(string message)
         {
@@ -66,6 +104,19 @@ namespace CommandCentral.Framework
 
         #region Return Actions
 
+        /// <summary>
+        /// Returns a 422 Unprocessable entity result, indicating The server understands the content type of the request entity 
+        /// (hence a 415 Unsupported Media Type status code is inappropriate), and the syntax of the request entity is correct 
+        /// (thus a 400 Bad Request status code is inappropriate) but was unable to process the contained instructions.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [NonAction]
+        public ObjectResult UnprocessableEntity(object data = null)
+        {
+            return StatusCode(422, data);
+        }
+        
         /// <summary>
         /// Returns a <seealso cref="BadRequestObjectResult"/> that indicates the limit must be greater than 0.
         /// </summary>
@@ -167,11 +218,14 @@ namespace CommandCentral.Framework
             return StatusCode((int)HttpStatusCode.Conflict, value);
         }
 
-
         #endregion
 
         #region On Actions
 
+        /// <summary>
+        /// Executes when the http session request is just about to handed to the controller.
+        /// </summary>
+        /// <param name="context"></param>
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             HttpContext.Items["CallTime"] = DateTime.UtcNow;
@@ -210,16 +264,25 @@ namespace CommandCentral.Framework
 
                 HttpContext.Items["User"] = authSession.Person;
                 authSession.LastUsedTime = CallTime;
-
-                DBSession.Update(authSession);
+                
+                CommitChanges();
             }
 
             base.OnActionExecuting(context);
         }
 
+        /// <summary>
+        /// Executes when an action has been completed and handled.
+        /// </summary>
+        /// <param name="context"></param>
         public override void OnActionExecuted(ActionExecutedContext context)
         {
-            Data.SessionManager.CloseSession();
+            //Here we choose to revert any changes before cleaning up the session.  
+            //The assumption is that any changes should've been explictly handled by the controller.
+            //Any changes not handled by the controller must not have been intended to be committed.
+            RevertChanges();
+            Data.SessionManager.UnbindSession();
+            
             base.OnActionExecuted(context);
         }
 

@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Reflection;
+﻿﻿using System.IO;
 using RazorEngine;
 using RazorEngine.Templating;
 
@@ -22,7 +21,7 @@ namespace CommandCentral.Email
         private readonly ITemplateRunner<TModel> _templateRunner;
 
         /// <summary>
-        /// Creates a new template and loads the text template from the resources manifest.
+        /// Creates a new template and loads the text template from the file system.
         /// </summary>
         /// <param name="templateName"></param>
         /// <exception cref="FileNotFoundException"></exception>
@@ -30,9 +29,9 @@ namespace CommandCentral.Email
         {
             TemplateName = templateName;
             var filePath = Path.Combine("Email", "TextTemplates", templateName);
-
+            
             if (!File.Exists(filePath))
-                throw new FileNotFoundException("The resource could not be found.", filePath);
+                throw new  FileNotFoundException("The resource could not be found.", filePath);
 
             _templateRunner = Engine.Razor.CompileRunner<TModel>(File.ReadAllText(filePath));
         }

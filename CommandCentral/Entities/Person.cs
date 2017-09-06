@@ -471,8 +471,8 @@ namespace CommandCentral.Entities
 
                 HasMany(x => x.SubscribedEvents)
                     .AsMap<string>(index =>
-                        index.Column("ChangeEvent").Type<SubscribableEvents>(), element =>
-                        element.Column("Level").Type<ChainOfCommandLevels>())
+                        index.Column("ChangeEvent").Type<GenericEnumMapper<SubscribableEvents>>(), element =>
+                        element.Column("Level").Type<GenericEnumMapper<ChainOfCommandLevels>>())
                     .Cascade.All();
 
                 HasMany(x => x.PermissionGroups).Table("persontopermissiongroups").Component(x =>
@@ -553,6 +553,12 @@ namespace CommandCentral.Entities
                     .WithMessage("Your uic was not found.");
                 RuleFor(x => x.JobTitle).Length(0, 255)
                     .WithMessage("The job title may not be longer than 255 characters.");
+                
+                // If you add more EmailAddresses Rules, it may be necessary to call Person validation in the
+                // EmailAddress POST and PUT endpoints. Right now, this rule is covered in logic just before the
+                // transaction, so validation isn't called, as it's pointless extra effort.
+                RuleFor(x => x.EmailAddresses).Must(x => x.Count(y => y.IsPreferred) <= 1)
+                    .WithMessage("Only one email address may be marked as 'Preferred'.");
             }
         }
     }

@@ -6,12 +6,10 @@ using CommandCentral.Framework;
 using CommandCentral.Entities;
 using CommandCentral.Authorization;
 using CommandCentral.Enums;
+using NHibernate.Linq;
 
 namespace CommandCentral.Controllers
 {
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [Consumes("application/json")]
     public class NewsItemsController : CommandCentralController
     {
         [HttpGet]
@@ -19,7 +17,7 @@ namespace CommandCentral.Controllers
         [ProducesResponseType(200, Type = typeof(List<DTOs.NewsItem.Get>))]
         public IActionResult Get()
         {
-            var items = DBSession.QueryOver<NewsItem>().List();
+            var items = DBSession.Query<NewsItem>().ToList();
 
             return Ok(items.Select(x => new DTOs.NewsItem.Get(x)));
         }
@@ -60,11 +58,9 @@ namespace CommandCentral.Controllers
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Save(item);
-                transaction.Commit();
-            }
+            DBSession.Save(item);
+            
+            CommitChanges();
 
             return CreatedAtAction(nameof(Get), new { id = item.Id }, new DTOs.NewsItem.Get(item));
         }
@@ -91,11 +87,7 @@ namespace CommandCentral.Controllers
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Update(item);
-                transaction.Commit();
-            }
+            CommitChanges();
 
             return CreatedAtAction(nameof(Put), new { id = item.Id }, new DTOs.NewsItem.Get(item));
         }
@@ -112,11 +104,9 @@ namespace CommandCentral.Controllers
             if (item == null)
                 return NotFoundParameter(id, nameof(id));
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Delete(item);
-                transaction.Commit();
-            }
+            DBSession.Delete(item);
+            
+            CommitChanges();
 
             return NoContent();
         }

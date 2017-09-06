@@ -8,6 +8,10 @@ $("#logo > img").hide();
 $("#input_baseUrl").hide();
 $(".logo__title").html("Command Central REST API");
 
+jQuery("div").on("DOMNodeInserted", function () {
+   $("select").prop("disabled", false);
+});
+
 function submitAuthentication() {
     var username = $('#input_username').val();
     var password = $('#input_password').val();

@@ -23,9 +23,6 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
     /// The last review is the one awaiting review.  The last review will have .NextReview = null, .ReviewedBy = null, .IsReviewed = false, and .IsRecommended = null.  
     /// The best way to find an item awaiting review is simply to use the hasBeenCompleted search parameter or the pendingReviewer parameter if you know who you're looking for.  
     /// </summary>
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [Consumes("application/json")]
     public partial class CorrespondenceItemsController : CommandCentralController
     {
         /// <summary>
@@ -57,20 +54,28 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
         [HttpGet]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.CorrespondenceItem.Get>))]
-        public IActionResult Get([FromQuery] string seriesNumbers, [FromQuery] string submittedFor, [FromQuery] string submittedBy,
-            [FromQuery] DTOs.DateTimeRangeQuery timeSubmitted, [FromQuery] bool? hasAttachments, [FromQuery] string commentedBy,
-            [FromQuery] bool? hasComments, [FromQuery] bool? hasReviews, [FromQuery] string reviewer, [FromQuery] string reviewedBy,
-            [FromQuery] string sharedWith, [FromQuery] string finalApprover, [FromQuery] string pendingReviewer, [FromQuery] bool? hasBeenCompleted,
-            [FromQuery] bool? hasPhysicalCounterpart, [FromQuery] string body, [FromQuery] string type, [FromQuery] string priorityLevel,
+        public IActionResult Get([FromQuery] string seriesNumbers, [FromQuery] string submittedFor,
+            [FromQuery] string submittedBy,
+            [FromQuery] DTOs.DateTimeRangeQuery timeSubmitted, [FromQuery] bool? hasAttachments,
+            [FromQuery] string commentedBy,
+            [FromQuery] bool? hasComments, [FromQuery] bool? hasReviews, [FromQuery] string reviewer,
+            [FromQuery] string reviewedBy,
+            [FromQuery] string sharedWith, [FromQuery] string finalApprover, [FromQuery] string pendingReviewer,
+            [FromQuery] bool? hasBeenCompleted,
+            [FromQuery] bool? hasPhysicalCounterpart, [FromQuery] string body, [FromQuery] string type,
+            [FromQuery] string priorityLevel,
             [FromQuery] int limit = 1000, [FromQuery] string orderBy = nameof(CorrespondenceItem.TimeSubmitted))
         {
             if (limit <= 0)
                 return BadRequestLimit(limit, nameof(limit));
 
             //Here we're just going to define some subqueries before we do the final search.  This will clean up the query syntax a bit.
-            var commentedBySearch = CommonQueryStrategies.GetPersonQueryExpression<Comment>(y => y.Creator, commentedBy);
-            var reviewerSearch = CommonQueryStrategies.GetPersonQueryExpression<CorrespondenceReview>(y => y.Reviewer, reviewer);
-            var reviewedBySearch = CommonQueryStrategies.GetPersonQueryExpression<CorrespondenceReview>(y => y.ReviewedBy, reviewedBy);
+            var commentedBySearch =
+                CommonQueryStrategies.GetPersonQueryExpression<Comment>(y => y.Creator, commentedBy);
+            var reviewerSearch =
+                CommonQueryStrategies.GetPersonQueryExpression<CorrespondenceReview>(y => y.Reviewer, reviewer);
+            var reviewedBySearch =
+                CommonQueryStrategies.GetPersonQueryExpression<CorrespondenceReview>(y => y.ReviewedBy, reviewedBy);
             var sharedWithSearch = CommonQueryStrategies.GetPersonQueryExpression<Person>(y => y, reviewedBy);
 
             var predicate = ((Expression<Func<CorrespondenceItem, bool>>) null)
@@ -86,22 +91,23 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
 
             if (!String.IsNullOrWhiteSpace(commentedBy))
                 predicate = predicate.NullSafeAnd(x => x.Comments.Any(commentedBySearch.Compile()));
-            
+
             if (!String.IsNullOrWhiteSpace(reviewedBy))
                 predicate = predicate.NullSafeAnd(x => x.Reviews.Any(reviewerSearch.Compile()));
-            
+
             if (!String.IsNullOrWhiteSpace(reviewer))
                 predicate = predicate.NullSafeAnd(x => x.Reviews.Any(reviewedBySearch.Compile()));
-            
+
             if (!String.IsNullOrWhiteSpace(sharedWith))
                 predicate = predicate.NullSafeAnd(x => x.SharedWith.Any(sharedWithSearch.Compile()));
 
             if (!String.IsNullOrWhiteSpace(pendingReviewer))
             {
                 predicate = predicate.NullSafeAnd(y => y.Reviews.Any(
-                    CommonQueryStrategies.GetPersonQueryExpression<CorrespondenceReview>(x => x.Reviewer, pendingReviewer)
-                    .NullSafeAnd(x => x.IsFinal == false)
-                    .Compile()));
+                    CommonQueryStrategies
+                        .GetPersonQueryExpression<CorrespondenceReview>(x => x.Reviewer, pendingReviewer)
+                        .NullSafeAnd(x => x.IsFinal == false)
+                        .Compile()));
             }
 
             if (hasAttachments.HasValue)
@@ -112,15 +118,17 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
 
             if (hasReviews.HasValue)
                 predicate = predicate.NullSafeAnd(x => x.Reviews.Any());
-            
+
             var query = DBSession.Query<CorrespondenceItem>()
                 .AsExpandable()
                 .NullSafeWhere(predicate);
 
-            if (String.Equals(orderBy, nameof(CorrespondenceItem.TimeSubmitted), StringComparison.CurrentCultureIgnoreCase))
+            if (String.Equals(orderBy, nameof(CorrespondenceItem.TimeSubmitted),
+                StringComparison.CurrentCultureIgnoreCase))
                 query = query.OrderByDescending(x => x.TimeSubmitted);
             else
-                return BadRequest($"Your requested value '{orderBy}' for the parameter '{nameof(orderBy)}' is not supported.  The supported values are '{nameof(CorrespondenceItem.TimeSubmitted)}' ... and nothing else.  :/  If you need other order by properties here, just tell me.");
+                return BadRequest(
+                    $"Your requested value '{orderBy}' for the parameter '{nameof(orderBy)}' is not supported.  The supported values are '{nameof(CorrespondenceItem.TimeSubmitted)}' ... and nothing else.  :/  If you need other order by properties here, just tell me.");
 
             var result = query
                 .Take(limit)
@@ -159,7 +167,7 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
         [HttpPost]
         [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.CorrespondenceItem.Get))]
-        public IActionResult Post([FromBody]DTOs.CorrespondenceItem.Post dto)
+        public IActionResult Post([FromBody] DTOs.CorrespondenceItem.Post dto)
         {
             if (dto == null)
                 return BadRequestDTONull();
@@ -183,7 +191,7 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
                 FinalApprover = finalApprover,
                 HasPhysicalCounterpart = dto.HasPhysicalCounterpart,
                 Id = Guid.NewGuid(),
-                SeriesNumber = (DBSession.Query<CorrespondenceItem>().Max(x => (int?)x.SeriesNumber) ?? 0) + 1,
+                SeriesNumber = (DBSession.Query<CorrespondenceItem>().Max(x => (int?) x.SeriesNumber) ?? 0) + 1,
                 SubmittedBy = User,
                 SubmittedFor = submittedFor,
                 TimeSubmitted = CallTime
@@ -196,13 +204,11 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
             if (!item.CanPersonEditItem(User))
                 return Forbid();
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Save(item);
-                transaction.Commit();
-            }
+            DBSession.Save(item);
 
-            return CreatedAtAction(nameof(Get), new { id = item.Id }, new DTOs.CorrespondenceItem.Get(item));
+            CommitChanges();
+
+            return CreatedAtAction(nameof(Get), new {id = item.Id}, new DTOs.CorrespondenceItem.Get(item));
         }
 
         /// <summary>
@@ -214,7 +220,7 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
         [HttpPut("{id}")]
         [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.CorrespondenceItem.Get))]
-        public IActionResult Put(Guid id, [FromBody]DTOs.CorrespondenceItem.Put dto)
+        public IActionResult Put(Guid id, [FromBody] DTOs.CorrespondenceItem.Put dto)
         {
             if (dto == null)
                 return BadRequestDTONull();
@@ -224,7 +230,8 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
                 return NotFoundParameter(id, nameof(id));
 
             if (item.HasBeenCompleted)
-                return Conflict("The correspondence item has been completed.  Further modifications of it and its reviews is no longer allowed.");
+                return Conflict(
+                    "The correspondence item has been completed.  Further modifications of it and its reviews is no longer allowed.");
 
             if (!item.CanPersonEditItem(User))
                 return Forbid();
@@ -237,18 +244,14 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
             item.Body = dto.Body;
             item.HasPhysicalCounterpart = dto.HasPhysicalCounterpart;
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Save(item);
-                transaction.Commit();
-            }
+            CommitChanges();
 
             Events.EventManager.OnCorrespondenceModified(new Events.Args.CorrespondenceItemEventArgs
             {
                 Item = item
             }, this);
 
-            return CreatedAtAction(nameof(Get), new { id = item.Id }, new DTOs.CorrespondenceItem.Get(item));
+            return CreatedAtAction(nameof(Get), new {id = item.Id}, new DTOs.CorrespondenceItem.Get(item));
         }
 
         /// <summary>
@@ -266,16 +269,15 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
                 return NotFound();
 
             if (item.HasBeenCompleted)
-                return Conflict("The correspondence item has been completed.  Further modifications of it and its reviews is no longer allowed.");
+                return Conflict(
+                    "The correspondence item has been completed.  Further modifications of it and its reviews is no longer allowed.");
 
             if (!item.CanPersonEditItem(User))
                 return Forbid();
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Delete(item);
-                transaction.Commit();
-            }
+            DBSession.Delete(item);
+
+            CommitChanges();
 
             Events.EventManager.OnCorrespondenceDeleted(new Events.Args.CorrespondenceItemEventArgs
             {

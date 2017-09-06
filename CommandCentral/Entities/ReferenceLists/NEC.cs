@@ -23,20 +23,8 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <summary>
         /// Maps an NEC to the database.
         /// </summary>
-        public class NECMapping : ClassMap<NEC>
+        public class NECMapping : SubclassMap<NEC>
         {
-            /// <summary>
-            /// Maps an NEC to the database.
-            /// </summary>
-            public NECMapping()
-            {
-                Id(x => x.Id).GeneratedBy.Assigned();
-
-                Map(x => x.Value).Not.Nullable().Unique();
-                Map(x => x.Description);
-
-                Cache.ReadWrite();
-            }
         }
 
         /// <summary>

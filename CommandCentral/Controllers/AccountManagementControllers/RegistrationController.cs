@@ -1,14 +1,11 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using CommandCentral.Authentication;
 using CommandCentral.Authorization;
-using CommandCentral.Email;
-using CommandCentral.Email.Models;
 using CommandCentral.Entities;
 using CommandCentral.Enums;
-using CommandCentral.Events.Args;
 using CommandCentral.Framework;
 using CommandCentral.Framework.Data;
 using LinqKit;
@@ -26,9 +23,6 @@ namespace CommandCentral.Controllers.AccountManagementControllers
     /// The email will contain a link which is built by replacing the text '[RegistrationToken]' in your continue link with the actual token.
     /// When the client clicks that link, you should submit the given registration token along with a username and password for your client to the /complete endpoint.
     /// </summary>
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [Consumes("application/json")]
     public class RegistrationController : CommandCentralController
     {
         /// <summary>
@@ -42,12 +36,12 @@ namespace CommandCentral.Controllers.AccountManagementControllers
         [HttpGet]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Registration.Get>))]
-        public IActionResult Get([FromQuery] bool? isCompleted, [FromQuery] string person, 
+        public IActionResult Get([FromQuery] bool? isCompleted, [FromQuery] string person,
             [FromQuery] DTOs.DateTimeRangeQuery timeSubmitted, [FromQuery] DTOs.DateTimeRangeQuery timeCompleted)
         {
             if (!User.CanAccessSubmodules(SubModules.AdminTools))
                 return Forbid();
-            
+
             var predicate = ((Expression<Func<AccountRegistration, bool>>) null)
                 .AddNullableBoolQueryExpression(x => x.IsCompleted, isCompleted)
                 .AddPersonQueryExpression(x => x.Person, person)
@@ -76,14 +70,14 @@ namespace CommandCentral.Controllers.AccountManagementControllers
         {
             if (!User.CanAccessSubmodules(SubModules.AdminTools))
                 return Forbid();
-            
+
             var confirmation = DBSession.Get<AccountRegistration>(id);
             if (confirmation == null)
                 return NotFoundParameter(id, nameof(id));
 
             return Ok(new DTOs.Registration.Get(confirmation));
         }
-        
+
         /// <summary>
         /// Starts the account registration process by creating an account registration and then sending an email to the client containing the registration token.  
         /// The registration token, a Guid, will be inserted into your given continue link by replacing the text '[RegistrationToken]' with the actual token.
@@ -114,7 +108,7 @@ namespace CommandCentral.Controllers.AccountManagementControllers
 
             if (String.IsNullOrWhiteSpace(dto.ContinueLink))
                 return BadRequest($"The parameter '{nameof(dto.ContinueLink)}' must not be empty.");
-            
+
             var registration = new AccountRegistration
             {
                 RegistrationToken = Random.CreateCryptographicallySecureGuid(),
@@ -125,7 +119,7 @@ namespace CommandCentral.Controllers.AccountManagementControllers
 
             var finalRedirectURL = dto.ContinueLink.Replace("[RegistrationToken]",
                 registration.RegistrationToken.ToString());
-            
+
             if (!Uri.IsWellFormedUriString(finalRedirectURL, UriKind.RelativeOrAbsolute))
                 return BadRequest($"The given value of '{nameof(dto.ContinueLink)}' plus the confirmation token" +
                                   " was not a valid URI.");
@@ -136,7 +130,7 @@ namespace CommandCentral.Controllers.AccountManagementControllers
 
             var existingRegistration = DBSession.Query<AccountRegistration>()
                 .SingleOrDefault(x => x.Person == registration.Person);
-            
+
             if (existingRegistration != null && existingRegistration.IsCompleted)
                 throw new Exception("An existing registration that was completed was found for a person " +
                                     "who did not have .IsClaimed set to true.");
@@ -148,31 +142,16 @@ namespace CommandCentral.Controllers.AccountManagementControllers
                 Id = Guid.NewGuid(),
                 Person = registration.Person
             });
-            
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                if (existingRegistration != null)
-                    DBSession.Delete(existingRegistration);
-                
-                DBSession.Save(registration);
-                
-                DBSession.Update(registration.Person);
-                transaction.Commit();
-            }
-            
-            var message = new CCEmailMessage()
-                .Subject("Registeration Started")
-                .HighPriority();
 
-            var sendToAddress = person.EmailAddresses.FirstOrDefault();
-            if (sendToAddress != null)
-            {
-                message.To(sendToAddress)
-                    .BodyFromTemplate(Templates.RegistrationStartedTemplate,
-                        new RegistrationStarted(person, finalRedirectURL))
-                    .Send();
-            }
-            
+            if (existingRegistration != null)
+                DBSession.Delete(existingRegistration);
+
+            DBSession.Save(registration);
+
+            CommitChanges();
+
+            //TODO: Send email to client with details.
+
             return NoContent();
         }
 
@@ -190,13 +169,13 @@ namespace CommandCentral.Controllers.AccountManagementControllers
 
             var registration = DBSession.Query<AccountRegistration>()
                 .SingleOrDefault(x => x.RegistrationToken == dto.RegistrationToken);
-            
+
             if (registration == null)
                 return NotFoundParameter(dto.RegistrationToken, nameof(dto.RegistrationToken));
 
             if (registration.IsCompleted || registration.IsAgedOff())
                 return Forbid();
-            
+
             if (registration.Person.IsClaimed)
                 throw new Exception("An existing registration that was completed was found for a person " +
                                     "who did not have .IsClaimed set to true.");
@@ -206,7 +185,7 @@ namespace CommandCentral.Controllers.AccountManagementControllers
 
             if (DBSession.Query<Person>().Any(x => x.Username == dto.Username))
                 return Conflict("That username is already taken.");
-            
+
             registration.Person.Username = dto.Username;
             registration.Person.PasswordHash = PasswordHash.CreateHash(dto.Password);
             registration.Person.IsClaimed = true;
@@ -229,14 +208,8 @@ namespace CommandCentral.Controllers.AccountManagementControllers
             var registrationValidationResult = registration.Validate();
             if (!registrationValidationResult.IsValid)
                 return BadRequest(registrationValidationResult.Errors.Select(x => x.ErrorMessage));
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Update(registration);
-                DBSession.Update(registration.Person);
-                transaction.Commit();
-            }
-            
-            Events.EventManager.OnAccountRegistered(new AccountRegistrationEventArgs(registration), this);
+
+            CommitChanges();
 
             return NoContent();
         }

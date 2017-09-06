@@ -9,9 +9,6 @@ using NHibernate.Linq;
 
 namespace CommandCentral.Controllers.PersonProfileControllers
 {
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [Consumes("application/json")]
     public class ProfileLocksController : CommandCentralController
     {
         [HttpGet("me")]
@@ -50,7 +47,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         {
             if (dto == null)
                 return BadRequestDTONull();
-            
+
             var lockedPerson = DBSession.Get<Person>(dto.LockedPerson);
 
             if (lockedPerson == null)
@@ -67,12 +64,8 @@ namespace CommandCentral.Controllers.PersonProfileControllers
 
                 existingProfileLock.SubmitTime = CallTime;
 
-                using (var transaction = DBSession.BeginTransaction())
-                {
-                    DBSession.Update(existingProfileLock);
-                    transaction.Commit();
-                }
-                
+                CommitChanges();
+
                 return Ok(new DTOs.ProfileLock.Get(existingProfileLock));
             }
 
@@ -89,17 +82,14 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 SubmitTime = CallTime
             };
 
-            using (var transaction = DBSession.BeginTransaction())
+            if (ownedProfileLock != null)
             {
-                if (ownedProfileLock != null)
-                {
-                    DBSession.Delete(ownedProfileLock);
-                }
-                
-                DBSession.Save(profileLock);
-                
-                transaction.Commit();
+                DBSession.Delete(ownedProfileLock);
             }
+
+            DBSession.Save(profileLock);
+
+            CommitChanges();
 
             return CreatedAtAction(nameof(GetMe), new DTOs.ProfileLock.Get(profileLock));
         }
@@ -116,13 +106,11 @@ namespace CommandCentral.Controllers.PersonProfileControllers
 
             if (item.Owner.Id != User.Id)
                 return Forbid();
-            
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Delete(item);
-                transaction.Commit();
-            }
-            
+
+            DBSession.Delete(item);
+
+            CommitChanges();
+
             return NoContent();
         }
     }

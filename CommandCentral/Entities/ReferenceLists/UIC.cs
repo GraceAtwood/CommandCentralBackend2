@@ -23,20 +23,8 @@ namespace CommandCentral.Entities.ReferenceLists
         /// <summary>
         /// Maps a UIC to the database.
         /// </summary>
-        public class UICMapping : ClassMap<UIC>
+        public class UICMapping : SubclassMap<UIC>
         {
-            /// <summary>
-            /// Maps a UIC to the database.
-            /// </summary>
-            public UICMapping()
-            {
-                Id(x => x.Id).GeneratedBy.Assigned();
-
-                Map(x => x.Value).Not.Nullable().Unique();
-                Map(x => x.Description);
-
-                Cache.ReadWrite();
-            }
         }
 
         /// <summary>

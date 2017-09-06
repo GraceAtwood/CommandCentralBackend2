@@ -15,15 +15,12 @@ using LinqKit;
 using Microsoft.AspNetCore.Mvc;
 using NHibernate.Linq;
 
-namespace CommandCentral.Controllers.Muster
+namespace CommandCentral.Controllers.MusterControllers
 {
     /// <summary>
     /// A muster entry represents a single accounting of a person during a muster cycle.
     /// Anyone can see all muster entries; however, modification of muster entries requires that you be in the given person's muster chain of command.
     /// </summary>
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [Consumes("application/json")]
     public class MusterEntriesController : CommandCentralController
     {
         /// <summary>
@@ -42,8 +39,10 @@ namespace CommandCentral.Controllers.Muster
         [HttpGet]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.MusterEntry.Get>))]
-        public IActionResult Get([FromQuery] string person, [FromQuery] string submittedBy, [FromQuery] DTOs.DateTimeRangeQuery range, [FromQuery] string accountabilityType,
-            [FromQuery] Guid? musterCycle, [FromQuery] Guid? statusPeriodSetBy, [FromQuery] bool? setByStatusPeriod, [FromQuery] int limit = 1000, [FromQuery] string orderBy = nameof(TimeRange.Start))
+        public IActionResult Get([FromQuery] string person, [FromQuery] string submittedBy,
+            [FromQuery] DTOs.DateTimeRangeQuery range, [FromQuery] string accountabilityType,
+            [FromQuery] Guid? musterCycle, [FromQuery] Guid? statusPeriodSetBy, [FromQuery] bool? setByStatusPeriod,
+            [FromQuery] int limit = 1000, [FromQuery] string orderBy = nameof(TimeRange.Start))
         {
             if (limit <= 0)
                 return BadRequestLimit(limit, nameof(limit));
@@ -69,7 +68,8 @@ namespace CommandCentral.Controllers.Muster
 
             if (String.Equals(orderBy, nameof(TimeRange.Start), StringComparison.CurrentCultureIgnoreCase))
                 query = query.OrderByDescending(x => x.MusterCycle.Range.Start);
-            else if (String.Equals(orderBy, nameof(MusterEntry.TimeSubmitted), StringComparison.CurrentCultureIgnoreCase))
+            else if (String.Equals(orderBy, nameof(MusterEntry.TimeSubmitted),
+                StringComparison.CurrentCultureIgnoreCase))
                 query = query.OrderByDescending(x => x.TimeSubmitted);
             else
                 return BadRequest("That order by parameter is not supported.");
@@ -126,7 +126,7 @@ namespace CommandCentral.Controllers.Muster
         [HttpPost]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.MusterEntry.Get))]
-        public IActionResult Post([FromBody]DTOs.MusterEntry.Post dto)
+        public IActionResult Post([FromBody] DTOs.MusterEntry.Post dto)
         {
             if (dto == null)
                 return BadRequest();
@@ -140,11 +140,13 @@ namespace CommandCentral.Controllers.Muster
 
             var accountabilityType = DBSession.Get<AccountabilityType>(dto.AccountabilityType);
             if (accountabilityType == null)
-                return NotFound($"The object referenced by your parameter '{nameof(dto.AccountabilityType)}' could not be found.");
+                return NotFound(
+                    $"The object referenced by your parameter '{nameof(dto.AccountabilityType)}' could not be found.");
 
             var musterCycle = person.Command.CurrentMusterCycle;
 
-            var existingEntry = DBSession.Query<MusterEntry>().FirstOrDefault(x => x.MusterCycle == musterCycle && x.Person == person);
+            var existingEntry = DBSession.Query<MusterEntry>()
+                .FirstOrDefault(x => x.MusterCycle == musterCycle && x.Person == person);
             if (existingEntry != null)
                 return Conflict(new DTOs.MusterEntry.Get(existingEntry));
 
@@ -158,18 +160,16 @@ namespace CommandCentral.Controllers.Muster
                 TimeSubmitted = CallTime
             };
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Save(entry);
-                transaction.Commit();
-            }
+            DBSession.Save(entry);
+
+            CommitChanges();
 
             Events.EventManager.OnMusterEntrySubmitted(new Events.Args.MusterEntryEventArgs
             {
                 MusterEntry = entry
             }, this);
 
-            return CreatedAtAction(nameof(Get), new { id = entry.Id }, new DTOs.MusterEntry.Get(entry));
+            return CreatedAtAction(nameof(Get), new {id = entry.Id}, new DTOs.MusterEntry.Get(entry));
         }
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace CommandCentral.Controllers.Muster
         [HttpPatch("{id}")]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.MusterEntry.Get))]
-        public IActionResult Patch(Guid id, [FromBody]DTOs.MusterEntry.Patch dto)
+        public IActionResult Patch(Guid id, [FromBody] DTOs.MusterEntry.Patch dto)
         {
             if (dto == null)
                 return BadRequest();
@@ -195,17 +195,14 @@ namespace CommandCentral.Controllers.Muster
 
             var accountabilityType = DBSession.Get<AccountabilityType>(dto.AccountabilityType);
             if (accountabilityType == null)
-                return NotFound($"The object referenced by your parameter '{nameof(dto.AccountabilityType)}' could not be found.");
+                return NotFound(
+                    $"The object referenced by your parameter '{nameof(dto.AccountabilityType)}' could not be found.");
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                entry.AccountabilityType = accountabilityType;
-                entry.TimeSubmitted = CallTime;
-                entry.SubmittedBy = User;
+            entry.AccountabilityType = accountabilityType;
+            entry.TimeSubmitted = CallTime;
+            entry.SubmittedBy = User;
 
-                DBSession.Update(entry);
-                transaction.Commit();
-            }
+            CommitChanges();
 
             return Ok(new DTOs.MusterEntry.Get(entry));
         }
@@ -227,17 +224,15 @@ namespace CommandCentral.Controllers.Muster
             if (!User.IsInChainOfCommand(entry.Person, ChainsOfCommand.Muster))
                 return Forbid();
 
-            using (var transaction = DBSession.BeginTransaction())
+            DBSession.Delete(entry);
+
+            CommitChanges();
+
+            Events.EventManager.OnMusterEntryDeleted(new Events.Args.MusterEntryEventArgs
             {
-                DBSession.Delete(entry);
+                MusterEntry = entry
+            }, this);
 
-                Events.EventManager.OnMusterEntryDeleted(new Events.Args.MusterEntryEventArgs
-                {
-                    MusterEntry = entry
-                }, this);
-
-                transaction.Commit();
-            }
 
             return NoContent();
         }

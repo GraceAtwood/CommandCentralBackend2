@@ -6,12 +6,36 @@ using LinqKit;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using CommandCentral.Authorization;
 using CommandCentral.Enums;
 
 namespace CommandCentral.Framework.Data
 {
     public static class CommonQueryStrategies
     {
+        public static Expression<Func<Person, bool>> IsPersonInChainOfCommandExpression(Person person)
+        {
+            var divisionLevelGroups = PermissionsCache.PermissionGroupsCache.Values
+                .Where(x => x.AccessLevels.Any(y => y.Value == ChainOfCommandLevels.Division))
+                .Select(x => x.Name)
+                .ToList();
+            var departmentLevelGroups = PermissionsCache.PermissionGroupsCache.Values
+                .Where(x => x.AccessLevels.Any(y => y.Value == ChainOfCommandLevels.Division))
+                .Select(x => x.Name)
+                .ToList();
+            var commandLevelGroups = PermissionsCache.PermissionGroupsCache.Values
+                .Where(x => x.AccessLevels.Any(y => y.Value == ChainOfCommandLevels.Division))
+                .Select(x => x.Name)
+                .ToList();
+
+            return x => x.PermissionGroups.Any(y => commandLevelGroups.Contains(y.Name)) &&
+                        x.Division.Department.Command == person.Division.Department.Command ||
+                        x.PermissionGroups.Any(y => departmentLevelGroups.Contains(y.Name)) &&
+                        x.Division.Department == person.Division.Department ||
+                        x.PermissionGroups.Any(y => divisionLevelGroups.Contains(y.Name)) &&
+                        x.Division == person.Division;
+        }
+
         public static Expression<Func<Person, bool>> GetPersonsSubscribedToEventForPersonExpression(
             SubscribableEvents subscribableEvent, Person person)
         {

@@ -54,7 +54,8 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
                 .SingleOrDefault(x => x.CorrespondenceItem.Id == correspondenceItemId && x.Id == reviewId);
 
             if (review == null)
-                return NotFoundChildParameter(correspondenceItemId, nameof(correspondenceItemId), reviewId, nameof(reviewId));
+                return NotFoundChildParameter(correspondenceItemId, nameof(correspondenceItemId), reviewId,
+                    nameof(reviewId));
 
             if (!review.CorrespondenceItem.CanPersonViewItem(User))
                 return Forbid();
@@ -83,7 +84,8 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
                 return NotFoundParameter(correspondenceItemId, nameof(correspondenceItemId));
 
             if (correspondenceItem.HasBeenCompleted)
-                return Conflict("The correspondence item has been completed.  Further modifications of it and its reviews is no longer allowed.");
+                return Conflict(
+                    "The correspondence item has been completed.  Further modifications of it and its reviews is no longer allowed.");
 
             if (!correspondenceItem.CanPersonEditItem(User))
                 return Forbid();
@@ -104,22 +106,24 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
             correspondenceItem.Reviews.Add(review);
 
             //We need to do validation for both the corr item and the review.  This is because the addition of this review could violate rules on the parent corr item.
-            var errors = review.Validate().Errors.Select(x => x.ErrorMessage).Concat(correspondenceItem.Validate().Errors.Select(x => x.ErrorMessage));
+            var errors = review.Validate().Errors.Select(x => x.ErrorMessage)
+                .Concat(correspondenceItem.Validate().Errors.Select(x => x.ErrorMessage));
             if (errors.Any())
                 return BadRequest(errors);
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Save(review);
-                transaction.Commit();
-            }
+            DBSession.Save(review);
 
-            EventManager.OnCorrespondenceRoutedToNextPerson(new Events.Args.CorrespondenceItemEventArgs
+            CommitChanges();
+
+            EventManager.OnCorrespondenceRouted(new Events.Args.CorrespondenceItemRoutedEventArgs()
             {
-                Item = correspondenceItem
+                Item = correspondenceItem,
+                NewPersonRoutedTo = review.Reviewer
             }, this);
 
-            return CreatedAtAction(nameof(GetReview), new { correspondenceItemId = correspondenceItem.Id, reviewId = review.Id }, new DTOs.CorrespondenceReview.Get(review));
+            return CreatedAtAction(nameof(GetReview),
+                new {correspondenceItemId = correspondenceItem.Id, reviewId = review.Id},
+                new DTOs.CorrespondenceReview.Get(review));
         }
 
         /// <summary>
@@ -135,23 +139,28 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
         [HttpPut("{correspondenceItemId}/Reviews/{reviewId}")]
         [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.CorrespondenceReview.Get))]
-        public IActionResult PutReview(Guid correspondenceItemId, Guid reviewId, [FromBody] DTOs.CorrespondenceReview.Put dto)
+        public IActionResult PutReview(Guid correspondenceItemId, Guid reviewId,
+            [FromBody] DTOs.CorrespondenceReview.Put dto)
         {
             if (dto == null)
                 return BadRequestDTONull();
 
-            var review = DBSession.Query<CorrespondenceReview>().SingleOrDefault(x => x.CorrespondenceItem.Id == correspondenceItemId && x.Id == reviewId);
+            var review = DBSession.Query<CorrespondenceReview>().SingleOrDefault(x =>
+                x.CorrespondenceItem.Id == correspondenceItemId && x.Id == reviewId);
             if (review == null)
-                return NotFoundChildParameter(correspondenceItemId, nameof(correspondenceItemId), reviewId, nameof(reviewId));
+                return NotFoundChildParameter(correspondenceItemId, nameof(correspondenceItemId), reviewId,
+                    nameof(reviewId));
 
             if (review.CorrespondenceItem.HasBeenCompleted)
-                return Conflict("The correspondence item to which this review belongs has been completed.  Further modifications of it and its reviews is no longer allowed.");
+                return Conflict(
+                    "The correspondence item to which this review belongs has been completed.  Further modifications of it and its reviews is no longer allowed.");
 
             if (!User.CanAccessSubmodules(SubModules.AdminTools) && User != review.Reviewer)
                 return Forbid();
 
             if (review.IsReviewed && !dto.IsRecommended.HasValue)
-                return BadRequest("Once a review has been recommended either positively or negatively, it may not be 'unreviewed'.");
+                return BadRequest(
+                    "Once a review has been recommended either positively or negatively, it may not be 'unreviewed'.");
 
             review.IsRecommended = dto.IsRecommended;
             review.Body = dto.Body;
@@ -173,12 +182,7 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Update(review);
-                DBSession.Update(review.CorrespondenceItem);
-                transaction.Commit();
-            }
+            CommitChanges();
 
             EventManager.OnReviewModified(new Events.Args.CorrespondenceReviewEventArgs
             {
@@ -193,7 +197,9 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
                 }, this);
             }
 
-            return CreatedAtAction(nameof(GetReview), new { correspondenceItemId = review.CorrespondenceItem.Id, reviewId = review.Id }, new DTOs.CorrespondenceReview.Get(review));
+            return CreatedAtAction(nameof(GetReview),
+                new {correspondenceItemId = review.CorrespondenceItem.Id, reviewId = review.Id},
+                new DTOs.CorrespondenceReview.Get(review));
         }
 
         /// <summary>
@@ -207,21 +213,22 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
         [ProducesResponseType(204)]
         public IActionResult DeleteReview(Guid correspondenceItemId, Guid reviewId)
         {
-            var review = DBSession.Query<CorrespondenceReview>().SingleOrDefault(x => x.CorrespondenceItem.Id == correspondenceItemId && x.Id == reviewId);
+            var review = DBSession.Query<CorrespondenceReview>().SingleOrDefault(x =>
+                x.CorrespondenceItem.Id == correspondenceItemId && x.Id == reviewId);
             if (review == null)
-                return NotFoundChildParameter(correspondenceItemId, nameof(correspondenceItemId), reviewId, nameof(reviewId));
+                return NotFoundChildParameter(correspondenceItemId, nameof(correspondenceItemId), reviewId,
+                    nameof(reviewId));
 
             if (review.CorrespondenceItem.HasBeenCompleted)
-                return Conflict("The correspondence item to which this review belongs has been completed.  Further modifications of it and its reviews is no longer allowed.");
+                return Conflict(
+                    "The correspondence item to which this review belongs has been completed.  Further modifications of it and its reviews is no longer allowed.");
 
             if (!review.CorrespondenceItem.CanPersonEditItem(User))
                 return Forbid();
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Delete(review);
-                transaction.Commit();
-            }
+            DBSession.Delete(review);
+
+            CommitChanges();
 
             EventManager.OnReviewDeleted(new Events.Args.CorrespondenceReviewEventArgs
             {

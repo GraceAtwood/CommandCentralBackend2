@@ -11,7 +11,7 @@ using LinqKit;
 using Microsoft.AspNetCore.Mvc;
 using NHibernate.Linq;
 
-namespace CommandCentral.Controllers.Muster
+namespace CommandCentral.Controllers.MusterControllers
 {
     /// <summary>
     /// Muster cycles are used to encapsulate all of the muster entries for a given period of time.  Essentially, this is a single day's muster.
@@ -23,9 +23,6 @@ namespace CommandCentral.Controllers.Muster
     /// The only thing consumers may modify about a muster cycle is the isFinalized property (requires access to the admin tools submodule).  
     /// This is how you close or reopen the muster cycle.  The rest of the muster cycle's life cycle is handled automatically.
     /// </summary>
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [Consumes("application/json")]
     public class MusterCyclesController : CommandCentralController
     {
         /// <summary>
@@ -120,47 +117,43 @@ namespace CommandCentral.Controllers.Muster
             if (CallTime > musterCycle.Range.End)
                 return BadRequest("You may not update a muster cycle whose end time has already passed.");
 
-            using (var transaction = DBSession.BeginTransaction())
+            if (musterCycle.IsFinalized && !dto.IsFinalized)
             {
-                if (musterCycle.IsFinalized && !dto.IsFinalized)
+                //The client wants to reopen the muster.
+                musterCycle.IsFinalized = false;
+
+                //Also clean out all the muster information entries since we don't need them anymore.
+                foreach (var entry in musterCycle.MusterEntries)
                 {
-                    //The client wants to reopen the muster.
-                    musterCycle.IsFinalized = false;
-
-                    //Also clean out all the muster information entries since we don't need them anymore.
-                    foreach (var entry in musterCycle.MusterEntries)
-                    {
-                        DBSession.Delete(entry.ArchiveInformation);
-                        entry.ArchiveInformation = null;
-                    }
-
-                    Events.EventManager.OnMusterReopened(new Events.Args.MusterCycleEventArgs
-                    {
-                        MusterCycle = musterCycle
-                    }, this);
-                }
-                else if (!musterCycle.IsFinalized && dto.IsFinalized)
-                {
-                    //The client wants to close the muster.
-                    musterCycle.IsFinalized = true;
-                    musterCycle.TimeFinalized = DateTime.UtcNow;
-                    musterCycle.FinalizedBy = User;
-                    musterCycle.WasFinalizedBySystem = true;
-
-                    foreach (var entry in musterCycle.MusterEntries)
-                    {
-                        entry.ArchiveInformation = new MusterArchiveInformation(User, entry);
-                    }
-
-                    Events.EventManager.OnMusterFinalized(new Events.Args.MusterCycleEventArgs
-                    {
-                        MusterCycle = musterCycle
-                    }, this);
+                    DBSession.Delete(entry.ArchiveInformation);
+                    entry.ArchiveInformation = null;
                 }
 
-                DBSession.Update(musterCycle);
-                transaction.Commit();
+                Events.EventManager.OnMusterReopened(new Events.Args.MusterCycleEventArgs
+                {
+                    MusterCycle = musterCycle
+                }, this);
             }
+            else if (!musterCycle.IsFinalized && dto.IsFinalized)
+            {
+                //The client wants to close the muster.
+                musterCycle.IsFinalized = true;
+                musterCycle.TimeFinalized = DateTime.UtcNow;
+                musterCycle.FinalizedBy = User;
+                musterCycle.WasFinalizedBySystem = true;
+
+                foreach (var entry in musterCycle.MusterEntries)
+                {
+                    entry.ArchiveInformation = new MusterArchiveInformation(User, entry);
+                }
+
+                Events.EventManager.OnMusterFinalized(new Events.Args.MusterCycleEventArgs
+                {
+                    MusterCycle = musterCycle
+                }, this);
+            }
+            
+            CommitChanges();
 
             return Ok(new DTOs.MusterCycle.Get(musterCycle));
         }

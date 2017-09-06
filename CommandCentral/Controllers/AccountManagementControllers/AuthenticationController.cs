@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Linq;
 using CommandCentral.Authentication;
 using CommandCentral.Entities;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
 using Microsoft.AspNetCore.Mvc;
+using NHibernate.Linq;
 using Random = CommandCentral.Utilities.Random;
 
 namespace CommandCentral.Controllers.AccountManagementControllers
@@ -12,9 +14,6 @@ namespace CommandCentral.Controllers.AccountManagementControllers
     /// Authentication is the means by which a client identifies him or herself and obtains a session id.  
     /// A session id is expected to be passed in every subsequent request in order to identify a user's current session.
     /// </summary>
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [Consumes("application/json")]
     public class AuthenticationController : CommandCentralController
     {
         /// <summary>
@@ -29,7 +28,7 @@ namespace CommandCentral.Controllers.AccountManagementControllers
             if (dto == null)
                 return BadRequestDTONull();
 
-            var person = DBSession.QueryOver<Person>().Where(x => x.Username == dto.Username).SingleOrDefault();
+            var person = DBSession.Query<Person>().SingleOrDefault(x => x.Username == dto.Username);
 
             if (person == null)
                 return Unauthorized();
@@ -50,11 +49,7 @@ namespace CommandCentral.Controllers.AccountManagementControllers
                     Person = person
                 });
 
-                using (var transaction = DBSession.BeginTransaction())
-                {
-                    DBSession.Update(person);
-                    transaction.Commit();
-                }
+                CommitChanges();
 
                 return Unauthorized();
             }
@@ -80,14 +75,12 @@ namespace CommandCentral.Controllers.AccountManagementControllers
             });
 
             Response.Headers.Add("Access-Control-Expose-Headers", "X-Session-Id");
-            Response.Headers["X-Session-Id"] = new Microsoft.Extensions.Primitives.StringValues(authSession.Token.ToString());
+            Response.Headers["X-Session-Id"] =
+                new Microsoft.Extensions.Primitives.StringValues(authSession.Token.ToString());
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Save(authSession);
-                DBSession.Update(person);
-                transaction.Commit();
-            }
+            DBSession.Save(authSession);
+
+            CommitChanges();
 
             return NoContent();
         }
@@ -116,11 +109,7 @@ namespace CommandCentral.Controllers.AccountManagementControllers
             authSession.IsActive = false;
             authSession.LogoutTime = CallTime;
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Update(authSession);
-                transaction.Commit();
-            }
+            CommitChanges();
 
             return NoContent();
         }

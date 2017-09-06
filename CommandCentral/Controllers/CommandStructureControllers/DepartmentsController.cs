@@ -14,9 +14,6 @@ namespace CommandCentral.Controllers.CommandStructureControllers
     /// <summary>
     /// Provides access to departments and a department's collection of divisions.
     /// </summary>
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [Consumes("application/json")]
     public partial class DepartmentsController : CommandCentralController
     {
         /// <summary>

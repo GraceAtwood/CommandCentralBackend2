@@ -1,0 +1,26 @@
+@using CommandCentral.Email
+@model CommandCentral.Email.Models.CorrespondenceShared
+
+Hello @Model.To.ToDisplayName()!
+
+The list of people that correspondence @Model.CorrespondenceItem.SeriesNumber is shared with has changed!
+
+Added people:
+@foreach (var person in Model.Added)
+{
+    <text>@person.ToDisplayName()</text>
+}
+
+Removed people:
+@foreach (var person in Model.Removed)
+{
+    <text>@person.ToDisplayName()</text>
+}
+
+Final "Shared With" list after changes:
+@foreach (var person in Model.CorrespondenceItem.SharedWith)
+{
+    <text>@person.ToDisplayName()</text>
+}
+
+Note: If a person is involved in a correspondence (as a reviewer, for example), then that person's presence on the "Shared With" list does not matter as the correspondence is always considered to be shared with that person.

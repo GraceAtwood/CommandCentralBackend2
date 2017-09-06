@@ -22,7 +22,7 @@ namespace CommandCentral.Controllers.CommandStructureControllers
         [ProducesResponseType(200, Type = typeof(List<DTOs.Department.Get>))]
         public IActionResult GetDepartments(Guid commandId)
         {
-            if(!DBSession.Query<Command>().Any(x => x.Id == commandId))
+            if (!DBSession.Query<Command>().Any(x => x.Id == commandId))
                 return NotFoundParameter(commandId, nameof(commandId));
 
             var results = DBSession.Query<Department>()
@@ -88,13 +88,13 @@ namespace CommandCentral.Controllers.CommandStructureControllers
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
             }
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Save(department);
-                transaction.Commit();
-            }
+            DBSession.Save(department);
 
-            return CreatedAtAction(nameof(GetDepartment), new { commandId = department.Command.Id, departmentId = department.Id }, new DTOs.Department.Get(department));
+            CommitChanges();
+
+            return CreatedAtAction(nameof(GetDepartment),
+                new {commandId = department.Command.Id, departmentId = department.Id},
+                new DTOs.Department.Get(department));
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace CommandCentral.Controllers.CommandStructureControllers
         [HttpPut("{commandId}/Department/{departmentId}")]
         [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.Department.Get))]
-        public IActionResult PutDepartment(Guid commandId, Guid departmentId, [FromBody]DTOs.Department.Put dto)
+        public IActionResult PutDepartment(Guid commandId, Guid departmentId, [FromBody] DTOs.Department.Put dto)
         {
             if (dto == null)
                 return BadRequestDTONull();
@@ -137,13 +137,11 @@ namespace CommandCentral.Controllers.CommandStructureControllers
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
-            using (var transaction = DBSession.BeginTransaction())
-            {
-                DBSession.Update(department);
-                transaction.Commit();
-            }
+            CommitChanges();
 
-            return CreatedAtAction(nameof(GetDepartment), new { commandId = department.Command.Id, departmentId = department.Id }, new DTOs.Department.Get(department));
+            return CreatedAtAction(nameof(GetDepartment),
+                new {commandId = department.Command.Id, departmentId = department.Id},
+                new DTOs.Department.Get(department));
         }
     }
 }
