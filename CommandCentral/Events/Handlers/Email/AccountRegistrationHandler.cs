@@ -38,7 +38,7 @@ namespace CommandCentral.Events.Handlers.Email
                 if (sendToAddress != null)
                 {
                     message.To(sendToAddress)
-                        .BodyFromTemplate(Templates.AccountRegistedTemplate,
+                        .BodyFromTemplate(Templates.AccountRegisteredTemplate,
                             new AccountRegistered(e.AccountRegistration.Person, e.AccountRegistration))
                         .Send();
                 }
@@ -50,7 +50,7 @@ namespace CommandCentral.Events.Handlers.Email
                         continue;
 
                     message.To(sendToAddress)
-                        .BodyFromTemplate(Templates.AccountRegistedTemplate,
+                        .BodyFromTemplate(Templates.AccountRegisteredTemplate,
                             new AccountRegistered(person, e.AccountRegistration))
                         .Send();
                 }
