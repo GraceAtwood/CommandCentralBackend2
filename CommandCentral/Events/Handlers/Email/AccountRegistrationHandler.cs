@@ -19,10 +19,6 @@ namespace CommandCentral.Events.Handlers.Email
 
         private void OnAccountRegistered(object sender, AccountRegistrationEventArgs e)
         {
-            var groupsWithAccessToAdminModules = PermissionsCache.PermissionGroupsCache
-                .Values.Where(x => x.AccessibleSubmodules.Contains(SubModules.AdminTools))
-                .Select(x => x.Name)
-                .ToArray();
 
             var session = SessionManager.GetCurrentSession();
 
