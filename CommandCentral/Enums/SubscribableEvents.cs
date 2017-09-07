@@ -12,6 +12,7 @@
         CorrespondenceCreated,
         NewReviewSubmitted,
         ReviewStatusChanged,
+        ReviewDeleted,
         CorrespondenceRouted,
         CorrespondenceCompleted,
         CorrespondenceShared,
