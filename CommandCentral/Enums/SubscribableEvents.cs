@@ -11,7 +11,7 @@
         PersonCreated,
         CorrespondenceCreated,
         NewReviewSubmitted,
-        ReviewStatusChanged,
+        ReviewModified,
         CorrespondenceRouted,
         CorrespondenceCompleted,
         CorrespondenceShared,

@@ -41,5 +41,10 @@ namespace CommandCentral.Email
         /// The template meant to be used in the email for when a corr item unshared from a person.
         /// </summary>
         public static readonly CCEmailTemplate<CorrespondenceGeneric> CorrespondenceUnsharedTemplate = new CCEmailTemplate<CorrespondenceGeneric>("CorrespondenceUnshared.cshtml");
+
+        /// <summary>
+        /// The template meant to be used for when a corr item's review is modified.
+        /// </summary>
+        public static readonly CCEmailTemplate<CorrespondenceGeneric> ReviewModifiedTemplate = new CCEmailTemplate<CorrespondenceGeneric>("ReviewModified.cshtml");
     }
 }
