@@ -7,7 +7,7 @@ namespace CommandCentral.Email.Models
         public Person Person { get; }
         public string CountinueLink { get; }
 
-        internal RegistrationStarted(Person person, string countinueLink)
+        public RegistrationStarted(Person person, string countinueLink)
         {
             Person = person;
             CountinueLink = countinueLink;

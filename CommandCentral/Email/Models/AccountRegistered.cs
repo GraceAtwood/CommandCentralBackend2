@@ -7,7 +7,7 @@ namespace CommandCentral.Email.Models
         public Person To { get; }
         public AccountRegistration AccountRegistration { get; }
 
-        internal AccountRegistered(Person to, AccountRegistration accountRegistration)
+        public AccountRegistered(Person to, AccountRegistration accountRegistration)
         {
             To = to;
             AccountRegistration = accountRegistration;

@@ -160,7 +160,7 @@ namespace CommandCentral.Controllers.AccountManagementControllers
                 .Subject("Registration Started")
                 .HighPriority();
 
-            var sendToAddress = person.EmailAddresses.FirstOrDefault();
+            var sendToAddress = person.EmailAddresses.FirstOrDefault(x => x.IsDoDEmailAddress());
             if (sendToAddress != null)
             {
                 message.To(sendToAddress)

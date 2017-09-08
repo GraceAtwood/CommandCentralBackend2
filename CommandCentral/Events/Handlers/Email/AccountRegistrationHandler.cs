@@ -10,8 +10,15 @@ using NHibernate.Linq;
 
 namespace CommandCentral.Events.Handlers.Email
 {
+
+    /// <summary>
+    /// Defines event handlers for registration related events. 
+    /// </summary>
     public class AccountRegistrationHandler : IEventHandler
     {
+        /// <summary>
+        /// Registers the events.
+        /// </summary>
         public AccountRegistrationHandler()
         {
             EventManager.AccountRegistered += OnAccountRegistered;
@@ -19,18 +26,17 @@ namespace CommandCentral.Events.Handlers.Email
 
         private void OnAccountRegistered(object sender, AccountRegistrationEventArgs e)
         {
-
             var session = SessionManager.GetCurrentSession();
 
             var interestedPersons = session.Query<Person>()
                 .Where(CommonQueryStrategies.GetPersonsSubscribedToEventForPersonExpression(
-                    SubscribableEvents.PersonCreated, e.AccountRegistration.Person));
+                    SubscribableEvents.AccountRegistered, e.AccountRegistration.Person));
 
             var message = new CCEmailMessage()
                 .Subject("Account Registered")
                 .HighPriority();
 
-            var sendToAddress = e.AccountRegistration.Person.EmailAddresses.FirstOrDefault();
+            var sendToAddress = e.AccountRegistration.Person.EmailAddresses.FirstOrDefault(x => x.IsDoDEmailAddress());
             if (sendToAddress != null)
             {
                 var accountRegistered = new AccountRegistered(e.AccountRegistration.Person, e.AccountRegistration);
@@ -42,7 +48,7 @@ namespace CommandCentral.Events.Handlers.Email
 
             foreach (var person in interestedPersons.Distinct())
             {
-                sendToAddress = person.EmailAddresses.FirstOrDefault(x => x.IsPreferred);
+                sendToAddress = person.EmailAddresses.SingleOrDefault(x => x.IsPreferred);
                 if (sendToAddress == null)
                     continue;
 
