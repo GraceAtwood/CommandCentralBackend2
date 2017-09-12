@@ -18,26 +18,27 @@ namespace CommandCentral.Utilities
 {
     public static class TestDatabaseBuilder
     {
-
-        public static void BuildDatabase(bool buildWithTestData)
+        public static void BuildDatabase()
         {
-
             var rawConnectionString = ConfigurationUtility.Configuration.GetConnectionString("Main");
 
             var connectionStringWithoutDatabase = new MySqlConnectionStringBuilder(rawConnectionString);
             var database = connectionStringWithoutDatabase.Database;
             connectionStringWithoutDatabase.Database = null;
 
-            MySqlHelper.ExecuteScalar(connectionStringWithoutDatabase.GetConnectionString(true), $"DROP DATABASE IF EXISTS {database}");
-            MySqlHelper.ExecuteScalar(connectionStringWithoutDatabase.GetConnectionString(true), $"CREATE DATABASE {database}");
+            MySqlHelper.ExecuteScalar(connectionStringWithoutDatabase.GetConnectionString(true),
+                $"DROP DATABASE IF EXISTS {database}");
+            MySqlHelper.ExecuteScalar(connectionStringWithoutDatabase.GetConnectionString(true),
+                $"CREATE DATABASE {database}");
 
             SessionManager.Schema.Create(true, true);
 
             AddAPIKey();
+        }
 
-            if (!buildWithTestData) 
-                return;
-            
+        public static void InsertTestData(int commands, int departmentsPerCommand, int divisionsPerDepartment,
+            int personsPerDivision)
+        {
             PreDefUtility.PersistPreDef<WatchQualification>();
             PreDefUtility.PersistPreDef<Sex>();
             PreDefUtility.PersistPreDef<PhoneNumberType>();
@@ -48,19 +49,18 @@ namespace CommandCentral.Utilities
             CreateUICs();
             CreateDesignations();
 
-            CreateCommands();
-            CreateDepartments(2, 4);
-            CreateDivisions(2, 4);
+            CreateCommands(commands);
+            CreateDepartments(departmentsPerCommand);
+            CreateDivisions(divisionsPerDepartment);
 
             CreateDeveloper();
-            CreateUsers(30);
+            CreateUsers(personsPerDivision);
         }
 
         private static void AddAPIKey()
         {
             using (var transaction = SessionManager.GetCurrentSession().BeginTransaction())
             {
-
                 SessionManager.GetCurrentSession().Save(new APIKey
                 {
                     ApplicationName = "Command Central Official Frontend",
@@ -89,7 +89,6 @@ namespace CommandCentral.Utilities
                         Description = Random.RandomString(8),
                         Id = Guid.NewGuid()
                     });
-
                 }
 
                 transaction.Commit();
@@ -108,18 +107,17 @@ namespace CommandCentral.Utilities
                         Description = Random.RandomString(8),
                         Id = Guid.NewGuid()
                     });
-
                 }
 
                 transaction.Commit();
             }
         }
 
-        private static void CreateCommands()
+        private static void CreateCommands(int count)
         {
             using (var transaction = SessionManager.GetCurrentSession().BeginTransaction())
             {
-                for (var x = 0; x < Random.GetRandomNumber(2, 4); x++)
+                for (var x = 0; x < count; x++)
                 {
                     var command = new Command
                     {
@@ -134,8 +132,8 @@ namespace CommandCentral.Utilities
                         MusterStartHour = 16
                     };
 
-                    var startTime = DateTime.UtcNow.Hour < command.MusterStartHour 
-                        ? DateTime.UtcNow.Date.AddDays(-1).AddHours(command.MusterStartHour) 
+                    var startTime = DateTime.UtcNow.Hour < command.MusterStartHour
+                        ? DateTime.UtcNow.Date.AddDays(-1).AddHours(command.MusterStartHour)
                         : DateTime.UtcNow.Date.AddHours(command.MusterStartHour);
 
                     var cycle = new MusterCycle
@@ -158,7 +156,7 @@ namespace CommandCentral.Utilities
             }
         }
 
-        private static void CreateDepartments(int min, int max)
+        private static void CreateDepartments(int count)
         {
             using (var transaction = SessionManager.GetCurrentSession().BeginTransaction())
             {
@@ -166,7 +164,7 @@ namespace CommandCentral.Utilities
 
                 foreach (var command in commands)
                 {
-                    for (var x = 0; x < Random.GetRandomNumber(min, max); x++)
+                    for (var x = 0; x < count; x++)
                     {
                         var dep = new Department
                         {
@@ -184,7 +182,7 @@ namespace CommandCentral.Utilities
             }
         }
 
-        private static void CreateDivisions(int min, int max)
+        private static void CreateDivisions(int count)
         {
             using (var transaction = SessionManager.GetCurrentSession().BeginTransaction())
             {
@@ -192,7 +190,7 @@ namespace CommandCentral.Utilities
 
                 foreach (var department in departments)
                 {
-                    for (var x = 0; x < Random.GetRandomNumber(min, max); x++)
+                    for (var x = 0; x < count; x++)
                     {
                         var div = new Division
                         {
@@ -229,10 +227,14 @@ namespace CommandCentral.Utilities
                 Username = username,
                 PasswordHash = PasswordHash.CreateHash("a"),
                 Sex = ReferenceListHelper.Random<Sex>(1).First(),
-                DateOfBirth = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12), Random.GetRandomNumber(1, 28)),
-                DateOfArrival = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12), Random.GetRandomNumber(1, 28)),
-                EAOS = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12), Random.GetRandomNumber(1, 28)),
-                PRD = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12), Random.GetRandomNumber(1, 28)),
+                DateOfBirth = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12),
+                    Random.GetRandomNumber(1, 28)),
+                DateOfArrival = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12),
+                    Random.GetRandomNumber(1, 28)),
+                EAOS = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12),
+                    Random.GetRandomNumber(1, 28)),
+                PRD = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12),
+                    Random.GetRandomNumber(1, 28)),
                 Paygrade = paygrade,
                 DutyStatus = ReferenceListHelper.Random<DutyStatus>(1).First(),
                 WatchQualifications = watchQuals.ToList(),
@@ -240,7 +242,9 @@ namespace CommandCentral.Utilities
                 Designation = designation
             };
 
-            person.FirstName = String.Join("__", person.GetHighestAccessLevels().Select(x => $"{x.Key.ToString().Substring(0, 2)}_{x.Value.ToString().Substring(0, 3)}"));
+            person.FirstName = String.Join("__",
+                person.GetHighestAccessLevels().Select(x =>
+                    $"{x.Key.ToString().Substring(0, 2)}_{x.Value.ToString().Substring(0, 3)}"));
 
             var emailAddress = $"{person.FirstName}.{person.MiddleName[0]}.{person.LastName}.mil@mail.mil";
 
@@ -253,16 +257,20 @@ namespace CommandCentral.Utilities
                 _emailAddresses.Add(emailAddress, 1);
             }
 
-            emailAddress = $"{person.FirstName}.{person.MiddleName[0]}.{person.LastName}{_emailAddresses[emailAddress]}.mil@mail.mil";
+            emailAddress =
+                $"{person.FirstName}.{person.MiddleName[0]}.{person.LastName}{_emailAddresses[emailAddress]}.mil@mail.mil";
 
-            person.EmailAddresses = new List<EmailAddress> { new EmailAddress
+            person.EmailAddresses = new List<EmailAddress>
+            {
+                new EmailAddress
                 {
                     Address = emailAddress,
                     Id = Guid.NewGuid(),
                     IsReleasableOutsideCoC = true,
                     IsPreferred = true,
                     Person = person
-                } };
+                }
+            };
 
             person.AccountHistory = new List<AccountHistoryEvent>
             {
@@ -282,14 +290,16 @@ namespace CommandCentral.Utilities
         {
             using (var transaction = SessionManager.GetCurrentSession().BeginTransaction())
             {
-                var command = SessionManager.GetCurrentSession().Query<Command>().CacheMode(NHibernate.CacheMode.Ignore).First();
+                var command = SessionManager.GetCurrentSession().Query<Command>().CacheMode(NHibernate.CacheMode.Ignore)
+                    .First();
                 var department = command.Departments.First();
                 var division = department.Divisions.First();
                 var uic = ReferenceListHelper.Random<UIC>(1).First();
 
                 var person = CreatePerson(division, uic, "developer", "dev",
-                    new[] { PermissionsCache.PermissionGroupsCache["Developers"] },
-                    ReferenceListHelper.All<WatchQualification>(), ReferenceListHelper.Find<Paygrade>("E5"), ReferenceListHelper.Random<Designation>(1).First());
+                    new[] {PermissionsCache.PermissionGroupsCache["Developers"]},
+                    ReferenceListHelper.All<WatchQualification>(), ReferenceListHelper.Find<Paygrade>("E5"),
+                    ReferenceListHelper.Random<Designation>(1).First());
 
                 SessionManager.GetCurrentSession().Save(person);
 
@@ -302,14 +312,18 @@ namespace CommandCentral.Utilities
             var created = 0;
             using (var transaction = SessionManager.GetCurrentSession().BeginTransaction())
             {
-                var paygrades = ReferenceListHelper.All<Paygrade>().Where(x => x.Value.Contains("E") && !x.Value.Contains("O") || x.Value.Contains("O") && !x.Value.Contains("C"));
+                var paygrades = ReferenceListHelper.All<Paygrade>().Where(x =>
+                    x.Value.Contains("E") && !x.Value.Contains("O") || x.Value.Contains("O") && !x.Value.Contains("C"));
 
                 var divPermGroups = PermissionsCache.PermissionGroupsCache.Values
-                    .Where(x => x.AccessLevels.Values.Any(y => y == ChainOfCommandLevels.Division) && x.IsMemberOfChainOfCommand).ToList();
+                    .Where(x => x.AccessLevels.Values.Any(y => y == ChainOfCommandLevels.Division) &&
+                                x.IsMemberOfChainOfCommand).ToList();
                 var depPermGroups = PermissionsCache.PermissionGroupsCache.Values
-                    .Where(x => x.AccessLevels.Values.Any(y => y == ChainOfCommandLevels.Department) && x.IsMemberOfChainOfCommand).ToList();
+                    .Where(x => x.AccessLevels.Values.Any(y => y == ChainOfCommandLevels.Department) &&
+                                x.IsMemberOfChainOfCommand).ToList();
                 var comPermGroups = PermissionsCache.PermissionGroupsCache.Values
-                    .Where(x => x.AccessLevels.Values.Any(y => y == ChainOfCommandLevels.Command) && x.IsMemberOfChainOfCommand).ToList();
+                    .Where(x => x.AccessLevels.Values.Any(y => y == ChainOfCommandLevels.Command) &&
+                                x.IsMemberOfChainOfCommand).ToList();
 
                 foreach (var command in SessionManager.GetCurrentSession().Query<Command>())
                 {
@@ -317,7 +331,6 @@ namespace CommandCentral.Utilities
                     {
                         foreach (var division in department.Divisions)
                         {
-
                             //Add Sailors
                             for (var x = 0; x < sailorsPerDivision; x++)
                             {
@@ -338,17 +351,20 @@ namespace CommandCentral.Utilities
                                     else if (permChance >= 60 && permChance < 80)
                                     {
                                         //Division leadership
-                                        permGroups.AddRange(divPermGroups.Shuffle().Take(Random.GetRandomNumber(1, divPermGroups.Count)));
+                                        permGroups.AddRange(divPermGroups.Shuffle()
+                                            .Take(Random.GetRandomNumber(1, divPermGroups.Count)));
                                     }
                                     else if (permChance >= 80 && permChance < 90)
                                     {
                                         //Dep leadership
-                                        permGroups.AddRange(depPermGroups.Shuffle().Take(Random.GetRandomNumber(1, depPermGroups.Count)));
+                                        permGroups.AddRange(depPermGroups.Shuffle()
+                                            .Take(Random.GetRandomNumber(1, depPermGroups.Count)));
                                     }
                                     else if (permChance >= 90 && permChance < 95)
                                     {
                                         //Com leadership
-                                        permGroups.AddRange(comPermGroups.Shuffle().Take(Random.GetRandomNumber(1, comPermGroups.Count)));
+                                        permGroups.AddRange(comPermGroups.Shuffle()
+                                            .Take(Random.GetRandomNumber(1, comPermGroups.Count)));
                                     }
                                     else if (permChance >= 95 && permChance <= 100)
                                     {
@@ -370,7 +386,8 @@ namespace CommandCentral.Utilities
                                     {
                                         if (paygrade.IsPettyOfficer())
                                         {
-                                            quals.AddRange(ReferenceListHelper.FindAll<WatchQualification>("OOD", "JOOD"));
+                                            quals.AddRange(
+                                                ReferenceListHelper.FindAll<WatchQualification>("OOD", "JOOD"));
                                         }
                                         else if (paygrade.IsSeaman())
                                         {
@@ -391,10 +408,11 @@ namespace CommandCentral.Utilities
                                     throw new Exception($"An unknown paygrade was found! {paygrade}");
                                 }
 
-                                var person = CreatePerson(division, uic, "user" + created, "user" + created, permGroups, quals, paygrade, ReferenceListHelper.Random<Designation>(1).First());
+                                var person = CreatePerson(division, uic, "user" + created, "user" + created, permGroups,
+                                    quals, paygrade, ReferenceListHelper.Random<Designation>(1).First());
 
                                 SessionManager.GetCurrentSession().Save(person);
-                                
+
                                 created++;
                             }
                         }

@@ -17,6 +17,8 @@
         CorrespondenceShared,
         CorrespondenceDeleted,
         CorrespondenceModified,
+        AccountRegistered
+        CorrespondenceModified,
         CollateralDutyCreated,
         CollateralDutyDeleted
     }

@@ -121,21 +121,6 @@ namespace CommandCentral.Events
             LoginFailed?.Invoke(sender, e);
         }
 
-        /// <summary>
-        /// Occurs when a client begins the registration or claim process for their account.
-        /// </summary>
-        public static event EventHandler<AccountRegistrationEventArgs> RegistrationStarted;
-        
-        /// <summary>
-        /// Triggers the <seealso cref="RegistrationStarted"/> event.
-        /// </summary>
-        /// <param name="e"></param>
-        /// <param name="sender"></param>
-        public static void OnRegistrationStarted(AccountRegistrationEventArgs e, object sender)
-        {
-            RegistrationStarted?.Invoke(sender, e);
-        }
-
         #endregion
 
         #region Profile
@@ -277,6 +262,21 @@ namespace CommandCentral.Events
         public static void OnCorrespondenceModified(CorrespondenceItemEventArgs e, object sender)
         {
             CorrespondenceModified?.Invoke(sender, e);
+        }
+
+        /// <summary>
+        /// Occurs when a client has successfully claimed his or her account.  After this event occurs, a client has access to that account.
+        /// </summary>
+        public static event EventHandler<AccountRegistrationEventArgs> AccountRegistered;
+        
+        /// <summary>
+        /// Triggers the <seealso cref="AccountRegistered"/> event.
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="sender"></param>
+        public static void OnAccountRegistered(AccountRegistrationEventArgs e, object sender)
+        {
+            AccountRegistered?.Invoke(sender, e);
         }
 
         #endregion
