@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using CommandCentral.Authorization;
 using CommandCentral.Entities.CollateralDutyTracking;
+using CommandCentral.Enums;
 using CommandCentral.Framework;
 using CommandCentral.Framework.Data;
 using CommandCentral.Utilities;
@@ -17,7 +19,7 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
         [HttpGet]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.CollateralDutyMembership.Get>))]
-        public IActionResult GetMembership([FromQuery] string level, [FromQuery] string role, [FromQuery] string person,
+        public IActionResult Get([FromQuery] string level, [FromQuery] string role, [FromQuery] string person,
             [FromQuery] bool? hasDesignationLetter, [FromQuery] string collateralDuty)
         {
             var predicate = ((Expression<Func<CollateralDutyMembership, bool>>) null)
@@ -55,6 +57,80 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
                 .ToList();
 
             return Ok(results);
+        }
+
+        [HttpGet("{id}")]
+        [RequireAuthentication]
+        [ProducesResponseType(200, Type = typeof(DTOs.CollateralDutyMembership.Get))]
+        public IActionResult Get(Guid id)
+        {
+            var membership = DBSession.Get<CollateralDutyMembership>(id);
+            if (membership == null)
+                return NotFoundParameter(id, nameof(id));
+
+            return Ok(new DTOs.CollateralDutyMembership.Get(membership));
+        }
+
+        [HttpPut("{id}")]
+        [RequireAuthentication]
+        [ProducesResponseType(201, Type = typeof(DTOs.CollateralDutyMembership.Get))]
+        public IActionResult Put(Guid id, [FromBody] DTOs.CollateralDutyMembership.Put dto)
+        {
+            if (dto == null)
+                return BadRequestDTONull();
+            
+            var membership = DBSession.Get<CollateralDutyMembership>(id);
+            if (membership == null)
+                return NotFoundParameter(id, nameof(id));
+            
+            var clientMembership = DBSession.Query<CollateralDutyMembership>().SingleOrDefault(x =>
+                x.CollateralDuty == membership.CollateralDuty && x.Person == User &&
+                (x.Role == CollateralRoles.Primary || x.Role == CollateralRoles.Secondary));
+
+            if (!User.CanAccessSubmodules(SubModules.AdminTools) || clientMembership == null)
+                return Forbid("In order to modify the membership of a collateral duty, you must either have access to " +
+                              "the admin tools or be in the Primary or Secondary level of the collateral duty in question.");
+
+            if (dto.Level > clientMembership.Level)
+                return Forbid("In order to add a person to a collateral duty at a given level (Division, Department, or Command)," +
+                              " your level in that collateral duty must be equal to or greater than that level.  Your level is " +
+                              $"{clientMembership.Level} and the level you tried to add at was {dto.Level}.");
+
+            membership.Level = dto.Level;
+            membership.Role = dto.Role;
+
+            CommitChanges();
+
+            //TODO: Add an event for membership modified.
+            
+            return CreatedAtAction(nameof(Get), new {id = membership.Id},
+                new DTOs.CollateralDutyMembership.Get(membership));
+        }
+
+        [HttpDelete("{id}")]
+        [RequireAuthentication]
+        [ProducesResponseType(204)]
+        public IActionResult Delete(Guid id)
+        {
+            var membership = DBSession.Get<CollateralDutyMembership>(id);
+            if (membership == null)
+                return NotFoundParameter(id, nameof(id));
+            
+            var clientMembership = DBSession.Query<CollateralDutyMembership>().SingleOrDefault(x =>
+                x.CollateralDuty == membership.CollateralDuty && x.Person == User &&
+                (x.Role == CollateralRoles.Primary || x.Role == CollateralRoles.Secondary));
+
+            if (!User.CanAccessSubmodules(SubModules.AdminTools) || clientMembership == null)
+                return Forbid("In order to modify the membership of a collateral duty, you must either have access to " +
+                              "the admin tools or be in the Primary or Secondary level of the collateral duty in question.");
+
+            DBSession.Delete(membership);
+            
+            //TODO: Add an event here for membership modified.
+
+            CommitChanges();
+
+            return NoContent();
         }
     }
 }
