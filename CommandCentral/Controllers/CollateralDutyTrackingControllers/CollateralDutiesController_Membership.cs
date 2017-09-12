@@ -17,8 +17,15 @@ using NHibernate.Linq;
 
 namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
 {
-    public partial class CollateralDutiesController : CommandCentralController
+    public partial class CollateralDutiesController
     {
+        /// <summary>
+        /// Retrieves the membership collection associated with the identified coll duty.
+        /// </summary>
+        /// <param name="dutyId">The id of the collateral duty whose membership collection you want to retrieve.</param>
+        /// <param name="level">An exact enum query for the level of a membership.</param>
+        /// <param name="role">An exact enum query for the role of a membership.</param>
+        /// <returns></returns>
         [HttpGet("{dutyId}/Membership")]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.CollateralDutyMembership.Get>))]
@@ -42,6 +49,14 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
             return Ok(results);
         }
 
+        /// <summary>
+        /// Creates a new membership in the membership collection of the identified coll duty.
+        /// The client must have access to the admin tools or have a membership in the identified coll duty in the 
+        /// Primary or Secondary role at a level equal to or greater than the level at which the client wants to create the membership.
+        /// </summary>
+        /// <param name="dutyId">The id of the collateral to which to add a membership.</param>
+        /// <param name="dto">A dto containing the information needed to create a new membership.</param>
+        /// <returns></returns>
         [HttpPost("{dutyId}/Membership")]
         [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.CollateralDutyMembership.Get))]

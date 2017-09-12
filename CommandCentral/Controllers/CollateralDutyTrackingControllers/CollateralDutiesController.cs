@@ -15,8 +15,18 @@ using NHibernate.Linq;
 
 namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
 {
+    /// <summary>
+    /// Provides access to the collateral duties collection which tracks which collateral duties a person is in via the membership collection.
+    /// Collateral duties are not intended to replace the permissions system and membership in a collateral duty does not confer the permissions that group grants.
+    /// </summary>
     public partial class CollateralDutiesController : CommandCentralController
     {
+        /// <summary>
+        /// Queries the coll duties collection.
+        /// </summary>
+        /// <param name="name">A string query for the name of a collateral duty.</param>
+        /// <param name="command">A command query for the command of a collateral duty.</param>
+        /// <returns></returns>
         [HttpGet]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.CollateralDuty.Get>))]
@@ -37,6 +47,11 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Retrieves a single collateral duty.
+        /// </summary>
+        /// <param name="id">The id of the coll duty to retrieve.</param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.CollateralDuty.Get))]
@@ -49,6 +64,11 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
             return Ok(new DTOs.CollateralDuty.Get(item));
         }
 
+        /// <summary>
+        /// Creates a new coll duty.  Client must have access to the admin tools.
+        /// </summary>
+        /// <param name="dto">A dto containing the information required to create a coll duty.</param>
+        /// <returns></returns>
         [HttpPost]
         [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.CollateralDuty.Get))]
@@ -83,6 +103,12 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
             return CreatedAtAction(nameof(Get), new {id = item.Id}, new DTOs.CollateralDuty.Get(item));
         }
 
+        /// <summary>
+        /// Modifies a collateral duty.
+        /// </summary>
+        /// <param name="id">The id of the collateral duty to modify.</param>
+        /// <param name="dto">A dto containing the information needed for modification.</param>
+        /// <returns></returns>
         [HttpPut("{id}")]
         [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.CollateralDuty.Get))]
@@ -109,6 +135,11 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
             return CreatedAtAction(nameof(Get), new {id = item.Id}, new DTOs.CollateralDuty.Get(item));
         }
 
+        /// <summary>
+        /// Removes a collateral duty and all of the memberships associated with it.
+        /// </summary>
+        /// <param name="id">The id of the coll duty to delete.</param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         [RequireAuthentication]
         [ProducesResponseType(204)]

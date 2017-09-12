@@ -14,8 +14,20 @@ using NHibernate.Linq;
 
 namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
 {
+    /// <summary>
+    /// Provides access to individual collateral duty memberships and query capability against all memberships.
+    /// </summary>
     public class CollateralDutyMembershipController : CommandCentralController
     {
+        /// <summary>
+        /// Queries all coll duty memberships.
+        /// </summary>
+        /// <param name="level">An exact enum query for the level of a membership.</param>
+        /// <param name="role">An exact enum query for the role of a membership.</param>
+        /// <param name="person">A person query for the person of a membership.</param>
+        /// <param name="hasDesignationLetter">A boolean query for whether or not a membership has an associated designation letter.</param>
+        /// <param name="collateralDuty">A string query for the name of the collateral duty associated with a membership.</param>
+        /// <returns></returns>
         [HttpGet]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.CollateralDutyMembership.Get>))]
@@ -59,6 +71,11 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
             return Ok(results);
         }
 
+        /// <summary>
+        /// Retrieves a single collateral duty membership.
+        /// </summary>
+        /// <param name="id">The Id of the membership to retrieve.</param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.CollateralDutyMembership.Get))]
@@ -71,6 +88,12 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
             return Ok(new DTOs.CollateralDutyMembership.Get(membership));
         }
 
+        /// <summary>
+        /// Modifies a single membership.
+        /// </summary>
+        /// <param name="id">The id of the membership to modify.</param>
+        /// <param name="dto">A dto containing the data needed to modify a membership.</param>
+        /// <returns></returns>
         [HttpPut("{id}")]
         [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.CollateralDutyMembership.Get))]
@@ -107,6 +130,11 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
                 new DTOs.CollateralDutyMembership.Get(membership));
         }
 
+        /// <summary>
+        /// Deletes a single membership.
+        /// </summary>
+        /// <param name="id">The id of the membership to delete.</param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         [RequireAuthentication]
         [ProducesResponseType(204)]
