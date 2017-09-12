@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using CommandCentral.Authorization;
+using CommandCentral.Entities;
 using CommandCentral.Entities.CollateralDutyTracking;
 using CommandCentral.Enums;
 using CommandCentral.Events;
@@ -49,7 +50,8 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
             if (dto == null)
                 return BadRequestDTONull();
 
-            if (DBSession.Query<CollateralDuty>().Count(x => x.Id == dutyId) == 0)
+            var duty = DBSession.Get<CollateralDuty>(dutyId);
+            if (duty == null)
                 return NotFoundParameter(dutyId, nameof(dutyId));
 
             var clientMembership = DBSession.Query<CollateralDutyMembership>().SingleOrDefault(x =>
@@ -64,56 +66,31 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
                 return Forbid("In order to add a person to a collateral duty at a given level (Division, Department, or Command)," +
                               " your level in that collateral duty must be equal to or greater than that level.  Your level is " +
                               $"{clientMembership.Level} and the level you tried to add at was {dto.Level}.");
-        }
 
-        [HttpPut("id")]
-        [RequireAuthentication]
-        [ProducesResponseType(201, Type = typeof(DTOs.CollateralDuty.Get))]
-        public IActionResult Put(Guid id, [FromBody] DTOs.CollateralDuty.Update dto)
-        {
-            if (dto == null)
-                return BadRequestDTONull();
+            var person = DBSession.Get<Person>(dto.Person);
+            if (person == null)
+                return NotFoundParameter(dto.Person, nameof(dto.Person));
 
-            if (!User.CanAccessSubmodules(SubModules.AdminTools))
-                return Forbid();
-
-            var item = DBSession.Get<CollateralDuty>(id);
-            if (item == null)
-                return NotFoundParameter(id, nameof(id));
-
-            item.Name = dto.Name;
-
-            var result = item.Validate();
-            if (!result.IsValid)
-                return BadRequest(result.Errors.Select(x => x.ErrorMessage));
-
-            CommitChanges();
-
-            return CreatedAtAction(nameof(Get), new {id = item.Id}, new DTOs.CollateralDuty.Get(item));
-        }
-
-        [HttpDelete("id")]
-        [RequireAuthentication]
-        [ProducesResponseType(204)]
-        public IActionResult Delete(Guid id)
-        {
-            if (!User.CanAccessSubmodules(SubModules.AdminTools))
-                return Forbid();
-
-            var item = DBSession.Get<CollateralDuty>(id);
-            if (item == null)
-                return NotFoundParameter(id, nameof(id));
-
-            DBSession.Delete(item);
-
-            CommitChanges();
-
-            EventManager.OnCollateralDutyDeleted(new CollateralDutyEventArgs
+            if (duty.Membership.Any(x => x.Person == person))
+                return Conflict("Your given person is already in this collateral duty!  " +
+                                "Please consider deleting the existing membership or modifying it.");
+            
+            var membership = new CollateralDutyMembership
             {
-                CollateralDuty = item
-            }, this);
+                CollateralDuty = duty,
+                Id = Guid.NewGuid(),
+                Level = dto.Level,
+                Person = person,
+                Role = dto.Role
+            };
+            
+            duty.Membership.Add(membership);
+            
+            CommitChanges();
 
-            return NoContent();
+            //TODO: Create an event here for a new membership addition.
+            
+            return Ok(new DTOs.CollateralDutyMembership.Get(membership));
         }
     }
 }
