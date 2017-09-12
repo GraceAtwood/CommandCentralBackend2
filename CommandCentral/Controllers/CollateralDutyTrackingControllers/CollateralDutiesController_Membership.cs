@@ -59,13 +59,15 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
                 (x.Role == CollateralRoles.Primary || x.Role == CollateralRoles.Secondary));
 
             if (!User.CanAccessSubmodules(SubModules.AdminTools) || clientMembership == null)
-                return Forbid("In order to modify the membership of a collateral duty, you must either have access to " +
-                              "the admin tools or be in the Primary or Secondary level of the collateral duty in question.");
+                return Forbid(
+                    "In order to modify the membership of a collateral duty, you must either have access to " +
+                    "the admin tools or be in the Primary or Secondary level of the collateral duty in question.");
 
             if (dto.Level > clientMembership.Level)
-                return Forbid("In order to add a person to a collateral duty at a given level (Division, Department, or Command)," +
-                              " your level in that collateral duty must be equal to or greater than that level.  Your level is " +
-                              $"{clientMembership.Level} and the level you tried to add at was {dto.Level}.");
+                return Forbid(
+                    "In order to add a person to a collateral duty at a given level (Division, Department, or Command)," +
+                    " your level in that collateral duty must be equal to or greater than that level.  Your level is " +
+                    $"{clientMembership.Level} and the level you tried to add at was {dto.Level}.");
 
             var person = DBSession.Get<Person>(dto.Person);
             if (person == null)
@@ -74,7 +76,7 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
             if (duty.Membership.Any(x => x.Person == person))
                 return Conflict("Your given person is already in this collateral duty!  " +
                                 "Please consider deleting the existing membership or modifying it.");
-            
+
             var membership = new CollateralDutyMembership
             {
                 CollateralDuty = duty,
@@ -83,14 +85,16 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
                 Person = person,
                 Role = dto.Role
             };
-            
+
             duty.Membership.Add(membership);
-            
+
             CommitChanges();
 
             //TODO: Create an event here for a new membership addition.
-            //TODO: Turn this into a created at action.
-            return Ok(new DTOs.CollateralDutyMembership.Get(membership));
+            
+            return CreatedAtAction(nameof(CollateralDutyMembershipController.Get),
+                nameof(CollateralDutyMembershipController), new {id = membership.Id},
+                new DTOs.CollateralDutyMembership.Get(membership));
         }
     }
 }
