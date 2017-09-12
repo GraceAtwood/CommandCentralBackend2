@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using CommandCentral.Authorization;
+using CommandCentral.Entities;
 using CommandCentral.Entities.CollateralDutyTracking;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
@@ -89,6 +90,74 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
         }
 
         /// <summary>
+        /// Creates a new membership.
+        /// The client must have access to the admin tools or have a membership in the identified coll duty in the 
+        /// Primary or Secondary role at a level equal to or greater than the level at which the client wants to create the membership.
+        /// </summary>
+        /// <param name="dto">A dto containing the information needed to create a new membership.</param>
+        /// <returns></returns>
+        [HttpPost]
+        [RequireAuthentication]
+        [ProducesResponseType(201, Type = typeof(DTOs.CollateralDutyMembership.Get))]
+        public IActionResult Post([FromBody] DTOs.CollateralDutyMembership.Post dto)
+        {
+            if (dto == null)
+                return BadRequestDTONull();
+
+            var duty = DBSession.Get<CollateralDuty>(dto.CollateralDuty);
+            if (duty == null)
+                return NotFoundParameter(dto.CollateralDuty, nameof(dto.CollateralDuty));
+
+            if (!User.CanAccessSubmodules(SubModules.AdminTools))
+            {
+                var clientMembership = DBSession.Query<CollateralDutyMembership>().SingleOrDefault(x =>
+                    x.CollateralDuty.Id == dto.CollateralDuty && x.Person == User &&
+                    (x.Role == CollateralRoles.Primary || x.Role == CollateralRoles.Secondary));
+
+                if (clientMembership == null)
+                    return Forbid(
+                        "In order to modify the membership of a collateral duty, you must either have access to " +
+                        "the admin tools or be in the Primary or Secondary level of the collateral duty in question.");
+
+                if (dto.Level > clientMembership.Level)
+                    return Forbid(
+                        "In order to add a person to a collateral duty at a given level (Division, Department, or Command)," +
+                        " your level in that collateral duty must be equal to or greater than that level.  Your level is " +
+                        $"{clientMembership.Level} and the level you tried to add at was {dto.Level}.");
+            }
+
+            var person = DBSession.Get<Person>(dto.Person);
+            if (person == null)
+                return NotFoundParameter(dto.Person, nameof(dto.Person));
+
+            if (DBSession.Query<CollateralDutyMembership>().Count(x => x.Person == person) != 0)
+                return Conflict("Your given person is already in this collateral duty!  " +
+                                "Please consider deleting the existing membership or modifying it.");
+
+            var membership = new CollateralDutyMembership
+            {
+                CollateralDuty = duty,
+                Id = Guid.NewGuid(),
+                Level = dto.Level,
+                Person = person,
+                Role = dto.Role
+            };
+
+            var result = membership.Validate();
+            if (!result.IsValid)
+                return BadRequest(result.Errors.Select(x => x.ErrorMessage));
+
+            DBSession.Save(membership);
+
+            CommitChanges();
+
+            //TODO: Create an event here for a new membership addition.
+
+            return CreatedAtAction(nameof(Get), new {id = membership.Id},
+                new DTOs.CollateralDutyMembership.Get(membership));
+        }
+
+        /// <summary>
         /// Modifies a single membership.
         /// </summary>
         /// <param name="id">The id of the membership to modify.</param>
@@ -101,31 +170,37 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
         {
             if (dto == null)
                 return BadRequestDTONull();
-            
+
             var membership = DBSession.Get<CollateralDutyMembership>(id);
             if (membership == null)
                 return NotFoundParameter(id, nameof(id));
-            
+
             var clientMembership = DBSession.Query<CollateralDutyMembership>().SingleOrDefault(x =>
                 x.CollateralDuty == membership.CollateralDuty && x.Person == User &&
                 (x.Role == CollateralRoles.Primary || x.Role == CollateralRoles.Secondary));
 
             if (!User.CanAccessSubmodules(SubModules.AdminTools) || clientMembership == null)
-                return Forbid("In order to modify the membership of a collateral duty, you must either have access to " +
-                              "the admin tools or be in the Primary or Secondary level of the collateral duty in question.");
+                return Forbid(
+                    "In order to modify the membership of a collateral duty, you must either have access to " +
+                    "the admin tools or be in the Primary or Secondary level of the collateral duty in question.");
 
             if (dto.Level > clientMembership.Level)
-                return Forbid("In order to add a person to a collateral duty at a given level (Division, Department, or Command)," +
-                              " your level in that collateral duty must be equal to or greater than that level.  Your level is " +
-                              $"{clientMembership.Level} and the level you tried to add at was {dto.Level}.");
+                return Forbid(
+                    "In order to add a person to a collateral duty at a given level (Division, Department, or Command)," +
+                    " your level in that collateral duty must be equal to or greater than that level.  Your level is " +
+                    $"{clientMembership.Level} and the level you tried to add at was {dto.Level}.");
 
             membership.Level = dto.Level;
             membership.Role = dto.Role;
+            
+            var result = membership.Validate();
+            if (!result.IsValid)
+                return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
             CommitChanges();
 
             //TODO: Add an event for membership modified.
-            
+
             return CreatedAtAction(nameof(Get), new {id = membership.Id},
                 new DTOs.CollateralDutyMembership.Get(membership));
         }
@@ -143,17 +218,18 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
             var membership = DBSession.Get<CollateralDutyMembership>(id);
             if (membership == null)
                 return NotFoundParameter(id, nameof(id));
-            
+
             var clientMembership = DBSession.Query<CollateralDutyMembership>().SingleOrDefault(x =>
                 x.CollateralDuty == membership.CollateralDuty && x.Person == User &&
                 (x.Role == CollateralRoles.Primary || x.Role == CollateralRoles.Secondary));
 
             if (!User.CanAccessSubmodules(SubModules.AdminTools) || clientMembership == null)
-                return Forbid("In order to modify the membership of a collateral duty, you must either have access to " +
-                              "the admin tools or be in the Primary or Secondary level of the collateral duty in question.");
+                return Forbid(
+                    "In order to modify the membership of a collateral duty, you must either have access to " +
+                    "the admin tools or be in the Primary or Secondary level of the collateral duty in question.");
 
             DBSession.Delete(membership);
-            
+
             //TODO: Add an event here for membership modified.
 
             CommitChanges();

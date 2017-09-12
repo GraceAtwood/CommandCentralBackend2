@@ -5,7 +5,6 @@ namespace CommandCentral.DTOs.CollateralDutyMembership
     public class Get : Post
     {
         public Guid Id { get; set; }
-        public Guid CollateralDuty { get; set; }
 
         public Get(Entities.CollateralDutyTracking.CollateralDutyMembership item)
         {
