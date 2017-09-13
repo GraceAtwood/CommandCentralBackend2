@@ -51,5 +51,10 @@ namespace CommandCentral.Email
         /// The template meant to be used in the email for when account registration is started.
         /// </summary>
         public static readonly CCEmailTemplate<RegistrationStarted> RegistrationStartedTemplate = new CCEmailTemplate<RegistrationStarted>("RegistrationStarted.cshtml");
+        
+        /// <summary>
+        /// The template meant to be used in the email for when account registration is started.
+        /// </summary>
+        public static readonly CCEmailTemplate<CollateralDeleted> CollateralDeletedTemplate = new CCEmailTemplate<CollateralDeleted>("CollateralDeleted.cshtml");
     }
 }

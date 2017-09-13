@@ -90,7 +90,7 @@ namespace CommandCentral.Entities.CollateralDutyTracking
                 Map(x => x.HasDesignationLetter).Not.Nullable().Default(false.ToString());
 
                 References(x => x.Person).Not.Nullable();
-                References(x => x.CollateralDuty).Not.Nullable();
+                References(x => x.CollateralDuty).Nullable();
 
                 HasMany(x => x.Attachments)
                     .Cascade.AllDeleteOrphan()

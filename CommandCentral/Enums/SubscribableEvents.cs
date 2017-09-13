@@ -18,7 +18,5 @@
         CorrespondenceDeleted,
         CorrespondenceModified,
         AccountRegistered,
-        CollateralDutyCreated,
-        CollateralDutyDeleted
     }
 }
