@@ -153,13 +153,14 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
                 return NotFoundParameter(id, nameof(id));
 
             DBSession.Delete(item);
-            
-            CommitChanges();
-            
+
+
             EventManager.OnCollateralDutyDeleted(new CollateralDutyEventArgs
             {
                 CollateralDuty = item
             }, this);
+            
+            CommitChanges();
 
             return NoContent();
         }

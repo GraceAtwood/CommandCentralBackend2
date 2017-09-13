@@ -6,6 +6,8 @@ using CommandCentral.Authorization;
 using CommandCentral.Entities;
 using CommandCentral.Entities.CollateralDutyTracking;
 using CommandCentral.Enums;
+using CommandCentral.Events;
+using CommandCentral.Events.Args;
 using CommandCentral.Framework;
 using CommandCentral.Framework.Data;
 using CommandCentral.Utilities;
@@ -151,8 +153,11 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
 
             CommitChanges();
 
-            //TODO: Create an event here for a new membership addition.
-
+            EventManager.OnCollateralDutyMembershipCreated(new CollateralDutyMembershipEventArgs
+            {
+                CollateralDutyMembership = membership
+            }, this);
+            
             return CreatedAtAction(nameof(Get), new {id = membership.Id},
                 new DTOs.CollateralDutyMembership.Get(membership));
         }
