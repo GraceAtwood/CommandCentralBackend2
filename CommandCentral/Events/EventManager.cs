@@ -3,8 +3,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
-using CommandCentral.Entities.CollateralDutyTracking;
-using FluentNHibernate.Utils;
 
 namespace CommandCentral.Events
 {
