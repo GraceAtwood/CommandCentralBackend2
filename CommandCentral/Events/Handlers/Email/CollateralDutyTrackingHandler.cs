@@ -33,7 +33,7 @@ namespace CommandCentral.Events.Handlers.Email
 
             if (e.CollateralDutyMembership.Level == CollateralLevels.Division)
             {
-                emails.Concat(session.Query<CollateralDutyMembership>()
+                emails = emails.Concat(session.Query<CollateralDutyMembership>()
                     .Where(x => x.CollateralDuty == e.CollateralDutyMembership.CollateralDuty)
                     .Where(x => x.Level == CollateralLevels.Division)
                     .Where(x => x.Person.Division == e.CollateralDutyMembership.Person.Division)
@@ -45,7 +45,7 @@ namespace CommandCentral.Events.Handlers.Email
             
             if (e.CollateralDutyMembership.Level == CollateralLevels.Department)
             {
-                emails.Concat(session.Query<CollateralDutyMembership>()
+                emails = emails.Concat(session.Query<CollateralDutyMembership>()
                     .Where(x => x.CollateralDuty == e.CollateralDutyMembership.CollateralDuty)
                     .Where(x => x.Level == CollateralLevels.Department)
                     .Where(x => x.Person.Department == e.CollateralDutyMembership.Person.Department)
@@ -57,7 +57,7 @@ namespace CommandCentral.Events.Handlers.Email
             
             if (e.CollateralDutyMembership.Level == CollateralLevels.Command)
             {
-                emails.Concat(session.Query<CollateralDutyMembership>()
+                emails = emails.Concat(session.Query<CollateralDutyMembership>()
                     .Where(x => x.CollateralDuty == e.CollateralDutyMembership.CollateralDuty)
                     .Where(x => x.Level == CollateralLevels.Command)
                     .Where(x => x.Person.Command == e.CollateralDutyMembership.Person.Command)
