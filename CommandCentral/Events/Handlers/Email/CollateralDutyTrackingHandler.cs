@@ -27,45 +27,45 @@ namespace CommandCentral.Events.Handlers.Email
         {
             var session = SessionManager.GetCurrentSession();
 
-            var emails = session.Query<EmailAddress>()
-                .Where(x => x.Person == e.CollateralDutyMembership.Person)
-                .Where(x => x.IsPreferred);
+            var query = session.Query<CollateralDutyMembership>()
+                .Where(x => x.CollateralDuty == e.CollateralDutyMembership.CollateralDuty &&
+                            (x.Role == CollateralRoles.Primary || x.Role == CollateralRoles.Secondary));
 
-            if (e.CollateralDutyMembership.Level == CollateralLevels.Division)
+            switch (e.CollateralDutyMembership.Level)
             {
-                emails.Concat(session.Query<CollateralDutyMembership>()
-                    .Where(x => x.CollateralDuty == e.CollateralDutyMembership.CollateralDuty)
-                    .Where(x => x.Level == CollateralLevels.Division)
-                    .Where(x => x.Person.Division == e.CollateralDutyMembership.Person.Division)
-                    .Where(x => x.Role == CollateralRoles.Primary || x.Role == CollateralRoles.Secondary)
-                    .SelectMany(x => x.Person.EmailAddresses)
-                    .Where(x => x.IsPreferred)
-                );
+                case CollateralLevels.Division:
+                {
+                    query = query.Where(x =>
+                        x.Level == CollateralLevels.Division &&
+                        x.Person.Division == e.CollateralDutyMembership.Person.Division)
+                    break;
+                }
+                case CollateralLevels.Department:
+                {
+                    query = query.Where(x =>
+                        x.Level == CollateralLevels.Department &&
+                        x.Person.Division.Department == e.CollateralDutyMembership.Person.Division.Department);
+                    break;
+                }
+                case CollateralLevels.Command:
+                {
+                    query = query.Where(x =>
+                        x.Level == CollateralLevels.Command &&
+                        x.Person.Division.Department.Command ==
+                        e.CollateralDutyMembership.Person.Division.Department.Command);
+                    break;
+                }
+                default:
+                {
+                    throw new NotImplementedException(
+                        $"Fell to default of switch in {nameof(OnCollateralMembershipCreated)} for value {nameof(e.CollateralDutyMembership.Level)}");
+                }
             }
-            
-            if (e.CollateralDutyMembership.Level == CollateralLevels.Department)
-            {
-                emails.Concat(session.Query<CollateralDutyMembership>()
-                    .Where(x => x.CollateralDuty == e.CollateralDutyMembership.CollateralDuty)
-                    .Where(x => x.Level == CollateralLevels.Department)
-                    .Where(x => x.Person.Department == e.CollateralDutyMembership.Person.Department)
-                    .Where(x => x.Role == CollateralRoles.Primary || x.Role == CollateralRoles.Secondary)
-                    .SelectMany(x => x.Person.EmailAddresses)
-                    .Where(x => x.IsPreferred)
-                );
-            }
-            
-            if (e.CollateralDutyMembership.Level == CollateralLevels.Command)
-            {
-                emails.Concat(session.Query<CollateralDutyMembership>()
-                    .Where(x => x.CollateralDuty == e.CollateralDutyMembership.CollateralDuty)
-                    .Where(x => x.Level == CollateralLevels.Command)
-                    .Where(x => x.Person.Command == e.CollateralDutyMembership.Person.Command)
-                    .Where(x => x.Role == CollateralRoles.Primary || x.Role == CollateralRoles.Secondary)
-                    .SelectMany(x => x.Person.EmailAddresses)
-                    .Where(x => x.IsPreferred)
-                );
-            }
+
+            var emails = query.SelectMany(x => x.Person.EmailAddresses.Where(y => y.IsPreferred)).ToList();
+            var personEmail = e.CollateralDutyMembership.Person.EmailAddresses.SingleOrDefault(x => x.IsPreferred);
+            if (personEmail != null)
+                emails.Add(personEmail);
 
             var message = new CCEmailMessage()
                 .Subject("Collateral Duty Assigned")
@@ -73,14 +73,10 @@ namespace CommandCentral.Events.Handlers.Email
 
             foreach (var email in emails)
             {
-                if (email == null)
-                    continue;
-                
                 message.To(email)
                     .BodyFromTemplate(Templates.CollateralMembershipCreated,
                         new CollateralMembershipCreated(email.Person, e.CollateralDutyMembership))
                     .Send();
-                
             }
         }
 
@@ -91,7 +87,7 @@ namespace CommandCentral.Events.Handlers.Email
                 .Where(x => x.CollateralDuty == e.CollateralDuty)
                 .SelectMany(x => x.Person.EmailAddresses)
                 .Where(x => x.IsPreferred);
-            
+
             var message = new CCEmailMessage()
                 .Subject("Collateral Duty Deleted")
                 .HighPriority();
