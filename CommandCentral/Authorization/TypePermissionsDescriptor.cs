@@ -198,7 +198,7 @@ namespace CommandCentral.Authorization
         {
             return CanReturn(selector) 
                 ? selector.Compile()(obj) 
-                : default(TValue);
+                : default;
         }
 
         /// <summary>

@@ -1,0 +1,8 @@
+@using CommandCentral.Email
+@model CommandCentral.Email.Models.CollateralDeleted
+
+Hello @Model.To.ToDisplayName()!
+
+A collateral duty that you were assigned to has been deleted.
+
+Name: @Model.CollateralDuty.Name
