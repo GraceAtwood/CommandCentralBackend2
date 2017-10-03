@@ -19,7 +19,7 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
     /// Provides access to the collateral duties collection which tracks which collateral duties a person is in via the membership collection.
     /// Collateral duties are not intended to replace the permissions system and membership in a collateral duty does not confer the permissions that group grants.
     /// </summary>
-    public partial class CollateralDutiesController : CommandCentralController
+    public class CollateralDutiesController : CommandCentralController
     {
         /// <summary>
         /// Queries the coll duties collection.
