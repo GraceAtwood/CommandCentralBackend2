@@ -312,7 +312,7 @@ namespace CommandCentral.Events
         {
             CollateralDutyMembershipCreated?.Invoke(sender, e);
         }
-
+        
         #endregion
     }
 }

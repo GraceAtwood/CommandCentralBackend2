@@ -37,7 +37,7 @@ namespace CommandCentral.Events.Handlers.Email
                 {
                     query = query.Where(x =>
                         x.Level == CollateralLevels.Division &&
-                        x.Person.Division == e.CollateralDutyMembership.Person.Division)
+                        x.Person.Division == e.CollateralDutyMembership.Person.Division);
                     break;
                 }
                 case CollateralLevels.Department:

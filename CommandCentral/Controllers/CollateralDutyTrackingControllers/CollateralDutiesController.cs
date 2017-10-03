@@ -95,11 +95,6 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
 
             CommitChanges();
 
-            EventManager.OnCollateralDutyCreated(new CollateralDutyEventArgs
-            {
-                CollateralDuty = item
-            }, this);
-
             return CreatedAtAction(nameof(Get), new {id = item.Id}, new DTOs.CollateralDuty.Get(item));
         }
 
