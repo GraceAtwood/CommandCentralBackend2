@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
+using CommandCentral.Controllers.CollateralDutyTrackingControllers;
 
 namespace CommandCentral.Events
 {
@@ -117,21 +118,6 @@ namespace CommandCentral.Events
         public static void OnLoginFailed(LoginFailedEventArgs e, object sender)
         {
             LoginFailed?.Invoke(sender, e);
-        }
-
-        /// <summary>
-        /// Occurs when a client begins the registration or claim process for their account.
-        /// </summary>
-        public static event EventHandler<AccountRegistrationEventArgs> RegistrationStarted;
-        
-        /// <summary>
-        /// Triggers the <seealso cref="RegistrationStarted"/> event.
-        /// </summary>
-        /// <param name="e"></param>
-        /// <param name="sender"></param>
-        public static void OnRegistrationStarted(AccountRegistrationEventArgs e, object sender)
-        {
-            RegistrationStarted?.Invoke(sender, e);
         }
 
         #endregion
@@ -277,7 +263,56 @@ namespace CommandCentral.Events
             CorrespondenceModified?.Invoke(sender, e);
         }
 
-        #endregion
+        /// <summary>
+        /// Occurs when a client has successfully claimed his or her account.  After this event occurs, a client has access to that account.
+        /// </summary>
+        public static event EventHandler<AccountRegistrationEventArgs> AccountRegistered;
+        
+        /// <summary>
+        /// Triggers the <seealso cref="AccountRegistered"/> event.
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="sender"></param>
+        public static void OnAccountRegistered(AccountRegistrationEventArgs e, object sender)
+        {
+            AccountRegistered?.Invoke(sender, e);
+        }
 
+        #endregion
+        
+        #region Collateral Duty Tracking
+
+        /// <summary>
+        /// Occurs when a collateral is deleted along with all of its membership.
+        /// </summary>
+        public static event EventHandler<CollateralDutyEventArgs> CollateralDutyDeleted;
+
+        /// <summary>
+        /// Triggers the <seealso cref="CollateralDutyDeleted"/> event.
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="sender"></param>
+        public static void OnCollateralDutyDeleted(CollateralDutyEventArgs e, object sender)
+        {
+            CollateralDutyDeleted?.Invoke(sender, e);
+        }
+
+        /// <summary>
+        /// Occurs when a collateral membership is created.
+        /// </summary>
+        public static event EventHandler<CollateralDutyMembershipEventArgs> CollateralDutyMembershipCreated;
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="sender"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        public static void OnCollateralDutyMembershipCreated(CollateralDutyMembershipEventArgs e, object sender)
+        {
+            CollateralDutyMembershipCreated?.Invoke(sender, e);
+        }
+
+        #endregion
     }
 }

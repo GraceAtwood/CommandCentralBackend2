@@ -103,7 +103,7 @@ namespace CommandCentral.Entities.Muster
                 RuleFor(x => x.Id).NotEmpty();
 
                 RuleFor(x => x.Range)
-                    .Must(range => range.Start <= range.End && range.Start != default(DateTime) && range.End != default(DateTime))
+                    .Must(range => range.Start <= range.End && range.Start != default && range.End != default)
                         .WithMessage("A muster cycle must start before it ends.");
 
                 When(x => x.IsFinalized, () =>
@@ -120,7 +120,7 @@ namespace CommandCentral.Entities.Muster
                         RuleFor(x => x.FinalizedBy).NotEmpty();
                     });
 
-                    RuleFor(x => x.TimeFinalized).Must(x => x.HasValue && x.Value != default(DateTime));
+                    RuleFor(x => x.TimeFinalized).Must(x => x.HasValue && x.Value != default);
                 });
 
                 RuleFor(x => x.Command).NotEmpty();

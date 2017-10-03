@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Net.Mail;
 using CommandCentral.Authorization;
 using CommandCentral.Email;
 using CommandCentral.Email.Models;
@@ -71,6 +72,45 @@ namespace CommandCentral.Events.Handlers.Email
 
         private void OnReviewDeleted(object sender, CorrespondenceReviewEventArgs e)
         {
+            var item = e.Review.CorrespondenceItem;
+            var groupsWithAccessToAdminModules = PermissionsCache.PermissionGroupsCache
+                .Values.Where(x => x.AccessibleSubmodules.Contains(SubModules.AdminTools))
+                .Select(x => x.Name)
+                .ToArray();
+
+            var interestedPersons = new[]
+                    {item.FinalApprover, item.SubmittedBy, item.SubmittedFor}
+                .Concat(item.SharedWith)
+                .Concat(item.Reviews.Select(x => x.ReviewedBy))
+                .Concat(item.Reviews.Select(x => x.Reviewer))
+                .Concat(item.Reviews.Select(x => x.RoutedBy));
+
+            var chainOfCommandQuery = CommonQueryStrategies.IsPersonInChainOfCommandExpression(item.SubmittedFor);
+
+            interestedPersons = interestedPersons.Concat(SessionManager.GetCurrentSession().Query<Person>()
+                .AsExpandable()
+                .Where(chainOfCommandQuery.NullSafeOr(x =>
+                    x.PermissionGroups.Any(group => groupsWithAccessToAdminModules.Contains(group.Name))))
+                .Where(CommonQueryStrategies.GetPersonsSubscribedToEventForPersonExpression(
+                    SubscribableEvents.ReviewDeleted, item.SubmittedFor))
+                .ToList());
+
+            var message = new CCEmailMessage()
+                .Subject($"Correspondence #{item.SeriesNumber} ICO {item.SubmittedFor.ToDisplayName()}: Modified")
+                .HighPriority();
+
+            foreach (var person in interestedPersons.Distinct())
+            {
+                var sendToAddress = person.EmailAddresses.SingleOrDefault(x => x.IsPreferred);
+                if (sendToAddress == null)
+                    continue;
+
+                message
+                    .To(sendToAddress)
+                    .BodyFromTemplate(Templates.ReviewDeletedTemplate,
+                        new CorrespondenceGeneric(person, item))
+                    .Send();
+            }
         }
 
         private void OnCorrespondenceShared(object sender, CorrespondenceItemSharedEventArgs e)

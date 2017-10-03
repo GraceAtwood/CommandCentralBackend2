@@ -12,10 +12,13 @@
         CorrespondenceCreated,
         NewReviewSubmitted,
         ReviewModified,
+        ReviewStatusChanged,
+        ReviewDeleted,
         CorrespondenceRouted,
         CorrespondenceCompleted,
         CorrespondenceShared,
         CorrespondenceDeleted,
-        CorrespondenceModified
+        CorrespondenceModified,
+        AccountRegistered,
     }
 }

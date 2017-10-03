@@ -1,4 +1,4 @@
-﻿using CommandCentral.Email.Models;
+﻿﻿using CommandCentral.Email.Models;
 
 namespace CommandCentral.Email
 {
@@ -46,5 +46,30 @@ namespace CommandCentral.Email
         /// The template meant to be used for when a corr item's review is modified.
         /// </summary>
         public static readonly CCEmailTemplate<CorrespondenceGeneric> ReviewModifiedTemplate = new CCEmailTemplate<CorrespondenceGeneric>("ReviewModified.cshtml");
+
+        /// <summary>
+        /// The template to be used when a review of a correspondence chain is deleted.
+        /// </summary>
+        public static readonly CCEmailTemplate<CorrespondenceGeneric> ReviewDeletedTemplate = new CCEmailTemplate<CorrespondenceGeneric>("ReviewDeleted.cshtml");
+        
+        /// <summary>
+        /// The template meant to be used in the email for when an account is finished with registration.
+        /// </summary>
+        public static readonly CCEmailTemplate<AccountRegistered> AccountRegisteredTemplate = new CCEmailTemplate<AccountRegistered>("AccountRegistered.cshtml");
+        
+        /// <summary>
+        /// The template meant to be used in the email for when account registration is started.
+        /// </summary>
+        public static readonly CCEmailTemplate<RegistrationStarted> RegistrationStartedTemplate = new CCEmailTemplate<RegistrationStarted>("RegistrationStarted.cshtml");
+        
+        /// <summary>
+        /// The template meant to be used in the email for when account registration is started.
+        /// </summary>
+        public static readonly CCEmailTemplate<CollateralDeleted> CollateralDeletedTemplate = new CCEmailTemplate<CollateralDeleted>("CollateralDeleted.cshtml");
+
+        /// <summary>
+        /// The template meant to be used in the email for when a collateral duty is assigned.
+        /// </summary>
+        public static CCEmailTemplate<CollateralMembershipCreated> CollateralMembershipCreated = new CCEmailTemplate<CollateralMembershipCreated>("CollateralMembershipCreated.cshtml");
     }
 }

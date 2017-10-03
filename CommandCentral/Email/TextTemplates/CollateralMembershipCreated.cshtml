@@ -1,0 +1,11 @@
+@using CommandCentral.Email
+@model CommandCentral.Email.Models.CollateralMembershipCreated
+
+Hello @Model.To.ToDisplayName()!
+
+A Sailor has been assigned to a collateral duty.
+
+Name: @Model.CollateralDutyMembership.Person.ToDisplayName()
+Collateral: @Model.CollateralDutyMembership.CollateralDuty.Name
+Level: @Model.CollateralDutyMembership.Level
+Role: @Model.CollateralDutyMembership.Role

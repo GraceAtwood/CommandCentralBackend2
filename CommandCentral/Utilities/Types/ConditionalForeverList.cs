@@ -69,7 +69,7 @@ namespace CommandCentral.Utilities.Types
                 attempts++;
             }
 
-            item = default(T);
+            item = default;
             return false;
         }
     }

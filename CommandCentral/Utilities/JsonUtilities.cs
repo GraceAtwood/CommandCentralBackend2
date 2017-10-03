@@ -42,7 +42,7 @@ namespace CommandCentral.Utilities
 
         public static T Deserialize<T>(this string json)
         {
-            return string.IsNullOrWhiteSpace(json) || !IsValidJson(json) ? default(T) : JsonConvert.DeserializeObject<T>(json);
+            return string.IsNullOrWhiteSpace(json) || !IsValidJson(json) ? default : JsonConvert.DeserializeObject<T>(json);
         }
 
         public static JObject DeserializeToJObject(this string json)
