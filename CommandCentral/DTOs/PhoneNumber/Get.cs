@@ -14,7 +14,7 @@ namespace CommandCentral.DTOs.PhoneNumber
             IsReleasableOutsideCoC = item.IsReleasableOutsideCoC;
             Number = item.Number;
             Person = item.Person.Id;
-            PhoneType = item.PhoneType.Id;
+            PhoneType = item.PhoneType;
         }
     }
 }

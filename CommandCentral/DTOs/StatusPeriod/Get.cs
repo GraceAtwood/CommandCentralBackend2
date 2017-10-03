@@ -17,7 +17,7 @@ namespace CommandCentral.DTOs.StatusPeriod
             Id = item.Id;
             Person = item.Person.Id;
             Range = item.Range;
-            Reason = item.AccountabilityType.Id;
+            Reason = item.AccountabilityType;
             SubmittedBy = item.SubmittedBy.Id;
             DateLastModified = item.DateLastModified;
             LastModifiedBy = item.LastModifiedBy.Id;

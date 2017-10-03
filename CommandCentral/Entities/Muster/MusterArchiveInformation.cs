@@ -70,7 +70,7 @@ namespace CommandCentral.Entities.Muster
             Division = person.Division?.Name;
             Id = Guid.NewGuid();
             MusterEntry = parent ?? throw new ArgumentNullException(nameof(parent));
-            Paygrade = person.Paygrade?.Value;
+            Paygrade = person.Paygrade.ToString();
             UIC = person.UIC?.Value;
         }
 

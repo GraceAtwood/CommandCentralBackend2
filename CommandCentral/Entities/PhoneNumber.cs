@@ -3,6 +3,7 @@ using CommandCentral.Entities.ReferenceLists;
 using FluentNHibernate.Mapping;
 using FluentValidation;
 using System.Linq;
+using CommandCentral.Enums;
 using FluentValidation.Results;
 
 namespace CommandCentral.Entities
@@ -32,7 +33,7 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The type of this phone. eg. Mobile, Home, Work
         /// </summary>
-        public virtual PhoneNumberType PhoneType { get; set; }
+        public virtual PhoneNumberTypes PhoneType { get; set; }
 
         /// <summary>
         /// The person who owns this phone number.
@@ -86,8 +87,6 @@ namespace CommandCentral.Entities
                     .WithMessage("Your phone number must only be 10 digits.");
 
                 RuleFor(x => x.PhoneType).NotEmpty()
-                    .WithMessage("The phone number type must not be left blank.")
-                    .Must(x => x.Id != Guid.Empty)
                     .WithMessage("The phone number type must not be left blank.");
             }
         }

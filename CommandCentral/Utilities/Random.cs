@@ -52,5 +52,19 @@ namespace CommandCentral.Utilities
                 return new Guid(bytes);
             }
         }
+
+        /// <summary>
+        /// Randomly selects an enum value from the given enumeration.
+        /// </summary>
+        /// <typeparam name="TEnum"></typeparam>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static TEnum GetRandomEnumValue<TEnum>()
+        {
+            if (!typeof(TEnum).IsEnum)
+                throw new ArgumentException("The given type was not an enum.", nameof(TEnum));
+
+            return ((TEnum[]) Enum.GetValues(typeof(TEnum))).Shuffle().First();
+        }
     }
 }

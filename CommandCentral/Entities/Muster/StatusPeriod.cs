@@ -3,6 +3,7 @@ using CommandCentral.Utilities.Types;
 using CommandCentral.Authorization;
 using System;
 using System.Collections.Generic;
+using CommandCentral.Enums;
 using FluentValidation.Results;
 using FluentNHibernate.Mapping;
 using FluentValidation;
@@ -54,9 +55,9 @@ namespace CommandCentral.Entities.Muster
         public virtual TimeRange Range { get; set; }
 
         /// <summary>
-        /// The <seealso cref="ReferenceLists.AccountabilityType"/> for this status period.
+        /// The <seealso cref="AccountabilityTypes"/> for this status period.
         /// </summary>
-        public virtual AccountabilityType AccountabilityType { get; set; }
+        public virtual AccountabilityTypes AccountabilityType { get; set; }
 
         /// <summary>
         /// Comments on this status period.
@@ -64,7 +65,7 @@ namespace CommandCentral.Entities.Muster
         public virtual IList<Comment> Comments { get; set; }
 
         #endregion
-        
+
         /// <summary>
         /// Determines if the given person can return comments for this status period.
         /// </summary>
@@ -134,15 +135,18 @@ namespace CommandCentral.Entities.Muster
                 RuleFor(x => x.DateLastModified).NotEmpty();
                 RuleFor(x => x.Range)
                     .Must(range => range.Start <= range.End && range.Start != default && range.End != default)
-                        .WithMessage("A status period must start before it ends.")
+                    .WithMessage("A status period must start before it ends.")
                     .Must((period, range) => range.Start >= period.DateSubmitted)
-                        .WithMessage("A status period must start after or at the same time it was submitted.  For example, you may not submit a retroactive status period.")
+                    .WithMessage(
+                        "A status period must start after or at the same time it was submitted.  For example, you may not submit a retroactive status period.")
                     .Must((period, range) => range.End >= period.DateLastModified)
-                        .WithMessage("A status period must end after it was submitted or after it was last modified.  For example, you may not modify a status period to end before now.");
+                    .WithMessage(
+                        "A status period must end after it was submitted or after it was last modified.  For example, you may not modify a status period to end before now.");
 
                 RuleFor(x => x.AccountabilityType).NotEmpty()
-                    .Must(x => !x.Value.Equals("Present", StringComparison.CurrentCultureIgnoreCase))
-                    .WithMessage("A status period's accountability type may not be 'Present'.  You can not project that someone is going to be present for a given period of time.");
+                    .Must(x => x != AccountabilityTypes.Present)
+                    .WithMessage(
+                        $"A status period's accountability type may not be '{nameof(AccountabilityTypes.Present)}'.  You can not project that someone is going to be present for a given period of time.");
             }
         }
     }

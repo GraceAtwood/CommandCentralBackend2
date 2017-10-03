@@ -51,7 +51,7 @@ namespace CommandCentral.Controllers.MusterControllers
                 .AddPersonQueryExpression(x => x.Person, person)
                 .AddPersonQueryExpression(x => x.SubmittedBy, submittedBy)
                 .AddTimeRangeQueryExpression(x => x.MusterCycle.Range, range)
-                .AddReferenceListQueryExpression(x => x.AccountabilityType, accountabilityType);
+                .AddPartialEnumQueryExpression(x => x.AccountabilityType, accountabilityType);
 
             if (musterCycle.HasValue)
                 predicate = predicate.NullSafeAnd(x => x.MusterCycle.Id == musterCycle);
@@ -138,11 +138,6 @@ namespace CommandCentral.Controllers.MusterControllers
             if (!User.IsInChainOfCommand(person, ChainsOfCommand.Muster))
                 return Forbid();
 
-            var accountabilityType = DBSession.Get<AccountabilityType>(dto.AccountabilityType);
-            if (accountabilityType == null)
-                return NotFound(
-                    $"The object referenced by your parameter '{nameof(dto.AccountabilityType)}' could not be found.");
-
             var musterCycle = person.Command.CurrentMusterCycle;
 
             var existingEntry = DBSession.Query<MusterEntry>()
@@ -152,7 +147,7 @@ namespace CommandCentral.Controllers.MusterControllers
 
             var entry = new MusterEntry
             {
-                AccountabilityType = accountabilityType,
+                AccountabilityType = dto.AccountabilityType,
                 Id = Guid.NewGuid(),
                 MusterCycle = musterCycle,
                 Person = person,
@@ -193,12 +188,7 @@ namespace CommandCentral.Controllers.MusterControllers
             if (!User.IsInChainOfCommand(entry.Person, ChainsOfCommand.Muster))
                 return Forbid();
 
-            var accountabilityType = DBSession.Get<AccountabilityType>(dto.AccountabilityType);
-            if (accountabilityType == null)
-                return NotFound(
-                    $"The object referenced by your parameter '{nameof(dto.AccountabilityType)}' could not be found.");
-
-            entry.AccountabilityType = accountabilityType;
+            entry.AccountabilityType = dto.AccountabilityType;
             entry.TimeSubmitted = CallTime;
             entry.SubmittedBy = User;
 

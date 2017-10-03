@@ -1,9 +1,10 @@
 ﻿using System;
+using CommandCentral.Enums;
 
 namespace CommandCentral.DTOs.MusterEntry
 {
     public class Patch
     {
-        public Guid AccountabilityType { get; set; }
+        public AccountabilityTypes AccountabilityType { get; set; }
     }
 }

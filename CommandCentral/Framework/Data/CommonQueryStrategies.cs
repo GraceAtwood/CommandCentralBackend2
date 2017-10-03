@@ -152,7 +152,8 @@ namespace CommandCentral.Framework.Data
                                 selector.Invoke(x).MiddleName.Contains(term) ||
                                 selector.Invoke(x).Division.Name.Contains(term) ||
                                 selector.Invoke(x).Division.Department.Name.Contains(term) ||
-                                selector.Invoke(x).Paygrade.Value.Contains(term) ||
+                                EnumUtilities.GetPartialValueMatches<Paygrades>(term)
+                                    .Contains(selector.Invoke(x).Paygrade) ||
                                 selector.Invoke(x).UIC.Value.Contains(term) ||
                                 selector.Invoke(x).Designation.Value.Contains(term)));
                 })
@@ -282,12 +283,13 @@ namespace CommandCentral.Framework.Data
         /// <typeparam name="TEnum">An enumerated type.</typeparam>
         /// <returns></returns>
         /// <exception cref="ArgumentException">Thrown if <seealso cref="TEnum"/> is not an enumerated type.</exception>
-        public static Expression<Func<T, bool>> AddExactEnumQueryExpression<T, TEnum>(this Expression<Func<T, bool>> initial,
-            Expression<Func<T, TEnum>> selector, string searchValue) where TEnum : struct, IConvertible
+        public static Expression<Func<T, bool>> AddExactEnumQueryExpression<T, TEnum>(
+            this Expression<Func<T, bool>> initial, Expression<Func<T, TEnum>> selector, string searchValue)
+            where TEnum : struct, IConvertible
         {
             if (String.IsNullOrWhiteSpace(searchValue))
                 return initial;
-            
+
             if (!typeof(TEnum).IsEnum)
                 throw new ArgumentException($"{nameof(TEnum)} must be an enumerated type.", nameof(TEnum));
 
@@ -301,6 +303,34 @@ namespace CommandCentral.Framework.Data
                         {
                             subPredicate = subPredicate.NullSafeAnd(x => selector.Invoke(x).Equals(value));
                         }
+                    }
+                    return subPredicate;
+                })
+                .Aggregate<Expression<Func<T, bool>>, Expression<Func<T, bool>>>(null,
+                    (current1, subPredicate) => current1.NullSafeOr(subPredicate));
+
+            return initial.NullSafeAnd(predicate);
+        }
+
+        public static Expression<Func<T, bool>> AddPartialEnumQueryExpression<T, TEnum>(
+            this Expression<Func<T, bool>> initial, Expression<Func<T, TEnum>> selector, string searchValue)
+            where TEnum : struct, IConvertible
+        {
+            if (String.IsNullOrWhiteSpace(searchValue))
+                return initial;
+            
+            if (!typeof(TEnum).IsEnum)
+                throw new ArgumentException($"{nameof(TEnum)} must be an enumerated type.", nameof(TEnum));
+
+            var predicate = searchValue.SplitByOr()
+                .Select(phrase =>
+                {
+                    Expression<Func<T, bool>> subPredicate = null;
+                    foreach (var term in phrase.SplitByAnd())
+                    {
+                        var possibleValues = EnumUtilities.GetPartialValueMatches<TEnum>(term).ToList();
+                        if (possibleValues.Any())
+                            subPredicate = subPredicate.NullSafeAnd(x => possibleValues.Contains(selector.Invoke(x)));
                     }
                     return subPredicate;
                 })

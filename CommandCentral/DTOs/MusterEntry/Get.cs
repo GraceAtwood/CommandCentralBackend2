@@ -13,7 +13,7 @@ namespace CommandCentral.DTOs.MusterEntry
 
         public Get(Entities.Muster.MusterEntry entry)
         {
-            AccountabilityType = entry.AccountabilityType.Id;
+            AccountabilityType = entry.AccountabilityType;
             ArchiveInformation = entry.ArchiveInformation == null ? null :
                 new MusterArchiveInformationDTO
                 {

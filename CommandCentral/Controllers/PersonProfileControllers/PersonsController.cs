@@ -49,12 +49,12 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 .AddStringQueryExpression(x => x.Shift, dto.Shift)
                 .AddStringQueryExpression(x => x.JobTitle, dto.JobTitle)
                 .AddReferenceListQueryExpression(x => x.Designation, dto.Designation)
-                .AddReferenceListQueryExpression(x => x.DutyStatus, dto.DutyStatus)
+                .AddPartialEnumQueryExpression(x => x.DutyStatus, dto.DutyStatus)
                 .AddReferenceListQueryExpression(x => x.UIC, dto.UIC)
-                .AddReferenceListQueryExpression(x => x.Sex, dto.Sex)
+                .AddPartialEnumQueryExpression(x => x.Sex, dto.Sex)
                 .AddReferenceListQueryExpression(x => x.Ethnicity, dto.Ethnicity)
                 .AddReferenceListQueryExpression(x => x.ReligiousPreference, dto.ReligiousPreference)
-                .AddReferenceListQueryExpression(x => x.BilletAssignment, dto.BilletAssignment)
+                .AddPartialEnumQueryExpression(x => x.BilletAssignment, dto.BilletAssignment)
                 .AddDateTimeQueryExpression(x => x.DateOfArrival, dto.DateOfArrival)
                 .AddDateTimeQueryExpression(x => x.DateOfBirth, dto.DateOfBirth)
                 .AddDateTimeQueryExpression(x => x.DateOfDeparture, dto.DateOfDeparture)
@@ -136,14 +136,14 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 DateOfBirth = dto.DateOfBirth,
                 UIC = DBSession.Get<UIC>(dto.UIC),
                 Designation = DBSession.Get<Designation>(dto.Designation),
-                Paygrade = DBSession.Get<Paygrade>(dto.Paygrade),
+                Paygrade = dto.Paygrade,
                 Division = DBSession.Get<Division>(dto.Division),
                 DoDId = dto.DoDId,
                 SSN = dto.SSN,
                 LastName = dto.LastName,
                 FirstName = dto.FirstName,
-                Sex = DBSession.Get<Sex>(dto.Sex),
-                DutyStatus = DBSession.Get<DutyStatus>(dto.DutyStatus)
+                Sex = dto.Sex,
+                DutyStatus = dto.DutyStatus
             };
 
             var result = person.Validate();

@@ -8,7 +8,6 @@ namespace CommandCentral.Entities.ReferenceLists
     /// <summary>
     /// Describes a single UIC.
     /// </summary>
-    [EditableReferenceList]
     public class UIC : ReferenceListItemBase
     {
         /// <summary>

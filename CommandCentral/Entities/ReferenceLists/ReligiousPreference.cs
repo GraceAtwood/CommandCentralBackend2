@@ -8,7 +8,6 @@ namespace CommandCentral.Entities.ReferenceLists
     /// <summary>
     /// Describes a single Religious Preference
     /// </summary>
-    [EditableReferenceList]
     public class ReligiousPreference : ReferenceListItemBase
     {
         /// <summary>

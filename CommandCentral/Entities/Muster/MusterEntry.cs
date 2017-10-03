@@ -1,6 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using FluentValidation;
 using System;
+using CommandCentral.Enums;
 using FluentValidation.Results;
 
 namespace CommandCentral.Entities.Muster
@@ -27,7 +28,7 @@ namespace CommandCentral.Entities.Muster
         /// <summary>
         /// The accountability type indicates how the person was mustered. (eg. Leave, present, etc.)
         /// </summary>
-        public virtual ReferenceLists.AccountabilityType AccountabilityType { get; set; }
+        public virtual AccountabilityTypes AccountabilityType { get; set; }
 
         /// <summary>
         /// The muster cycle to which this muster entry belongs.

@@ -8,7 +8,6 @@ namespace CommandCentral.Entities.ReferenceLists
     /// <summary>
     /// Describes a single NEC.
     /// </summary>
-    [EditableReferenceList]
     public class NEC : ReferenceListItemBase
     {
         /// <summary>

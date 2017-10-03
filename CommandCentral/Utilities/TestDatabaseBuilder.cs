@@ -39,13 +39,6 @@ namespace CommandCentral.Utilities
         public static void InsertTestData(int commands, int departmentsPerCommand, int divisionsPerDepartment,
             int personsPerDivision)
         {
-            PreDefUtility.PersistPreDef<WatchQualification>();
-            PreDefUtility.PersistPreDef<Sex>();
-            PreDefUtility.PersistPreDef<PhoneNumberType>();
-            PreDefUtility.PersistPreDef<Paygrade>();
-            PreDefUtility.PersistPreDef<AccountabilityType>();
-            PreDefUtility.PersistPreDef<DutyStatus>();
-
             CreateUICs();
             CreateDesignations();
 
@@ -212,7 +205,7 @@ namespace CommandCentral.Utilities
 
         private static Person CreatePerson(Division division,
             UIC uic, string lastName, string username, IEnumerable<PermissionGroup> permissionGroups,
-            IEnumerable<WatchQualification> watchQuals, Paygrade paygrade, Designation designation)
+            IEnumerable<WatchQualifications> watchQuals, Paygrades paygrade, Designation designation)
         {
             var person = new Person
             {
@@ -226,7 +219,7 @@ namespace CommandCentral.Utilities
                 IsClaimed = true,
                 Username = username,
                 PasswordHash = PasswordHash.CreateHash("a"),
-                Sex = ReferenceListHelper.Random<Sex>(1).First(),
+                Sex = Random.GetRandomEnumValue<Sexes>(),
                 DateOfBirth = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12),
                     Random.GetRandomNumber(1, 28)),
                 DateOfArrival = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12),
@@ -236,7 +229,7 @@ namespace CommandCentral.Utilities
                 PRD = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12),
                     Random.GetRandomNumber(1, 28)),
                 Paygrade = paygrade,
-                DutyStatus = ReferenceListHelper.Random<DutyStatus>(1).First(),
+                DutyStatus = Random.GetRandomEnumValue<DutyStatuses>(),
                 WatchQualifications = watchQuals.ToList(),
                 PermissionGroups = permissionGroups.ToList(),
                 Designation = designation
@@ -298,7 +291,8 @@ namespace CommandCentral.Utilities
 
                 var person = CreatePerson(division, uic, "developer", "dev",
                     new[] {PermissionsCache.PermissionGroupsCache["Developers"]},
-                    ReferenceListHelper.All<WatchQualification>(), ReferenceListHelper.Find<Paygrade>("E5"),
+                    (WatchQualifications[]) Enum.GetValues(typeof(WatchQualifications)),
+                    Paygrades.E5,
                     ReferenceListHelper.Random<Designation>(1).First());
 
                 SessionManager.GetCurrentSession().Save(person);
@@ -312,8 +306,7 @@ namespace CommandCentral.Utilities
             var created = 0;
             using (var transaction = SessionManager.GetCurrentSession().BeginTransaction())
             {
-                var paygrades = ReferenceListHelper.All<Paygrade>().Where(x =>
-                    x.Value.Contains("E") && !x.Value.Contains("O") || x.Value.Contains("O") && !x.Value.Contains("C"));
+                var paygrades = PaygradeUtilities.EnlistedPaygrades;
 
                 var divPermGroups = PermissionsCache.PermissionGroupsCache.Values
                     .Where(x => x.AccessLevels.Values.Any(y => y == ChainOfCommandLevels.Division) &&
@@ -337,7 +330,8 @@ namespace CommandCentral.Utilities
                                 var paygrade = paygrades.Shuffle().First();
                                 var uic = ReferenceListHelper.Random<UIC>(1).First();
 
-                                var quals = new List<WatchQualification>();
+                                var quals = ((WatchQualifications[]) Enum.GetValues(typeof(WatchQualifications)))
+                                    .ToList();
                                 var permGroups = new List<PermissionGroup>();
 
                                 var permChance = Random.GetRandomNumber(0, 100);
@@ -374,24 +368,24 @@ namespace CommandCentral.Utilities
 
                                 if (paygrade.IsOfficerPaygrade())
                                 {
-                                    quals.Add(ReferenceListHelper.Find<WatchQualification>("CDO"));
+                                    quals.Add(WatchQualifications.CDO);
                                 }
                                 else if (paygrade.IsEnlistedPaygrade())
                                 {
                                     if (paygrade.IsChief())
                                     {
-                                        quals.Add(ReferenceListHelper.Find<WatchQualification>("CDO"));
+                                        quals.Add(WatchQualifications.CDO);
                                     }
                                     else
                                     {
                                         if (paygrade.IsPettyOfficer())
                                         {
-                                            quals.AddRange(
-                                                ReferenceListHelper.FindAll<WatchQualification>("OOD", "JOOD"));
+                                            quals.Add(WatchQualifications.OOD);
+                                            quals.Add(WatchQualifications.JOOD);
                                         }
                                         else if (paygrade.IsSeaman())
                                         {
-                                            quals.Add(ReferenceListHelper.Find<WatchQualification>("JOOD"));
+                                            quals.Add(WatchQualifications.JOOD);
                                         }
                                         else
                                         {

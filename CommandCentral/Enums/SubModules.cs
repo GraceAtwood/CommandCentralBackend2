@@ -11,14 +11,17 @@
         /// The submodule for creating persons.  This is separate from the Admin Tools because a client might need to create users but not edit other things.
         /// </summary>
         CreatePerson,
+
         /// <summary>
         /// The admin tools, such as the list editors.
         /// </summary>
         AdminTools,
+
         /// <summary>
         /// The permission needed to edit the news.
         /// </summary>
         EditNews,
+
         /// <summary>
         /// The permission needed to edit or create FAQs.
         /// </summary>

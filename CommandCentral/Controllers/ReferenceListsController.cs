@@ -116,10 +116,6 @@ namespace CommandCentral.Controllers
                 return BadRequest(
                     $"The reference list type identified by your parameter '{nameof(dto.Type)}' does not exist.");
 
-            if (type.GetCustomAttribute<EditableReferenceListAttribute>() == null)
-                return Forbid($"The reference list type {type.Name} is not editable.");
-
-
             var item = (ReferenceListItemBase) Activator.CreateInstance(type);
             item.Value = dto.Value;
             item.Description = dto.Description;
@@ -155,10 +151,6 @@ namespace CommandCentral.Controllers
             if (item == null)
                 return NotFoundParameter(id, nameof(id));
 
-            var type = item.GetEntityType(DBSession.GetSessionImplementation().PersistenceContext);
-            if (type.GetCustomAttribute<EditableReferenceListAttribute>() == null)
-                return Forbid($"The reference list type {type.Name} is not editable.");
-
             item.Value = dto.Value;
             item.Description = dto.Description;
 
@@ -188,10 +180,6 @@ namespace CommandCentral.Controllers
             if (item == null)
                 return NotFoundParameter(id, nameof(id));
 
-            var type = item.GetEntityType(DBSession.GetSessionImplementation().PersistenceContext);
-            if (type.GetCustomAttribute<EditableReferenceListAttribute>() == null)
-                return Forbid($"The reference list type {type.Name} is not editable.");
-            
             DBSession.Delete(item);
             
             CommitChanges();

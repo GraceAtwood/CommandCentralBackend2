@@ -64,10 +64,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (person == null)
                 return NotFoundParameter(personId, nameof(personId));
 
-            var phoneType = DBSession.Get<PhoneNumberType>(dto.PhoneType);
-            if (phoneType == null)
-                return NotFoundParameter(dto.PhoneType, nameof(dto.PhoneType));
-
             if (!User.GetFieldPermissions<Person>(person).CanEdit(x => x.PhoneNumbers))
                 return Forbid();
 
@@ -78,7 +74,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 IsReleasableOutsideCoC = dto.IsReleasableOutsideCoC,
                 Person = person,
                 Number = dto.Number,
-                PhoneType = phoneType
+                PhoneType = dto.PhoneType
             };
 
             var result = item.Validate();
@@ -107,14 +103,10 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (!User.GetFieldPermissions<Person>(item.Person).CanEdit(x => x.PhoneNumbers))
                 return Forbid();
 
-            var phoneType = DBSession.Get<PhoneNumberType>(dto.PhoneType);
-            if (phoneType == null)
-                return NotFoundParameter(dto.PhoneType, nameof(dto.PhoneType));
-
             item.Number = dto.Number;
             item.IsPreferred = dto.IsPreferred;
             item.IsReleasableOutsideCoC = dto.IsReleasableOutsideCoC;
-            item.PhoneType = phoneType;
+            item.PhoneType = dto.PhoneType;
 
             CommitChanges();
 

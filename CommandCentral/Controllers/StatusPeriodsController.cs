@@ -52,7 +52,7 @@ namespace CommandCentral.Controllers
             var predicate = ((Expression<Func<StatusPeriod, bool>>) null)
                 .AddPersonQueryExpression(x => x.Person, person)
                 .AddPersonQueryExpression(x => x.SubmittedBy, submittedBy)
-                .AddReferenceListQueryExpression(x => x.AccountabilityType, accountabilityType)
+                .AddPartialEnumQueryExpression(x => x.AccountabilityType, accountabilityType)
                 .AddTimeRangeQueryExpression(x => x.Range, range)
                 .AddNullableBoolQueryExpression(x => x.ExemptsFromWatch, exemptsFromWatch);
 
@@ -119,10 +119,6 @@ namespace CommandCentral.Controllers
             if (!User.GetFieldPermissions<Person>(person).CanEdit(x => x.StatusPeriods))
                 return Forbid("Can not submit a status period for this person.");
 
-            var reason = DBSession.Get<AccountabilityType>(dto.Reason);
-            if (reason == null)
-                return NotFoundParameter(dto.Reason, nameof(dto.Reason));
-
             var item = new StatusPeriod
             {
                 DateSubmitted = CallTime,
@@ -130,7 +126,7 @@ namespace CommandCentral.Controllers
                 Id = Guid.NewGuid(),
                 Person = person,
                 Range = dto.Range,
-                AccountabilityType = reason,
+                AccountabilityType = dto.Reason,
                 SubmittedBy = User,
                 DateLastModified = CallTime,
                 LastModifiedBy = User
@@ -171,13 +167,9 @@ namespace CommandCentral.Controllers
             if (!User.GetFieldPermissions<Person>(item.Person).CanEdit(x => x.StatusPeriods))
                 return Forbid();
 
-            var reason = DBSession.Get<AccountabilityType>(dto.Reason);
-            if (reason == null)
-                return NotFoundParameter(dto.Reason, nameof(dto.Reason));
-
             item.ExemptsFromWatch = dto.ExemptsFromWatch;
             item.Range = dto.Range;
-            item.AccountabilityType = reason;
+            item.AccountabilityType = dto.Reason;
             item.LastModifiedBy = User;
             item.DateLastModified = CallTime;
 

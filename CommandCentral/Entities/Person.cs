@@ -108,7 +108,7 @@ namespace CommandCentral.Entities
         /// </summary>
         [CanEditIfSelf]
         [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        public virtual Sex Sex { get; set; }
+        public virtual Sexes Sex { get; set; }
 
         /// <summary>
         /// Stores the person's ethnicity.
@@ -130,7 +130,7 @@ namespace CommandCentral.Entities
         /// The person's paygrade (e5, O1, O5, CWO2, GS1,  etc.)
         /// </summary>
         [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        public virtual Paygrade Paygrade { get; set; }
+        public virtual Paygrades Paygrade { get; set; }
 
         /// <summary>
         /// The person's Designation (CTI2, CTR1, 1114, Job title)
@@ -196,7 +196,7 @@ namespace CommandCentral.Entities
         /// The person's duty status
         /// </summary>
         [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        public virtual DutyStatus DutyStatus { get; set; }
+        public virtual DutyStatuses DutyStatus { get; set; }
 
         /// <summary>
         /// The person's UIC
@@ -240,7 +240,7 @@ namespace CommandCentral.Entities
         /// </summary>
         [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         [CanEditIfInChainOfCommand(ChainsOfCommand.QuarterdeckWatchbill, ChainOfCommandLevels.Division)]
-        public virtual IList<WatchQualification> WatchQualifications { get; set; }
+        public virtual IList<WatchQualifications> WatchQualifications { get; set; }
 
         /// <summary>
         /// The person's status periods which describe projected locations and duty locations.
@@ -254,7 +254,7 @@ namespace CommandCentral.Entities
         /// The type of billet this person is assigned to.
         /// </summary>
         [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        public virtual BilletAssignment BilletAssignment { get; set; }
+        public virtual BilletAssignments BilletAssignment { get; set; }
 
         #endregion
 
@@ -514,7 +514,7 @@ namespace CommandCentral.Entities
                         .WithMessage("That DoD id exists on another profile.  DoD Ids must be unique.");
                 RuleFor(x => x.DateOfBirth).NotEmpty()
                     .WithMessage("The DOB must not be left blank.");
-                RuleFor(x => x.Sex).NotEmpty().Must(x => ReferenceListHelper.IdExists<Sex>(x.Id))
+                RuleFor(x => x.Sex).NotEmpty()
                     .WithMessage("The sex must not be left blank.");
                 RuleFor(x => x.Command).NotEmpty()
                     .WithMessage("A person must have a command.  If you are trying to indicate this person left the command, please set his or her duty status to 'LOSS'.");

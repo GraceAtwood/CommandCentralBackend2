@@ -2,11 +2,9 @@
 {
     public enum SecurityModes
     {
-
         None,
         HTTPSOnly,
         DBOnly,
         Both
-
     }
 }

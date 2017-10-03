@@ -73,14 +73,7 @@
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="PreDefs\Def_BilletAssignments.cc" />
-    <EmbeddedResource Include="PreDefs\Def_DutyStatuses.cc" />
     <EmbeddedResource Include="PreDefs\Def_PermissionGroups.cc" />
-    <EmbeddedResource Include="PreDefs\Def_AccountabilityTypes.cc" />
-    <EmbeddedResource Include="PreDefs\Def_Paygrades.cc" />
-    <EmbeddedResource Include="PreDefs\Def_PhoneNumberTypes.cc" />
-    <EmbeddedResource Include="PreDefs\Def_Sexes.cc" />
-    <EmbeddedResource Include="PreDefs\Def_WatchQualifications.cc" />
     <Content Include="appsettings.example.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

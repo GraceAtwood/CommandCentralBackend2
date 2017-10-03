@@ -1,14 +1,15 @@
 ﻿using System;
+using CommandCentral.Enums;
 
 namespace CommandCentral.DTOs.Person
 {
     public class Post
     {
-        public Guid Paygrade { get; set; }
+        public Paygrades Paygrade { get; set; }
         public Guid Designation { get; set; }
         public Guid UIC { get; set; }
-        public Guid DutyStatus { get; set; }
-        public Guid Sex { get; set; }
+        public DutyStatuses DutyStatus { get; set; }
+        public Sexes Sex { get; set; }
         public string LastName { get; set; }
         public string FirstName { get; set; }
         public string SSN { get; set; }

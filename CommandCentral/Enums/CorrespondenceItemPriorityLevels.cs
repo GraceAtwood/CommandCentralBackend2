@@ -5,6 +5,6 @@
         Critical,
         High,
         Medium,
-        Low  
+        Low
     }
 }

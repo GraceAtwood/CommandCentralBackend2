@@ -8,7 +8,6 @@ namespace CommandCentral.Entities.ReferenceLists
     /// <summary>
     /// Identifies different types of correspondence.
     /// </summary>
-    [EditableReferenceList]
     public class CorrespondenceItemType : ReferenceListItemBase
     {
         /// <summary>
