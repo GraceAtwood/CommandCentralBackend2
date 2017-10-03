@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
+using CommandCentral.Controllers.CollateralDutyTrackingControllers;
 
 namespace CommandCentral.Events
 {
@@ -278,6 +279,55 @@ namespace CommandCentral.Events
         }
 
         #endregion
+        
+        #region Collateral Duty Tracking
 
+        /// <summary>
+        /// Occurs when a new collateral duty has been added and is now accepting members.
+        /// </summary>
+        public static event EventHandler<CollateralDutyEventArgs> CollateralDutyCreated;
+
+        /// <summary>
+        /// Triggers the <seealso cref="CollateralDutyCreated"/> event.
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="sender"></param>
+        public static void OnCollateralDutyCreated(CollateralDutyEventArgs e, object sender)
+        {
+            CollateralDutyCreated?.Invoke(sender, e);
+        }
+
+        /// <summary>
+        /// Occurs when a collateral is deleted along with all of its membership.
+        /// </summary>
+        public static event EventHandler<CollateralDutyEventArgs> CollateralDutyDeleted;
+
+        /// <summary>
+        /// Triggers the <seealso cref="CollateralDutyDeleted"/> event.
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="sender"></param>
+        public static void OnCollateralDutyDeleted(CollateralDutyEventArgs e, object sender)
+        {
+            CollateralDutyDeleted?.Invoke(sender, e);
+        }
+
+        /// <summary>
+        /// Occurs when a collateral membership is created.
+        /// </summary>
+        public static event EventHandler<CollateralDutyMembershipEventArgs> CollateralDutyMembershipCreated;
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="sender"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        public static void OnCollateralDutyMembershipCreated(CollateralDutyMembershipEventArgs e, object sender)
+        {
+            CollateralDutyMembershipCreated?.Invoke(sender, e);
+        }
+
+        #endregion
     }
 }

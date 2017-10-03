@@ -17,6 +17,6 @@
         CorrespondenceShared,
         CorrespondenceDeleted,
         CorrespondenceModified,
-        AccountRegistered
+        AccountRegistered,
     }
 }

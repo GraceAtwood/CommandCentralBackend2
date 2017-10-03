@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using CommandCentral.Authorization;
 using CommandCentral.Enums;
+using Microsoft.Extensions.FileSystemGlobbing.Internal.PathSegments;
 
 namespace CommandCentral.Framework.Data
 {
@@ -258,6 +259,50 @@ namespace CommandCentral.Framework.Data
                     return phrase.SplitByAnd()
                         .Aggregate((Expression<Func<T, bool>>) null,
                             (current, term) => current.And(x => selector.Invoke(x).Name.Contains(term)));
+                })
+                .Aggregate<Expression<Func<T, bool>>, Expression<Func<T, bool>>>(null,
+                    (current1, subPredicate) => current1.NullSafeOr(subPredicate));
+
+            return initial.NullSafeAnd(predicate);
+        }
+
+        /// <summary>
+        /// Adds a query expression for the given enum type to this initial expression.  
+        /// Null safe.  If the initial expression is null, this resulting expression is returned.  
+        /// If the search value is null, the initial expression is returned.  
+        /// The query is first split by the Or operator (<seealso cref="StringUtilities.SplitByOr"/>) then 
+        /// the query is split by the And operator (<seealso cref="StringUtilities.SplitByAnd"/>).  
+        /// The query terms are parsed to the correspondeing Enum using a case insensitive parse.  
+        /// Any values that fail parsing are simply thrown out of the query by not being added to the resulting expression.
+        /// </summary>
+        /// <param name="initial">The starting, "seed" expression.  Can be null.</param>
+        /// <param name="selector">A selector for the property to search on.</param>
+        /// <param name="searchValue">A string containing the search query.</param>
+        /// <typeparam name="T">The initial, starting type of the query.</typeparam>
+        /// <typeparam name="TEnum">An enumerated type.</typeparam>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException">Thrown if <seealso cref="TEnum"/> is not an enumerated type.</exception>
+        public static Expression<Func<T, bool>> AddExactEnumQueryExpression<T, TEnum>(this Expression<Func<T, bool>> initial,
+            Expression<Func<T, TEnum>> selector, string searchValue) where TEnum : struct, IConvertible
+        {
+            if (String.IsNullOrWhiteSpace(searchValue))
+                return initial;
+            
+            if (!typeof(TEnum).IsEnum)
+                throw new ArgumentException($"{nameof(TEnum)} must be an enumerated type.", nameof(TEnum));
+
+            var predicate = searchValue.SplitByOr()
+                .Select(phrase =>
+                {
+                    Expression<Func<T, bool>> subPredicate = null;
+                    foreach (var term in phrase.SplitByAnd())
+                    {
+                        if (Enum.TryParse(term, true, out TEnum value))
+                        {
+                            subPredicate = subPredicate.NullSafeAnd(x => selector.Invoke(x).Equals(value));
+                        }
+                    }
+                    return subPredicate;
                 })
                 .Aggregate<Expression<Func<T, bool>>, Expression<Func<T, bool>>>(null,
                     (current1, subPredicate) => current1.NullSafeOr(subPredicate));

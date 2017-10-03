@@ -10,6 +10,7 @@ using CommandCentral.Enums;
 using CommandCentral.Framework;
 using CommandCentral.Authorization;
 using CommandCentral.Authorization.Rules;
+using CommandCentral.Entities.CollateralDutyTracking;
 using FluentValidation.Results;
 using CommandCentral.Entities.Muster;
 using NHibernate.Linq;
@@ -88,7 +89,7 @@ namespace CommandCentral.Entities
         {
             get
             {
-                if (DateOfBirth == default(DateTime))
+                if (DateOfBirth == default)
                     return 0;
 
                 if (DateTime.Today.Month < DateOfBirth.Month ||
