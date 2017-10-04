@@ -1,4 +1,6 @@
 ﻿using FluentNHibernate.Mapping;
+using FluentValidation;
+using FluentValidation.Results;
 
 namespace CommandCentral.Entities.ReferenceLists
 {
@@ -8,7 +10,7 @@ namespace CommandCentral.Entities.ReferenceLists
     public abstract class ReferenceListItemBase : Entity
     {
         #region Properties
-        
+
         /// <summary>
         /// The value of this item.
         /// </summary>
@@ -20,6 +22,32 @@ namespace CommandCentral.Entities.ReferenceLists
         public virtual string Description { get; set; }
 
         #endregion
+
+        /// <summary>
+        /// Validates all reference lists if that reference list did not override the Validate method.
+        /// </summary>
+        public override ValidationResult Validate()
+        {
+            return new BaseValidator().Validate(this);
+        }
+
+        /// <summary>
+        /// Validates all reference lists if that reference list did not override the Validate method.
+        /// </summary>
+        public class BaseValidator : AbstractValidator<ReferenceListItemBase>
+        {
+            /// <summary>
+            /// Validates all reference lists if that reference list did not override the Validate method.
+            /// </summary>
+            public BaseValidator()
+            {
+                RuleFor(x => x.Id).NotEmpty();
+                RuleFor(x => x.Description).Length(0, 255)
+                    .WithMessage("A reference list's description may be no more than 255 characters.");
+                RuleFor(x => x.Value).NotEmpty()
+                    .WithMessage("The value must not be empty.");
+            }
+        }
 
         /// <summary>
         /// Maps all reference lists to the database.
@@ -37,7 +65,7 @@ namespace CommandCentral.Entities.ReferenceLists
                 Map(x => x.Description);
 
                 Cache.ReadWrite();
-                
+
                 UseUnionSubclassForInheritanceMapping();
             }
         }

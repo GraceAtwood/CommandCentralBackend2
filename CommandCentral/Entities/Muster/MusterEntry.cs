@@ -71,10 +71,10 @@ namespace CommandCentral.Entities.Muster
                 Id(x => x.Id).GeneratedBy.Assigned();
 
                 Map(x => x.TimeSubmitted).Not.Nullable();
-
+                Map(x => x.AccountabilityType).Not.Nullable();
+                
                 References(x => x.Person).Not.Nullable();
                 References(x => x.SubmittedBy).Not.Nullable();
-                References(x => x.AccountabilityType).Not.Nullable();
                 References(x => x.MusterCycle).Not.Nullable();
                 References(x => x.StatusPeriodSetBy);
 

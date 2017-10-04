@@ -79,9 +79,7 @@ namespace CommandCentral.Entities
             /// </summary>
             public Validator()
             {
-                RuleFor(x => x.Nec).NotEmpty()
-                    .Must(x => ReferenceListHelper.IdExists<NEC>(x.Id));
-
+                RuleFor(x => x.Id).NotEmpty();
                 RuleFor(x => x.Person).NotEmpty();
             }
         }

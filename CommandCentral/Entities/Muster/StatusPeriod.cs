@@ -100,6 +100,7 @@ namespace CommandCentral.Entities.Muster
                 Map(x => x.DateSubmitted).Not.Nullable();
                 Map(x => x.DateLastModified).Not.Nullable();
                 Map(x => x.ExemptsFromWatch).Not.Nullable();
+                Map(x => x.AccountabilityType).Not.Nullable();
                 Component(x => x.Range, map =>
                 {
                     map.Map(x => x.End).Not.Nullable().CustomType<UtcDateTimeType>();
@@ -109,7 +110,6 @@ namespace CommandCentral.Entities.Muster
                 References(x => x.Person).Not.Nullable().Column("Person_id");
                 References(x => x.SubmittedBy).Not.Nullable();
                 References(x => x.LastModifiedBy).Not.Nullable();
-                References(x => x.AccountabilityType).Not.Nullable();
 
                 HasMany(x => x.Comments)
                     .Cascade.AllDeleteOrphan()
