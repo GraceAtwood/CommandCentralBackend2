@@ -6,29 +6,57 @@ using FluentValidation.Results;
 
 namespace CommandCentral.Entities.CFS
 {
+    /// <summary>
+    /// Represents a single meeting held between an advisor and a person in order to satisfy the linked request.
+    /// </summary>
     public class Meeting : Entity
     {
         #region Properties
 
+        /// <summary>
+        /// The time at which this meeting was held.
+        /// </summary>
         public virtual DateTime Time { get; set; }
 
+        /// <summary>
+        /// The person who this meeting was held for.
+        /// </summary>
         public virtual Person Person { get; set; }
 
-        public virtual Person Advisor { get; set; } //go
+        /// <summary>
+        /// The person within the CFS group that conducted this meeting.
+        /// </summary>
+        public virtual Person Advisor { get; set; }
 
+        /// <summary>
+        /// Any notes the advisor chooses to make.
+        /// </summary>
         public virtual string Notes { get; set; }
 
+        /// <summary>
+        /// The request this meeting was held for.
+        /// </summary>
         public virtual Request Request { get; set; }
 
         #endregion
         
+        /// <summary>
+        /// Validates this object.
+        /// </summary>
+        /// <returns></returns>
         public override ValidationResult Validate()
         {
-            throw new System.NotImplementedException();
+            return new Validator().Validate(this);
         }
 
+        /// <summary>
+        /// Validates this object.
+        /// </summary>
         public class Validator : AbstractValidator<Meeting>
         {
+            /// <summary>
+            /// Validates this object.
+            /// </summary>
             public Validator()
             {
                 RuleFor(x => x.Id).NotEmpty();
@@ -40,8 +68,14 @@ namespace CommandCentral.Entities.CFS
             }
         }
 
+        /// <summary>
+        /// Maps this object to the database.
+        /// </summary>
         public class MeetingMapping : ClassMap<Meeting>
         {
+            /// <summary>
+            /// Maps this object to the database.
+            /// </summary>
             public MeetingMapping()
             {
                 Id(x => x.Id).GeneratedBy.Assigned();
