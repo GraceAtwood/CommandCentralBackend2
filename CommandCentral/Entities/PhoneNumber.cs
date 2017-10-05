@@ -66,8 +66,8 @@ namespace CommandCentral.Entities
                 Map(x => x.Number).Not.Nullable().Length(15);
                 Map(x => x.IsReleasableOutsideCoC).Not.Nullable();
                 Map(x => x.IsPreferred).Not.Nullable();
+                Map(x => x.PhoneType).Not.Nullable();
 
-                References(x => x.PhoneType).Not.Nullable();
                 References(x => x.Person).Not.Nullable();
             }
         }
