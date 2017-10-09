@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -19,6 +20,18 @@ namespace CommandCentral.Controllers
     /// </summary>
     public class ReferenceListsController : CommandCentralController
     {
+        /// <summary>
+        /// Contains a mapping of all reference list names to their matching types.
+        /// </summary>
+        private static readonly ConcurrentDictionary<string, Type> _referenceListNamesToType;
+        static ReferenceListsController()
+        {
+            _referenceListNamesToType = new ConcurrentDictionary<string, Type>(
+                Assembly.GetExecutingAssembly().GetTypes()
+                    .Where(x => typeof(ReferenceListItemBase).IsAssignableFrom(x))
+                    .ToDictionary(x => x.Name, x => x), StringComparer.CurrentCultureIgnoreCase);
+        }
+        
         /// <summary>
         /// Retrieves reference lists.
         /// We highly recommend using the 'types' filter if possible in order to load only the data you need and avoid wasting data.
@@ -48,7 +61,7 @@ namespace CommandCentral.Controllers
 
                 foreach (var typeName in types.SplitByOr())
                 {
-                    if (!ReferenceListHelper.ReferenceListNamesToType.TryGetValue(typeName, out Type type))
+                    if (!_referenceListNamesToType.TryGetValue(typeName, out Type type))
                         return BadRequest(
                             $"One or more reference list types supplied in your '{nameof(types)}'" +
                             " parameter were not actual reference list types.");
@@ -112,11 +125,12 @@ namespace CommandCentral.Controllers
             if (!User.CanAccessSubmodules(SubModules.AdminTools))
                 return Forbid();
 
-            if (!ReferenceListHelper.ReferenceListNamesToType.TryGetValue(dto.Type, out Type type))
+            if (!_referenceListNamesToType.TryGetValue(dto.Type, out Type type))
                 return BadRequest(
                     $"The reference list type identified by your parameter '{nameof(dto.Type)}' does not exist.");
 
             var item = (ReferenceListItemBase) Activator.CreateInstance(type);
+            item.Id = Guid.NewGuid();
             item.Value = dto.Value;
             item.Description = dto.Description;
 

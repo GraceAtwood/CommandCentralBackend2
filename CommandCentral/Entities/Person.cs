@@ -435,10 +435,6 @@ namespace CommandCentral.Entities
                 References(x => x.Designation).Not.Nullable();
                 References(x => x.Division).Not.Nullable();
                 References(x => x.UIC).Nullable();
-                References(x => x.Paygrade).Not.Nullable();
-                References(x => x.DutyStatus).Not.Nullable();
-                References(x => x.Sex).Not.Nullable();
-                References(x => x.BilletAssignment);
 
                 Map(x => x.LastName).Not.Nullable();
                 Map(x => x.FirstName).Not.Nullable();
@@ -459,6 +455,10 @@ namespace CommandCentral.Entities
                 Map(x => x.Username).Unique();
                 Map(x => x.PasswordHash).Unique();
                 Map(x => x.Suffix);
+                Map(x => x.Paygrade).Not.Nullable();
+                Map(x => x.Sex).Not.Nullable();
+                Map(x => x.DutyStatus).Not.Nullable();
+                Map(x => x.BilletAssignment);
 
                 HasMany(x => x.NECs).Cascade.All();
                 HasMany(x => x.AccountHistory).Cascade.All();
@@ -467,8 +467,10 @@ namespace CommandCentral.Entities
                 HasMany(x => x.PhoneNumbers).Cascade.All();
                 HasMany(x => x.PhysicalAddresses).Cascade.All();
                 HasMany(x => x.StatusPeriods).Cascade.All().KeyColumn("Person_id");
-
-                HasManyToMany(x => x.WatchQualifications);
+                HasMany(x => x.WatchQualifications)
+                    .Cascade.All()
+                    .Table("watchqualificationstoperson")
+                    .Element("WatchQualification");
 
                 HasMany(x => x.SubscribedEvents)
                     .AsMap<string>(index =>
@@ -522,24 +524,6 @@ namespace CommandCentral.Entities
                     .WithMessage("A person must have a department.  If you are trying to indicate this person left the command, please set his or her duty status to 'LOSS'.");
                 RuleFor(x => x.Division).NotEmpty()
                     .WithMessage("A person must have a division.  If you are trying to indicate this person left the command, please set his or her duty status to 'LOSS'.");
-                RuleFor(x => x.Ethnicity).Must(x =>
-                    {
-                        if (x != null && !ReferenceListHelper.IdExists<Ethnicity>(x.Id))
-                            return false;
-
-                        return true;
-                    })
-                    .WithMessage("Your ethnicity was not found.");
-                RuleFor(x => x.ReligiousPreference).Must(x =>
-                    {
-                        if (x != null && !ReferenceListHelper.IdExists<Ethnicity>(x.Id))
-                            return false;
-
-                        return true;
-                    })
-                    .WithMessage("Your religious preference was not found.");
-                RuleFor(x => x.Designation).Must(x => ReferenceListHelper.IdExists<Designation>(x.Id))
-                    .WithMessage("Your designation was not found.");
                 RuleFor(x => x.Division).Must(x => SessionManager.GetCurrentSession().Query<Division>().Count(div => div.Id == x.Id) == 1)
                     .WithMessage("Your division was not found.");
                 RuleFor(x => x.Supervisor).Length(0, 255)
@@ -550,8 +534,6 @@ namespace CommandCentral.Entities
                     .WithMessage("The work room field may not be longer than 255 characters.");
                 RuleFor(x => x.Shift).Length(0, 255)
                     .WithMessage("The shift field may not be longer than 255 characters.");
-                RuleFor(x => x.UIC).Must(x => ReferenceListHelper.IdExists<UIC>(x.Id))
-                    .WithMessage("Your uic was not found.");
                 RuleFor(x => x.JobTitle).Length(0, 255)
                     .WithMessage("The job title may not be longer than 255 characters.");
                 

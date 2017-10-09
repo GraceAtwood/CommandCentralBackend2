@@ -287,13 +287,13 @@ namespace CommandCentral.Utilities
                     .First();
                 var department = command.Departments.First();
                 var division = department.Divisions.First();
-                var uic = ReferenceListHelper.Random<UIC>(1).First();
+                var uic = SessionManager.GetCurrentSession().Query<UIC>().ToList().Shuffle().First();
 
                 var person = CreatePerson(division, uic, "developer", "dev",
                     new[] {PermissionsCache.PermissionGroupsCache["Developers"]},
                     (WatchQualifications[]) Enum.GetValues(typeof(WatchQualifications)),
                     Paygrades.E5,
-                    ReferenceListHelper.Random<Designation>(1).First());
+                    SessionManager.GetCurrentSession().Query<Designation>().ToList().Shuffle().First());
 
                 SessionManager.GetCurrentSession().Save(person);
 
@@ -328,7 +328,7 @@ namespace CommandCentral.Utilities
                             for (var x = 0; x < sailorsPerDivision; x++)
                             {
                                 var paygrade = paygrades.Shuffle().First();
-                                var uic = ReferenceListHelper.Random<UIC>(1).First();
+                                var uic = SessionManager.GetCurrentSession().Query<UIC>().ToList().Shuffle().First();
 
                                 var quals = ((WatchQualifications[]) Enum.GetValues(typeof(WatchQualifications)))
                                     .ToList();
@@ -403,7 +403,8 @@ namespace CommandCentral.Utilities
                                 }
 
                                 var person = CreatePerson(division, uic, "user" + created, "user" + created, permGroups,
-                                    quals, paygrade, ReferenceListHelper.Random<Designation>(1).First());
+                                    quals, paygrade,
+                                    SessionManager.GetCurrentSession().Query<Designation>().ToList().Shuffle().First());
 
                                 SessionManager.GetCurrentSession().Save(person);
 
