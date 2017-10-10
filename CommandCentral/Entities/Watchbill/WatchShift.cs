@@ -2,6 +2,7 @@
 using FluentNHibernate.Mapping;
 using FluentValidation.Results;
 using Itenso.TimePeriod;
+using NHibernate.Type;
 
 namespace CommandCentral.Entities.Watchbill
 {
@@ -49,7 +50,12 @@ namespace CommandCentral.Entities.Watchbill
                 Id(x => x.Id).GeneratedBy.Assigned();
 
                 Map(x => x.Title).Not.Nullable();
-                Map(x => x.Range).Not.Nullable();
+                
+                Component(x => x.Range, map =>
+                {
+                    map.Map(x => x.Start).Not.Nullable().CustomType<UtcDateTimeType>();
+                    map.Map(x => x.End).Not.Nullable().CustomType<UtcDateTimeType>();
+                });
 
                 References(x => x.Watchbill).Not.Nullable();
                 References(x => x.ShiftType).Not.Nullable();
