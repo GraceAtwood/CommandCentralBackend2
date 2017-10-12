@@ -1,8 +1,8 @@
-﻿using System;
-using System.Data;
+﻿using CommandCentral.Utilities.Types;
 using FluentNHibernate.Mapping;
 using FluentValidation;
 using FluentValidation.Results;
+using NHibernate.Type;
 
 namespace CommandCentral.Entities.CFS
 {
@@ -16,7 +16,7 @@ namespace CommandCentral.Entities.CFS
         /// <summary>
         /// The time at which this meeting was held.
         /// </summary>
-        public virtual DateTime Time { get; set; }
+        public virtual TimeRange Range { get; set; }
 
         /// <summary>
         /// The person who this meeting was held for.
@@ -60,7 +60,7 @@ namespace CommandCentral.Entities.CFS
             public Validator()
             {
                 RuleFor(x => x.Id).NotEmpty();
-                RuleFor(x => x.Time).NotEmpty();
+                RuleFor(x => x.Range).NotEmpty();
                 RuleFor(x => x.Person).NotEmpty();
                 RuleFor(x => x.Advisor).NotEmpty();
                 RuleFor(x => x.Notes).Length(0, 1000);
@@ -80,8 +80,13 @@ namespace CommandCentral.Entities.CFS
             {
                 Id(x => x.Id).GeneratedBy.Assigned();
 
-                Map(x => x.Time).Not.Nullable();
                 Map(x => x.Notes).Length(1000);
+                
+                Component(x => x.Range, map =>
+                {
+                    map.Map(x => x.End).Not.Nullable().CustomType<UtcDateTimeType>();
+                    map.Map(x => x.Start).Not.Nullable().CustomType<UtcDateTimeType>();
+                });
 
                 References(x => x.Person).Not.Nullable();
                 References(x => x.Advisor).Not.Nullable();

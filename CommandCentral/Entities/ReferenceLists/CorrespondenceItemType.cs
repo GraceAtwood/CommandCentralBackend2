@@ -1,7 +1,4 @@
-﻿using CommandCentral.Framework;
-using FluentNHibernate.Mapping;
-using FluentValidation;
-using FluentValidation.Results;
+﻿using FluentNHibernate.Mapping;
 
 namespace CommandCentral.Entities.ReferenceLists
 {

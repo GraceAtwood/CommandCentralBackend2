@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Net.Mail;
 using CommandCentral.Authorization;
 using CommandCentral.Email;
 using CommandCentral.Email.Models;
@@ -42,7 +41,7 @@ namespace CommandCentral.Events.Handlers.Email
                 .Concat(item.Reviews.Select(x => x.Reviewer))
                 .Concat(item.Reviews.Select(x => x.RoutedBy));
 
-            var chainOfCommandQuery = CommonQueryStrategies.IsPersonInChainOfCommandExpression(item.SubmittedFor);
+            var chainOfCommandQuery = CommonQueryStrategies.GetIsPersonInChainOfCommandExpression<Person>(x => x, item.SubmittedFor);
 
             interestedPersons = interestedPersons.Concat(SessionManager.GetCurrentSession().Query<Person>()
                 .AsExpandable()
@@ -85,7 +84,7 @@ namespace CommandCentral.Events.Handlers.Email
                 .Concat(item.Reviews.Select(x => x.Reviewer))
                 .Concat(item.Reviews.Select(x => x.RoutedBy));
 
-            var chainOfCommandQuery = CommonQueryStrategies.IsPersonInChainOfCommandExpression(item.SubmittedFor);
+            var chainOfCommandQuery = CommonQueryStrategies.GetIsPersonInChainOfCommandExpression<Person>(x => x, item.SubmittedFor);
 
             interestedPersons = interestedPersons.Concat(SessionManager.GetCurrentSession().Query<Person>()
                 .AsExpandable()
@@ -127,7 +126,7 @@ namespace CommandCentral.Events.Handlers.Email
                 .Concat(e.Item.Reviews.Select(x => x.Reviewer))
                 .Concat(e.Item.Reviews.Select(x => x.RoutedBy));
 
-            var chainOfCommandQuery = CommonQueryStrategies.IsPersonInChainOfCommandExpression(e.Item.SubmittedFor);
+            var chainOfCommandQuery = CommonQueryStrategies.GetIsPersonInChainOfCommandExpression<Person>(x => x, e.Item.SubmittedFor);
 
             interestedPersons = interestedPersons.Concat(SessionManager.GetCurrentSession().Query<Person>()
                 .AsExpandable()
@@ -186,7 +185,7 @@ namespace CommandCentral.Events.Handlers.Email
                 .Concat(e.Item.Reviews.Select(x => x.Reviewer))
                 .Concat(e.Item.Reviews.Select(x => x.RoutedBy));
 
-            var chainOfCommandQuery = CommonQueryStrategies.IsPersonInChainOfCommandExpression(e.Item.SubmittedFor);
+            var chainOfCommandQuery = CommonQueryStrategies.GetIsPersonInChainOfCommandExpression<Person>(x => x, e.Item.SubmittedFor);
 
             interestedPersons = interestedPersons.Concat(SessionManager.GetCurrentSession().Query<Person>()
                 .AsExpandable()
@@ -228,7 +227,7 @@ namespace CommandCentral.Events.Handlers.Email
                 .Concat(e.Item.Reviews.Select(x => x.Reviewer))
                 .Concat(e.Item.Reviews.Select(x => x.RoutedBy));
 
-            var chainOfCommandQuery = CommonQueryStrategies.IsPersonInChainOfCommandExpression(e.Item.SubmittedFor);
+            var chainOfCommandQuery = CommonQueryStrategies.GetIsPersonInChainOfCommandExpression<Person>(x => x, e.Item.SubmittedFor);
 
             interestedPersons = interestedPersons.Concat(SessionManager.GetCurrentSession().Query<Person>()
                 .AsExpandable()
@@ -270,7 +269,7 @@ namespace CommandCentral.Events.Handlers.Email
                 .Concat(e.Item.Reviews.Select(x => x.Reviewer))
                 .Concat(e.Item.Reviews.Select(x => x.RoutedBy));
 
-            var chainOfCommandQuery = CommonQueryStrategies.IsPersonInChainOfCommandExpression(e.Item.SubmittedFor);
+            var chainOfCommandQuery = CommonQueryStrategies.GetIsPersonInChainOfCommandExpression<Person>(x => x, e.Item.SubmittedFor);
 
             interestedPersons = interestedPersons.Concat(SessionManager.GetCurrentSession().Query<Person>()
                 .AsExpandable()
@@ -312,7 +311,7 @@ namespace CommandCentral.Events.Handlers.Email
                 .Concat(e.Item.Reviews.Select(x => x.Reviewer))
                 .Concat(e.Item.Reviews.Select(x => x.RoutedBy));
 
-            var chainOfCommandQuery = CommonQueryStrategies.IsPersonInChainOfCommandExpression(e.Item.SubmittedFor);
+            var chainOfCommandQuery = CommonQueryStrategies.GetIsPersonInChainOfCommandExpression<Person>(x => x, e.Item.SubmittedFor);
 
             interestedPersons = interestedPersons.Concat(SessionManager.GetCurrentSession().Query<Person>()
                 .AsExpandable()
@@ -354,7 +353,7 @@ namespace CommandCentral.Events.Handlers.Email
                 .Concat(e.Item.Reviews.Select(x => x.Reviewer))
                 .Concat(e.Item.Reviews.Select(x => x.RoutedBy));
 
-            var chainOfCommandQuery = CommonQueryStrategies.IsPersonInChainOfCommandExpression(e.Item.SubmittedFor);
+            var chainOfCommandQuery = CommonQueryStrategies.GetIsPersonInChainOfCommandExpression<Person>(x => x, e.Item.SubmittedFor);
 
             interestedPersons = interestedPersons.Concat(SessionManager.GetCurrentSession().Query<Person>()
                 .AsExpandable()

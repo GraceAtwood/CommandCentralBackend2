@@ -1,5 +1,4 @@
 ﻿using CommandCentral.Utilities.Types;
-using System;
 using CommandCentral.Enums;
 
 namespace CommandCentral.DTOs.StatusPeriod

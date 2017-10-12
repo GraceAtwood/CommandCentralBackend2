@@ -1,5 +1,4 @@
-﻿using CommandCentral.Entities.ReferenceLists;
-using CommandCentral.Utilities.Types;
+﻿using CommandCentral.Utilities.Types;
 using CommandCentral.Authorization;
 using System;
 using System.Collections.Generic;

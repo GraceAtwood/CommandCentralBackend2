@@ -1,10 +1,4 @@
-﻿using System.Linq;
-using CommandCentral.Authorization;
-using CommandCentral.Entities;
-using CommandCentral.Enums;
-using CommandCentral.Events.Args;
-using CommandCentral.Framework.Data;
-using NHibernate.Linq;
+﻿using CommandCentral.Events.Args;
 
 namespace CommandCentral.Events.Handlers.Email
 {

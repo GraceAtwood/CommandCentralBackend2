@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using CommandCentral.Authorization;
 using CommandCentral.Email;
 using CommandCentral.Email.Models;
 using CommandCentral.Entities;

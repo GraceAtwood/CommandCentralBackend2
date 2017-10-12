@@ -1,6 +1,4 @@
 ﻿using FluentNHibernate.Mapping;
-using FluentValidation;
-using CommandCentral.Framework;
 
 namespace CommandCentral.Entities.ReferenceLists
 {

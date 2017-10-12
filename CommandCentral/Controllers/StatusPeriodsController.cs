@@ -6,7 +6,6 @@ using CommandCentral.Framework;
 using CommandCentral.Entities.Muster;
 using CommandCentral.Authorization;
 using CommandCentral.Entities;
-using CommandCentral.Entities.ReferenceLists;
 using CommandCentral.Enums;
 using CommandCentral.Utilities.Types;
 using NHibernate.Linq;

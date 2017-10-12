@@ -8,33 +8,42 @@ using System.Linq;
 using System.Linq.Expressions;
 using CommandCentral.Authorization;
 using CommandCentral.Enums;
-using Microsoft.Extensions.FileSystemGlobbing.Internal.PathSegments;
 
 namespace CommandCentral.Framework.Data
 {
     public static class CommonQueryStrategies
     {
-        public static Expression<Func<Person, bool>> IsPersonInChainOfCommandExpression(Person person)
+        public static Expression<Func<T, bool>> GetIsPersonInChainOfCommandExpression<T>(
+            Expression<Func<T, Person>> selector, Person person, params ChainsOfCommand[] chainsOfCommands)
         {
+            if (chainsOfCommands == null)
+                throw new ArgumentException("Must not be empty.  Omit the argument instead.", nameof(chainsOfCommands));
+            
             var divisionLevelGroups = PermissionsCache.PermissionGroupsCache.Values
                 .Where(x => x.AccessLevels.Any(y => y.Value == ChainOfCommandLevels.Division))
+                .Where(x => !chainsOfCommands.Any() ||
+                            chainsOfCommands.Any(chainOfCommand => x.AccessLevels.ContainsKey(chainOfCommand)))
                 .Select(x => x.Name)
                 .ToList();
             var departmentLevelGroups = PermissionsCache.PermissionGroupsCache.Values
-                .Where(x => x.AccessLevels.Any(y => y.Value == ChainOfCommandLevels.Division))
+                .Where(x => x.AccessLevels.Any(y => y.Value == ChainOfCommandLevels.Department))
+                .Where(x => !chainsOfCommands.Any() ||
+                            chainsOfCommands.Any(chainOfCommand => x.AccessLevels.ContainsKey(chainOfCommand)))
                 .Select(x => x.Name)
                 .ToList();
             var commandLevelGroups = PermissionsCache.PermissionGroupsCache.Values
-                .Where(x => x.AccessLevels.Any(y => y.Value == ChainOfCommandLevels.Division))
+                .Where(x => x.AccessLevels.Any(y => y.Value == ChainOfCommandLevels.Command))
+                .Where(x => !chainsOfCommands.Any() ||
+                            chainsOfCommands.Any(chainOfCommand => x.AccessLevels.ContainsKey(chainOfCommand)))
                 .Select(x => x.Name)
                 .ToList();
 
-            return x => x.PermissionGroups.Any(y => commandLevelGroups.Contains(y.Name)) &&
-                        x.Division.Department.Command == person.Division.Department.Command ||
-                        x.PermissionGroups.Any(y => departmentLevelGroups.Contains(y.Name)) &&
-                        x.Division.Department == person.Division.Department ||
-                        x.PermissionGroups.Any(y => divisionLevelGroups.Contains(y.Name)) &&
-                        x.Division == person.Division;
+            return x => selector.Invoke(x).PermissionGroups.Any(y => commandLevelGroups.Contains(y.Name)) &&
+                        selector.Invoke(x).Division.Department.Command == person.Division.Department.Command ||
+                        selector.Invoke(x).PermissionGroups.Any(y => departmentLevelGroups.Contains(y.Name)) &&
+                        selector.Invoke(x).Division.Department == person.Division.Department ||
+                        selector.Invoke(x).PermissionGroups.Any(y => divisionLevelGroups.Contains(y.Name)) &&
+                        selector.Invoke(x).Division == person.Division;
         }
 
         public static Expression<Func<Person, bool>> GetPersonsSubscribedToEventForPersonExpression(
@@ -61,6 +70,19 @@ namespace CommandCentral.Framework.Data
             return predicate == null
                 ? query
                 : query.Where(predicate);
+        }
+
+        public static Expression<Func<T, bool>> AddIsPersonInChainOfCommandExpression<T>(
+            this Expression<Func<T, bool>> initial,
+            Expression<Func<T, Person>> selector, Person person, params ChainsOfCommand[] chainsOfCommands)
+        {
+            if (chainsOfCommands == null)
+                return initial;
+
+            var expression = GetIsPersonInChainOfCommandExpression(selector, person, chainsOfCommands);
+            return expression == null
+                ? initial
+                : initial.NullSafeAnd(expression);
         }
 
         public static Expression<Func<T, bool>> AddStringQueryExpression<T>(this Expression<Func<T, bool>> initial,
@@ -318,7 +340,7 @@ namespace CommandCentral.Framework.Data
         {
             if (String.IsNullOrWhiteSpace(searchValue))
                 return initial;
-            
+
             if (!typeof(TEnum).IsEnum)
                 throw new ArgumentException($"{nameof(TEnum)} must be an enumerated type.", nameof(TEnum));
 

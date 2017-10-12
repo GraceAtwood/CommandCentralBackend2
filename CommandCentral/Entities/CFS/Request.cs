@@ -36,6 +36,11 @@ namespace CommandCentral.Entities.CFS
         public virtual Person ClaimedBy { get; set; }
 
         /// <summary>
+        /// Indicates that this request has been claimed.
+        /// </summary>
+        public virtual bool IsClaimed { get; set; }
+
+        /// <summary>
         /// The collection of meetings that were held due to this request for help.
         /// </summary>
         public virtual IList<Meeting> Meetings { get; set; }
@@ -80,6 +85,7 @@ namespace CommandCentral.Entities.CFS
                 Id(x => x.Id).GeneratedBy.Assigned();
 
                 Map(x => x.TimeSubmitted).Not.Nullable().CustomType<UtcDateTimeType>();
+                Map(x => x.IsClaimed).Not.Nullable();
 
                 References(x => x.Person).Not.Nullable();
                 References(x => x.RequestType).Not.Nullable();

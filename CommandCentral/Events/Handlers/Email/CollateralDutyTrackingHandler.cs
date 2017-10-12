@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using CommandCentral.Email;
 using CommandCentral.Email.Models;
-using CommandCentral.Entities;
 using CommandCentral.Entities.CollateralDutyTracking;
 using CommandCentral.Enums;
 using CommandCentral.Events.Args;
 using CommandCentral.Framework.Data;
-using NHibernate.Dialect.Function;
 using NHibernate.Linq;
-using Remotion.Linq.Clauses;
 
 namespace CommandCentral.Events.Handlers.Email
 {
