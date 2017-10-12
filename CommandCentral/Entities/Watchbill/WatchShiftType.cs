@@ -6,10 +6,19 @@ namespace CommandCentral.Entities.Watchbill
 {
     public class WatchShiftType : Entity
     {
+        /// <summary>
+        /// The Name of this shift
+        /// </summary>
         public virtual string Name { get; set; }
         
+        /// <summary>
+        /// The optional description of this shift
+        /// </summary>
         public virtual string Description { get; set; }
         
+        /// <summary>
+        /// The qualification required to stand this shift
+        /// </summary>
         public virtual WatchQualifications Qualification { get; set; }
         
         public class WatchShiftTypeMapping : ClassMap<WatchShiftType>
