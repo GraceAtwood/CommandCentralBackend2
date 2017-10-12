@@ -12,12 +12,12 @@ namespace CommandCentral.Entities.Watchbill
         /// <summary>
         /// The yonth of this watchbill
         /// </summary>
-        public virtual Month Month { get; set; }
+        public virtual int Month { get; set; }
         
         /// <summary>
         /// The year of this watchbill
         /// </summary>
-        public virtual Year Year { get; set; }
+        public virtual int Year { get; set; }
         
         /// <summary>
         /// The shifts contained in this watchbill
