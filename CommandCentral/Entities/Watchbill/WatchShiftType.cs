@@ -1,5 +1,6 @@
 ﻿using CommandCentral.Enums;
 using FluentNHibernate.Mapping;
+using FluentValidation;
 using FluentValidation.Results;
 
 namespace CommandCentral.Entities.Watchbill
@@ -32,9 +33,26 @@ namespace CommandCentral.Entities.Watchbill
                 Map(x => x.Qualification).CustomType<GenericEnumMapper<WatchQualifications>>();
             }
         }
+        
         public override ValidationResult Validate()
         {
-            throw new System.NotImplementedException();
+            return new Validator().Validate(this);
+        }
+
+        /// <summary>
+        /// Validates the WatchShiftType
+        /// </summary>
+        public class Validator : AbstractValidator<WatchShiftType>
+        {
+            /// <summary>
+            /// Validates the WatchShiftType
+            /// </summary>
+            public Validator()
+            {
+                RuleFor(x => x.Name).NotEmpty().Length(3, 20);
+                RuleFor(x => x.Description).Length(0, 200);
+                RuleFor(x => x.Qualification).NotEmpty();
+            }
         }
     }
 }

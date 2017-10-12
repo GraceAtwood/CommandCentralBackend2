@@ -2,6 +2,7 @@
 using CommandCentral.Enums;
 using CommandCentral.Framework;
 using FluentNHibernate.Mapping;
+using FluentValidation;
 using FluentValidation.Results;
 using Itenso.TimePeriod;
 
@@ -63,7 +64,24 @@ namespace CommandCentral.Entities.Watchbill
 
         public override ValidationResult Validate()
         {
-            throw new System.NotImplementedException();
+            return new Validator().Validate(this);
+        }
+
+        /// <summary>
+        /// Validates the watchbill
+        /// </summary>
+        public class Validator : AbstractValidator<Watchbill>
+        {
+            /// <summary>
+            /// Validates the watchbill
+            /// </summary>
+            public Validator()
+            {
+                RuleFor(x => x.Month).NotEmpty().InclusiveBetween(1, 12);
+                RuleFor(x => x.Year).NotEmpty().GreaterThan(2016);
+                RuleFor(x => x.Phase).NotEmpty();
+                RuleFor(x => x.Command).NotEmpty();
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using CommandCentral.Framework;
 using FluentNHibernate.Mapping;
+using FluentValidation;
 using FluentValidation.Results;
 using Itenso.TimePeriod;
 using NHibernate.Type;
@@ -65,7 +66,26 @@ namespace CommandCentral.Entities.Watchbill
         
         public override ValidationResult Validate()
         {
-            throw new System.NotImplementedException();
+            return new Validator().Validate(this);
+        }
+
+        /// <summary>
+        /// Validates the WatchShift
+        /// </summary>
+        public class Validator : AbstractValidator<WatchShift>
+        {
+            /// <summary>
+            /// Validates the WatchShift
+            /// </summary>
+            public Validator()
+            {
+                RuleFor(x => x.Title).NotEmpty().Length(3, 25);
+                RuleFor(x => x.Watchbill).NotEmpty();
+                RuleFor(x => x.ShiftType).NotEmpty();
+
+                RuleFor(x => x).NotEmpty().Must(x => x.Watchbill.Year == x.Range.Start.Year &&
+                                          x.Watchbill.Month == x.Range.Start.Month);
+            }
         }
     }
 }

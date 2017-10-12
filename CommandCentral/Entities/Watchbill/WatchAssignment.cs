@@ -1,5 +1,6 @@
 ﻿using System;
 using FluentNHibernate.Mapping;
+using FluentValidation;
 using FluentValidation.Results;
 
 namespace CommandCentral.Entities.Watchbill
@@ -63,7 +64,23 @@ namespace CommandCentral.Entities.Watchbill
         
         public override ValidationResult Validate()
         {
-            throw new System.NotImplementedException();
+            return new Validator().Validate(this);
+        }
+
+        /// <summary>
+        /// Validates the WatchAssignment
+        /// </summary>
+        public class Validator : AbstractValidator<WatchAssignment>
+        {
+            /// <summary>
+            /// Validates the WatchAssignment
+            /// </summary>
+            public Validator()
+            {
+                RuleFor(x => x.AssignedBy).NotEmpty();
+                RuleFor(x => x.PersonAssigned).NotEmpty();
+                RuleFor(x => x.WatchShift).NotEmpty();
+            }
         }
 
     }
