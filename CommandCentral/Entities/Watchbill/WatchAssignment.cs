@@ -23,31 +23,31 @@ namespace CommandCentral.Entities.Watchbill
         /// </summary>
         public virtual Person AssignedBy { get; set; }
 
-//        /// <summary>
-//        /// The person who acknowledged this watch assignment.  Either the person assigned or someone who did it on their behalf.
-//        /// </summary>
-//        public virtual Person AcknowledgedBy { get; set; }
-//        
-//        /// <summary>
-//        /// The datetime at which this assignment was created.
-//        /// </summary>
-//        public virtual DateTime DateAssigned { get; set; }
-//
-//        /// <summary>
-//        /// The datetime at which a person acknowledged this watch assignment.
-//        /// </summary>
-//        public virtual DateTime? DateAcknowledged { get; set; }
-//
-//        /// <summary>
-//        /// Indicates if this watch assignment has been acknowledged.
-//        /// </summary>
-//        public virtual bool IsAcknowledged { get; set; }
-//        
-//        /// <summary>
-//        /// This is the number of times we've alerted the person assigned that they have watch.
-//        /// </summary>
-//        public virtual int NumberOfAlertsSent { get; set; }
-//        
+        /// <summary>
+        /// The person who acknowledged this watch assignment.  Either the person assigned or someone who did it on their behalf.
+        /// </summary>
+        public virtual Person AcknowledgedBy { get; set; }
+        
+        /// <summary>
+        /// The datetime at which this assignment was created.
+        /// </summary>
+        public virtual DateTime DateAssigned { get; set; }
+
+        /// <summary>
+        /// The datetime at which a person acknowledged this watch assignment.
+        /// </summary>
+        public virtual DateTime? DateAcknowledged { get; set; }
+
+        /// <summary>
+        /// Indicates if this watch assignment has been acknowledged.
+        /// </summary>
+        public virtual bool IsAcknowledged { get; set; }
+        
+        /// <summary>
+        /// This is the number of times we've alerted the person assigned that they have watch.
+        /// </summary>
+        public virtual int NumberOfAlertsSent { get; set; }
+        
         
         public class WatchAssignmentMapping : ClassMap<WatchAssignment>
         {
