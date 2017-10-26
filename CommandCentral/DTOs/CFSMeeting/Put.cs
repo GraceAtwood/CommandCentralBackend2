@@ -2,6 +2,6 @@
 {
     public class Put
     {
-        
+        public string Notes { get; set; }
     }
 }
