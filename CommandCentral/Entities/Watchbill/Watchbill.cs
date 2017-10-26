@@ -38,9 +38,9 @@ namespace CommandCentral.Entities.Watchbill
         /// <summary>
         /// Any comments made on this watchbill
         /// </summary>
-        public IList<Comment> Comments { get; set; }
+        public virtual IList<Comment> Comments { get; set; }
 
-        public bool CanPersonAccessComments(Person person)
+        public virtual bool CanPersonAccessComments(Person person)
         {
             throw new System.NotImplementedException();
         }

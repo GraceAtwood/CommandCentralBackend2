@@ -51,7 +51,7 @@ namespace CommandCentral.Entities.Watchbill
             {
                 RuleFor(x => x.Name).NotEmpty().Length(3, 20);
                 RuleFor(x => x.Description).Length(0, 200);
-                RuleFor(x => x.Qualification).NotEmpty();
+                RuleFor(x => x.Qualification).NotNull();
             }
         }
     }
