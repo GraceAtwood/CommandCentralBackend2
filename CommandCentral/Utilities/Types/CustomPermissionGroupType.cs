@@ -5,6 +5,7 @@ using NHibernate.UserTypes;
 using System;
 using System.Data;
 using System.Data.Common;
+using NHibernate.Engine;
 
 namespace CommandCentral.Utilities.Types
 {
@@ -30,12 +31,12 @@ namespace CommandCentral.Utilities.Types
                 : x.GetHashCode();
         }
 
-        public object NullSafeGet(IDataReader rs, string[] names, object owner)
+        public object NullSafeGet(DbDataReader rs, string[] names, ISessionImplementor session, object owner)
         {
             if (names.Length == 0)
                 throw new ArgumentException("Expecting at least one column!", nameof(names));
 
-            var name = NHibernateUtil.String.NullSafeGet(rs, names[0]) as string;
+            var name = NHibernateUtil.String.NullSafeGet(rs, names[0], session) as string;
 
             if (!PermissionsCache.PermissionGroupsCache.TryGetValue(name, out PermissionGroup group))
                 throw new Exception($"Unable to find permission group named {name}");
@@ -43,7 +44,7 @@ namespace CommandCentral.Utilities.Types
             return group;
         }
 
-        public void NullSafeSet(IDbCommand cmd, object value, int index)
+        public void NullSafeSet(DbCommand cmd, object value, int index, ISessionImplementor session)
         {
             var parameter = (DbParameter)cmd.Parameters[index];
 
