@@ -43,9 +43,9 @@ namespace CommandCentral.Controllers.WatchbillControllers
                 return BadRequest();
             
 // TODO: Implement perms here
-//            if (User.GetHighestAccessLevels()[ChainsOfCommand.QuarterdeckWatchbill] !=
-//                Enums.ChainOfCommandLevels.Command)
-//                return Forbid();
+            if (User.GetHighestAccessLevels()[ChainsOfCommand.QuarterdeckWatchbill] !=
+                Enums.ChainOfCommandLevels.Command)
+                return Forbid();
             
             var shiftType = new WatchShiftType
             {
@@ -76,10 +76,10 @@ namespace CommandCentral.Controllers.WatchbillControllers
         public IActionResult Delete(Guid id)
         {
             
-// TODO: Implement perms here
-//            if (User.GetHighestAccessLevels()[ChainsOfCommand.QuarterdeckWatchbill] !=
-//                Enums.ChainOfCommandLevels.Command)
-//                return Forbid();
+ //TODO: Implement perms here
+            if (User.GetHighestAccessLevels()[ChainsOfCommand.QuarterdeckWatchbill] !=
+                Enums.ChainOfCommandLevels.Command)
+                return Forbid();
             
             var shiftType = DBSession.Get<WatchShiftType>(id);
             
