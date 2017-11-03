@@ -11,7 +11,12 @@ namespace CommandCentral.Entities.Watchbill
     public class Watchbill : Entity, IHazComments
     {
         /// <summary>
-        /// The yonth of this watchbill
+        /// The title of this watchbill
+        /// </summary>
+        public virtual string Title { get; set; }
+        
+        /// <summary>
+        /// The month of this watchbill
         /// </summary>
         public virtual int Month { get; set; }
         
@@ -51,6 +56,7 @@ namespace CommandCentral.Entities.Watchbill
             {
                 Id(x => x.Id).GeneratedBy.Assigned();
 
+                Map(x => x.Title).Not.Nullable();
                 Map(x => x.Month).Not.Nullable();
                 Map(x => x.Year).Not.Nullable();
                 Map(x => x.Phase).Not.Nullable();
@@ -77,9 +83,9 @@ namespace CommandCentral.Entities.Watchbill
             /// </summary>
             public Validator()
             {
+                RuleFor(x => x.Title).NotEmpty().Length(3, 50);
                 RuleFor(x => x.Month).NotEmpty().InclusiveBetween(1, 12);
                 RuleFor(x => x.Year).NotEmpty().GreaterThan(2016);
-                RuleFor(x => x.Phase).NotEmpty();
                 RuleFor(x => x.Command).NotEmpty();
             }
         }

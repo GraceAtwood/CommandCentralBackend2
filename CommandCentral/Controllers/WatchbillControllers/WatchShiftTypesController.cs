@@ -42,7 +42,6 @@ namespace CommandCentral.Controllers.WatchbillControllers
             if (dto == null)
                 return BadRequest();
             
-// TODO: Implement perms here
             if (User.GetHighestAccessLevels()[ChainsOfCommand.QuarterdeckWatchbill] !=
                 Enums.ChainOfCommandLevels.Command)
                 return Forbid();
@@ -75,8 +74,7 @@ namespace CommandCentral.Controllers.WatchbillControllers
         [ProducesResponseType(200)]
         public IActionResult Delete(Guid id)
         {
-            
- //TODO: Implement perms here
+
             if (User.GetHighestAccessLevels()[ChainsOfCommand.QuarterdeckWatchbill] !=
                 Enums.ChainOfCommandLevels.Command)
                 return Forbid();
