@@ -10,7 +10,7 @@ namespace CommandCentral.DTOs.CFSMeeting
         public Get(Meeting meeting)
         {
             Id = meeting.Id;
-            Advisor = meeting.Advisor?.Id;
+            Advisor = meeting.Advisor.Id;
             Notes = meeting.Notes;
             Person = meeting.Person.Id;
             Range = meeting.Range;
