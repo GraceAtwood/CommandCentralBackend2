@@ -1,6 +1,6 @@
 ﻿namespace CommandCentral.DTOs.CFSMeeting
 {
-    public class Get
+    public class Get : Post
     {
         
     }
