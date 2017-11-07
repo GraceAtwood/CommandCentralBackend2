@@ -74,7 +74,7 @@ namespace CommandCentral.Controllers.CFS
                 expression = expression.NullSafeAnd(subExpression);
             }
 
-            //Finally, add the chain of command expression to limit the visible set to sailor's in the user's chain of command.
+            //Finally, add the chain of command expression to limit the visible set to sailors in the user's chain of command.
             expression = expression.AddIsPersonInChainOfCommandExpression(x => x.Person, User,
                 ChainsOfCommand.CommandFinancialSpecialist);
 
@@ -86,6 +86,25 @@ namespace CommandCentral.Controllers.CFS
                 .ToList();
 
             return Ok(results);
+        }
+
+        /// <summary>
+        /// Retrieves a single meeting by its Id.
+        /// </summary>
+        /// <param name="id">The id of the meeting to retrieve.</param>
+        /// <returns></returns>
+        [HttpGet("{id}")]
+        [RequireAuthentication]
+        [ProducesResponseType(200, Type = typeof(DTOs.CFSMeeting.Get))]
+        public IActionResult Get(Guid id)
+        {
+            var meeting = DBSession.Get<Meeting>(id);
+
+            if (!User.IsInChainOfCommand(meeting.Person, ChainsOfCommand.CommandFinancialSpecialist))
+                return Forbid("You may not view this CFS meeing.  " +
+                              "You are not in the chain of command of the person for whom the meeting was held.");
+
+            return Ok(new DTOs.CFSMeeting.Get(meeting));
         }
     }
 }
