@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using CommandCentral.Authorization;
 using CommandCentral.Entities;
+using CommandCentral.Entities.Muster;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
+using CommandCentral.Utilities.Types;
 using Microsoft.AspNetCore.Mvc;
 using NHibernate.Linq;
 
@@ -68,7 +70,28 @@ namespace CommandCentral.Controllers.CommandStructureControllers
             {
                 Id = Guid.NewGuid(),
                 Description = dto.Description,
-                Name = dto.Name
+                Name = dto.Name,
+                Address = dto.Address,
+                City = dto.City,
+                Country = dto.Country,
+                MusterStartHour = dto.MusterStartHour,
+                State = dto.State,
+                ZipCode = dto.ZipCode
+            };
+
+            var startTime = DateTime.UtcNow.Hour < dto.MusterStartHour 
+                ? DateTime.UtcNow.Date.AddDays(-1).AddHours(dto.MusterStartHour) 
+                : DateTime.UtcNow.Date.AddHours(dto.MusterStartHour);
+
+            item.CurrentMusterCycle = new MusterCycle
+            {
+                Command = item,
+                Id = Guid.NewGuid(),
+                Range = new TimeRange
+                {
+                    Start = startTime,
+                    End = startTime.AddDays(1)
+                }
             };
 
             var result = item.Validate();
@@ -105,6 +128,12 @@ namespace CommandCentral.Controllers.CommandStructureControllers
 
             item.Description = dto.Description;
             item.Name = dto.Name;
+            item.Address = dto.Address;
+            item.City = dto.City;
+            item.Country = dto.Country;
+            item.MusterStartHour = dto.MusterStartHour;
+            item.State = dto.State;
+            item.ZipCode = dto.ZipCode;
 
             var result = item.Validate();
             if (!result.IsValid)
