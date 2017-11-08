@@ -1,4 +1,5 @@
-﻿using CommandCentral.Enums;
+﻿using System;
+using CommandCentral.Enums;
 
 namespace CommandCentral.DTOs.Watchbill
 {
@@ -7,6 +8,6 @@ namespace CommandCentral.DTOs.Watchbill
         public string Title { get; set; }
         public int Month { get; set; }
         public int Year { get; set; }
-        public Entities.Command Command { get; set; }
+        public Guid Command { get; set; }
     }
 }
