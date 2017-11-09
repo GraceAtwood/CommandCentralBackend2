@@ -31,7 +31,7 @@ namespace CommandCentral.Utilities
             MySqlHelper.ExecuteScalar(connectionStringWithoutDatabase.GetConnectionString(true),
                 $"CREATE DATABASE {database}");
 
-            SessionManager.Schema.Create(true, true);
+            SessionManager.Schema.Execute(true, true, false);
 
             AddAPIKey();
         }
@@ -221,13 +221,13 @@ namespace CommandCentral.Utilities
                 PasswordHash = PasswordHash.CreateHash("a"),
                 Sex = Random.GetRandomEnumValue<Sexes>(),
                 DateOfBirth = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12),
-                    Random.GetRandomNumber(1, 28)),
+                    Random.GetRandomNumber(1, 28), 0, 0, 0, DateTimeKind.Utc),
                 DateOfArrival = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12),
-                    Random.GetRandomNumber(1, 28)),
+                    Random.GetRandomNumber(1, 28), 0, 0, 0, DateTimeKind.Utc),
                 EAOS = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12),
-                    Random.GetRandomNumber(1, 28)),
+                    Random.GetRandomNumber(1, 28), 0, 0, 0, DateTimeKind.Utc),
                 PRD = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12),
-                    Random.GetRandomNumber(1, 28)),
+                    Random.GetRandomNumber(1, 28), 0, 0, 0, DateTimeKind.Utc),
                 Paygrade = paygrade,
                 DutyStatus = Random.GetRandomEnumValue<DutyStatuses>(),
                 WatchQualifications = watchQuals.ToList(),

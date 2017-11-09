@@ -44,7 +44,7 @@ namespace CommandCentral.Framework.Data
                 var mySqlConfig = MySQLConfiguration.Standard.ConnectionString(ConfigurationUtility.Configuration.GetConnectionString("Main"));
                 
                 // If appsettings.json says we're in debug, show SQL in the CLI
-                if (Boolean.TryParse(ConfigurationUtility.Configuration["DebugMode"], out bool debugMode) && debugMode)
+                if (Boolean.TryParse(ConfigurationUtility.Configuration["DebugMode"], out var debugMode) && debugMode)
                     mySqlConfig = mySqlConfig.FormatSql().ShowSql();
 
                 _config = Fluently.Configure()

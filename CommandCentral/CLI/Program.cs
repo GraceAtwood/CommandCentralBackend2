@@ -1,9 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.CommandLineUtils;
 using CommandCentral.Utilities;
+using Microsoft.AspNetCore.Server.Kestrel.Https;
 
 namespace CommandCentral.CLI
 {
@@ -30,18 +33,32 @@ namespace CommandCentral.CLI
 
         private static void LaunchService()
         {
-            var url = ConfigurationUtility.Configuration["Server:BaseAddress"];
+            //Next, let's see if we can find a server.pfx.
+            var serverCertificateLocation = ConfigurationUtility.Configuration["Server:CertificateLocation"];
 
-            if (String.IsNullOrWhiteSpace(url))
-                throw new ArgumentException(
-                    "The base address for the service was not found in the appsettings.json file.  " +
-                    "It should be found at 'Server { BaseAddress = http://address:port/ }'.");
-
+            if (String.IsNullOrWhiteSpace(serverCertificateLocation) || !File.Exists(serverCertificateLocation))
+                throw new FileNotFoundException("Server certificate file not found!", serverCertificateLocation);
+            
+            if (!Int32.TryParse(ConfigurationUtility.Configuration["Server:Port"], out var port))
+                throw new ArgumentException("The given port was not valid!");
+            
             var host = new WebHostBuilder()
-                .UseKestrel()
+                .UseKestrel(options =>
+                {
+                    var httpsOptions = new HttpsConnectionAdapterOptions
+                    {
+                        CheckCertificateRevocation = false,
+                        ClientCertificateMode = ClientCertificateMode.RequireCertificate,
+                        ServerCertificate = new X509Certificate2("server.pfx", "password")
+                    };
+
+                    options.Listen(IPAddress.Any, port, listenOptions =>
+                    {
+                        listenOptions.UseHttps(httpsOptions);
+                    });
+                })
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseIISIntegration()
-                .UseUrls(url)
                 .UseStartup<Framework.Startup>()
                 .Build();
 

@@ -12,11 +12,11 @@ namespace CommandCentral.Events.Handlers.Email
     {
         public MusterHandler()
         {
-            EventManager.MusterOpened += OnMusterOpened;
+            /*EventManager.MusterOpened += OnMusterOpened;
             EventManager.MusterFinalized += OnMusterFinalized;
             EventManager.MusterReopened += OnMusterReopened;
             EventManager.MusterEntrySubmitted += OnMusterEntrySubmitted;
-            EventManager.MusterEntryDeleted += OnMusterEntryDeleted;
+            EventManager.MusterEntryDeleted += OnMusterEntryDeleted;*/
         }
 
         private void OnMusterOpened(object sender, MusterCycleEventArgs e)
