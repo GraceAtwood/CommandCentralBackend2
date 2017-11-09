@@ -1,8 +1,8 @@
 ﻿using CommandCentral.Framework;
+using CommandCentral.Utilities.Types;
 using FluentNHibernate.Mapping;
 using FluentValidation;
 using FluentValidation.Results;
-using Itenso.TimePeriod;
 using NHibernate.Type;
 
 namespace CommandCentral.Entities.Watchbill
@@ -80,11 +80,13 @@ namespace CommandCentral.Entities.Watchbill
             public Validator()
             {
                 RuleFor(x => x.Title).NotEmpty().Length(3, 25);
-                RuleFor(x => x.Watchbill).NotEmpty();
-                RuleFor(x => x.ShiftType).NotEmpty();
+                RuleFor(x => x.Watchbill).NotNull();
+                RuleFor(x => x.ShiftType).NotNull();
 
-                RuleFor(x => x).NotEmpty().Must(x => x.Watchbill.Year == x.Range.Start.Year &&
-                                          x.Watchbill.Month == x.Range.Start.Month);
+                RuleFor(x => x).Must(x => x.Watchbill != null && 
+                                          x.Watchbill.Year == x.Range.Start.Year &&
+                                          x.Watchbill.Month == x.Range.Start.Month)
+                                .WithMessage("The watch shift must be within the month of the watchbill.");
             }
         }
     }

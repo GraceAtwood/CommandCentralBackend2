@@ -71,7 +71,7 @@ namespace CommandCentral.Controllers.WatchbillControllers
 
         [HttpDelete("{id}")]
         [RequireAuthentication]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
         {
 
