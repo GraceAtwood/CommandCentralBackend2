@@ -9,6 +9,7 @@ using NHibernate;
 using CommandCentral.Authentication;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using NHibernate.Linq;
 
 namespace CommandCentral.Framework
@@ -228,6 +229,21 @@ namespace CommandCentral.Framework
         /// <param name="context"></param>
         public override void OnActionExecuting(ActionExecutingContext context)
         {
+
+            var cert = context.HttpContext.Connection.ClientCertificate;
+
+            var chain = new System.Security.Cryptography.X509Certificates.X509Chain();
+            chain.ChainPolicy.RevocationMode = X509RevocationMode.Online;
+            chain.ChainPolicy.RevocationFlag = X509RevocationFlag.EntireChain;
+            chain.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;
+            var valid = chain.Build(cert);
+
+            int i = 0;
+            
+            
+            
+            
+            
             HttpContext.Items["CallTime"] = DateTime.UtcNow;
 
             //Pull out the api key too.

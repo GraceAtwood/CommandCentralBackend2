@@ -36,12 +36,16 @@ namespace CommandCentral.CLI
             //Next, let's see if we can find a server.pfx.
             var serverCertificateLocation = ConfigurationUtility.Configuration["Server:CertificateLocation"];
 
-            if (String.IsNullOrWhiteSpace(serverCertificateLocation) || !File.Exists(serverCertificateLocation))
+            if (String.IsNullOrWhiteSpace(serverCertificateLocation))
+                throw new Exception( "The location of the server's certificate is " +
+                    "expected to be found in the config at 'Server:CertificateLocation'.");
+
+            if (!File.Exists(serverCertificateLocation))
                 throw new FileNotFoundException("Server certificate file not found!", serverCertificateLocation);
-            
+
             if (!Int32.TryParse(ConfigurationUtility.Configuration["Server:Port"], out var port))
                 throw new ArgumentException("The given port was not valid!");
-            
+
             var host = new WebHostBuilder()
                 .UseKestrel(options =>
                 {
@@ -52,10 +56,7 @@ namespace CommandCentral.CLI
                         ServerCertificate = new X509Certificate2("server.pfx", "password")
                     };
 
-                    options.Listen(IPAddress.Any, port, listenOptions =>
-                    {
-                        listenOptions.UseHttps(httpsOptions);
-                    });
+                    options.Listen(IPAddress.Any, port, listenOptions => { listenOptions.UseHttps(httpsOptions); });
                 })
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseIISIntegration()
@@ -112,13 +113,13 @@ namespace CommandCentral.CLI
                             Int32.TryParse(departmentsOption.Value(), out departments);
                         if (departments <= 0)
                             throw new CommandParsingException(app, "--dep must be greater than zero.");
-                        
+
                         var divisions = 4;
                         if (divisionsOption.HasValue())
                             Int32.TryParse(divisionsOption.Value(), out divisions);
                         if (divisions <= 0)
                             throw new CommandParsingException(app, "--div must be greater than zero.");
-                        
+
                         var persons = 30;
                         if (personsPerDivisionOption.HasValue())
                             Int32.TryParse(personsPerDivisionOption.Value(), out persons);
