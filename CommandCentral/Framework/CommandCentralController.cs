@@ -9,8 +9,8 @@ using NHibernate;
 using CommandCentral.Authentication;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
-using NHibernate.Linq;
 
 namespace CommandCentral.Framework
 {
@@ -232,17 +232,23 @@ namespace CommandCentral.Framework
 
             var cert = context.HttpContext.Connection.ClientCertificate;
 
-            var chain = new System.Security.Cryptography.X509Certificates.X509Chain();
-            chain.ChainPolicy.RevocationMode = X509RevocationMode.Online;
-            chain.ChainPolicy.RevocationFlag = X509RevocationFlag.EntireChain;
-            chain.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;
-            var valid = chain.Build(cert);
+            X509Chain chain = new X509Chain
+            {
+                ChainPolicy =
+                {
+                    UrlRetrievalTimeout = TimeSpan.MaxValue,
+                    RevocationMode = X509RevocationMode.Online,
+                    RevocationFlag = X509RevocationFlag.EntireChain,
+                    VerificationFlags = X509VerificationFlags.NoFlag
+                }
+            };
+            bool valid = chain.Build(cert);
 
-            int i = 0;
-            
-            
-            
-            
+            foreach (var ext in cert.Extensions)
+            {
+                var test = (new AsnEncodedData(ext.Oid, ext.RawData)).Format(false);
+                Console.WriteLine(test);
+            }
             
             HttpContext.Items["CallTime"] = DateTime.UtcNow;
 
