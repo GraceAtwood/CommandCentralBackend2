@@ -37,8 +37,8 @@ namespace CommandCentral.CLI
             var serverCertificateLocation = ConfigurationUtility.Configuration["Server:CertificateLocation"];
 
             if (String.IsNullOrWhiteSpace(serverCertificateLocation))
-                throw new Exception( "The location of the server's certificate is " +
-                    "expected to be found in the config at 'Server:CertificateLocation'.");
+                throw new Exception("The location of the server's certificate is " +
+                                    "expected to be found in the config at 'Server:CertificateLocation'.");
 
             if (!File.Exists(serverCertificateLocation))
                 throw new FileNotFoundException("Server certificate file not found!", serverCertificateLocation);
