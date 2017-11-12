@@ -91,7 +91,7 @@ namespace CommandCentral.Framework.Data
 
             foreach (var term in searchValue.SplitByOr())
             {
-                if (Int32.TryParse(term, out int number))
+                if (Int32.TryParse(term, out var number))
                 {
                     predicate = predicate.NullSafeOr(x => selector.Invoke(x) == number);
                 }
@@ -110,7 +110,7 @@ namespace CommandCentral.Framework.Data
             var predicate = searchValue.SplitByOr()
                 .Select(phrase =>
                 {
-                    if (Guid.TryParse(phrase, out Guid id))
+                    if (Guid.TryParse(phrase, out var id))
                         return ((Expression<Func<T, bool>>) null).And(x => selector.Invoke(x).Id == id);
 
                     return phrase.SplitByAnd()
@@ -141,7 +141,7 @@ namespace CommandCentral.Framework.Data
             return searchValue.SplitByOr()
                 .Select(phrase =>
                 {
-                    if (Guid.TryParse(phrase, out Guid id))
+                    if (Guid.TryParse(phrase, out var id))
                         return ((Expression<Func<T, bool>>) null).NullSafeAnd(x => selector.Invoke(x).Id == id);
 
                     return phrase.SplitByAnd()
@@ -232,7 +232,7 @@ namespace CommandCentral.Framework.Data
             var predicate = searchValue.SplitByOr()
                 .Select(phrase =>
                 {
-                    if (Guid.TryParse(phrase, out Guid id))
+                    if (Guid.TryParse(phrase, out var id))
                         return ((Expression<Func<T, bool>>) null).And(x => selector.Invoke(x).Id == id);
 
                     return phrase.SplitByAnd()
@@ -254,7 +254,7 @@ namespace CommandCentral.Framework.Data
             var predicate = searchValue.SplitByOr()
                 .Select(phrase =>
                 {
-                    if (Guid.TryParse(phrase, out Guid id))
+                    if (Guid.TryParse(phrase, out var id))
                         return ((Expression<Func<T, bool>>) null).And(x => selector.Invoke(x).Id == id);
 
                     return phrase.SplitByAnd()

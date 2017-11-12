@@ -32,7 +32,6 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
         /// <param name="collateralDuty">A string query for the name of the collateral duty associated with a membership.</param>
         /// <returns></returns>
         [HttpGet]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.CollateralDutyMembership.Get>))]
         public IActionResult Get([FromQuery] string level, [FromQuery] string role, [FromQuery] string person,
             [FromQuery] bool? hasDesignationLetter, [FromQuery] string collateralDuty)
@@ -80,7 +79,6 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
         /// <param name="id">The Id of the membership to retrieve.</param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.CollateralDutyMembership.Get))]
         public IActionResult Get(Guid id)
         {
@@ -99,7 +97,6 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
         /// <param name="dto">A dto containing the information needed to create a new membership.</param>
         /// <returns></returns>
         [HttpPost]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.CollateralDutyMembership.Get))]
         public IActionResult Post([FromBody] DTOs.CollateralDutyMembership.Post dto)
         {
@@ -169,7 +166,6 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
         /// <param name="dto">A dto containing the data needed to modify a membership.</param>
         /// <returns></returns>
         [HttpPut("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.CollateralDutyMembership.Get))]
         public IActionResult Put(Guid id, [FromBody] DTOs.CollateralDutyMembership.Put dto)
         {
@@ -216,7 +212,6 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
         /// <param name="id">The id of the membership to delete.</param>
         /// <returns></returns>
         [HttpDelete("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
         {

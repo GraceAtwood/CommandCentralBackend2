@@ -4,13 +4,6 @@
     {
         Created,
         Login,
-        Logout,
         FailedLogin,
-        RegistrationStarted,
-        RegistrationCompleted,
-        PasswordResetStarted,
-        PasswordResetCompleted,
-        PasswordChanged,
-        UsernameForgotten
     }
 }

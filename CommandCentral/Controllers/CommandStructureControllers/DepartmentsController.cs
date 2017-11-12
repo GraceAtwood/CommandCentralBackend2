@@ -24,7 +24,6 @@ namespace CommandCentral.Controllers.CommandStructureControllers
         /// <param name="command">A command query for the command of a department.</param>
         /// <returns></returns>
         [HttpGet]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Department.Get>))]
         public IActionResult Get([FromQuery] string name, [FromQuery] string description, [FromQuery] string command)
         {
@@ -49,7 +48,6 @@ namespace CommandCentral.Controllers.CommandStructureControllers
         /// <param name="id">The id of the department to retrieve.</param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.Department.Get))]
         public IActionResult Get(Guid id)
         {

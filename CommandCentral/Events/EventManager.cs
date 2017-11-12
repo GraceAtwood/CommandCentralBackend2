@@ -263,21 +263,6 @@ namespace CommandCentral.Events
             CorrespondenceModified?.Invoke(sender, e);
         }
 
-        /// <summary>
-        /// Occurs when a client has successfully claimed his or her account.  After this event occurs, a client has access to that account.
-        /// </summary>
-        public static event EventHandler<AccountRegistrationEventArgs> AccountRegistered;
-        
-        /// <summary>
-        /// Triggers the <seealso cref="AccountRegistered"/> event.
-        /// </summary>
-        /// <param name="e"></param>
-        /// <param name="sender"></param>
-        public static void OnAccountRegistered(AccountRegistrationEventArgs e, object sender)
-        {
-            AccountRegistered?.Invoke(sender, e);
-        }
-
         #endregion
         
         #region Collateral Duty Tracking

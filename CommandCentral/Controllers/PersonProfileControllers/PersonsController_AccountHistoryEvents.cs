@@ -12,7 +12,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
     public partial class PersonsController
     {
         [HttpGet("{personId}/AccountHistory")]
-        [RequireAuthentication]
         public IActionResult GetAccountHistory(Guid personId, [FromQuery] int limit = 1000)
         {
             if (limit <= 0)
@@ -34,7 +33,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         }
 
         [HttpGet("{personId}/AccountHistory/{id}")]
-        [RequireAuthentication]
         public IActionResult GetAccountHistoryItem(Guid personId, Guid id)
         {
             var item = DBSession.Query<AccountHistoryEvent>().FirstOrDefault(x => x.Id == id && x.Person.Id == personId);

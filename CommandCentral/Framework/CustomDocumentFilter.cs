@@ -55,7 +55,7 @@ namespace CommandCentral.Framework
 
                 tags.Add(tag);
 
-                if (_typeSummaries.TryGetValue(apiGroup.Key.ControllerTypeInfo.UnderlyingSystemType, out List<string> summaryLines))
+                if (_typeSummaries.TryGetValue(apiGroup.Key.ControllerTypeInfo.UnderlyingSystemType, out var summaryLines))
                 {
                     tag.Description = "<br /><br />" + String.Join("<br /><br />", summaryLines);
                 }

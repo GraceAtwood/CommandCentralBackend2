@@ -12,7 +12,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
     public class ProfileLocksController : CommandCentralController
     {
         [HttpGet("me")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.ProfileLock.Get))]
         public IActionResult GetMe()
         {
@@ -26,7 +25,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         }
 
         [HttpGet("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.ProfileLock.Get))]
         public IActionResult Get(Guid id)
         {
@@ -41,7 +39,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         }
 
         [HttpPost]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.ProfileLock.Get))]
         public IActionResult Post([FromBody] DTOs.ProfileLock.Update dto)
         {
@@ -95,7 +92,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         }
 
         [HttpDelete("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
         {

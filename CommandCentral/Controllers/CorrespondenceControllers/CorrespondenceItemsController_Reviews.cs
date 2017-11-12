@@ -20,7 +20,6 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
         /// <param name="correspondenceItemId">Id of the correspondence item owning the reviews collection you wish to retrieve.</param>
         /// <returns></returns>
         [HttpGet("{correspondenceItemId}/Reviews")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.CorrespondenceReview.Get>))]
         public IActionResult GetReviews(Guid correspondenceItemId)
         {
@@ -46,7 +45,6 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
         /// <param name="reviewId">Id of the review itself.</param>
         /// <returns></returns>
         [HttpGet("{correspondenceItemId}/Reviews/{reviewId}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.CorrespondenceReview.Get))]
         public IActionResult GetReview(Guid correspondenceItemId, Guid reviewId)
         {
@@ -72,7 +70,6 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
         /// <param name="dto">A dto containing all of the information needed to create a new review.</param>
         /// <returns></returns>
         [HttpPost("{correspondenceItemId}/Reviews")]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.CorrespondenceReview.Get))]
         public IActionResult PostReview(Guid correspondenceItemId, [FromBody] DTOs.CorrespondenceReview.Post dto)
         {
@@ -137,7 +134,6 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
         /// <param name="dto">A dto containing all of the information required to modify a review.</param>
         /// <returns></returns>
         [HttpPut("{correspondenceItemId}/Reviews/{reviewId}")]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.CorrespondenceReview.Get))]
         public IActionResult PutReview(Guid correspondenceItemId, Guid reviewId,
             [FromBody] DTOs.CorrespondenceReview.Put dto)
@@ -209,7 +205,6 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
         /// <param name="reviewId"></param>
         /// <returns></returns>
         [HttpDelete("{correspondenceItemId}/Reviews/{reviewId}")]
-        [RequireAuthentication]
         [ProducesResponseType(204)]
         public IActionResult DeleteReview(Guid correspondenceItemId, Guid reviewId)
         {

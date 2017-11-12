@@ -33,7 +33,6 @@ namespace CommandCentral.Controllers
         /// <param name="limit">[Default=1000] Instructs the service to return no more than this many results.</param>
         /// <returns></returns>
         [HttpGet]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Change.Get>))]
         public IActionResult Get([FromQuery] string editor, [FromQuery] string person, [FromQuery] string propertName,
             [FromQuery] string oldValue, [FromQuery] string newValue, [FromQuery] DateTimeRangeQuery changeTime, [FromQuery] int limit = 1000)

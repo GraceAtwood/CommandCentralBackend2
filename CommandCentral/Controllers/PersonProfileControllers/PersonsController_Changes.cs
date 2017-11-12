@@ -18,7 +18,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         /// <param name="limit">Instructst the service to retrieve no more than this number of results.</param>
         /// <returns></returns>
         [HttpGet("{personId}/Changes")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Change.Get>))]
         public IActionResult GetChanges(Guid personId, [FromQuery] int limit = 1000)
         {

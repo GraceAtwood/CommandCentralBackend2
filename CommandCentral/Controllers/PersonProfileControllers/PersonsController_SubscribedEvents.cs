@@ -18,7 +18,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         /// <param name="personId">The person for whom to retrieve subscribed events.</param>
         /// <returns></returns>
         [HttpGet("{personId}/SubscribedEvents")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.SubscribedEvents.Generic>))]
         public IActionResult GetSubscribedEvents(Guid personId)
         {
@@ -50,7 +49,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         /// <param name="dto">A dto containing a collection of subscribed events and levels to subscribe the client to.</param>
         /// <returns></returns>
         [HttpPut("{personId}/SubscribedEvents")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.SubscribedEvents.Generic>))]
         public IActionResult PutSubscribedEvent(Guid personId,
             [FromBody] List<KeyValuePair<SubscribableEvents, ChainOfCommandLevels>> dto)

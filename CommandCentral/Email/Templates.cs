@@ -62,18 +62,6 @@ namespace CommandCentral.Email
             new CCEmailTemplate<CorrespondenceGeneric>("ReviewDeleted.cshtml");
 
         /// <summary>
-        /// The template meant to be used in the email for when an account is finished with registration.
-        /// </summary>
-        public static readonly CCEmailTemplate<AccountRegistered> AccountRegisteredTemplate =
-            new CCEmailTemplate<AccountRegistered>("AccountRegistered.cshtml");
-
-        /// <summary>
-        /// The template meant to be used in the email for when account registration is started.
-        /// </summary>
-        public static readonly CCEmailTemplate<RegistrationStarted> RegistrationStartedTemplate =
-            new CCEmailTemplate<RegistrationStarted>("RegistrationStarted.cshtml");
-
-        /// <summary>
         /// The template meant to be used in the email for when account registration is started.
         /// </summary>
         public static readonly CCEmailTemplate<CollateralDeleted> CollateralDeletedTemplate =

@@ -39,7 +39,6 @@ namespace CommandCentral.Controllers
         /// <param name="types">An OR-combined string representing a query/filter for the types of a reference list.</param>
         /// <returns></returns>
         [HttpGet]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.ReferenceList.GetList>))]
         public IActionResult Get([FromQuery] string types)
         {
@@ -61,7 +60,7 @@ namespace CommandCentral.Controllers
 
                 foreach (var typeName in types.SplitByOr())
                 {
-                    if (!_referenceListNamesToType.TryGetValue(typeName, out Type type))
+                    if (!_referenceListNamesToType.TryGetValue(typeName, out var type))
                         return BadRequest(
                             $"One or more reference list types supplied in your '{nameof(types)}'" +
                             " parameter were not actual reference list types.");
@@ -98,7 +97,6 @@ namespace CommandCentral.Controllers
         /// <param name="id">The id of the reference list item to retrieve.</param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.ReferenceList.Get))]
         public IActionResult Get(Guid id)
         {
@@ -115,7 +113,6 @@ namespace CommandCentral.Controllers
         /// <param name="dto">A dto containg the necessary information to create a new reference list item.</param>
         /// <returns></returns>
         [HttpPost]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.ReferenceList.Get))]
         public IActionResult Post([FromBody] DTOs.ReferenceList.Post dto)
         {
@@ -125,7 +122,7 @@ namespace CommandCentral.Controllers
             if (!User.CanAccessSubmodules(SubModules.AdminTools))
                 return Forbid();
 
-            if (!_referenceListNamesToType.TryGetValue(dto.Type, out Type type))
+            if (!_referenceListNamesToType.TryGetValue(dto.Type, out var type))
                 return BadRequest(
                     $"The reference list type identified by your parameter '{nameof(dto.Type)}' does not exist.");
 
@@ -151,7 +148,6 @@ namespace CommandCentral.Controllers
         /// <param name="dto">A dto containing the information to modify the reference list item.</param>
         /// <returns></returns>
         [HttpPut("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.ReferenceList.Get))]
         public IActionResult Put(Guid id, [FromBody] DTOs.ReferenceList.Put dto)
         {
@@ -183,7 +179,6 @@ namespace CommandCentral.Controllers
         /// <param name="id">The id of the reference list item to remove.</param>
         /// <returns></returns>
         [HttpDelete("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
         {

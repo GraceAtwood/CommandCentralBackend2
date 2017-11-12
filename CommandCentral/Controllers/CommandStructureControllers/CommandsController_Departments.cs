@@ -18,7 +18,6 @@ namespace CommandCentral.Controllers.CommandStructureControllers
         /// <param name="commandId">The id of the command for which to retrieve departments.</param>
         /// <returns></returns>
         [HttpGet("{commandId}/Departments")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Department.Get>))]
         public IActionResult GetDepartments(Guid commandId)
         {
@@ -40,7 +39,6 @@ namespace CommandCentral.Controllers.CommandStructureControllers
         /// <param name="departmentId">The of the department to retrieve.</param>
         /// <returns></returns>
         [HttpGet("{commandId}/Department/{departmentId}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.Department.Get))]
         public IActionResult GetDepartment(Guid commandId, Guid departmentId)
         {
@@ -60,7 +58,6 @@ namespace CommandCentral.Controllers.CommandStructureControllers
         /// <param name="dto">A dto containing all of the information needed to make a new department.</param>
         /// <returns></returns>
         [HttpPost("{commandId}/Department")]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.Department.Get))]
         public IActionResult PostDepartment(Guid commandId, [FromBody] DTOs.Department.Post dto)
         {
@@ -105,7 +102,6 @@ namespace CommandCentral.Controllers.CommandStructureControllers
         /// <param name="dto">A dto containing the information needed to modify a department.</param>
         /// <returns></returns>
         [HttpPut("{commandId}/Department/{departmentId}")]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.Department.Get))]
         public IActionResult PutDepartment(Guid commandId, Guid departmentId, [FromBody] DTOs.Department.Put dto)
         {

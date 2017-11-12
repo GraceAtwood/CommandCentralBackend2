@@ -37,7 +37,6 @@ namespace CommandCentral.Controllers.MusterControllers
         /// <param name="limit">[Default = 1000] Indicates that the api should return no more than this number of records.</param>
         /// <returns></returns>
         [HttpGet]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.MusterCycle.Get>))]
         public IActionResult Get([FromQuery] DTOs.DateTimeRangeQuery range, [FromQuery] bool? isFinalized, [FromQuery] bool? wasFinalizedBySystem,
             [FromQuery] string finalizedBy, [FromQuery] string command, [FromQuery] int limit = 1000)
@@ -69,7 +68,6 @@ namespace CommandCentral.Controllers.MusterControllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("current")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.MusterCycle.Get))]
         public IActionResult GetCurrent()
         {
@@ -82,7 +80,6 @@ namespace CommandCentral.Controllers.MusterControllers
         /// <param name="id">The id of the muster cycle to retrieve.</param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.MusterCycle.Get))]
         public IActionResult Get(Guid id)
         {
@@ -100,7 +97,6 @@ namespace CommandCentral.Controllers.MusterControllers
         /// <param name="dto">The dto containing the information required to patch a muster cycle.</param>
         /// <returns></returns>
         [HttpPut("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.MusterCycle.Get))]
         public IActionResult Put(Guid id, [FromBody]DTOs.MusterCycle.Put dto)
         {

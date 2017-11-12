@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using CommandCentral.Utilities;
 
 namespace CommandCentral.Framework
 {
@@ -29,12 +30,12 @@ namespace CommandCentral.Framework
         /// <summary>
         /// Represents the currently logged in user for this HTTP context.  Invalid outside a web request context.
         /// </summary>
-        public new Person User => (Person)HttpContext.Items["User"];
+        public new Person User => (Person) HttpContext.Items["User"];
 
         /// <summary>
         /// The earliest time at which the client called the web service.
         /// </summary>
-        public DateTime CallTime => (DateTime)HttpContext.Items["CallTime"];
+        public DateTime CallTime => (DateTime) HttpContext.Items["CallTime"];
 
         /// <summary>
         /// Represents a database session for this web request session.
@@ -60,10 +61,10 @@ namespace CommandCentral.Framework
             if (DBSession.Transaction.IsActive && !DBSession.Transaction.WasCommitted &&
                 !DBSession.Transaction.WasRolledBack)
                 DBSession.Transaction.Rollback();
-            
+
             DBSession.Clear();
         }
-        
+
         /// <summary>
         /// The logging instance that should be used for logging... things.
         /// </summary>
@@ -117,7 +118,7 @@ namespace CommandCentral.Framework
         {
             return StatusCode(422, data);
         }
-        
+
         /// <summary>
         /// Returns a <seealso cref="BadRequestObjectResult"/> that indicates the limit must be greater than 0.
         /// </summary>
@@ -127,7 +128,8 @@ namespace CommandCentral.Framework
         [NonAction]
         public BadRequestObjectResult BadRequestLimit(int limit, string limitParameterName)
         {
-            return BadRequest($"The value '{limit}' for the property '{limitParameterName}' was invalid.  It must be greater than zero.");
+            return BadRequest(
+                $"The value '{limit}' for the property '{limitParameterName}' was invalid.  It must be greater than zero.");
         }
 
         /// <summary>
@@ -149,7 +151,8 @@ namespace CommandCentral.Framework
         [NonAction]
         public NotFoundObjectResult NotFoundParameter(object id, string parameterName)
         {
-            return NotFound($"An object with the identifier '{id}', identified by your parameter '{parameterName}', could not be found.");
+            return NotFound(
+                $"An object with the identifier '{id}', identified by your parameter '{parameterName}', could not be found.");
         }
 
         /// <summary>
@@ -161,9 +164,11 @@ namespace CommandCentral.Framework
         /// <param name="parentParamenentName"></param>
         /// <returns></returns>
         [NonAction]
-        public NotFoundObjectResult NotFoundChildParameter(Guid parentId, string parentParamenentName, Guid childId, string childParameterName)
+        public NotFoundObjectResult NotFoundChildParameter(Guid parentId, string parentParamenentName, Guid childId,
+            string childParameterName)
         {
-            return NotFound($"An object with Id '{childId}' identified by your parameter '{childParameterName}', child of an object with Id '{parentId}' identified by your parameter '{childParameterName},' could not be found.");
+            return NotFound(
+                $"An object with Id '{childId}' identified by your parameter '{childParameterName}', child of an object with Id '{parentId}' identified by your parameter '{childParameterName},' could not be found.");
         }
 
         /// <summary>
@@ -174,7 +179,7 @@ namespace CommandCentral.Framework
         [NonAction]
         public IActionResult Unauthorized(object value = null)
         {
-            return StatusCode((int)HttpStatusCode.Unauthorized, value);
+            return StatusCode((int) HttpStatusCode.Unauthorized, value);
         }
 
         /// <summary>
@@ -185,9 +190,9 @@ namespace CommandCentral.Framework
         [NonAction]
         public IActionResult InternalServerError(object value = null)
         {
-            return StatusCode((int)HttpStatusCode.InternalServerError, value);
+            return StatusCode((int) HttpStatusCode.InternalServerError, value);
         }
-        
+
         /// <summary>
         /// Returns a 403 FORBID status.
         /// </summary>
@@ -196,7 +201,7 @@ namespace CommandCentral.Framework
         [NonAction]
         public IActionResult Forbid(object value)
         {
-            return StatusCode((int)HttpStatusCode.Forbidden, value);
+            return StatusCode((int) HttpStatusCode.Forbidden, value);
         }
 
         /// <summary>
@@ -205,7 +210,7 @@ namespace CommandCentral.Framework
         [NonAction]
         public new IActionResult Forbid()
         {
-            return StatusCode((int)HttpStatusCode.Forbidden);
+            return StatusCode((int) HttpStatusCode.Forbidden);
         }
 
         /// <summary>
@@ -216,7 +221,7 @@ namespace CommandCentral.Framework
         [NonAction]
         public IActionResult Conflict(object value = null)
         {
-            return StatusCode((int)HttpStatusCode.Conflict, value);
+            return StatusCode((int) HttpStatusCode.Conflict, value);
         }
 
         #endregion
@@ -229,10 +234,9 @@ namespace CommandCentral.Framework
         /// <param name="context"></param>
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-
             var cert = context.HttpContext.Connection.ClientCertificate;
 
-            X509Chain chain = new X509Chain
+            var chain = new X509Chain
             {
                 ChainPolicy =
                 {
@@ -242,52 +246,79 @@ namespace CommandCentral.Framework
                     VerificationFlags = X509VerificationFlags.NoFlag
                 }
             };
-            bool valid = chain.Build(cert);
+            var valid = chain.Build(cert);
 
             foreach (var ext in cert.Extensions)
             {
                 var test = (new AsnEncodedData(ext.Oid, ext.RawData)).Format(false);
                 Console.WriteLine(test);
             }
-            
+
             HttpContext.Items["CallTime"] = DateTime.UtcNow;
 
             //Pull out the api key too.
-            if (!Request.Headers.TryGetValue("X-Api-Key", out Microsoft.Extensions.Primitives.StringValues apiKeyHeader)
-                || !Guid.TryParse(apiKeyHeader.FirstOrDefault(), out Guid apiKey)
+            if (!Request.Headers.TryGetValue("X-Api-Key", out var apiKeyHeader)
+                || !Guid.TryParse(apiKeyHeader.FirstOrDefault(), out var apiKey)
                 || DBSession.Get<APIKey>(apiKey) == null)
             {
-                context.Result = Unauthorized("Your api key was not valid or was not provided.  You must provide an api key (Guid) in the header 'X-Api-Key'.  " +
+                context.Result = Unauthorized(
+                    "Your api key was not valid or was not provided.  You must provide an api key (Guid) in the header 'X-Api-Key'.  " +
                     "If you do not have an api key for your application, please contact the development team and we'll hook you up.");
                 return;
             }
 
-            //Handle Authentication.  Do we require authentication?
-            if (((ControllerActionDescriptor)context.ActionDescriptor).MethodInfo.GetCustomAttribute<RequireAuthenticationAttribute>() != null)
+            //Handle Authentication.  Do we require authentication?  If we're in debug mode, then we can allow the client
+            //to "impersonate" any user they want.  Otherwise, we need to validate the client certificate and read the DoD Id.
+            if (ConfigurationUtility.InDebugMode &&
+                Request.Headers.TryGetValue("X-Impersonate-Person-Id", out var impersonatePersonIdHeader))
             {
-                if (!Request.Headers.TryGetValue("X-Session-Id", out Microsoft.Extensions.Primitives.StringValues sessionIdHeader)
-                    || !Guid.TryParse(sessionIdHeader.FirstOrDefault(), out Guid sessionId))
+                if (!Guid.TryParse(impersonatePersonIdHeader.FirstOrDefault(), out var impersonatePersonId))
                 {
-                    context.Result = Unauthorized("Your session id was not valid or was not provided.  " +
-                        "You must provide a session id (Guid) in the header 'X-Session-Id'.  " +
-                        "You can obtain a session id from the POST /authentication endpoint.");
+                    context.Result = BadRequest("You passed a 'X-Impersonate-Person-Id' header; however, " +
+                                                "it could not be parsed to a person id.");
                     return;
                 }
 
-                var authSession = DBSession.Query<AuthenticationSession>().SingleOrDefault(x => x.Token == sessionId);
-
-                if (authSession == null || !authSession.IsValid())
+                var impersonatedPerson = DBSession.Get<Person>(impersonatePersonId);
+                if (impersonatedPerson == null)
                 {
-                    context.Result = Unauthorized("Your sesion id was not valid or your session has timed out.  " +
-                        "You must provide a session id (Guid) in the header 'X-Session-Id'.  " +
-                        "You can obtain a session id from the POST /authentication endpoint.");
+                    context.Result = NotFoundParameter(impersonatePersonId, "X-Impersonate-Person-Id");
                     return;
                 }
 
-                HttpContext.Items["User"] = authSession.Person;
-                authSession.LastUsedTime = CallTime;
-                
-                CommitChanges();
+                HttpContext.Items["User"] = impersonatedPerson;
+            }
+            else
+            {
+                var isCertificateValid = new X509Chain
+                {
+                    ChainPolicy =
+                    {
+                        UrlRetrievalTimeout = TimeSpan.MaxValue,
+                        RevocationMode = X509RevocationMode.Online,
+                        RevocationFlag = X509RevocationFlag.EntireChain,
+                        VerificationFlags = X509VerificationFlags.NoFlag
+                    }
+                }.Build(context.HttpContext.Connection.ClientCertificate);
+
+                if (!isCertificateValid)
+                {
+                    context.Result = Unauthorized("The passed certificate was invalid.");
+                    return;
+                }
+
+                var dodId = cert.Subject.Substring(cert.Subject.LastIndexOf('.'));
+
+                var client = DBSession.Query<Person>().SingleOrDefault(x => x.DoDId == dodId);
+                if (client == null)
+                {
+                    context.Result =
+                        NotFound("We were unable to find a user in the database with your DoD Id!  " +
+                                 "Please communicate with admin to have someone update or create your profile.");
+                    return;
+                }
+
+                HttpContext.Items["User"] = client;
             }
 
             base.OnActionExecuting(context);
@@ -304,11 +335,10 @@ namespace CommandCentral.Framework
             //Any changes not handled by the controller must not have been intended to be committed.
             RevertChanges();
             Data.SessionManager.UnbindSession();
-            
+
             base.OnActionExecuted(context);
         }
 
         #endregion
-
     }
 }

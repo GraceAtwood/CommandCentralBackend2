@@ -12,7 +12,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
     public partial class PersonsController
     {
         [HttpGet("{personId}/PhysicalAddresses")]
-        [RequireAuthentication]
         public IActionResult GetPhysicalAddresses(Guid personId)
         {
             var items = DBSession.Query<PhysicalAddress>().Where(x => x.Person.Id == personId).ToList();
@@ -36,7 +35,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         }
 
         [HttpGet("{personId}/PhysicalAddresses/{id}")]
-        [RequireAuthentication]
         public IActionResult GetPhysicalAddress(Guid personId, Guid id)
         {
             var item = DBSession.Query<PhysicalAddress>()
@@ -55,7 +53,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         }
 
         [HttpPost("{personId}/PhysicalAddresses")]
-        [RequireAuthentication]
         public IActionResult PostPhysicalAddress(Guid personId, [FromBody] DTOs.PhysicalAddress.Update dto)
         {
             if (dto == null)
@@ -94,7 +91,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         }
 
         [HttpPut("{personId}/PhysicalAddresses/{id}")]
-        [RequireAuthentication]
         public IActionResult PutPhysicalAddress(Guid personId, Guid id, [FromBody] DTOs.PhysicalAddress.Update dto)
         {
             if (dto == null)
@@ -122,7 +118,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         }
 
         [HttpDelete("{personId}/PhysicalAddresses/{id}")]
-        [RequireAuthentication]
         public IActionResult DeletePhysicalAddress(Guid personId, Guid id)
         {
             var item = DBSession.Query<PhysicalAddress>().FirstOrDefault(x => x.Id == id && x.Person.Id == personId);

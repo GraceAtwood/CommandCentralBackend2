@@ -13,7 +13,6 @@ namespace CommandCentral.Controllers
     public class NewsItemsController : CommandCentralController
     {
         [HttpGet]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.NewsItem.Get>))]
         public IActionResult Get()
         {
@@ -23,7 +22,6 @@ namespace CommandCentral.Controllers
         }
 
         [HttpGet("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.NewsItem.Get))]
         public IActionResult Get(Guid id)
         {
@@ -35,7 +33,6 @@ namespace CommandCentral.Controllers
         }
 
         [HttpPost]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.NewsItem.Get))]
         public IActionResult Post([FromBody]DTOs.NewsItem.Update dto)
         {
@@ -66,7 +63,6 @@ namespace CommandCentral.Controllers
         }
 
         [HttpPut("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.NewsItem.Get))]
         public IActionResult Put(Guid id, [FromBody]DTOs.NewsItem.Update dto)
         {
@@ -93,7 +89,6 @@ namespace CommandCentral.Controllers
         }
 
         [HttpDelete("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
         {

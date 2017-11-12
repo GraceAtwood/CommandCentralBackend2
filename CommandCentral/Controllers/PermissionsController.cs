@@ -7,13 +7,13 @@ using CommandCentral.Enums;
 using CommandCentral.Framework;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CommandCentral.Controllers.AccountManagementControllers
+namespace CommandCentral.Controllers
 {
     /// <summary>
     /// Authorization is the method through which a client can ask questions about their permissions with respect to another person.  
     /// From authorization, a client can also learn what submodules they have access to and other things.
     /// </summary>
-    public class AuthorizationController : CommandCentralController
+    public class PermissionsController : CommandCentralController
     {
         /// <summary>
         /// Gets the permissions your client has with respect to no one.  
@@ -23,7 +23,6 @@ namespace CommandCentral.Controllers.AccountManagementControllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.Authorization.Get))]
         public IActionResult Get()
         {
@@ -36,7 +35,6 @@ namespace CommandCentral.Controllers.AccountManagementControllers
         /// <param name="id">The id of the person with respect to whom you want to know your client's permissions.</param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.Authorization.Get))]
         public IActionResult Get(Guid id)
         {
