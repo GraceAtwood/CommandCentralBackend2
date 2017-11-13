@@ -19,7 +19,6 @@ namespace CommandCentral.Controllers.CFS
     public class CFSRequestsController : CommandCentralController
     {
         [HttpGet]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.CFSRequest.Get>))]
         public IActionResult Get([FromQuery] bool? isClaimed, [FromQuery] string person,
             [FromQuery] DateTimeRangeQuery timeSubmitted, [FromQuery] string requestType,
@@ -49,7 +48,6 @@ namespace CommandCentral.Controllers.CFS
         }
 
         [HttpGet("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.CFSRequest.Get))]
         public IActionResult Get(Guid id)
         {
@@ -64,7 +62,6 @@ namespace CommandCentral.Controllers.CFS
         }
 
         [HttpPost]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.CFSRequest.Post))]
         public IActionResult Post([FromBody] DTOs.CFSRequest.Post dto)
         {
@@ -93,7 +90,6 @@ namespace CommandCentral.Controllers.CFS
         }
 
         [HttpPut("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.CFSRequest.Get))]
         public IActionResult Put(Guid id, [FromBody] DTOs.CFSRequest.Put dto)
         {
@@ -120,7 +116,6 @@ namespace CommandCentral.Controllers.CFS
         }
 
         [HttpDelete("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
         {

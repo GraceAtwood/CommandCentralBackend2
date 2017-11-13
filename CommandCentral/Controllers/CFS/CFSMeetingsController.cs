@@ -30,7 +30,6 @@ namespace CommandCentral.Controllers.CFS
         /// <param name="request">A query for the request to which a meeting is tied to.  You may query either by the id of a request or the request type (by text).</param>
         /// <returns></returns>
         [HttpGet]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.CFSMeeting.Get>))]
         public IActionResult Get([FromQuery] DTOs.DateTimeRangeQuery range, [FromQuery] string person,
             [FromQuery] string advisor, [FromQuery] string notes, [FromQuery] string request)
@@ -95,7 +94,6 @@ namespace CommandCentral.Controllers.CFS
         /// <param name="id">The id of the meeting to retrieve.</param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.CFSMeeting.Get))]
         public IActionResult Get(Guid id)
         {
@@ -115,7 +113,6 @@ namespace CommandCentral.Controllers.CFS
         /// <param name="dto">A dto containing all of the information needed to create a new meeting.</param>
         /// <returns></returns>
         [HttpPost]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.CFSMeeting.Get))]
         public IActionResult Post([FromBody] DTOs.CFSMeeting.Post dto)
         {
@@ -167,7 +164,6 @@ namespace CommandCentral.Controllers.CFS
         /// <param name="dto">A dto containing all of the inforamtion needed to modify a meeting.</param>
         /// <returns></returns>
         [HttpPut("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.CFSMeeting.Get))]
         public IActionResult Put(Guid id, [FromBody] DTOs.CFSMeeting.Put dto)
         {
