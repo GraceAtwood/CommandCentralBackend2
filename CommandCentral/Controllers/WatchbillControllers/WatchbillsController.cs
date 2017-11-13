@@ -34,6 +34,8 @@ namespace CommandCentral.Controllers.WatchbillControllers
 
             return Ok(new DTOs.Watchbill.Get(item));
         }
+        
+        // TODO: Get Query Endpoint
 
         [HttpPost]
         [RequireAuthentication]

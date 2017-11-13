@@ -19,6 +19,8 @@ namespace CommandCentral.Controllers.WatchbillControllers
 
             return Ok(new DTOs.WatchShift.Get(shift));
         }
+        
+        // TODO: Get Query endpoint
 
         [HttpPost]
         [RequireAuthentication]
