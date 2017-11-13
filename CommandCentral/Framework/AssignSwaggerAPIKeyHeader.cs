@@ -19,24 +19,10 @@ namespace CommandCentral.Framework
                 Required = true
             };
 
-            var sessionIdParameter = new NonBodyParameter
-            {
-                Name = "X-Session-Id",
-                In = "header",
-                Type = "string",
-                Description = "A session id identifies a client's login session.  This will be automatically set for you when you click authenticate at the top of the page.",
-                Required = true
-            };
-
             if (operation.Parameters == null || !operation.Parameters.Any())
                 operation.Parameters = new List<IParameter> { apiKeyParameter };
             else
                 operation.Parameters.Add(apiKeyParameter);
-
-            if (!(context.ApiDescription.HttpMethod == "POST" && context.ApiDescription.RelativePath.Contains("Authentication")))
-            {
-                operation.Parameters.Add(sessionIdParameter);
-            }
         }
     }
 }

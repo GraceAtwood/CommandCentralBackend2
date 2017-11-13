@@ -113,7 +113,6 @@ namespace CommandCentral.Framework
             {
                 c.ShowJsonEditor();
                 c.ShowRequestHeaders();
-                c.RoutePrefix = "help";
                
                 c.InjectOnCompleteJavaScript("/swagger-ui/basic-auth.js");
 
