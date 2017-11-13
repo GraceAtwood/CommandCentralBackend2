@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CommandCentral.Authorization;
 using CommandCentral.Entities;
-using CommandCentral.Framework;
 using Microsoft.AspNetCore.Mvc;
-using NHibernate.Linq;
 using NHibernate.Util;
 
 namespace CommandCentral.Controllers.PersonProfileControllers
@@ -13,7 +11,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
     public partial class PersonsController
     {
         [HttpGet("{personId}/EmailAddresses")]
-        [RequireAuthentication]
         public IActionResult GetEmailAddresses(Guid personId)
         {
             var items = DBSession.Query<EmailAddress>().Where(x => x.Person.Id == personId).ToList();
@@ -37,7 +34,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         }
 
         [HttpGet("{personId}/EmailAddresses/{id}")]
-        [RequireAuthentication]
         public IActionResult GetEmailAddress(Guid personId, Guid id)
         {
             var item = DBSession.Query<EmailAddress>().FirstOrDefault(x => x.Id == id && x.Person.Id == personId);
@@ -54,7 +50,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         }
 
         [HttpPost("{personId}/EmailAddresses")]
-        [RequireAuthentication]
         public IActionResult PostEmailAddress(Guid personId, [FromBody] DTOs.EmailAddress.Update dto)
         {
             if (dto == null)
@@ -91,7 +86,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         }
 
         [HttpPut("{personId}/EmailAddresses/{id}")]
-        [RequireAuthentication]
         public IActionResult PutEmailAddress(Guid personId, Guid id, [FromBody] DTOs.EmailAddress.Update dto)
         {
             if (dto == null)
@@ -124,7 +118,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         }
 
         [HttpDelete("{personId}/EmailAddresses/{id}")]
-        [RequireAuthentication]
         public IActionResult DeleteEmailAddress(Guid personId, Guid id)
         {
             var item = DBSession.Query<EmailAddress>().FirstOrDefault(x => x.Id == id && x.Person.Id == personId);

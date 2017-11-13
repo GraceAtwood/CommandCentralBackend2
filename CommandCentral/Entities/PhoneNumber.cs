@@ -1,6 +1,4 @@
-﻿using System;
-using CommandCentral.Entities.ReferenceLists;
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using FluentValidation;
 using System.Linq;
 using CommandCentral.Enums;

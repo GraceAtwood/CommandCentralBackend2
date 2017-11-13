@@ -4,6 +4,7 @@
     {
         Main,
         Muster,
-        QuarterdeckWatchbill
+        QuarterdeckWatchbill,
+        CommandFinancialSpecialist
     }
 }

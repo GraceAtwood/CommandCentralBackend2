@@ -10,10 +10,8 @@ using CommandCentral.Enums;
 using CommandCentral.Framework;
 using CommandCentral.Authorization;
 using CommandCentral.Authorization.Rules;
-using CommandCentral.Entities.CollateralDutyTracking;
 using FluentValidation.Results;
 using CommandCentral.Entities.Muster;
-using NHibernate.Linq;
 
 namespace CommandCentral.Entities
 {
@@ -282,25 +280,6 @@ namespace CommandCentral.Entities
         #region Account
 
         /// <summary>
-        /// A boolean indicating whether or not this account has been claimed.
-        /// </summary>
-        [HiddenFromPermissions]
-        public virtual bool IsClaimed { get; set; }
-
-        /// <summary>
-        /// The client's username.
-        /// </summary>
-        [CanReturnIfSelf]
-        [CanEditIfSelf]
-        public virtual string Username { get; set; }
-
-        /// <summary>
-        /// The client's hashed password.
-        /// </summary>
-        [HiddenFromPermissions]
-        public virtual string PasswordHash { get; set; }
-
-        /// <summary>
         /// The list of the person's permissions.  This is not persisted in the database.  Only the names are.
         /// </summary>
         [HiddenFromPermissions]
@@ -451,9 +430,6 @@ namespace CommandCentral.Entities
                 Map(x => x.EAOS).CustomType<UtcDateTimeType>();
                 Map(x => x.PRD).CustomType<UtcDateTimeType>();
                 Map(x => x.DateOfDeparture).CustomType<UtcDateTimeType>();
-                Map(x => x.IsClaimed).Not.Nullable().Default(false.ToString());
-                Map(x => x.Username).Unique();
-                Map(x => x.PasswordHash).Unique();
                 Map(x => x.Suffix);
                 Map(x => x.Paygrade).Not.Nullable();
                 Map(x => x.Sex).Not.Nullable();

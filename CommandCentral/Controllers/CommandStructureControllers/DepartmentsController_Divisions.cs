@@ -4,9 +4,7 @@ using System.Linq;
 using CommandCentral.Authorization;
 using CommandCentral.Entities;
 using CommandCentral.Enums;
-using CommandCentral.Framework;
 using Microsoft.AspNetCore.Mvc;
-using NHibernate.Linq;
 
 namespace CommandCentral.Controllers.CommandStructureControllers
 {
@@ -18,7 +16,6 @@ namespace CommandCentral.Controllers.CommandStructureControllers
         /// <param name="departmentId">The id of the department for which to retrieve divisions.</param>
         /// <returns></returns>
         [HttpGet("{departmentId}/Divisions")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Division.Get>))]
         public IActionResult GetDivisions(Guid departmentId)
         {
@@ -40,7 +37,6 @@ namespace CommandCentral.Controllers.CommandStructureControllers
         /// <param name="divisionId">The id of the division to retrieve.</param>
         /// <returns></returns>
         [HttpGet("{departmentId}/Divisions/{divisionId}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.Division.Get))]
         public IActionResult GetDivision(Guid departmentId, Guid divisionId)
         {
@@ -60,7 +56,6 @@ namespace CommandCentral.Controllers.CommandStructureControllers
         /// <param name="dto">A dto containing the information needed to create a new division.</param>
         /// <returns></returns>
         [HttpPost("{departmentId}/Divisions")]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.Division.Get))]
         public IActionResult PostDivision(Guid departmentId, [FromBody] DTOs.Division.Post dto)
         {
@@ -101,7 +96,6 @@ namespace CommandCentral.Controllers.CommandStructureControllers
         /// <param name="dto"></param>
         /// <returns></returns>
         [HttpPut("{departmentId}/Divisions/{divisionId}")]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.Division.Get))]
         public IActionResult PutDivision(Guid departmentId, Guid divisionId, [FromBody]DTOs.Division.Put dto)
         {

@@ -3,17 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using CommandCentral.Authorization;
 using CommandCentral.Entities;
-using CommandCentral.Entities.ReferenceLists;
-using CommandCentral.Framework;
 using Microsoft.AspNetCore.Mvc;
-using NHibernate.Linq;
 
 namespace CommandCentral.Controllers.PersonProfileControllers
 {
     public partial class PersonsController
     {
         [HttpGet("{personId}/PhoneNumbers")]
-        [RequireAuthentication]
         public IActionResult GetPhoneNumbers(Guid personId)
         {
             var items = DBSession.Query<PhoneNumber>().Where(x => x.Person.Id == personId).ToList();
@@ -37,7 +33,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         }
 
         [HttpGet("{personId}/PhoneNumbers/{id}")]
-        [RequireAuthentication]
         public IActionResult GetPhoneNumber(Guid personId, Guid id)
         {
             var item = DBSession.Query<PhoneNumber>().FirstOrDefault(x => x.Id == id && x.Person.Id == personId);
@@ -54,7 +49,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         }
 
         [HttpPost("{personId}/PhoneNumbers")]
-        [RequireAuthentication]
         public IActionResult PostPhoneNumber(Guid personId, [FromBody] DTOs.PhoneNumber.Update dto)
         {
             if (dto == null)
@@ -90,7 +84,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         }
 
         [HttpPut("{personId}/PhoneNumbers/{id}")]
-        [RequireAuthentication]
         public IActionResult PutPhoneNumber(Guid personId, Guid id, [FromBody] DTOs.PhoneNumber.Update dto)
         {
             if (dto == null)
@@ -115,7 +108,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         }
 
         [HttpDelete("{personId}/PhoneNumbers/{id}")]
-        [RequireAuthentication]
         public IActionResult DeletePhoneNumber(Guid personId, Guid id)
         {
             var item = DBSession.Query<PhoneNumber>().FirstOrDefault(x => x.Id == id && x.Person.Id == personId);

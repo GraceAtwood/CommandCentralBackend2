@@ -11,7 +11,6 @@ using CommandCentral.Framework.Data;
 using CommandCentral.Utilities;
 using LinqKit;
 using Microsoft.AspNetCore.Mvc;
-using NHibernate.Linq;
 
 namespace CommandCentral.Controllers.CorrespondenceControllers
 {
@@ -53,7 +52,6 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
         /// <param name="orderBy">[Default = TimeSubmitted] Instructs the service to order the results by the given property.</param>
         /// <returns></returns>
         [HttpGet]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.CorrespondenceItem.Get>))]
         public IActionResult Get([FromQuery] string seriesNumbers, [FromQuery] string submittedFor,
             [FromQuery] string submittedBy,
@@ -146,7 +144,6 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
         /// <param name="id">The identifier for an item.</param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.CorrespondenceItem.Get))]
         public IActionResult Get(Guid id)
         {
@@ -166,7 +163,6 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
         /// <param name="dto">A dto containing the information needed to create a new corr item.</param>
         /// <returns></returns>
         [HttpPost]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.CorrespondenceItem.Get))]
         public IActionResult Post([FromBody] DTOs.CorrespondenceItem.Post dto)
         {
@@ -220,7 +216,6 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
         /// <param name="dto">A dto containing the information needed to modify a corr item.</param>
         /// <returns></returns>
         [HttpPut("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.CorrespondenceItem.Get))]
         public IActionResult Put(Guid id, [FromBody] DTOs.CorrespondenceItem.Put dto)
         {
@@ -262,7 +257,6 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpDelete("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
         {

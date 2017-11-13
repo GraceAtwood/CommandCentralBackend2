@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using CommandCentral.Authorization;
 using CommandCentral.Entities;
 using CommandCentral.Entities.Muster;
-using CommandCentral.Entities.ReferenceLists;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
 using CommandCentral.Framework.Data;
@@ -13,7 +12,6 @@ using CommandCentral.Utilities;
 using CommandCentral.Utilities.Types;
 using LinqKit;
 using Microsoft.AspNetCore.Mvc;
-using NHibernate.Linq;
 
 namespace CommandCentral.Controllers.MusterControllers
 {
@@ -37,7 +35,6 @@ namespace CommandCentral.Controllers.MusterControllers
         /// <param name="orderBy">[Default = start][Valid values = start, datesubmitted] Instructs the api to order the results by this field (this also affects which records are returned if limit is given).</param>
         /// <returns></returns>
         [HttpGet]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.MusterEntry.Get>))]
         public IActionResult Get([FromQuery] string person, [FromQuery] string submittedBy,
             [FromQuery] DTOs.DateTimeRangeQuery range, [FromQuery] string accountabilityType,
@@ -88,7 +85,6 @@ namespace CommandCentral.Controllers.MusterControllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("current")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.MusterEntry.Get))]
         public IActionResult GetCurrent()
         {
@@ -105,7 +101,6 @@ namespace CommandCentral.Controllers.MusterControllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.MusterEntry.Get))]
         public IActionResult Get(Guid id)
         {
@@ -124,7 +119,6 @@ namespace CommandCentral.Controllers.MusterControllers
         /// <param name="dto">The object containing the data necessary to create a new muster entry.</param>
         /// <returns></returns>
         [HttpPost]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.MusterEntry.Get))]
         public IActionResult Post([FromBody] DTOs.MusterEntry.Post dto)
         {
@@ -174,7 +168,6 @@ namespace CommandCentral.Controllers.MusterControllers
         /// <param name="dto">The dto containing all of the information necessary to patch the muster entry.</param>
         /// <returns></returns>
         [HttpPatch("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.MusterEntry.Get))]
         public IActionResult Patch(Guid id, [FromBody] DTOs.MusterEntry.Patch dto)
         {
@@ -203,7 +196,6 @@ namespace CommandCentral.Controllers.MusterControllers
         /// <param name="id">The id of the muster entry to delete.</param>
         /// <returns></returns>
         [HttpDelete("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(200)]
         public IActionResult Delete(Guid id)
         {

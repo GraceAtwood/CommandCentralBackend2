@@ -6,7 +6,6 @@ using CommandCentral.Entities;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
 using Microsoft.AspNetCore.Mvc;
-using NHibernate.Linq;
 
 namespace CommandCentral.Controllers.CommandStructureControllers
 {
@@ -22,7 +21,6 @@ namespace CommandCentral.Controllers.CommandStructureControllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Command.Get>))]
         public IActionResult Get()
         {
@@ -37,7 +35,6 @@ namespace CommandCentral.Controllers.CommandStructureControllers
         /// <param name="id">The id of the command to get.</param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.Command.Get))]
         public IActionResult Get(Guid id)
         {
@@ -54,7 +51,6 @@ namespace CommandCentral.Controllers.CommandStructureControllers
         /// <param name="dto">An object containing all of the information required to create a new command.</param>
         /// <returns></returns>
         [HttpPost]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.Command.Get))]
         public IActionResult Post([FromBody] DTOs.Command.Update dto)
         {
@@ -89,7 +85,6 @@ namespace CommandCentral.Controllers.CommandStructureControllers
         /// <param name="dto">A dto containing all the information required to update a command.</param>
         /// <returns></returns>
         [HttpPut("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.Command.Get))]
         public IActionResult Put(Guid id, [FromBody] DTOs.Command.Update dto)
         {

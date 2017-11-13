@@ -12,7 +12,6 @@ using CommandCentral.Framework.Data;
 using CommandCentral.Utilities;
 using LinqKit;
 using Microsoft.AspNetCore.Mvc;
-using NHibernate.Linq;
 
 namespace CommandCentral.Controllers.PersonProfileControllers
 {
@@ -22,7 +21,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
     public partial class PersonsController : CommandCentralController
     {
         [HttpPost("query")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Person.Get>))]
         public IActionResult Query([FromBody] DTOs.Person.Query dto, [FromQuery] int limit = 1000,
             [FromQuery] string orderBy = nameof(Person.LastName))
@@ -85,7 +83,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("me")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.Person.Get))]
         public IActionResult GetMe()
         {
@@ -100,7 +97,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.Person.Get))]
         public IActionResult Get(Guid id)
         {
@@ -119,7 +115,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         /// <param name="dto">The dto containing all of the information needed to create a person.</param>
         /// <returns></returns>
         [HttpPost]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.Person.Get))]
         public IActionResult Post([FromBody] DTOs.Person.Post dto)
         {

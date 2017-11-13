@@ -51,10 +51,10 @@ namespace CommandCentral.Utilities
                 throw new Exception($"We attempted to find the entity name for a non-entity: {typeof(T)}");
 
             var persister = session.GetSessionImplementation().GetEntityPersister(entityName, entity);
-            var key = new EntityKey(persister.GetIdentifier(entity, EntityMode.Poco), persister, EntityMode.Poco);
+            var key = new EntityKey(persister.GetIdentifier(entity), persister);
             var entityEntry = session.GetSessionImplementation().PersistenceContext.GetEntry(session.GetSessionImplementation().PersistenceContext.GetEntity(key));
 
-            var currentState = persister.GetPropertyValues(entity, EntityMode.Poco);
+            var currentState = persister.GetPropertyValues(entity);
 
             //Find dirty will give us all the properties that are dirty, but because of some grade A NHibernate level bullshit, it won't look at collection for us.
             var indices = persister.FindDirty(currentState.ToArray(), entityEntry.LoadedState, entity, session.GetSessionImplementation());
@@ -108,7 +108,7 @@ namespace CommandCentral.Utilities
                 throw new Exception($"We attempted to find the entity name for a non-entity: {typeof(T)}");
 
             var persister = session.GetSessionImplementation().GetEntityPersister(entityName, entity);
-            var key = new EntityKey(persister.GetIdentifier(entity, EntityMode.Poco), persister, EntityMode.Poco);
+            var key = new EntityKey(persister.GetIdentifier(entity), persister);
             var entityEntry = session.GetSessionImplementation().PersistenceContext.GetEntry(session.GetSessionImplementation().PersistenceContext.GetEntity(key));
 
             return (TProperty)entityEntry.GetLoadedValue((selector.Body as MemberExpression)?.Member.Name);

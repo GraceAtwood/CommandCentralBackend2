@@ -6,7 +6,6 @@ using FluentValidation;
 using CommandCentral.Utilities;
 using FluentValidation.Results;
 using CommandCentral.Framework.Data;
-using NHibernate.Linq;
 
 namespace CommandCentral.Entities
 {
