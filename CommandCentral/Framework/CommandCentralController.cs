@@ -286,8 +286,9 @@ namespace CommandCentral.Framework
                     return;
                 }
 
-                var dodId = cert.Subject.Substring(cert.Subject.LastIndexOf('.'));
-
+                var temp = cert.Subject.Substring(0, cert.Subject.Length - cert.Subject.IndexOf(','));
+                var dodId = temp.Substring(temp.LastIndexOf('.') + 1, temp.Length - temp.IndexOf(',') - 1);
+                
                 var client = DBSession.Query<Person>().SingleOrDefault(x => x.DoDId == dodId);
                 if (client == null)
                 {
