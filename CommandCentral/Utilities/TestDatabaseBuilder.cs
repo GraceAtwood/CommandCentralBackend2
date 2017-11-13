@@ -202,13 +202,13 @@ namespace CommandCentral.Utilities
 
         private static readonly Dictionary<string, int> _emailAddresses = new Dictionary<string, int>();
 
-        private static Person CreatePerson(Division division,
+        private static Person CreatePerson(Guid id, Division division,
             UIC uic, string lastName, string username, IEnumerable<PermissionGroup> permissionGroups,
             IEnumerable<WatchQualifications> watchQuals, Paygrades paygrade, Designation designation)
         {
             var person = new Person
             {
-                Id = Guid.NewGuid(),
+                Id = id,
                 LastName = lastName,
                 MiddleName = division.Name,
                 Division = division,
@@ -285,8 +285,8 @@ namespace CommandCentral.Utilities
                 var division = department.Divisions.First();
                 var uic = SessionManager.GetCurrentSession().Query<UIC>().ToList().Shuffle().First();
 
-                var person = CreatePerson(division, uic, "developer", "dev",
-                    new[] {PermissionsCache.PermissionGroupsCache["Developers"]},
+                var person = CreatePerson(Guid.Parse("b2db659d-4998-40a2-8962-e6eb05326ea5"), division, uic,
+                    "developer", "dev", new[] {PermissionsCache.PermissionGroupsCache["Developers"]},
                     (WatchQualifications[]) Enum.GetValues(typeof(WatchQualifications)),
                     Paygrades.E5,
                     SessionManager.GetCurrentSession().Query<Designation>().ToList().Shuffle().First());
@@ -398,7 +398,7 @@ namespace CommandCentral.Utilities
                                     throw new Exception($"An unknown paygrade was found! {paygrade}");
                                 }
 
-                                var person = CreatePerson(division, uic, "user" + created, "user" + created, permGroups,
+                                var person = CreatePerson(Guid.NewGuid(), division, uic, "user" + created, "user" + created, permGroups,
                                     quals, paygrade,
                                     SessionManager.GetCurrentSession().Query<Designation>().ToList().Shuffle().First());
 
