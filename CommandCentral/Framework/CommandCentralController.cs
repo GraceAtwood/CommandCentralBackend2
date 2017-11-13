@@ -2,8 +2,6 @@
 using System;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc.Controllers;
-using System.Reflection;
 using CommandCentral.Entities;
 using NHibernate;
 using CommandCentral.Authentication;
@@ -234,26 +232,6 @@ namespace CommandCentral.Framework
         /// <param name="context"></param>
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            var cert = context.HttpContext.Connection.ClientCertificate;
-
-            var chain = new X509Chain
-            {
-                ChainPolicy =
-                {
-                    UrlRetrievalTimeout = TimeSpan.MaxValue,
-                    RevocationMode = X509RevocationMode.Online,
-                    RevocationFlag = X509RevocationFlag.EntireChain,
-                    VerificationFlags = X509VerificationFlags.NoFlag
-                }
-            };
-            var valid = chain.Build(cert);
-
-            foreach (var ext in cert.Extensions)
-            {
-                var test = (new AsnEncodedData(ext.Oid, ext.RawData)).Format(false);
-                Console.WriteLine(test);
-            }
-
             HttpContext.Items["CallTime"] = DateTime.UtcNow;
 
             //Pull out the api key too.
@@ -290,6 +268,8 @@ namespace CommandCentral.Framework
             }
             else
             {
+                var cert = HttpContext.Connection.ClientCertificate;
+                
                 var isCertificateValid = new X509Chain
                 {
                     ChainPolicy =
@@ -299,7 +279,7 @@ namespace CommandCentral.Framework
                         RevocationFlag = X509RevocationFlag.EntireChain,
                         VerificationFlags = X509VerificationFlags.NoFlag
                     }
-                }.Build(context.HttpContext.Connection.ClientCertificate);
+                }.Build(cert);
 
                 if (!isCertificateValid)
                 {

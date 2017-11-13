@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using CommandCentral.Authorization;
 using CommandCentral.Entities;
 using CommandCentral.Entities.Muster;
-using CommandCentral.Entities.ReferenceLists;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
 using CommandCentral.Framework.Data;
@@ -13,7 +12,6 @@ using CommandCentral.Utilities;
 using CommandCentral.Utilities.Types;
 using LinqKit;
 using Microsoft.AspNetCore.Mvc;
-using NHibernate.Linq;
 
 namespace CommandCentral.Controllers.MusterControllers
 {

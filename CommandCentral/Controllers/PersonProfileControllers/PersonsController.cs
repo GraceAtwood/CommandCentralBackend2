@@ -12,7 +12,6 @@ using CommandCentral.Framework.Data;
 using CommandCentral.Utilities;
 using LinqKit;
 using Microsoft.AspNetCore.Mvc;
-using NHibernate.Linq;
 
 namespace CommandCentral.Controllers.PersonProfileControllers
 {

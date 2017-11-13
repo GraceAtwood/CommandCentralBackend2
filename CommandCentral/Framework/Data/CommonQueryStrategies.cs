@@ -8,7 +8,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using CommandCentral.Authorization;
 using CommandCentral.Enums;
-using Microsoft.Extensions.FileSystemGlobbing.Internal.PathSegments;
 
 namespace CommandCentral.Framework.Data
 {

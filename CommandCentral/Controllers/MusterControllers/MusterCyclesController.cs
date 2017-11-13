@@ -9,7 +9,6 @@ using CommandCentral.Framework;
 using CommandCentral.Framework.Data;
 using LinqKit;
 using Microsoft.AspNetCore.Mvc;
-using NHibernate.Linq;
 
 namespace CommandCentral.Controllers.MusterControllers
 {

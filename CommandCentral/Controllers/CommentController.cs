@@ -8,7 +8,6 @@ using CommandCentral.DTOs;
 using System.Linq.Expressions;
 using CommandCentral.Utilities;
 using CommandCentral.Framework.Data;
-using NHibernate.Linq;
 using LinqKit;
 using CommandCentral.Authorization;
 using CommandCentral.Enums;

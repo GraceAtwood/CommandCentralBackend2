@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Net.Mail;
 using CommandCentral.Authorization;
 using CommandCentral.Email;
 using CommandCentral.Email.Models;
@@ -9,7 +8,6 @@ using CommandCentral.Events.Args;
 using CommandCentral.Framework.Data;
 using CommandCentral.Utilities;
 using LinqKit;
-using NHibernate.Linq;
 
 namespace CommandCentral.Events.Handlers.Email
 {

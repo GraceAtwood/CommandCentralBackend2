@@ -6,7 +6,6 @@ using CommandCentral.Framework;
 using CommandCentral.Entities;
 using CommandCentral.Authorization;
 using CommandCentral.Enums;
-using NHibernate.Linq;
 
 namespace CommandCentral.Controllers
 {
