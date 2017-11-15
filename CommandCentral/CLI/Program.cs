@@ -52,8 +52,10 @@ namespace CommandCentral.CLI
                     var httpsOptions = new HttpsConnectionAdapterOptions
                     {
                         CheckCertificateRevocation = false,
-                        ClientCertificateMode = ClientCertificateMode.RequireCertificate,
-                        ServerCertificate = new X509Certificate2("server.pfx", "password")
+                        ClientCertificateMode = ClientCertificateMode.AllowCertificate,
+                        ServerCertificate =
+                            new X509Certificate2(ConfigurationUtility.Configuration["Server:CertificateLocation"],
+                                "password")
                     };
 
                     options.Listen(IPAddress.Any, port, listenOptions => { listenOptions.UseHttps(httpsOptions); });
