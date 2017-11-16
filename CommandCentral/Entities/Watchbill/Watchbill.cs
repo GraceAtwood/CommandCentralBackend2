@@ -56,8 +56,14 @@ namespace CommandCentral.Entities.Watchbill
             return true;
         }
 
+        /// <summary>
+        /// Maps this object to the database.
+        /// </summary>
         public class WatchbillMapping : ClassMap<Watchbill>
         {
+            /// <summary>
+            /// Maps this object to the database.
+            /// </summary>
             public WatchbillMapping()
             {
                 Id(x => x.Id).GeneratedBy.Assigned();
@@ -74,6 +80,10 @@ namespace CommandCentral.Entities.Watchbill
             
         }
 
+        /// <summary>
+        /// Validates this object.
+        /// </summary>
+        /// <returns></returns>
         public override ValidationResult Validate()
         {
             return new Validator().Validate(this);
