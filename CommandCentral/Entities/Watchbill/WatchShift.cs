@@ -7,9 +7,11 @@ using NHibernate.Type;
 
 namespace CommandCentral.Entities.Watchbill
 {
+    /// <summary>
+    /// A watch shift represents a single time slot dueing the month dueing which a watch stander is needed.
+    /// </summary>
     public class WatchShift : Entity
     {
-        
         #region Properties
         
         /// <summary>
@@ -36,11 +38,17 @@ namespace CommandCentral.Entities.Watchbill
         /// The type of shift
         /// </summary>
         public virtual WatchShiftType ShiftType { get; set; }
-        
-        // Not including division or points assigned to because I think we don't need them.
-        
+
+        /// <summary>
+        /// The division that is responsible for filling this requirement.
+        /// </summary>
+        public virtual Division DivisionAssignedTo { get; set; }
+
         #endregion
         
+        /// <summary>
+        /// Maps this object to the database.
+        /// </summary>
         public class WatchShiftMapping : ClassMap<WatchShift>
         {
             /// <summary>
@@ -61,9 +69,14 @@ namespace CommandCentral.Entities.Watchbill
                 References(x => x.Watchbill).Not.Nullable();
                 References(x => x.ShiftType).Not.Nullable();
                 References(x => x.WatchAssignment);
+                References(x => x.DivisionAssignedTo).Not.Nullable();
             }
         }
         
+        /// <summary>
+        /// Validates this object.
+        /// </summary>
+        /// <returns></returns>
         public override ValidationResult Validate()
         {
             return new Validator().Validate(this);

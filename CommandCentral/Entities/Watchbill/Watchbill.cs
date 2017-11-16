@@ -8,6 +8,10 @@ using Itenso.TimePeriod;
 
 namespace CommandCentral.Entities.Watchbill
 {
+    /// <summary>
+    /// A quarterdeck watchbill is used to encapsulate all the shifts and assignments that make up the schedule 
+    /// for one month of watch standing.
+    /// </summary>
     public class Watchbill : Entity, IHazComments
     {
         /// <summary>
