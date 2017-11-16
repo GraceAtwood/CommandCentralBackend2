@@ -45,9 +45,15 @@ namespace CommandCentral.Entities.Watchbill
         /// </summary>
         public virtual IList<Comment> Comments { get; set; }
 
+        /// <summary>
+        /// Indicates if the given person can see the comments on this watchbill.
+        /// </summary>
+        /// <param name="person"></param>
+        /// <returns></returns>
         public virtual bool CanPersonAccessComments(Person person)
         {
-            throw new System.NotImplementedException();
+            //All persons are allowed to see the comments on a watchbill.
+            return true;
         }
 
         public class WatchbillMapping : ClassMap<Watchbill>
