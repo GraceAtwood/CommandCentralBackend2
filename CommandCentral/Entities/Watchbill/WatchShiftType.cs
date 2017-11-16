@@ -5,25 +5,34 @@ using FluentValidation.Results;
 
 namespace CommandCentral.Entities.Watchbill
 {
+    /// <summary>
+    /// Represents the type of a shift and ties it to a watch qualification.
+    /// </summary>
     public class WatchShiftType : Entity
     {
         /// <summary>
-        /// The Name of this shift
+        /// The name of this shift type.
         /// </summary>
         public virtual string Name { get; set; }
         
         /// <summary>
-        /// The optional description of this shift
+        /// The optional description of this shift type.
         /// </summary>
         public virtual string Description { get; set; }
         
         /// <summary>
-        /// The qualification required to stand this shift
+        /// The qualification required to stand a shift marked with this shift type.
         /// </summary>
         public virtual WatchQualifications Qualification { get; set; }
         
+        /// <summary>
+        /// Maps this object to the database.
+        /// </summary>
         public class WatchShiftTypeMapping : ClassMap<WatchShiftType>
         {
+            /// <summary>
+            /// Maps this object to the database.
+            /// </summary>
             public WatchShiftTypeMapping()
             {
                 Id(x => x.Id).GeneratedBy.Assigned();
@@ -34,6 +43,10 @@ namespace CommandCentral.Entities.Watchbill
             }
         }
         
+        /// <summary>
+        /// Validates this object.
+        /// </summary>
+        /// <returns></returns>
         public override ValidationResult Validate()
         {
             return new Validator().Validate(this);
