@@ -50,6 +50,11 @@ namespace CommandCentral.Entities.Watchbill
         public virtual IList<Comment> Comments { get; set; }
 
         /// <summary>
+        /// The person who created this watchbill.
+        /// </summary>
+        public virtual Person CreatedBy { get; set; }
+
+        /// <summary>
         /// Indicates if the given person can see the comments on this watchbill.
         /// </summary>
         /// <param name="person"></param>
@@ -78,6 +83,7 @@ namespace CommandCentral.Entities.Watchbill
                 Map(x => x.Phase).Not.Nullable();
 
                 References(x => x.Command).Not.Nullable();
+                References(x => x.CreatedBy).Not.Nullable();
 
                 HasMany(x => x.WatchShifts).Cascade.All();
             }
@@ -107,6 +113,7 @@ namespace CommandCentral.Entities.Watchbill
                 RuleFor(x => x.Month).NotEmpty().InclusiveBetween(1, 12);
                 RuleFor(x => x.Year).NotEmpty().GreaterThan(2016);
                 RuleFor(x => x.Command).NotEmpty();
+                RuleFor(x => x.CreatedBy).NotEmpty();
             }
         }
     }
