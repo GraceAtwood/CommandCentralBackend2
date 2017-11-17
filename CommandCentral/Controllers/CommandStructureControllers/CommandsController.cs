@@ -69,7 +69,8 @@ namespace CommandCentral.Controllers.CommandStructureControllers
             {
                 Id = Guid.NewGuid(),
                 Description = dto.Description,
-                Name = dto.Name
+                Name = dto.Name,
+                TimeZoneId = dto.TimeZoneId
             };
 
             var result = item.Validate();
@@ -106,6 +107,7 @@ namespace CommandCentral.Controllers.CommandStructureControllers
 
             item.Description = dto.Description;
             item.Name = dto.Name;
+            item.TimeZoneId = dto.TimeZoneId;
 
             var result = item.Validate();
             if (!result.IsValid)

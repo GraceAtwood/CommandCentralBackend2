@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
 using FluentNHibernate.Mapping;
@@ -63,6 +64,26 @@ namespace CommandCentral.Entities.Watchbill
         {
             //All persons are allowed to see the comments on a watchbill.
             return true;
+        }
+
+        /// <summary>
+        /// Gets the first datetime of this watchbill as a UTC datetime.
+        /// </summary>
+        /// <returns></returns>
+        public virtual DateTime GetFirstDay()
+        {
+            return new DateTimeOffset(Year, Month, 1, 0, 0, 0, Command.GetTimeZoneInfo().BaseUtcOffset).UtcDateTime;
+        }
+
+        /// <summary>
+        /// Gets the last datetime of this watchbill as a UTC datetime.
+        /// </summary>
+        /// <returns></returns>
+        public virtual DateTime GetLastDay()
+        {
+            return new DateTimeOffset(Year, Month, 1, 0, 0, 0, Command.GetTimeZoneInfo().BaseUtcOffset)
+                .AddMonths(1)
+                .UtcDateTime;
         }
 
         /// <summary>

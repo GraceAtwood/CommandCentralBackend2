@@ -15,6 +15,7 @@ namespace CommandCentral.DTOs.Command
             Name = item.Name;
             Description = item.Description;
             Departments = item.Departments.Select(x => x.Id).ToList();
+            TimeZoneId = item.TimeZoneId;
         }
     }
 }

@@ -209,8 +209,26 @@ namespace CommandCentral.Controllers.WatchbillControllers
 
         private static Dictionary<Division, int> GetShiftsToAssignByDivision(Watchbill watchbill, ISession session)
         {
-            //First, we're going to need all the status period inputs for all Sailors that are eligible for watch.
-            var statusPeriods = session.Query<StatusPeriod>().Where(x => x.ExemptsFromWatch && x.Person.Division.Department.Command == watchbill.Command && x.Range.Start)
+            //First, we're going to need all the status period inputs for the watchbill's time range.
+            //Let's also group the status periods by the person they were submitted for to make look up a little faster.
+            var statusPeriods = session.Query<StatusPeriod>()
+                .Where(x => x.ExemptsFromWatch &&
+                            x.Person.Division.Department.Command == watchbill.Command &&
+                            x.Range.Start >= watchbill.GetFirstDay() && x.Range.End <= watchbill.GetLastDay())
+                .GroupBy(x => x.Person);
+            
+            //Now, we're going to need all those people who are eligible to stand the watch.
+            var eligiblePersons = session.Query<Person>()
+                .Where(x => x.Division.Department.Command == watchbill.Command &&
+                            x.DutyStatus == DutyStatuses.Active)
+                .ToList();
+
+            //Now we need al lthe shifts we have to assign to.
+            var shifts = watchbill.WatchShifts;
+            
+            throw new NotImplementedException();
+
+
         }
 
         /// <summary>
