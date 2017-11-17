@@ -5,12 +5,14 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CommandCentral.Authorization;
 using CommandCentral.Entities;
+using CommandCentral.Entities.Muster;
 using CommandCentral.Entities.Watchbill;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
 using CommandCentral.Framework.Data;
 using LinqKit;
 using Microsoft.AspNetCore.Mvc;
+using NHibernate;
 using NHibernate.Linq;
 
 namespace CommandCentral.Controllers.WatchbillControllers
@@ -188,9 +190,14 @@ namespace CommandCentral.Controllers.WatchbillControllers
 
                 switch (watchbill.Phase)
                 {
+                    case WatchbillPhases.Initial:
+                    {
+                        //Right now, we don't do anything when the watchbill is created.
+                        break;
+                    }
                     case WatchbillPhases.Assignment:
                     {
-                        
+                        //Here we need to determine which divisions to assign to each watch shift.
                         break;
                     }
                     default:
@@ -198,6 +205,12 @@ namespace CommandCentral.Controllers.WatchbillControllers
                                             $"switch in the method {nameof(HandleWatchbillPhaseUpdate)}");
                 }
             }
+        }
+
+        private static Dictionary<Division, int> GetShiftsToAssignByDivision(Watchbill watchbill, ISession session)
+        {
+            //First, we're going to need all the status period inputs for all Sailors that are eligible for watch.
+            var statusPeriods = session.Query<StatusPeriod>().Where(x => x.ExemptsFromWatch && x.Person.Division.Department.Command == watchbill.Command && x.Range.Start)
         }
 
         /// <summary>
