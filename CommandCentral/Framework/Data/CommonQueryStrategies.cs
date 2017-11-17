@@ -81,6 +81,15 @@ namespace CommandCentral.Framework.Data
             return initial.NullSafeAnd(predicate);
         }
 
+        /// <summary>
+        /// Adds a query for the given interger property.  The search value is expected to be a series of integers (32 B)
+        /// separated by the OR value.  Invalid integers are ignored.
+        /// </summary>
+        /// <param name="initial"></param>
+        /// <param name="selector">The property to execute the search on.</param>
+        /// <param name="searchValue">The search value.</param>
+        /// <typeparam name="T">A type containg an integer property.</typeparam>
+        /// <returns></returns>
         public static Expression<Func<T, bool>> AddIntQueryExpression<T>(this Expression<Func<T, bool>> initial,
             Expression<Func<T, int>> selector, string searchValue)
         {
@@ -91,7 +100,7 @@ namespace CommandCentral.Framework.Data
 
             foreach (var term in searchValue.SplitByOr())
             {
-                if (Int32.TryParse(term, out int number))
+                if (Int32.TryParse(term, out var number))
                 {
                     predicate = predicate.NullSafeOr(x => selector.Invoke(x) == number);
                 }
@@ -318,7 +327,7 @@ namespace CommandCentral.Framework.Data
         {
             if (String.IsNullOrWhiteSpace(searchValue))
                 return initial;
-            
+
             if (!typeof(TEnum).IsEnum)
                 throw new ArgumentException($"{nameof(TEnum)} must be an enumerated type.", nameof(TEnum));
 

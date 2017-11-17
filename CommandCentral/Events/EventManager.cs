@@ -24,6 +24,14 @@ namespace CommandCentral.Events
                 .Select(x => (IEventHandler) Activator.CreateInstance(x)));
         }
         
+        #region Watchbill
+
+        public static event EventHandler<WatchbillEventArgs> WatchbillAssigned;
+        public static event EventHandler<WatchbillEventArgs> WatchbillPendingReview;
+        public static event EventHandler<WatchbillEventArgs> WatchbillPublished; 
+
+        #endregion
+        
         #region Muster
 
         /// <summary>
