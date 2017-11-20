@@ -37,7 +37,6 @@ namespace CommandCentral.Controllers.WatchbillControllers
         /// <param name="createdBy">A person query for the person who created a watchbill.</param>
         /// <returns></returns>
         [HttpGet]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Watchbill.Get>))]
         public IActionResult Get([FromQuery] string title, [FromQuery] string month, [FromQuery] string year,
             [FromQuery] string command, [FromQuery] string phase, [FromQuery] string createdBy)
@@ -66,7 +65,6 @@ namespace CommandCentral.Controllers.WatchbillControllers
         /// <param name="id">The id of the watchbill to retrieve.</param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.Watchbill.Get))]
         public IActionResult Get(Guid id)
         {
@@ -84,7 +82,6 @@ namespace CommandCentral.Controllers.WatchbillControllers
         /// <param name="dto">A dto containing all of the required information to create a watchbill.</param>
         /// <returns></returns>
         [HttpPost]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.Watchbill.Get))]
         public IActionResult Post([FromBody] DTOs.Watchbill.Post dto)
         {
@@ -128,7 +125,6 @@ namespace CommandCentral.Controllers.WatchbillControllers
         }
 
         [HttpPut("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.Watchbill.Get))]
         public IActionResult Put(Guid id, [FromBody] DTOs.Watchbill.Put dto)
         {
@@ -272,7 +268,6 @@ namespace CommandCentral.Controllers.WatchbillControllers
         /// <param name="id">The id of the watchbill to delete.</param>
         /// <returns></returns>
         [HttpDelete("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
         {

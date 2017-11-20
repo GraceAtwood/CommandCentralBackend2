@@ -10,7 +10,6 @@ namespace CommandCentral.Controllers.WatchbillControllers
     public class WatchAssignmentsController : CommandCentralController
     {
         [HttpGet("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.WatchAssignments.Get))]
         public IActionResult Get(Guid id)
         {
@@ -24,7 +23,6 @@ namespace CommandCentral.Controllers.WatchbillControllers
         // TODO: Get Query Endpoint
 
         [HttpPost]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.WatchAssignments.Get))]
         public IActionResult Post([FromBody] DTOs.WatchAssignments.Post dto)
         {
@@ -47,14 +45,12 @@ namespace CommandCentral.Controllers.WatchbillControllers
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
             DBSession.Save(assignment);
-            
             CommitChanges();
 
             return CreatedAtAction(nameof(Get), new {id = assignment.Id}, new DTOs.WatchAssignments.Get(assignment));
         }
 
         [HttpPatch("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.WatchAssignments.Get))]
         public IActionResult Patch(Guid id, [FromBody] DTOs.WatchAssignments.Patch dto)
         {
@@ -85,7 +81,6 @@ namespace CommandCentral.Controllers.WatchbillControllers
         }
 
         [HttpDelete("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
         {

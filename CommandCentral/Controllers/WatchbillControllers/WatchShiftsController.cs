@@ -9,7 +9,6 @@ namespace CommandCentral.Controllers.WatchbillControllers
     public class WatchShiftsController : CommandCentralController
     {
         [HttpGet("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.WatchShift.Get))]
         public IActionResult Get(Guid id)
         {
@@ -23,7 +22,6 @@ namespace CommandCentral.Controllers.WatchbillControllers
         // TODO: Get Query endpoint
 
         [HttpPost]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.WatchShift.Get))]
         public IActionResult Post([FromBody] DTOs.WatchShift.Post dto)
         {
@@ -53,7 +51,6 @@ namespace CommandCentral.Controllers.WatchbillControllers
         }
 
         [HttpPut("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.WatchShift.Get))]
         public IActionResult Put(Guid id, [FromBody] DTOs.WatchShift.Put dto)
         {
@@ -82,7 +79,6 @@ namespace CommandCentral.Controllers.WatchbillControllers
         }
 
         [HttpDelete("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
         {

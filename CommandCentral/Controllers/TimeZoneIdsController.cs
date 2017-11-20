@@ -6,10 +6,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CommandCentral.Controllers
 {
+    /// <summary>
+    /// Exposes all the system time zones.
+    /// </summary>
     public class TimeZoneIdsController : CommandCentralController
     {
+        /// <summary>
+        /// Exposes all the system time zones.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<TimeZoneInfo>))]
         public IActionResult Get()
         {
