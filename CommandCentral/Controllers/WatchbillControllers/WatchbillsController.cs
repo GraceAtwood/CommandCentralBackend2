@@ -8,8 +8,11 @@ using CommandCentral.Entities;
 using CommandCentral.Entities.Muster;
 using CommandCentral.Entities.Watchbill;
 using CommandCentral.Enums;
+using CommandCentral.Events;
+using CommandCentral.Events.Args;
 using CommandCentral.Framework;
 using CommandCentral.Framework.Data;
+using CommandCentral.Utilities;
 using LinqKit;
 using Microsoft.AspNetCore.Mvc;
 using NHibernate;
@@ -197,38 +200,70 @@ namespace CommandCentral.Controllers.WatchbillControllers
                     }
                     case WatchbillPhases.Assignment:
                     {
-                        //Here we need to determine which divisions to assign to each watch shift.
+                        AssignShiftsToDivisions(watchbill, session);
+                        EventManager.OnWatchbillAssigned(new WatchbillEventArgs { Watchbill = watchbill }, null);
+                        break;
+                    }
+                    case WatchbillPhases.Review:
+                    {
+                        break;
+                    }
+                    case WatchbillPhases.Publish:
+                    {
                         break;
                     }
                     default:
                         throw new Exception("An unknown phase fell to the default case in the " +
                                             $"switch in the method {nameof(HandleWatchbillPhaseUpdate)}");
                 }
+
+                transaction.Commit();
             }
         }
 
-        private static Dictionary<Division, int> GetShiftsToAssignByDivision(Watchbill watchbill, ISession session)
+        private static void AssignShiftsToDivisions(Watchbill watchbill, ISession session)
         {
             //First, we're going to need all the status period inputs for the watchbill's time range.
-            //Let's also group the status periods by the person they were submitted for to make look up a little faster.
-            var statusPeriods = session.Query<StatusPeriod>()
+            var statusPeriodsByDivision = session.Query<StatusPeriod>()
                 .Where(x => x.ExemptsFromWatch &&
                             x.Person.Division.Department.Command == watchbill.Command &&
+                            x.Person.DutyStatus == DutyStatuses.Active &&
                             x.Range.Start >= watchbill.GetFirstDay() && x.Range.End <= watchbill.GetLastDay())
-                .GroupBy(x => x.Person);
-            
-            //Now, we're going to need all those people who are eligible to stand the watch.
-            var eligiblePersons = session.Query<Person>()
-                .Where(x => x.Division.Department.Command == watchbill.Command &&
-                            x.DutyStatus == DutyStatuses.Active)
+                .ToFuture()
+                .GroupBy(x => x.Person.Division);
+
+            var divisionByTotalAvailableMinutes = new Dictionary<Division, double>();
+            var totalAvailableMinutes = 0D;
+
+            foreach (var divisionGroup in statusPeriodsByDivision)
+            {
+                var total = divisionGroup.Sum(statusPeriod => statusPeriod.Range.GetTotalMinutes());
+                divisionByTotalAvailableMinutes[divisionGroup.Key] = total;
+                totalAvailableMinutes += total;
+            }
+
+            var shiftsToAssignEachDivision = divisionByTotalAvailableMinutes
+                .ToDictionary(x => x.Key, x => (x.Value / totalAvailableMinutes) * watchbill.WatchShifts.Count)
+                .OrderByDescending(x => x.Value - Math.Truncate(x.Value))
                 .ToList();
 
-            //Now we need al lthe shifts we have to assign to.
-            var shifts = watchbill.WatchShifts;
+            var startIndex = 0;
+            var shifts = watchbill.WatchShifts.Shuffle();
             
-            throw new NotImplementedException();
+            foreach (var pair in shiftsToAssignEachDivision)
+            {
+                for (var x = startIndex; x < startIndex + (int) pair.Value; x++)
+                {
+                    shifts[x].DivisionAssignedTo = pair.Key;
+                }
+                
+                startIndex += (int) pair.Value;
+            }
 
-
+            for (var x = 0; x < shifts.Count - startIndex; x++)
+            {
+                shifts[shifts.Count - 1 - x].DivisionAssignedTo = shiftsToAssignEachDivision[x].Key;
+            }
         }
 
         /// <summary>

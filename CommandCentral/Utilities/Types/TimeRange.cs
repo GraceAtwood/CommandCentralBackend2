@@ -22,6 +22,15 @@ namespace CommandCentral.Utilities.Types
 
         #endregion
 
+        /// <summary>
+        /// Gets the total minutes covered by this time range.
+        /// </summary>
+        /// <returns></returns>
+        public double GetTotalMinutes()
+        {
+            return (End - Start).TotalMinutes;
+        }
+
         #region Overrides
 
         /// <summary>

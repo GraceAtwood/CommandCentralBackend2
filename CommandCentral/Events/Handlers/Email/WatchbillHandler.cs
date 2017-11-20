@@ -14,17 +14,17 @@ namespace CommandCentral.Events.Handlers.Email
 
         private void OnWatchbillPublished(object sender, WatchbillEventArgs e)
         {
-            throw new NotImplementedException();
+            //TODO
         }
 
         private void OnWatchbillPendingReview(object sender, WatchbillEventArgs e)
         {
-            throw new NotImplementedException();
+            //TODO
         }
 
         private void OnWatchbillAssigned(object sender, WatchbillEventArgs e)
         {
-            throw new NotImplementedException();
+            //TODO
         }
     }
 }

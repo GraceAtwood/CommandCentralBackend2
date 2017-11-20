@@ -67,7 +67,7 @@ namespace CommandCentral.Entities.Watchbill
         }
 
         /// <summary>
-        /// Gets the first datetime of this watchbill as a UTC datetime.
+        /// Gets the first datetime of this watchbill as a UTC datetime.  Time is at midnight.
         /// </summary>
         /// <returns></returns>
         public virtual DateTime GetFirstDay()
@@ -76,7 +76,7 @@ namespace CommandCentral.Entities.Watchbill
         }
 
         /// <summary>
-        /// Gets the last datetime of this watchbill as a UTC datetime.
+        /// Gets the last datetime of this watchbill as a UTC datetime.  Time is at midnight.
         /// </summary>
         /// <returns></returns>
         public virtual DateTime GetLastDay()
