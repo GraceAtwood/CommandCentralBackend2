@@ -2,7 +2,6 @@
 using FluentScheduler;
 using CommandCentral.Framework.Data;
 using CommandCentral.Entities;
-using NHibernate.Linq;
 
 namespace CommandCentral.CronOperations
 {

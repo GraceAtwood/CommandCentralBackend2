@@ -11,7 +11,6 @@ using CommandCentral.Framework;
 using CommandCentral.Framework.Data;
 using LinqKit;
 using Microsoft.AspNetCore.Mvc;
-using NHibernate.Linq;
 
 namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
 {
@@ -28,7 +27,6 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
         /// <param name="command">A command query for the command of a collateral duty.</param>
         /// <returns></returns>
         [HttpGet]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.CollateralDuty.Get>))]
         public IActionResult Get([FromQuery] string name, [FromQuery] string command)
         {
@@ -53,7 +51,6 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
         /// <param name="id">The id of the coll duty to retrieve.</param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.CollateralDuty.Get))]
         public IActionResult Get(Guid id)
         {
@@ -70,7 +67,6 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
         /// <param name="dto">A dto containing the information required to create a coll duty.</param>
         /// <returns></returns>
         [HttpPost]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.CollateralDuty.Get))]
         public IActionResult Post([FromBody] DTOs.CollateralDuty.Update dto)
         {
@@ -105,7 +101,6 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
         /// <param name="dto">A dto containing the information needed for modification.</param>
         /// <returns></returns>
         [HttpPut("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.CollateralDuty.Get))]
         public IActionResult Put(Guid id, [FromBody] DTOs.CollateralDuty.Update dto)
         {
@@ -136,7 +131,6 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
         /// <param name="id">The id of the coll duty to delete.</param>
         /// <returns></returns>
         [HttpDelete("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
         {

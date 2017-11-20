@@ -8,7 +8,6 @@ using CommandCentral.DTOs;
 using System.Linq.Expressions;
 using CommandCentral.Utilities;
 using CommandCentral.Framework.Data;
-using NHibernate.Linq;
 using LinqKit;
 using CommandCentral.Authorization;
 using CommandCentral.Enums;
@@ -33,7 +32,6 @@ namespace CommandCentral.Controllers
         /// <param name="limit">[Default = 1000] Instructs the service to return no more than this number of results.</param>
         /// <returns></returns>
         [HttpGet]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Command.Get>))]
         public IActionResult Get([FromQuery] Guid? owningEntity, [FromQuery] string creator, [FromQuery] DateTimeRangeQuery timeCreated,
             [FromQuery] string body, [FromQuery] int limit = 1000)
@@ -68,7 +66,6 @@ namespace CommandCentral.Controllers
         /// <param name="id">The identifier for a given comment.</param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.Command.Get))]
         public IActionResult Get(Guid id)
         {
@@ -88,7 +85,6 @@ namespace CommandCentral.Controllers
         /// <param name="dto">A dto containing all the information required to make a new comment.</param>
         /// <returns></returns>
         [HttpPost]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.Command.Get))]
         public IActionResult Post([FromBody]DTOs.Comment.Post dto)
         {
@@ -131,7 +127,6 @@ namespace CommandCentral.Controllers
         /// <param name="dto">A dto containing all the information required to modify the given comment.</param>
         /// <returns></returns>
         [HttpPut("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.Command.Get))]
         public IActionResult Put(Guid id, [FromBody]DTOs.Comment.Put dto)
         {
@@ -162,7 +157,6 @@ namespace CommandCentral.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpDelete("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
         {

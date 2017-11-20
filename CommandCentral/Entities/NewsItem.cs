@@ -99,7 +99,7 @@ namespace CommandCentral.Entities
                 RuleFor(x => x.Creator).NotEmpty();
                 RuleFor(x => x.Id).NotEmpty();
                 RuleFor(x => x.Body).NotEmpty().Length(10, 3500);
-                RuleFor(x => x.Title).NotEmpty().Length(3, 50).WithMessage("The title must not be blank and must be between 3 and 50 characters.");
+                RuleFor(x => x.Title).NotEmpty().Length(3, 50);
             }
         }
     }

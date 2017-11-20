@@ -6,10 +6,8 @@ using CommandCentral.Framework;
 using CommandCentral.Entities.Muster;
 using CommandCentral.Authorization;
 using CommandCentral.Entities;
-using CommandCentral.Entities.ReferenceLists;
 using CommandCentral.Enums;
 using CommandCentral.Utilities.Types;
-using NHibernate.Linq;
 using System.Linq.Expressions;
 using CommandCentral.Framework.Data;
 using LinqKit;
@@ -41,7 +39,6 @@ namespace CommandCentral.Controllers
         /// <param name="orderBy">[Default = start][Valid values = start, datesubmitted] Instructs the api to order the results by this field (this also affects which records are returned if limit is given).</param>
         /// <returns></returns>
         [HttpGet]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.StatusPeriod.Get>))]
         public IActionResult Get([FromQuery] string person, [FromQuery] string submittedBy, [FromQuery] DTOs.DateTimeRangeQuery range, 
             [FromQuery] string accountabilityType, [FromQuery] bool? exemptsFromWatch, [FromQuery] int limit = 1000, [FromQuery] string orderBy = nameof(TimeRange.Start))
@@ -82,7 +79,6 @@ namespace CommandCentral.Controllers
         /// <param name="id">The id of the status period to retrieve.</param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.StatusPeriod.Get))]
         public IActionResult Get(Guid id)
         {
@@ -102,7 +98,6 @@ namespace CommandCentral.Controllers
         /// <param name="dto">The dto containing the data required to create the new status period.</param>
         /// <returns></returns>
         [HttpPost]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.StatusPeriod.Get))]
         public IActionResult Post([FromBody]DTOs.StatusPeriod.Post dto)
         {
@@ -150,7 +145,6 @@ namespace CommandCentral.Controllers
         /// <param name="dto">The dto containing all of the data to update.</param>
         /// <returns></returns>
         [HttpPut("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.StatusPeriod.Get))]
         public IActionResult Put(Guid id, [FromBody]DTOs.StatusPeriod.Put dto)
         {
@@ -188,7 +182,6 @@ namespace CommandCentral.Controllers
         /// <param name="id">The id of the status period to delete.</param>
         /// <returns></returns>
         [HttpDelete("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
         {

@@ -1,5 +1,4 @@
-﻿using System;
-using CommandCentral.Enums;
+﻿using CommandCentral.Enums;
 
 namespace CommandCentral.DTOs.MusterEntry
 {

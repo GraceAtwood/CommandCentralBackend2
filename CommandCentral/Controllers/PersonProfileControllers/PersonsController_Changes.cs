@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CommandCentral.Authorization;
 using CommandCentral.Entities;
-using CommandCentral.Framework;
 using Microsoft.AspNetCore.Mvc;
-using NHibernate.Linq;
 
 namespace CommandCentral.Controllers.PersonProfileControllers
 {
@@ -18,7 +16,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         /// <param name="limit">Instructst the service to retrieve no more than this number of results.</param>
         /// <returns></returns>
         [HttpGet("{personId}/Changes")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Change.Get>))]
         public IActionResult GetChanges(Guid personId, [FromQuery] int limit = 1000)
         {

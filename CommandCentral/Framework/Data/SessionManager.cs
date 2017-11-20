@@ -5,11 +5,7 @@ using NHibernate;
 using NHibernate.Caches.SysCache;
 using NHibernate.Cfg;
 using NHibernate.Context;
-using NHibernate.Metadata;
 using NHibernate.Tool.hbm2ddl;
-using System;
-using System.Collections.Concurrent;
-using System.Linq;
 using System.Reflection;
 using CommandCentral.Utilities;
 using HttpContext = Microsoft.AspNetCore.Http.HttpContext;
@@ -44,7 +40,7 @@ namespace CommandCentral.Framework.Data
                 var mySqlConfig = MySQLConfiguration.Standard.ConnectionString(ConfigurationUtility.Configuration.GetConnectionString("Main"));
                 
                 // If appsettings.json says we're in debug, show SQL in the CLI
-                if (Boolean.TryParse(ConfigurationUtility.Configuration["DebugMode"], out bool debugMode) && debugMode)
+                if (ConfigurationUtility.InDebugMode)
                     mySqlConfig = mySqlConfig.FormatSql().ShowSql();
 
                 _config = Fluently.Configure()

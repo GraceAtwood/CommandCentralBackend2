@@ -15,28 +15,28 @@ namespace CommandCentral.Framework
                 In = "header",
                 Type = "string",
                 Default = "E28235AC-57A1-42AC-AA85-1547B755EA7E",
-                Description = "An API key identifies the calling application for metrics purposes.  Please do not change this.",
+                Description =
+                    "An API key identifies the calling application for metrics purposes.  Please do not change this.",
                 Required = true
             };
 
-            var sessionIdParameter = new NonBodyParameter
+            var impersonatePersonIdParameter = new NonBodyParameter
             {
-                Name = "X-Session-Id",
+                Name = "X-Impersonate-Person-Id",
                 In = "header",
                 Type = "string",
-                Description = "A session id identifies a client's login session.  This will be automatically set for you when you click authenticate at the top of the page.",
-                Required = true
+                Description =
+                    "If choosing not to send a client certificate, you must send the person id of the person " +
+                    "you want to log in as.  Only valid if the application is in debug mode.",
+                Required = false
             };
 
             if (operation.Parameters == null || !operation.Parameters.Any())
-                operation.Parameters = new List<IParameter> { apiKeyParameter };
+                operation.Parameters = new List<IParameter> {apiKeyParameter};
             else
                 operation.Parameters.Add(apiKeyParameter);
-
-            if (!(context.ApiDescription.HttpMethod == "POST" && context.ApiDescription.RelativePath.Contains("Authentication")))
-            {
-                operation.Parameters.Add(sessionIdParameter);
-            }
+            
+            operation.Parameters.Add(impersonatePersonIdParameter);
         }
     }
 }

@@ -5,7 +5,6 @@ using CommandCentral.Entities.Muster;
 using CommandCentral.Entities.ReferenceLists;
 using CommandCentral.Enums;
 using CommandCentral.Framework.Data;
-using CommandCentral.PreDefs;
 using CommandCentral.Utilities.Types;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
@@ -31,7 +30,7 @@ namespace CommandCentral.Utilities
             MySqlHelper.ExecuteScalar(connectionStringWithoutDatabase.GetConnectionString(true),
                 $"CREATE DATABASE {database}");
 
-            SessionManager.Schema.Create(true, true);
+            SessionManager.Schema.Execute(true, true, false);
 
             AddAPIKey();
         }
@@ -203,31 +202,28 @@ namespace CommandCentral.Utilities
 
         private static readonly Dictionary<string, int> _emailAddresses = new Dictionary<string, int>();
 
-        private static Person CreatePerson(Division division,
+        private static Person CreatePerson(Guid id, Division division,
             UIC uic, string lastName, string username, IEnumerable<PermissionGroup> permissionGroups,
             IEnumerable<WatchQualifications> watchQuals, Paygrades paygrade, Designation designation)
         {
             var person = new Person
             {
-                Id = Guid.NewGuid(),
+                Id = id,
                 LastName = lastName,
                 MiddleName = division.Name,
                 Division = division,
                 UIC = uic,
                 SSN = Random.GenerateSSN(),
                 DoDId = Random.GenerateDoDId(),
-                IsClaimed = true,
-                Username = username,
-                PasswordHash = PasswordHash.CreateHash("a"),
                 Sex = Random.GetRandomEnumValue<Sexes>(),
                 DateOfBirth = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12),
-                    Random.GetRandomNumber(1, 28)),
+                    Random.GetRandomNumber(1, 28), 0, 0, 0, DateTimeKind.Utc),
                 DateOfArrival = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12),
-                    Random.GetRandomNumber(1, 28)),
+                    Random.GetRandomNumber(1, 28), 0, 0, 0, DateTimeKind.Utc),
                 EAOS = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12),
-                    Random.GetRandomNumber(1, 28)),
+                    Random.GetRandomNumber(1, 28), 0, 0, 0, DateTimeKind.Utc),
                 PRD = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12),
-                    Random.GetRandomNumber(1, 28)),
+                    Random.GetRandomNumber(1, 28), 0, 0, 0, DateTimeKind.Utc),
                 Paygrade = paygrade,
                 DutyStatus = Random.GetRandomEnumValue<DutyStatuses>(),
                 WatchQualifications = watchQuals.ToList(),
@@ -289,8 +285,8 @@ namespace CommandCentral.Utilities
                 var division = department.Divisions.First();
                 var uic = SessionManager.GetCurrentSession().Query<UIC>().ToList().Shuffle().First();
 
-                var person = CreatePerson(division, uic, "developer", "dev",
-                    new[] {PermissionsCache.PermissionGroupsCache["Developers"]},
+                var person = CreatePerson(Guid.Parse("b2db659d-4998-40a2-8962-e6eb05326ea5"), division, uic,
+                    "developer", "dev", new[] {PermissionsCache.PermissionGroupsCache["Developers"]},
                     (WatchQualifications[]) Enum.GetValues(typeof(WatchQualifications)),
                     Paygrades.E5,
                     SessionManager.GetCurrentSession().Query<Designation>().ToList().Shuffle().First());
@@ -402,7 +398,7 @@ namespace CommandCentral.Utilities
                                     throw new Exception($"An unknown paygrade was found! {paygrade}");
                                 }
 
-                                var person = CreatePerson(division, uic, "user" + created, "user" + created, permGroups,
+                                var person = CreatePerson(Guid.NewGuid(), division, uic, "user" + created, "user" + created, permGroups,
                                     quals, paygrade,
                                     SessionManager.GetCurrentSession().Query<Designation>().ToList().Shuffle().First());
 

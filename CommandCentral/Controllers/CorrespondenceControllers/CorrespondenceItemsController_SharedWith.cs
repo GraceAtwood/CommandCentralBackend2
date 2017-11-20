@@ -6,9 +6,7 @@ using CommandCentral.Entities;
 using CommandCentral.Entities.Correspondence;
 using CommandCentral.Events;
 using CommandCentral.Events.Args;
-using CommandCentral.Framework;
 using Microsoft.AspNetCore.Mvc;
-using NHibernate.Linq;
 
 namespace CommandCentral.Controllers.CorrespondenceControllers
 {
@@ -20,7 +18,6 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
         /// <param name="correspondenceItemId">Id of the correspondence item for which you want to know who it is shared with.</param>
         /// <returns></returns>
         [HttpGet("{correspondenceItemId}/SharedWith")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Person.Get>))]
         public IActionResult GetSharedWith(Guid correspondenceItemId)
         {
@@ -45,7 +42,6 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
         /// <param name="personIds">A list of Ids representing the persons to share this corr item with.</param>
         /// <returns></returns>
         [HttpPut("{correspondenceItemId}/SharedWith")]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(List<DTOs.Person.Get>))]
         public IActionResult PutSharedWith(Guid correspondenceItemId, [FromBody] List<Guid> personIds)
         {

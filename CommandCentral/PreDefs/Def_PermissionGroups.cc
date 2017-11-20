@@ -8,7 +8,8 @@
       "AccessLevels": {
         "Main": "Command",
         "Muster": "Command",
-        "QuarterdeckWatchbill": "Command"
+        "QuarterdeckWatchbill": "Command",
+        "CommandFinancialSpecialist" : "Command"
       },
       "AccessibleSubmodules": [ "CreatePerson", "AdminTools", "EditNews", "EditFAQ" ],
       "EditablePermissionGroups": [ "Developers", "Admin", "Command Leadership", "Department Leadership", "Division Leadership" ]

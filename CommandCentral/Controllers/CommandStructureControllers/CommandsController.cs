@@ -1,13 +1,13 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using CommandCentral.Authorization;
 using CommandCentral.Entities;
+using CommandCentral.Entities.Muster;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
+using CommandCentral.Utilities.Types;
 using Microsoft.AspNetCore.Mvc;
-using NHibernate.Linq;
 
 namespace CommandCentral.Controllers.CommandStructureControllers
 {
@@ -23,7 +23,6 @@ namespace CommandCentral.Controllers.CommandStructureControllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Command.Get>))]
         public IActionResult Get()
         {
@@ -38,7 +37,6 @@ namespace CommandCentral.Controllers.CommandStructureControllers
         /// <param name="id">The id of the command to get.</param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(200, Type = typeof(DTOs.Command.Get))]
         public IActionResult Get(Guid id)
         {
@@ -55,7 +53,6 @@ namespace CommandCentral.Controllers.CommandStructureControllers
         /// <param name="dto">An object containing all of the information required to create a new command.</param>
         /// <returns></returns>
         [HttpPost]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.Command.Get))]
         public IActionResult Post([FromBody] DTOs.Command.Update dto)
         {
@@ -70,7 +67,28 @@ namespace CommandCentral.Controllers.CommandStructureControllers
                 Id = Guid.NewGuid(),
                 Description = dto.Description,
                 Name = dto.Name,
+                Address = dto.Address,
+                City = dto.City,
+                Country = dto.Country,
+                MusterStartHour = dto.MusterStartHour,
+                State = dto.State,
+                ZipCode = dto.ZipCode,
                 TimeZoneId = dto.TimeZoneId
+            };
+
+            var startTime = DateTime.UtcNow.Hour < dto.MusterStartHour 
+                ? DateTime.UtcNow.Date.AddDays(-1).AddHours(dto.MusterStartHour) 
+                : DateTime.UtcNow.Date.AddHours(dto.MusterStartHour);
+
+            item.CurrentMusterCycle = new MusterCycle
+            {
+                Command = item,
+                Id = Guid.NewGuid(),
+                Range = new TimeRange
+                {
+                    Start = startTime,
+                    End = startTime.AddDays(1)
+                }
             };
 
             var result = item.Validate();
@@ -78,7 +96,6 @@ namespace CommandCentral.Controllers.CommandStructureControllers
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
             DBSession.Save(item);
-
             CommitChanges();
 
             return CreatedAtAction(nameof(Get), new {id = item.Id}, new DTOs.Command.Get(item));
@@ -91,7 +108,6 @@ namespace CommandCentral.Controllers.CommandStructureControllers
         /// <param name="dto">A dto containing all the information required to update a command.</param>
         /// <returns></returns>
         [HttpPut("{id}")]
-        [RequireAuthentication]
         [ProducesResponseType(201, Type = typeof(DTOs.Command.Get))]
         public IActionResult Put(Guid id, [FromBody] DTOs.Command.Update dto)
         {
@@ -107,6 +123,12 @@ namespace CommandCentral.Controllers.CommandStructureControllers
 
             item.Description = dto.Description;
             item.Name = dto.Name;
+            item.Address = dto.Address;
+            item.City = dto.City;
+            item.Country = dto.Country;
+            item.MusterStartHour = dto.MusterStartHour;
+            item.State = dto.State;
+            item.ZipCode = dto.ZipCode;
             item.TimeZoneId = dto.TimeZoneId;
 
             var result = item.Validate();

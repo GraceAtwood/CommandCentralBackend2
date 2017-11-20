@@ -7,7 +7,6 @@ using CommandCentral.Framework.Data;
 using FluentNHibernate.Mapping;
 using FluentValidation;
 using FluentValidation.Results;
-using NHibernate.Linq;
 
 namespace CommandCentral.Entities.CollateralDutyTracking
 {

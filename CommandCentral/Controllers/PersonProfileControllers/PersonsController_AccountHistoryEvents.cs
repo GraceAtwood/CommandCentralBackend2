@@ -3,16 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using CommandCentral.Authorization;
 using CommandCentral.Entities;
-using CommandCentral.Framework;
 using Microsoft.AspNetCore.Mvc;
-using NHibernate.Linq;
 
 namespace CommandCentral.Controllers.PersonProfileControllers
 {
     public partial class PersonsController
     {
         [HttpGet("{personId}/AccountHistory")]
-        [RequireAuthentication]
         public IActionResult GetAccountHistory(Guid personId, [FromQuery] int limit = 1000)
         {
             if (limit <= 0)
@@ -34,7 +31,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         }
 
         [HttpGet("{personId}/AccountHistory/{id}")]
-        [RequireAuthentication]
         public IActionResult GetAccountHistoryItem(Guid personId, Guid id)
         {
             var item = DBSession.Query<AccountHistoryEvent>().FirstOrDefault(x => x.Id == id && x.Person.Id == personId);

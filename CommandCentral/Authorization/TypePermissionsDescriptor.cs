@@ -51,7 +51,7 @@ namespace CommandCentral.Authorization
         /// </param>
         public TypePermissionsDescriptor(Person person, Person other)
         {
-            if (!PermissionsCache.PermissionTypesCache.TryGetValue(typeof(T), out Dictionary<PropertyInfo, PropertyPermissionsCollection> props))
+            if (!PermissionsCache.PermissionTypesCache.TryGetValue(typeof(T), out var props))
                 throw new ArgumentException($"The given generic type T ({typeof(T).Name}) does not declare permissions.  Add [HasPermissions] above it.", nameof(T));
 
             _propertyPermissions = props;
@@ -103,7 +103,7 @@ namespace CommandCentral.Authorization
         /// <returns></returns>
         public bool CanReturn(PropertyInfo info)
         {
-            if (!_propertyPermissions.TryGetValue(info, out PropertyPermissionsCollection permissions))
+            if (!_propertyPermissions.TryGetValue(info, out var permissions))
                 throw new ArgumentException($"Your property, {info.Name}, does not exist within the type permissions for the type '{typeof(T).Name}'", nameof(info));
 
             return CanReturn_Internal(permissions);
@@ -119,7 +119,7 @@ namespace CommandCentral.Authorization
         {
             var info = (PropertyInfo)selector.GetProperty();
             
-            if (!_propertyPermissions.TryGetValue(info, out PropertyPermissionsCollection permissions))
+            if (!_propertyPermissions.TryGetValue(info, out var permissions))
                 throw new ArgumentException($"Your property, {info.Name}, does not exist within the type permissions for the type '{typeof(T).Name}'", nameof(info));
 
             return CanReturn_Internal(permissions);
@@ -240,7 +240,7 @@ namespace CommandCentral.Authorization
         /// <returns></returns>
         public bool CanEdit(PropertyInfo info)
         {
-            if (!_propertyPermissions.TryGetValue(info, out PropertyPermissionsCollection permissions))
+            if (!_propertyPermissions.TryGetValue(info, out var permissions))
                 throw new ArgumentException($"Your property, {info.Name}, does not exist within the type permissions for the type '{typeof(T).Name}'", nameof(info));
 
             return CanEdit_Internal(permissions);
@@ -256,7 +256,7 @@ namespace CommandCentral.Authorization
         {
             var info = (PropertyInfo)selector.GetProperty();
 
-            if (!_propertyPermissions.TryGetValue(info, out PropertyPermissionsCollection permissions))
+            if (!_propertyPermissions.TryGetValue(info, out var permissions))
                 throw new ArgumentException($"Your property, {info.Name}, does not exist within the type permissions for the type '{typeof(T).Name}'", nameof(info));
 
             return CanEdit_Internal(permissions);

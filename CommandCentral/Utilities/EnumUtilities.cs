@@ -19,7 +19,7 @@ namespace CommandCentral.Utilities
 
         public static TEnum[] GetValues<TEnum>()
         {
-            if (!_enumsCache.TryGetValue(typeof(TEnum), out Array array))
+            if (!_enumsCache.TryGetValue(typeof(TEnum), out var array))
                 throw new ArgumentException("Your given enumeration type was not found in the cache.", nameof(TEnum));
 
             return (TEnum[])array;
@@ -27,7 +27,7 @@ namespace CommandCentral.Utilities
 
         public static IEnumerable<TEnum> GetPartialValueMatches<TEnum>(string searchValue)
         {
-            if (!_enumsCache.TryGetValue(typeof(TEnum), out Array array))
+            if (!_enumsCache.TryGetValue(typeof(TEnum), out var array))
                 throw new ArgumentException("Your given enumeration type was not found in the cache.", nameof(TEnum));
 
             return ((TEnum[]) array).Where(x => x.ToString().Contains(searchValue));
