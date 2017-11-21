@@ -298,6 +298,28 @@ namespace CommandCentral.Framework.Data
             return initial.NullSafeAnd(predicate);
         }
 
+        public static Expression<Func<T, bool>> AddDivisionQueryExpression<T>(this Expression<Func<T, bool>> initial,
+            Expression<Func<T, Division>> selector, string searchValue)
+        {
+            if (String.IsNullOrWhiteSpace(searchValue))
+                return initial;
+            
+            var predicate = searchValue.SplitByOr()
+                .Select(phrase =>
+                {
+                    if (Guid.TryParse(phrase, out var id))
+                        return ((Expression<Func<T, bool>>) null).And(x => selector.Invoke(x).Id == id);
+
+                    return phrase.SplitByAnd()
+                        .Aggregate((Expression<Func<T, bool>>) null,
+                            (current, term) => current.And(x => selector.Invoke(x).Name.Contains(term))); 
+                })
+                .Aggregate<Expression<Func<T, bool>>, Expression<Func<T, bool>>>(null,
+                    (current1, subPredicate) => current1.NullSafeOr(subPredicate));
+
+            return initial.NullSafeAnd(predicate);
+        }
+
         /// <summary>
         /// Adds a query expression for the given enum type to this initial expression.  
         /// Null safe.  If the initial expression is null, this resulting expression is returned.  
