@@ -268,7 +268,16 @@ namespace CommandCentral.Framework
             else
             {
                 var cert = HttpContext.Connection.ClientCertificate;
-                
+
+                if (cert == null)
+                {
+                    context.Result = Unauthorized(
+                        "If the service is not in debug mode or it is and you do not send an " +
+                        "'X-Impersonate-Person-Id' header', you must send a client certificate " +
+                        "for authentication.  Did you forget the impersonate header?");
+                    return;
+                }
+
                 var isCertificateValid = new X509Chain
                 {
                     ChainPolicy =
@@ -288,7 +297,7 @@ namespace CommandCentral.Framework
 
                 var temp = cert.Subject.Substring(0, cert.Subject.Length - cert.Subject.IndexOf(','));
                 var dodId = temp.Substring(temp.LastIndexOf('.') + 1, temp.Length - temp.IndexOf(',') - 1);
-                
+
                 var client = DBSession.Query<Person>().SingleOrDefault(x => x.DoDId == dodId);
                 if (client == null)
                 {
