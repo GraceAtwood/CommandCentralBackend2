@@ -197,15 +197,17 @@ namespace CommandCentral.Controllers.WatchbillControllers
                     case WatchbillPhases.Assignment:
                     {
                         AssignShiftsToDivisions(watchbill, session);
-                        EventManager.OnWatchbillAssigned(new WatchbillEventArgs { Watchbill = watchbill }, null);
+                        EventManager.OnWatchbillAssigned(new WatchbillEventArgs {Watchbill = watchbill}, null);
                         break;
                     }
                     case WatchbillPhases.Review:
                     {
+                        EventManager.OnWatchbillPendingReview(new WatchbillEventArgs {Watchbill = watchbill}, null);
                         break;
                     }
                     case WatchbillPhases.Publish:
                     {
+                        EventManager.OnWatchbillPublished(new WatchbillEventArgs {Watchbill = watchbill}, null);
                         break;
                     }
                     default:
@@ -245,14 +247,14 @@ namespace CommandCentral.Controllers.WatchbillControllers
 
             var startIndex = 0;
             var shifts = watchbill.WatchShifts.Shuffle();
-            
+
             foreach (var pair in shiftsToAssignEachDivision)
             {
                 for (var x = startIndex; x < startIndex + (int) pair.Value; x++)
                 {
                     shifts[x].DivisionAssignedTo = pair.Key;
                 }
-                
+
                 startIndex += (int) pair.Value;
             }
 
