@@ -7,6 +7,7 @@ namespace CommandCentral.DTOs.WatchShift
     {
         public Guid Id { get; set; }
         public Guid? WatchAssignment { get; set; }
+        public Guid? DivisionAssignedTo { get; set; }
 
         public Get(Entities.Watchbill.WatchShift item)
         {
@@ -16,6 +17,7 @@ namespace CommandCentral.DTOs.WatchShift
             ShiftType = item.ShiftType.Id;
             Watchbill = item.Watchbill.Id;
             WatchAssignment = item.WatchAssignment?.Id;
+            DivisionAssignedTo = item.DivisionAssignedTo?.Id;
         }
     }
 }
