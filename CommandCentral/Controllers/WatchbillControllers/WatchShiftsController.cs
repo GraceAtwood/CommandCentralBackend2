@@ -73,7 +73,7 @@ namespace CommandCentral.Controllers.WatchbillControllers
                 return BadRequestDTONull();
             
             if (User.GetHighestAccessLevels()[ChainsOfCommand.QuarterdeckWatchbill] != ChainOfCommandLevels.Command)
-                return Forbid("You may not add shifts to a watchbill " +
+                return Forbid("You may not modify shifts of a watchbill " +
                               "unless you are command level in the watchbill chain of command.");
 
             var shift = DBSession.Get<WatchShift>(id);
@@ -104,10 +104,17 @@ namespace CommandCentral.Controllers.WatchbillControllers
         [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
         {
+            if (User.GetHighestAccessLevels()[ChainsOfCommand.QuarterdeckWatchbill] != ChainOfCommandLevels.Command)
+                return Forbid("You may not add shifts to a watchbill " +
+                              "unless you are command level in the watchbill chain of command.");
+            
             var shift = DBSession.Get<WatchShift>(id);
             if (shift == null)
                 return NotFoundParameter(id, nameof(id));
-
+            
+            if (shift.Watchbill.Phase != WatchbillPhases.Initial)
+                return Conflict("You may not modify a shift of a watchbill whose phase is not initial.");
+            
             DBSession.Delete(shift);
             CommitChanges();
 
