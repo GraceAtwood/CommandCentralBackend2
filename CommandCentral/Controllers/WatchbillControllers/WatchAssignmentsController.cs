@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using CommandCentral.Authorization;
+using CommandCentral.DTOs;
 using CommandCentral.DTOs.CollateralDutyMembership;
 using CommandCentral.Entities;
 using CommandCentral.Entities.Watchbill;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
+using CommandCentral.Framework.Data;
+using CommandCentral.Utilities;
+using LinqKit;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CommandCentral.Controllers.WatchbillControllers
@@ -15,8 +20,41 @@ namespace CommandCentral.Controllers.WatchbillControllers
     {
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(List<DTOs.WatchAssignments.Get>))]
-        public IActionResult Get()
+        public IActionResult Get([FromQuery] string watchShift, [FromQuery] string personAssigned,
+            [FromQuery] string assignedBy, [FromQuery] string acknowledgedBy,
+            [FromQuery] DateTimeRangeQuery dateAssigned, [FromQuery] DateTimeRangeQuery dateAcknowledged,
+            [FromQuery] bool? isAcknowledged)
         {
+            var predicate = ((Expression<Func<WatchAssignment, bool>>) null)
+                .AddPersonQueryExpression(x => x.PersonAssigned, personAssigned)
+                .AddPersonQueryExpression(x => x.AssignedBy, assignedBy)
+                .AddPersonQueryExpression(x => x.AcknowledgedBy, acknowledgedBy)
+                .AddDateTimeQueryExpression(x => x.DateAcknowledged, dateAcknowledged)
+                .AddDateTimeQueryExpression(x => x.DateAssigned, dateAssigned)
+                .AddNullableBoolQueryExpression(x => x.IsAcknowledged, isAcknowledged);
+
+            if (!String.IsNullOrWhiteSpace(watchShift))
+            {
+                predicate = predicate.NullSafeAnd(watchShift.SplitByOr()
+                    .Select(phrase =>
+                    {
+                        if (Guid.TryParse(phrase, out var id))
+                            return ((Expression<Func<WatchAssignment, bool>>) null).And(x => x.WatchShift.Id == id);
+
+                        return x => x.WatchShift.Title.Contains(phrase);
+                    })
+                    .Aggregate<Expression<Func<WatchAssignment, bool>>, Expression<Func<WatchAssignment, bool>>>(null,
+                        (current, subPredicate) => current.NullSafeOr(subPredicate)));
+            }
+
+            var results = DBSession.Query<WatchAssignment>()
+                .AsExpandable()
+                .NullSafeWhere(predicate)
+                .ToList()
+                .Select(x => new DTOs.WatchAssignments.Get(x))
+                .ToList();
+
+            return Ok(results);
         }
 
         [HttpGet("{id}")]
@@ -183,20 +221,20 @@ namespace CommandCentral.Controllers.WatchbillControllers
                 {
                     if (User.Department != assignment.WatchShift.DivisionAssignedTo.Department)
                         return Forbid("You may not delete a watch assignment.");
-                    
+
                     if (assignment.WatchShift.Watchbill.Phase != WatchbillPhases.Assignment)
                         return Forbid("You may not delete a watch assignment.");
-                    
+
                     break;
                 }
                 case ChainOfCommandLevels.Division:
                 {
                     if (User.Division != assignment.WatchShift.DivisionAssignedTo)
                         return Forbid("You may not delete a watch assignment.");
-                    
+
                     if (assignment.WatchShift.Watchbill.Phase != WatchbillPhases.Assignment)
                         return Forbid("You may not delete a watch assignment.");
-                    
+
                     break;
                 }
                 case ChainOfCommandLevels.None:
