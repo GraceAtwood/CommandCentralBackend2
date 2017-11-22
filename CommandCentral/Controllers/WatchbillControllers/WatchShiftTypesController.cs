@@ -37,11 +37,10 @@ namespace CommandCentral.Controllers.WatchbillControllers
         public IActionResult Post([FromBody] DTOs.WatchShiftType.Update dto)
         {
             if (dto == null)
-                return BadRequest();
+                return BadRequestDTONull();
             
-            if (User.GetHighestAccessLevels()[ChainsOfCommand.QuarterdeckWatchbill] !=
-                Enums.ChainOfCommandLevels.Command)
-                return Forbid();
+            if (User.GetHighestAccessLevels()[ChainsOfCommand.QuarterdeckWatchbill] != ChainOfCommandLevels.Command)
+                return Forbid("You may not add a shift type unless you are a command watchbill coordinator.");
             
             var shiftType = new WatchShiftType
             {
@@ -53,41 +52,29 @@ namespace CommandCentral.Controllers.WatchbillControllers
 
             var result = shiftType.Validate();
             if (!result.IsValid)
-            {
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
-            }
 
             DBSession.Save(shiftType);
-            
             CommitChanges();
             
-            return CreatedAtAction(nameof(Get),
-                new {id = shiftType.Id},
-                new DTOs.WatchShiftType.Get(shiftType));
+            return CreatedAtAction(nameof(Get), new {id = shiftType.Id}, new DTOs.WatchShiftType.Get(shiftType));
         }
 
         [HttpDelete("{id}")]
         [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
         {
-
-            if (User.GetHighestAccessLevels()[ChainsOfCommand.QuarterdeckWatchbill] !=
-                Enums.ChainOfCommandLevels.Command)
+            if (User.GetHighestAccessLevels()[ChainsOfCommand.QuarterdeckWatchbill] != ChainOfCommandLevels.Command)
                 return Forbid();
             
             var shiftType = DBSession.Get<WatchShiftType>(id);
-            
             if (shiftType == null)
-                return NotFound();
+                return NotFoundParameter(id, nameof(id));
 
             DBSession.Delete(shiftType);
-            
             CommitChanges();
 
             return NoContent();
-
-
-
         }
     }
 }
