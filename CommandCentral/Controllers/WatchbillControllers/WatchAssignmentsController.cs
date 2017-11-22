@@ -100,9 +100,6 @@ namespace CommandCentral.Controllers.WatchbillControllers
             if (assignment == null)
                 return NotFoundParameter(id, nameof(id));
 
-            if (assignment.WatchShift.Watchbill == null)
-                throw new Exception($"Failed to find the watchbill for the assignment with id '{assignment.Id}'!");
-
             if (assignment.WatchShift.Watchbill.Phase != WatchbillPhases.Publish && dto.IsAcknowledged)
                 return BadRequest("You may not acknowledge watches until the owning watchbill's phase is 'Publish'.");
 
@@ -174,19 +171,40 @@ namespace CommandCentral.Controllers.WatchbillControllers
             if (assignment == null)
                 return NotFoundParameter(id, nameof(id));
 
-            //This let's us skip one roundtrip to the database instead of using lazy loading.
-            var watchbill = DBSession.Query<Watchbill>()
-                .SingleOrDefault(x => x.WatchShifts.Any(y => y.WatchAssignment.Id == assignment.Id));
-
-            if (watchbill == null)
-                throw new Exception($"Failed to find the watchbill for the assignment with id '{assignment.Id}'!");
-
-            if (watchbill.Phase != WatchbillPhases.Assignment)
+            switch (User.GetHighestAccessLevels()[ChainsOfCommand.QuarterdeckWatchbill])
             {
-                if (User.GetHighestAccessLevels()[ChainsOfCommand.QuarterdeckWatchbill] !=
-                    ChainOfCommandLevels.Command || User.Command != watchbill.Command)
-                    return Forbid("This assignment's watchbill is not in the assignment phase; therefore, you must " +
-                                  "be in the command level of the watchbill chain of command to delete a watch assignemnt.");
+                case ChainOfCommandLevels.Command:
+                {
+                    if (User.Command != assignment.WatchShift.DivisionAssignedTo.Department.Command)
+                        return Forbid("You may not delete a watch assignment.");
+                    break;
+                }
+                case ChainOfCommandLevels.Department:
+                {
+                    if (User.Department != assignment.WatchShift.DivisionAssignedTo.Department)
+                        return Forbid("You may not delete a watch assignment.");
+                    
+                    if (assignment.WatchShift.Watchbill.Phase != WatchbillPhases.Assignment)
+                        return Forbid("You may not delete a watch assignment.");
+                    
+                    break;
+                }
+                case ChainOfCommandLevels.Division:
+                {
+                    if (User.Division != assignment.WatchShift.DivisionAssignedTo)
+                        return Forbid("You may not delete a watch assignment.");
+                    
+                    if (assignment.WatchShift.Watchbill.Phase != WatchbillPhases.Assignment)
+                        return Forbid("You may not delete a watch assignment.");
+                    
+                    break;
+                }
+                case ChainOfCommandLevels.None:
+                {
+                    return Forbid("You may not delete a watch assignment.");
+                }
+                default:
+                    throw new NotImplementedException("Fell to switch in DELETE of watch assignments.");
             }
 
             DBSession.Delete(assignment);
