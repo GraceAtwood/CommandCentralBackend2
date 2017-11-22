@@ -22,14 +22,30 @@ namespace CommandCentral.Events
                 .Where(x => typeof(IEventHandler).IsAssignableFrom(x) && x != typeof(IEventHandler))
                 .Select(x => (IEventHandler) Activator.CreateInstance(x)));
         }
+
+        #region Watchbill
+
+        public static event EventHandler<WatchbillEventArgs> WatchbillAssigned;
+        public static void OnWatchbillAssigned(WatchbillEventArgs e, object sender) =>
+            WatchbillAssigned?.Invoke(sender, e);
+
+        public static event EventHandler<WatchbillEventArgs> WatchbillPendingReview;
+        public static void OnWatchbillPendingReview(WatchbillEventArgs e, object sender) =>
+            WatchbillPendingReview?.Invoke(sender, e);
         
+        public static event EventHandler<WatchbillEventArgs> WatchbillPublished;
+        public static void OnWatchbillPublished(WatchbillEventArgs e, object sender) =>
+            WatchbillPublished?.Invoke(sender, e);
+
+        #endregion
+
         #region Muster
 
         /// <summary>
         /// Occurs when the muster cycle is finalized either manually by a client or by a cron operation at the end of a day.
         /// </summary>
         public static event EventHandler<MusterCycleEventArgs> MusterFinalized;
-        
+
         /// <summary>
         /// Triggers the <seealso cref="MusterFinalized"/> event.
         /// </summary>
@@ -44,7 +60,7 @@ namespace CommandCentral.Events
         /// Occurs when a muster cycle opens after a previous muster cycle has been rolled over.
         /// </summary>
         public static event EventHandler<MusterCycleEventArgs> MusterOpened;
-        
+
         /// <summary>
         /// Triggers the <seealso cref="MusterOpened"/> event.
         /// </summary>
@@ -59,7 +75,7 @@ namespace CommandCentral.Events
         /// Occurs when a muster cycle was previously closed (finalized) but then reopened by a client for further modifications.
         /// </summary>
         public static event EventHandler<MusterCycleEventArgs> MusterReopened;
-        
+
         /// <summary>
         /// Triggers the <seealso cref="MusterReopened"/> event.
         /// </summary>
@@ -74,7 +90,7 @@ namespace CommandCentral.Events
         /// Occurs when a muster entry is deleted by a client.
         /// </summary>
         public static event EventHandler<MusterEntryEventArgs> MusterEntryDeleted;
-        
+
         /// <summary>
         /// Triggers the <seealso cref="MusterEntryDeleted"/> event.
         /// </summary>
@@ -89,7 +105,7 @@ namespace CommandCentral.Events
         /// Occurs when a client submits a new muster entry for a person.  
         /// </summary>
         public static event EventHandler<MusterEntryEventArgs> MusterEntrySubmitted;
-        
+
         /// <summary>
         /// Triggers the <seealso cref="MusterEntrySubmitted"/> event.
         /// </summary>
@@ -108,7 +124,7 @@ namespace CommandCentral.Events
         /// Occurs when a client submits the wrong password for a given username.
         /// </summary>
         public static event EventHandler<LoginFailedEventArgs> LoginFailed;
-        
+
         /// <summary>
         /// Triggers the <seealso cref="LoginFailed"/> event.
         /// </summary>
@@ -127,7 +143,7 @@ namespace CommandCentral.Events
         /// Occurs when a new person is created in the application.
         /// </summary>
         public static event EventHandler<PersonCreatedEventArgs> PersonCreated;
-        
+
         /// <summary>
         /// Triggers the <seealso cref="PersonCreated"/> event.
         /// </summary>
@@ -146,7 +162,7 @@ namespace CommandCentral.Events
         /// Occurs when a client creates a new correspondence but has not yet routed it to the first person in the approval chain.
         /// </summary>
         public static event EventHandler<CorrespondenceItemEventArgs> CorrespondenceCreated;
-        
+
         /// <summary>
         /// Triggers the <seealso cref="CorrespondenceCreated"/> event.
         /// </summary>
@@ -161,7 +177,7 @@ namespace CommandCentral.Events
         /// Occurs when a review gets modified.  This could occur if a client were to "unrecommend" a correspondence.
         /// </summary>
         public static event EventHandler<CorrespondenceReviewEventArgs> ReviewModified;
-        
+
         /// <summary>
         /// Triggers the <seealso cref="ReviewModified"/> event.
         /// </summary>
@@ -176,7 +192,7 @@ namespace CommandCentral.Events
         /// Occurs when a client deletes a review on a correspondence item.
         /// </summary>
         public static event EventHandler<CorrespondenceReviewEventArgs> ReviewDeleted;
-        
+
         /// <summary>
         /// Triggers the <seealso cref="ReviewDeleted"/> event.
         /// </summary>
@@ -191,7 +207,7 @@ namespace CommandCentral.Events
         /// Occurs when a client creates a new review for a given correspondence.  In essence, this is when a correspondence item is "routed" to a new person.
         /// </summary>
         public static event EventHandler<CorrespondenceItemRoutedEventArgs> CorrespondenceRouted;
-        
+
         /// <summary>
         /// Triggers the <seealso cref="CorrespondenceRouted"/> event.
         /// </summary>
@@ -206,7 +222,7 @@ namespace CommandCentral.Events
         /// Occurs when the final approver of a correspondence item submits a review for that item.
         /// </summary>
         public static event EventHandler<CorrespondenceItemEventArgs> CorrespondenceCompleted;
-        
+
         /// <summary>
         /// Triggers the <seealso cref="CorrespondenceCompleted"/> event.
         /// </summary>
@@ -221,7 +237,7 @@ namespace CommandCentral.Events
         /// Occurs when a number of persons are added or removed from the SharedWith list for a given correspondence item.
         /// </summary>
         public static event EventHandler<CorrespondenceItemSharedEventArgs> CorrespondenceShared;
-        
+
         /// <summary>
         /// Triggers the <seealso cref="CorrespondenceShared"/> event.
         /// </summary>
@@ -236,7 +252,7 @@ namespace CommandCentral.Events
         /// Occurs when a client deletes a correspondence item.
         /// </summary>
         public static event EventHandler<CorrespondenceItemEventArgs> CorrespondenceDeleted;
-        
+
         /// <summary>
         /// Triggers the <seealso cref="CorrespondenceDeleted"/> event.
         /// </summary>
@@ -251,7 +267,7 @@ namespace CommandCentral.Events
         /// Occurs when a client modifies a correspondence.  This refers to fields directly on a correspondence such as the body, not items in child collections. 
         /// </summary>
         public static event EventHandler<CorrespondenceItemEventArgs> CorrespondenceModified;
-        
+
         /// <summary>
         /// Triggers the <seealso cref="CorrespondenceModified"/> event.
         /// </summary>
@@ -263,7 +279,7 @@ namespace CommandCentral.Events
         }
 
         #endregion
-        
+
         #region Collateral Duty Tracking
 
         /// <summary>
@@ -285,7 +301,7 @@ namespace CommandCentral.Events
         /// Occurs when a collateral membership is created.
         /// </summary>
         public static event EventHandler<CollateralDutyMembershipEventArgs> CollateralDutyMembershipCreated;
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -296,7 +312,7 @@ namespace CommandCentral.Events
         {
             CollateralDutyMembershipCreated?.Invoke(sender, e);
         }
-        
+
         #endregion
     }
 }

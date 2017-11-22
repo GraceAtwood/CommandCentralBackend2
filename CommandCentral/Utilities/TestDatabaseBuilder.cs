@@ -121,7 +121,8 @@ namespace CommandCentral.Utilities
                         Country = "USA",
                         State = "Texas",
                         ZipCode = "55555",
-                        MusterStartHour = 16
+                        MusterStartHour = 16,
+                        TimeZoneId = TimeZoneInfo.GetSystemTimeZones().Shuffle().First().Id
                     };
 
                     var startTime = DateTime.UtcNow.Hour < command.MusterStartHour

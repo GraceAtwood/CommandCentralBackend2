@@ -72,7 +72,8 @@ namespace CommandCentral.Controllers.CommandStructureControllers
                 Country = dto.Country,
                 MusterStartHour = dto.MusterStartHour,
                 State = dto.State,
-                ZipCode = dto.ZipCode
+                ZipCode = dto.ZipCode,
+                TimeZoneId = dto.TimeZoneId
             };
 
             var startTime = DateTime.UtcNow.Hour < dto.MusterStartHour 
@@ -95,7 +96,6 @@ namespace CommandCentral.Controllers.CommandStructureControllers
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
             DBSession.Save(item);
-
             CommitChanges();
 
             return CreatedAtAction(nameof(Get), new {id = item.Id}, new DTOs.Command.Get(item));
@@ -129,6 +129,7 @@ namespace CommandCentral.Controllers.CommandStructureControllers
             item.MusterStartHour = dto.MusterStartHour;
             item.State = dto.State;
             item.ZipCode = dto.ZipCode;
+            item.TimeZoneId = dto.TimeZoneId;
 
             var result = item.Validate();
             if (!result.IsValid)

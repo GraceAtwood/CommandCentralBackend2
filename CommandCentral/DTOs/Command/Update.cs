@@ -10,5 +10,6 @@
         public string ZipCode { get; set; }
         public string Country { get; set; }
         public int MusterStartHour { get; set; }
+        public string TimeZoneId { get; set; }
     }
 }

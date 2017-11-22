@@ -23,6 +23,7 @@ namespace CommandCentral.DTOs.Command
             State = item.State;
             ZipCode = item.ZipCode;
             CurrentMusterCycle = item.CurrentMusterCycle.Id;
+            TimeZoneId = item.TimeZoneId;
         }
     }
 }

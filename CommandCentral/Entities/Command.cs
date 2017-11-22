@@ -66,6 +66,11 @@ namespace CommandCentral.Entities
         /// </summary>
         public virtual int MusterStartHour { get; set; }
 
+        /// <summary>
+        /// The time zone in which this command resides.
+        /// </summary>
+        public virtual string TimeZoneId { get; set; }
+
         #endregion
 
         /// <summary>
@@ -77,6 +82,15 @@ namespace CommandCentral.Entities
             return new Validator().Validate(this);
         }
 
+        /// <summary>
+        /// Gets the time zone info of this command.
+        /// </summary>
+        /// <returns></returns>
+        public virtual TimeZoneInfo GetTimeZoneInfo()
+        {
+            return TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId);
+        }
+        
         #region Muster Handling
 
         /// <summary>
@@ -134,6 +148,7 @@ namespace CommandCentral.Entities
                 Map(x => x.ZipCode).Not.Nullable();
                 Map(x => x.Country).Not.Nullable();
                 Map(x => x.MusterStartHour).Not.Nullable();
+                Map(x => x.TimeZoneId).Not.Nullable();
 
                 HasMany(x => x.Departments).Cascade.All();
 
@@ -164,6 +179,18 @@ namespace CommandCentral.Entities
                 RuleFor(x => x.MusterStartHour).InclusiveBetween(1, 24);
 
                 RuleFor(x => x.CurrentMusterCycle).NotEmpty();
+                RuleFor(x => x.TimeZoneId).Must(x =>
+                {
+                    try
+                    {
+                        TimeZoneInfo.FindSystemTimeZoneById(x);
+                        return true;
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                });
             }
         }
     }

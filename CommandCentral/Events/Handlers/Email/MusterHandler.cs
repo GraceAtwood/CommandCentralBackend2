@@ -15,29 +15,27 @@ namespace CommandCentral.Events.Handlers.Email
 
         private void OnMusterOpened(object sender, MusterCycleEventArgs e)
         {
-            /*var musterPermissionsGroup = PermissionsCache.PermissionGroupsCache["Muster"].;
-            var interestedPerson = SessionManager.GetCurrentSession().Query<Person>()
-                .Where(x => x.PermissionGroups.Any(group => group));*/
+            //TODO
         }
 
         private void OnMusterFinalized(object sender, MusterCycleEventArgs e)
         {
-            throw new System.NotImplementedException();
+            //TODO
         }
 
         private void OnMusterReopened(object sender, MusterCycleEventArgs e)
         {
-            throw new System.NotImplementedException();
+            //TODO
         }
 
         private void OnMusterEntrySubmitted(object sender, MusterEntryEventArgs e)
         {
-            throw new System.NotImplementedException();
+            //TODO
         }
 
         private void OnMusterEntryDeleted(object sender, MusterEntryEventArgs e)
         {
-            throw new System.NotImplementedException();
+            //TODO
         }
     }
 }

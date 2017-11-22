@@ -103,6 +103,15 @@ namespace CommandCentral.Framework.Data
             return initial.NullSafeAnd(predicate);
         }
 
+        /// <summary>
+        /// Adds a query for the given interger property.  The search value is expected to be a series of integers (32 B)
+        /// separated by the OR value.  Invalid integers are ignored.
+        /// </summary>
+        /// <param name="initial"></param>
+        /// <param name="selector">The property to execute the search on.</param>
+        /// <param name="searchValue">The search value.</param>
+        /// <typeparam name="T">A type containg an integer property.</typeparam>
+        /// <returns></returns>
         public static Expression<Func<T, bool>> AddIntQueryExpression<T>(this Expression<Func<T, bool>> initial,
             Expression<Func<T, int>> selector, string searchValue)
         {
@@ -282,6 +291,28 @@ namespace CommandCentral.Framework.Data
                     return phrase.SplitByAnd()
                         .Aggregate((Expression<Func<T, bool>>) null,
                             (current, term) => current.And(x => selector.Invoke(x).Name.Contains(term)));
+                })
+                .Aggregate<Expression<Func<T, bool>>, Expression<Func<T, bool>>>(null,
+                    (current1, subPredicate) => current1.NullSafeOr(subPredicate));
+
+            return initial.NullSafeAnd(predicate);
+        }
+
+        public static Expression<Func<T, bool>> AddDivisionQueryExpression<T>(this Expression<Func<T, bool>> initial,
+            Expression<Func<T, Division>> selector, string searchValue)
+        {
+            if (String.IsNullOrWhiteSpace(searchValue))
+                return initial;
+            
+            var predicate = searchValue.SplitByOr()
+                .Select(phrase =>
+                {
+                    if (Guid.TryParse(phrase, out var id))
+                        return ((Expression<Func<T, bool>>) null).And(x => selector.Invoke(x).Id == id);
+
+                    return phrase.SplitByAnd()
+                        .Aggregate((Expression<Func<T, bool>>) null,
+                            (current, term) => current.And(x => selector.Invoke(x).Name.Contains(term))); 
                 })
                 .Aggregate<Expression<Func<T, bool>>, Expression<Func<T, bool>>>(null,
                     (current1, subPredicate) => current1.NullSafeOr(subPredicate));
