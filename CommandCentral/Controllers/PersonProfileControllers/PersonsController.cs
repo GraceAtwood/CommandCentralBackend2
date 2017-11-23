@@ -22,7 +22,10 @@ namespace CommandCentral.Controllers.PersonProfileControllers
     public partial class PersonsController : CommandCentralController
     {
         /// <summary>
-        /// Queries the persons collection.
+        /// Queries the persons collection.  Results are passed through a permissions filter prior to serving them to the client.  
+        /// Large result sets could result in longer load times.  
+        /// Properties your client is not able to view (such as SSN, possibly) will be replaced with the default value for the type of that property (null in the case of SSN).  
+        /// You are responsible for knowing which properties your client can or can not view.  
         /// </summary>
         /// <param name="firstName">A string quuery for the first name of a person.</param>
         /// <param name="lastName">A string query for the last name of a person.</param>
