@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using CommandCentral.Authorization;
+using CommandCentral.DTOs;
 using CommandCentral.Entities;
 using CommandCentral.Entities.Muster;
 using CommandCentral.Entities.ReferenceLists;
@@ -20,46 +21,50 @@ namespace CommandCentral.Controllers.PersonProfileControllers
     /// </summary>
     public partial class PersonsController : CommandCentralController
     {
-        [HttpPost("query")]
+        [HttpGet]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Person.Get>))]
-        public IActionResult Query([FromBody] DTOs.Person.Query dto, [FromQuery] int limit = 1000,
-            [FromQuery] string orderBy = nameof(Person.LastName))
+        public IActionResult Get([FromQuery] string firstName, [FromQuery] string lastName,
+            [FromQuery] string middleName, [FromQuery] string ssn, [FromQuery] string dodId,
+            [FromQuery] string supervisor, [FromQuery] string workCenter, [FromQuery] string workRoom,
+            [FromQuery] string shift, [FromQuery] string jobTitle, [FromQuery] string designation,
+            [FromQuery] string dutyStatus, [FromQuery] string uic, [FromQuery] string sex, [FromQuery] string ethnicity,
+            [FromQuery] string religiousPreference, [FromQuery] string billetAssignment,
+            [FromQuery] DateTimeRangeQuery dateOfArrival, [FromQuery] DateTimeRangeQuery dateOfBirth,
+            [FromQuery] DateTimeRangeQuery dateOfDeparture, [FromQuery] DateTimeRangeQuery eaos,
+            [FromQuery] DateTimeRangeQuery prd, [FromQuery] DateTimeRangeQuery statusPeriod,
+            [FromQuery] int limit = 1000, [FromQuery] string orderBy = nameof(Person.LastName))
         {
-            if (dto == null)
-                return BadRequestDTONull();
-
             if (limit <= 0)
                 return BadRequestLimit(limit, nameof(limit));
 
             var statusPeriodSearch =
-                CommonQueryStrategies.GetTimeRangeQueryExpression<StatusPeriod>(y => y.Range, dto.StatusPeriod);
+                CommonQueryStrategies.GetTimeRangeQueryExpression<StatusPeriod>(y => y.Range, statusPeriod);
 
             var predicate = ((Expression<Func<Person, bool>>) null)
-                .AddStringQueryExpression(x => x.FirstName, dto.FirstName)
-                .AddStringQueryExpression(x => x.FirstName, dto.FirstName)
-                .AddStringQueryExpression(x => x.LastName, dto.LastName)
-                .AddStringQueryExpression(x => x.MiddleName, dto.MiddleName)
-                .AddStringQueryExpression(x => x.SSN, dto.SSN)
-                .AddStringQueryExpression(x => x.DoDId, dto.DoDId)
-                .AddStringQueryExpression(x => x.Supervisor, dto.Supervisor)
-                .AddStringQueryExpression(x => x.WorkCenter, dto.WorkCenter)
-                .AddStringQueryExpression(x => x.WorkRoom, dto.WorkRoom)
-                .AddStringQueryExpression(x => x.Shift, dto.Shift)
-                .AddStringQueryExpression(x => x.JobTitle, dto.JobTitle)
-                .AddReferenceListQueryExpression(x => x.Designation, dto.Designation)
-                .AddPartialEnumQueryExpression(x => x.DutyStatus, dto.DutyStatus)
-                .AddReferenceListQueryExpression(x => x.UIC, dto.UIC)
-                .AddPartialEnumQueryExpression(x => x.Sex, dto.Sex)
-                .AddReferenceListQueryExpression(x => x.Ethnicity, dto.Ethnicity)
-                .AddReferenceListQueryExpression(x => x.ReligiousPreference, dto.ReligiousPreference)
-                .AddPartialEnumQueryExpression(x => x.BilletAssignment, dto.BilletAssignment)
-                .AddDateTimeQueryExpression(x => x.DateOfArrival, dto.DateOfArrival)
-                .AddDateTimeQueryExpression(x => x.DateOfBirth, dto.DateOfBirth)
-                .AddDateTimeQueryExpression(x => x.DateOfDeparture, dto.DateOfDeparture)
-                .AddDateTimeQueryExpression(x => x.EAOS, dto.EAOS)
-                .AddDateTimeQueryExpression(x => x.PRD, dto.PRD);
+                .AddStringQueryExpression(x => x.FirstName, firstName)
+                .AddStringQueryExpression(x => x.LastName, lastName)
+                .AddStringQueryExpression(x => x.MiddleName, middleName)
+                .AddStringQueryExpression(x => x.SSN, ssn)
+                .AddStringQueryExpression(x => x.DoDId, dodId)
+                .AddStringQueryExpression(x => x.Supervisor, supervisor)
+                .AddStringQueryExpression(x => x.WorkCenter, workCenter)
+                .AddStringQueryExpression(x => x.WorkRoom, workRoom)
+                .AddStringQueryExpression(x => x.Shift, shift)
+                .AddStringQueryExpression(x => x.JobTitle, jobTitle)
+                .AddReferenceListQueryExpression(x => x.Designation, designation)
+                .AddPartialEnumQueryExpression(x => x.DutyStatus, dutyStatus)
+                .AddReferenceListQueryExpression(x => x.UIC, uic)
+                .AddPartialEnumQueryExpression(x => x.Sex, sex)
+                .AddReferenceListQueryExpression(x => x.Ethnicity, ethnicity)
+                .AddReferenceListQueryExpression(x => x.ReligiousPreference, religiousPreference)
+                .AddPartialEnumQueryExpression(x => x.BilletAssignment, billetAssignment)
+                .AddDateTimeQueryExpression(x => x.DateOfArrival, dateOfArrival)
+                .AddDateTimeQueryExpression(x => x.DateOfBirth, dateOfBirth)
+                .AddDateTimeQueryExpression(x => x.DateOfDeparture, dateOfDeparture)
+                .AddDateTimeQueryExpression(x => x.EAOS, eaos)
+                .AddDateTimeQueryExpression(x => x.PRD, prd);
 
-            if (dto.StatusPeriod != null && !dto.StatusPeriod.HasNeither())
+            if (statusPeriod != null && statusPeriod.HasBoth())
                 predicate = predicate.NullSafeAnd(x => x.StatusPeriods.Any(statusPeriodSearch.Compile()));
 
             var result = DBSession.Query<Person>()
