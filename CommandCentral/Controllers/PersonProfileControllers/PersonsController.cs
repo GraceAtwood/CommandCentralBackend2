@@ -21,6 +21,37 @@ namespace CommandCentral.Controllers.PersonProfileControllers
     /// </summary>
     public partial class PersonsController : CommandCentralController
     {
+        /// <summary>
+        /// Queries the persons collection.
+        /// </summary>
+        /// <param name="firstName">A string quuery for the first name of a person.</param>
+        /// <param name="lastName">A string query for the last name of a person.</param>
+        /// <param name="middleName">A string query for the middle name of a person.</param>
+        /// <param name="ssn">A string query for the ssn of a person.</param>
+        /// <param name="dodId">A string query for the dod id of a person.</param>
+        /// <param name="supervisor">A string query for a person's supervisor.</param>
+        /// <param name="workCenter">A string query for a person's work center.</param>
+        /// <param name="workRoom">A string query for a person's work room.</param>
+        /// <param name="shift">A string query for a person's shift.</param>
+        /// <param name="jobTitle">A string query for a person's job title.</param>
+        /// <param name="designation">A reference list query for a person's designation.</param>
+        /// <param name="dutyStatus">An enum query for a person's duty status.</param>
+        /// <param name="uic">A reference list query for a person's UIC.</param>
+        /// <param name="sex">An enum query for a person's sex.</param>
+        /// <param name="ethnicity">A reference list query for a person's ethnicity.</param>
+        /// <param name="religiousPreference">A reference list query for a person's religious preference.</param>
+        /// <param name="billetAssignment">An enum query for a person's billet assignment.</param>
+        /// <param name="dateOfArrival">A time range query for a person's date of arrival.</param>
+        /// <param name="dateOfBirth">A time range query for a person's date of birth.</param>
+        /// <param name="dateOfDeparture">A time range query for a person's date of departure.</param>
+        /// <param name="eaos">A time range query for a person's EAOS.</param>
+        /// <param name="prd">A time range query for a person's PRD.</param>
+        /// <param name="statusPeriod">A time range query for any status period that falls within that range belonging to a person</param>
+        /// <param name="limit">[Default: 1000][Optional] Instructs the service to limit its results to the given limit number.</param>
+        /// <param name="orderBy">[Default: LastName][Optional] Instructs the service to order the results by the given property.  
+        /// Not all properties are supported.  This parameter is not meant to offload ordering work to the API; 
+        /// rather, it is meant to be used in conjunction with the limit parameter to get only those results the client desires.</param>
+        /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Person.Get>))]
         public IActionResult Get([FromQuery] string firstName, [FromQuery] string lastName,
