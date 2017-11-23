@@ -67,10 +67,48 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (statusPeriod != null && statusPeriod.HasBoth())
                 predicate = predicate.NullSafeAnd(x => x.StatusPeriods.Any(statusPeriodSearch.Compile()));
 
+            Expression<Func<Person, object>> orderBySelector;
+
+            if (String.IsNullOrWhiteSpace(orderBy))
+                return BadRequest("The order by parameter may not be empty.  " +
+                                  "You may omit the parameter but do not send an empty string.");
+
+            switch (orderBy)
+            {
+                case nameof(Person.LastName):
+                {
+                    orderBySelector = x => x.LastName;
+                    break;
+                }
+                case nameof(Person.DateOfDeparture):
+                {
+                    orderBySelector = x => x.DateOfDeparture;
+                    break;
+                }
+                case nameof(Person.DateOfArrival):
+                {
+                    orderBySelector = x => x.DateOfArrival;
+                    break;
+                }
+                case nameof(Person.DateOfBirth):
+                case nameof(Person.Age):
+                {
+                    orderBySelector = x => x.DateOfBirth;
+                    break;
+                }
+                case nameof(Person.EAOS):
+                {
+                    orderBySelector = x => x.EAOS;
+                    break;
+                }
+                default:
+                    return BadRequest("We do not support that property as an order by parameter.");
+            }
+
             var result = DBSession.Query<Person>()
                 .AsExpandable()
                 .NullSafeWhere(predicate)
-                .OrderBy(x => x.LastName)
+                .OrderBy(orderBySelector)
                 .Take(limit)
                 .ToList()
                 .Select(person =>
