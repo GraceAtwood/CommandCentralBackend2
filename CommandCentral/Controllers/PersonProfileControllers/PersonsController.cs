@@ -179,7 +179,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         {
             var person = DBSession.Get<Person>(id);
             if (person == null)
-                return NotFound();
+                return NotFoundParameter(id, nameof(id));
 
             var perms = User.GetFieldPermissions<Person>(person);
 
@@ -196,20 +196,32 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         public IActionResult Post([FromBody] DTOs.Person.Post dto)
         {
             if (dto == null)
-                return BadRequest();
+                return BadRequestDTONull();
 
             if (!User.CanAccessSubmodules(SubModules.CreatePerson))
-                return Forbid();
+                return Forbid("You must have access to the Create Persons sub module to create a person.");
 
+            var uic = DBSession.Get<UIC>(dto.UIC);
+            if (uic == null)
+                return NotFoundParameter(dto.UIC, nameof(dto.UIC));
+
+            var division = DBSession.Get<Division>(dto.Division);
+            if (division == null)
+                return NotFoundParameter(dto.Division, nameof(dto.Division));
+
+            var designation = DBSession.Get<Designation>(dto.Designation);
+            if (designation == null)
+                return NotFoundParameter(dto.Designation, nameof(dto.Designation));
+            
             var person = new Person
             {
                 Id = Guid.NewGuid(),
                 DateOfArrival = dto.DateOfArrival,
                 DateOfBirth = dto.DateOfBirth,
-                UIC = DBSession.Get<UIC>(dto.UIC),
-                Designation = DBSession.Get<Designation>(dto.Designation),
+                UIC = uic,
+                Designation = designation,
                 Paygrade = dto.Paygrade,
-                Division = DBSession.Get<Division>(dto.Division),
+                Division = division,
                 DoDId = dto.DoDId,
                 SSN = dto.SSN,
                 LastName = dto.LastName,
@@ -223,7 +235,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
             DBSession.Save(person);
-
             CommitChanges();
 
             Events.EventManager.OnPersonCreated(new Events.Args.PersonCreatedEventArgs
