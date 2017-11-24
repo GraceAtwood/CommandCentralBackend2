@@ -36,7 +36,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         {
             if (limit <= 0)
                 return BadRequestLimit(limit, nameof(limit));
-            
+
             var predicate = ((Expression<Func<EmailAddress, bool>>) null)
                 .AddStringQueryExpression(x => x.Address, address)
                 .AddPersonQueryExpression(x => x.Person, person)
@@ -52,9 +52,9 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             var checkedPersons = new Dictionary<Person, bool>();
             foreach (var emailAddress in emailAddresses)
             {
-                if (emailAddress.IsReleasableOutsideCoC) 
+                if (emailAddress.IsReleasableOutsideCoC)
                     continue;
-                
+
                 if (!checkedPersons.TryGetValue(emailAddress.Person, out var canView))
                 {
                     checkedPersons[emailAddress.Person] = User.IsInChainOfCommand(emailAddress.Person);
@@ -64,11 +64,140 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 if (!canView)
                     emailAddress.Address = "REDACTED";
             }
-            
+
             //Now that we've scrubbed out all the values we don't want to expose to the client, 
             //we're ready to send the results out.
             var results = emailAddresses.Select(x => new DTOs.EmailAddress.Get(x)).ToList();
             return Ok(results);
+        }
+
+        /// <summary>
+        /// Retrieves the email address with the given id.  
+        /// Replaces the address text with REDACTED if the client can't see the email address.
+        /// </summary>
+        /// <param name="id">The id of the email address to retrieve.</param>
+        /// <returns></returns>
+        [HttpGet]
+        [ProducesResponseType(200, Type = typeof(DTOs.EmailAddress.Get))]
+        public IActionResult Get(Guid id)
+        {
+            var address = DBSession.Get<EmailAddress>(id);
+            if (address == null)
+                return NotFoundParameter(id, nameof(id));
+
+            if (!address.IsReleasableOutsideCoC && !User.IsInChainOfCommand(address.Person))
+                address.Address = "REDACTED";
+
+            return Ok(new DTOs.EmailAddress.Get(address));
+        }
+
+        /// <summary>
+        /// Creates a new email address.
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ProducesResponseType(201, Type = typeof(DTOs.EmailAddress.Post))]
+        public IActionResult Post([FromBody] DTOs.EmailAddress.Post dto)
+        {
+            if (dto == null)
+                return BadRequestDTONull();
+
+            var person = DBSession.Get<Person>(dto.Person);
+            if (person == null)
+                return NotFoundParameter(dto.Person, nameof(dto.Person));
+
+            if (!User.GetFieldPermissions<Person>(person).CanEdit(x => x.EmailAddresses))
+                return Forbid("You may not modify the email addresses collection for this person.");
+
+            var emailAddress = new EmailAddress
+            {
+                Address = dto.Address,
+                Id = Guid.NewGuid(),
+                IsPreferred = dto.IsPreferred,
+                IsReleasableOutsideCoC = dto.IsReleasableOutsideCoC,
+                Person = person
+            };
+            
+            if (emailAddress.IsPreferred)
+            {
+                foreach (var address in emailAddress.Person.EmailAddresses)
+                {
+                    address.IsPreferred = false;
+                }
+            }
+
+            var results = emailAddress.Validate();
+            if (!results.IsValid)
+                return BadRequest(results.Errors.Select(x => x.ErrorMessage));
+
+            DBSession.Save(emailAddress);
+            CommitChanges();
+
+            return CreatedAtAction(nameof(Get), new {id = emailAddress.Id}, new DTOs.EmailAddress.Get(emailAddress));
+        }
+
+        /// <summary>
+        /// Modifies an email address.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        [HttpPut("{id}")]
+        [ProducesResponseType(201, Type = typeof(DTOs.EmailAddress.Get))]
+        public IActionResult Put(Guid id, [FromBody] DTOs.EmailAddress.Put dto)
+        {
+            if (dto == null)
+                return BadRequestDTONull();
+
+            var emailAddress = DBSession.Get<EmailAddress>(id);
+            if (emailAddress == null)
+                return NotFoundParameter(id, nameof(id));
+
+            if (!User.GetFieldPermissions<Person>(emailAddress.Person).CanEdit(x => x.EmailAddresses))
+                return Forbid("You may not modify the email addresses collection for this person");
+
+            emailAddress.Address = dto.Address;
+            emailAddress.IsPreferred = dto.IsPreferred;
+            emailAddress.IsReleasableOutsideCoC = dto.IsReleasableOutsideCoC;
+            
+            if (emailAddress.IsPreferred)
+            {
+                foreach (var address in emailAddress.Person.EmailAddresses)
+                {
+                    address.IsPreferred = false;
+                }
+            }
+            
+            var results = emailAddress.Validate();
+            if (!results.IsValid)
+                return BadRequest(results.Errors.Select(x => x.ErrorMessage));
+
+            CommitChanges();
+            
+            return CreatedAtAction(nameof(Get), new {id = emailAddress.Id}, new DTOs.EmailAddress.Get(emailAddress));
+        }
+
+        /// <summary>
+        /// Deletes an email address.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        public IActionResult Delete(Guid id)
+        {
+            var emailAddress = DBSession.Get<EmailAddress>(id);
+            if (emailAddress == null)
+                return NotFoundParameter(id, nameof(id));
+
+            if (!User.GetFieldPermissions<Person>(emailAddress.Person).CanEdit(x => x.EmailAddresses))
+                return Forbid("You may not modify the email addresses collection for this person");
+
+            DBSession.Delete(emailAddress);
+            CommitChanges();
+
+            return NoContent();
         }
     }
 }

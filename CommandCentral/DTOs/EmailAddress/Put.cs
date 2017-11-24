@@ -1,6 +1,6 @@
 ﻿namespace CommandCentral.DTOs.EmailAddress
 {
-    public class Update
+    public class Put
     {
         public bool IsReleasableOutsideCoC { get; set; }
         public string Address { get; set; }
