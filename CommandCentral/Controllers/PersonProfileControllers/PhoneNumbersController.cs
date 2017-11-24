@@ -47,11 +47,8 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 .ToList();
 
             var checkedPersons = new Dictionary<Person, bool>();
-            foreach (var phoneNumber in phoneNumbers)
+            foreach (var phoneNumber in phoneNumbers.Where(x => !x.IsReleasableOutsideCoC))
             {
-                if (phoneNumber.IsReleasableOutsideCoC)
-                    continue;
-
                 if (!checkedPersons.TryGetValue(phoneNumber.Person, out var canView))
                 {
                     checkedPersons[phoneNumber.Person] = User.IsInChainOfCommand(phoneNumber.Person);

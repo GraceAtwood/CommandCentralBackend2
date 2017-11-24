@@ -50,11 +50,8 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 .ToList();
 
             var checkedPersons = new Dictionary<Person, bool>();
-            foreach (var emailAddress in emailAddresses)
+            foreach (var emailAddress in emailAddresses.Where(x => !x.IsReleasableOutsideCoC))
             {
-                if (emailAddress.IsReleasableOutsideCoC)
-                    continue;
-
                 if (!checkedPersons.TryGetValue(emailAddress.Person, out var canView))
                 {
                     checkedPersons[emailAddress.Person] = User.IsInChainOfCommand(emailAddress.Person);
