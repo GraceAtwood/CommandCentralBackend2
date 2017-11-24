@@ -2,7 +2,7 @@
 
 namespace CommandCentral.DTOs.PhoneNumber
 {
-    public class Update
+    public class Put
     { 
         public PhoneNumberTypes PhoneType { get; set; }
         public bool IsReleasableOutsideCoC { get; set; }

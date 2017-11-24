@@ -94,7 +94,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         /// <summary>
         /// Creates a new email address.
         /// </summary>
-        /// <param name="dto"></param>
+        /// <param name="dto">A dto containing all of the information needed to create a new email address.</param>
         /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(201, Type = typeof(DTOs.EmailAddress.Post))]
@@ -140,8 +140,8 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         /// <summary>
         /// Modifies an email address.
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="dto"></param>
+        /// <param name="id">The id of the email address to modify.</param>
+        /// <param name="dto">A dto containing all of the inforamtion needed to make a new email address.</param>
         /// <returns></returns>
         [HttpPut("{id}")]
         [ProducesResponseType(201, Type = typeof(DTOs.EmailAddress.Get))]
@@ -181,7 +181,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         /// <summary>
         /// Deletes an email address.
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">The id of the email address to delete.</param>
         /// <returns></returns>
         [HttpDelete("{id}")]
         [ProducesResponseType(204)]

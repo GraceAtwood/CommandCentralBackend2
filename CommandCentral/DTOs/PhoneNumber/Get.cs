@@ -2,10 +2,9 @@
 
 namespace CommandCentral.DTOs.PhoneNumber
 {
-    public class Get : Update
+    public class Get : Post
     {
         public Guid Id { get; set; }
-        public Guid Person { get; set; }
 
         public Get(Entities.PhoneNumber item)
         {
