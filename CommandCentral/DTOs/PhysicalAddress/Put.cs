@@ -1,6 +1,6 @@
 ﻿namespace CommandCentral.DTOs.PhysicalAddress
 {
-    public class Update
+    public class Put
     {
         public string Address { get; set; }
         public string City { get; set; }

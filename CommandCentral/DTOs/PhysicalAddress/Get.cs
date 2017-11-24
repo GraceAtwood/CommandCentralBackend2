@@ -2,10 +2,9 @@
 
 namespace CommandCentral.DTOs.PhysicalAddress
 {
-    public class Get : Update
+    public class Get : Post
     {
         public Guid Id { get; set; }
-        public Guid Person { get; set; }
 
         public Get(Entities.PhysicalAddress item)
         {
