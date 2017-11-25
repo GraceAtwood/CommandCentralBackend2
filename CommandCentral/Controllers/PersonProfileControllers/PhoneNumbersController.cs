@@ -71,18 +71,18 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         /// </summary>
         /// <param name="id">The id of the phone number to retrieve.</param>
         /// <returns></returns>
-        [HttpGet]
+        [HttpGet("{id}")]
         [ProducesResponseType(200, Type = typeof(DTOs.PhoneNumber.Get))]
         public IActionResult Get(Guid id)
         {
-            var address = DBSession.Get<PhoneNumber>(id);
-            if (address == null)
+            var phoneNumber = DBSession.Get<PhoneNumber>(id);
+            if (phoneNumber == null)
                 return NotFoundParameter(id, nameof(id));
 
-            if (!address.IsReleasableOutsideCoC && !User.IsInChainOfCommand(address.Person))
-                address.Number = "REDACTED";
+            if (!phoneNumber.IsReleasableOutsideCoC && !User.IsInChainOfCommand(phoneNumber.Person))
+                phoneNumber.Number = "REDACTED";
 
-            return Ok(new DTOs.PhoneNumber.Get(address));
+            return Ok(new DTOs.PhoneNumber.Get(phoneNumber));
         }
         
         /// <summary>

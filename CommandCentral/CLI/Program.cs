@@ -46,6 +46,9 @@ namespace CommandCentral.CLI
             if (!Int32.TryParse(ConfigurationUtility.Configuration["Server:Port"], out var port))
                 throw new ArgumentException("The given port was not valid!");
 
+            var serverCertificate =
+                new X509Certificate2(ConfigurationUtility.Configuration["Server:CertificateLocation"], "password");
+
             var host = new WebHostBuilder()
                 .UseKestrel(options =>
                 {
@@ -53,9 +56,7 @@ namespace CommandCentral.CLI
                     {
                         CheckCertificateRevocation = false,
                         ClientCertificateMode = ClientCertificateMode.AllowCertificate,
-                        ServerCertificate =
-                            new X509Certificate2(ConfigurationUtility.Configuration["Server:CertificateLocation"],
-                                "password")
+                        ServerCertificate = serverCertificate
                     };
 
                     options.Listen(IPAddress.Any, port, listenOptions => { listenOptions.UseHttps(httpsOptions); });

@@ -76,5 +76,31 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             var results = physicalAddresses.Select(x => new DTOs.PhysicalAddress.Get(x)).ToList();
             return Ok(results);
         }
+        
+        /// <summary>
+        /// Retrieves the physical address with the given id.  
+        /// Replaces the address text with REDACTED if the client can't see the physical address.
+        /// </summary>
+        /// <param name="id">The id of the physical address to retrieve.</param>
+        /// <returns></returns>
+        [HttpGet("{id}")]
+        [ProducesResponseType(200, Type = typeof(DTOs.PhysicalAddress.Get))]
+        public IActionResult Get(Guid id)
+        {
+            var physicalAddress = DBSession.Get<PhysicalAddress>(id);
+            if (physicalAddress == null)
+                return NotFoundParameter(id, nameof(id));
+
+            if (!physicalAddress.IsReleasableOutsideCoC && !User.IsInChainOfCommand(physicalAddress.Person))
+            {
+                physicalAddress.Address = "REDACTED";
+                physicalAddress.State = "REDACTED";
+                physicalAddress.City = "REDACTED";
+                physicalAddress.Country = "REDACTED";
+                physicalAddress.ZipCode = "REDACTED";
+            }
+
+            return Ok(new DTOs.PhysicalAddress.Get(physicalAddress));
+        }
     }
 }

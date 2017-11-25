@@ -74,7 +74,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         /// </summary>
         /// <param name="id">The id of the email address to retrieve.</param>
         /// <returns></returns>
-        [HttpGet]
+        [HttpGet("{id}")]
         [ProducesResponseType(200, Type = typeof(DTOs.EmailAddress.Get))]
         public IActionResult Get(Guid id)
         {
