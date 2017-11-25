@@ -153,5 +153,73 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             return CreatedAtAction(nameof(Get), new {id = physicalAddress.Id},
                 new DTOs.PhysicalAddress.Get(physicalAddress));
         }
+
+        /// <summary>
+        /// Modifies a physical address.
+        /// </summary>
+        /// <param name="id">The id of the physical address to modify.</param>
+        /// <param name="dto">A dto containing all of the inforamtion needed to make a new physical address.</param>
+        /// <returns></returns>
+        [HttpPut("{id}")]
+        [ProducesResponseType(201, Type = typeof(DTOs.PhysicalAddress.Get))]
+        public IActionResult Put(Guid id, [FromBody] DTOs.PhysicalAddress.Put dto)
+        {
+            if (dto == null)
+                return BadRequestDTONull();
+
+            var physicalAddress = DBSession.Get<PhysicalAddress>(id);
+            if (physicalAddress == null)
+                return NotFoundParameter(id, nameof(id));
+
+            if (!User.GetFieldPermissions<Person>(physicalAddress.Person).CanEdit(x => x.PhysicalAddresses))
+                return Forbid("You may not modify the physical addresses collection for this person");
+
+            physicalAddress.IsReleasableOutsideCoC = dto.IsReleasableOutsideCoC;
+            physicalAddress.Address = dto.Address;
+            physicalAddress.City = dto.City;
+            physicalAddress.Country = dto.Country;
+            physicalAddress.IsHomeAddress = dto.IsHomeAddress;
+            physicalAddress.State = dto.State;
+            physicalAddress.ZipCode = dto.ZipCode;
+
+            if (physicalAddress.IsHomeAddress)
+            {
+                foreach (var address in physicalAddress.Person.PhysicalAddresses)
+                {
+                    address.IsHomeAddress = false;
+                }
+            }
+
+            var results = physicalAddress.Validate();
+            if (!results.IsValid)
+                return BadRequest(results.Errors.Select(x => x.ErrorMessage));
+
+            CommitChanges();
+
+            return CreatedAtAction(nameof(Get), new {id = physicalAddress.Id},
+                new DTOs.PhysicalAddress.Get(physicalAddress));
+        }
+        
+        /// <summary>
+        /// Deletes a physical address.
+        /// </summary>
+        /// <param name="id">The id of the physical address to delete.</param>
+        /// <returns></returns>
+        [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        public IActionResult Delete(Guid id)
+        {
+            var physicalAddress = DBSession.Get<PhysicalAddress>(id);
+            if (physicalAddress == null)
+                return NotFoundParameter(id, nameof(id));
+
+            if (!User.GetFieldPermissions<Person>(physicalAddress.Person).CanEdit(x => x.PhysicalAddresses))
+                return Forbid("You may not modify the physical addresses collection for this person");
+
+            DBSession.Delete(physicalAddress);
+            CommitChanges();
+
+            return NoContent();
+        }
     }
 }

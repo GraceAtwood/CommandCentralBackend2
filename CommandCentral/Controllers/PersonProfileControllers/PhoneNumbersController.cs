@@ -159,9 +159,9 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             
             if (phoneNumber.IsPreferred)
             {
-                foreach (var address in phoneNumber.Person.PhoneNumbers)
+                foreach (var number in phoneNumber.Person.PhoneNumbers)
                 {
-                    address.IsPreferred = false;
+                    number.IsPreferred = false;
                 }
             }
             
