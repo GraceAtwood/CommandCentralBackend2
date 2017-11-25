@@ -91,7 +91,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         /// <param name="dto">A dto containing all of the information needed to make a new phone number.</param>
         /// <returns></returns>
         [HttpPost]
-        [ProducesResponseType(201, Type = typeof(DTOs.PhoneNumber.Post))]
+        [ProducesResponseType(201, Type = typeof(DTOs.PhoneNumber.Get))]
         public IActionResult Post([FromBody] DTOs.PhoneNumber.Post dto)
         {
             if (dto == null)

@@ -70,13 +70,13 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                     physicalAddress.ZipCode = "REDACTED";
                 }
             }
-            
+
             //Now that we've scrubbed out all the values we don't want to expose to the client, 
             //we're ready to send the results out.
             var results = physicalAddresses.Select(x => new DTOs.PhysicalAddress.Get(x)).ToList();
             return Ok(results);
         }
-        
+
         /// <summary>
         /// Retrieves the physical address with the given id.  
         /// Replaces the address text with REDACTED if the client can't see the physical address.
@@ -101,6 +101,57 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             }
 
             return Ok(new DTOs.PhysicalAddress.Get(physicalAddress));
+        }
+
+        /// <summary>
+        /// Creates a new physical address.
+        /// </summary>
+        /// <param name="dto">A dto containing all of the information needed to make a new physical address.</param>
+        /// <returns></returns>
+        [HttpPost]
+        [ProducesResponseType(201, Type = typeof(DTOs.PhysicalAddress.Get))]
+        public IActionResult Post([FromBody] DTOs.PhysicalAddress.Post dto)
+        {
+            if (dto == null)
+                return BadRequestDTONull();
+
+            var person = DBSession.Get<Person>(dto.Person);
+            if (person == null)
+                return NotFoundParameter(dto.Person, nameof(dto.Person));
+
+            if (!User.GetFieldPermissions<Person>(person).CanEdit(x => x.PhysicalAddresses))
+                return Forbid("You may not modify the physical addresses collection for this person.");
+
+            var physicalAddress = new PhysicalAddress
+            {
+                Id = Guid.NewGuid(),
+                IsReleasableOutsideCoC = dto.IsReleasableOutsideCoC,
+                Person = person,
+                Address = dto.Address,
+                City = dto.City,
+                Country = dto.Country,
+                IsHomeAddress = dto.IsHomeAddress,
+                State = dto.State,
+                ZipCode = dto.ZipCode
+            };
+
+            if (physicalAddress.IsHomeAddress)
+            {
+                foreach (var address in physicalAddress.Person.PhysicalAddresses)
+                {
+                    address.IsHomeAddress = false;
+                }
+            }
+
+            var results = physicalAddress.Validate();
+            if (!results.IsValid)
+                return BadRequest(results.Errors.Select(x => x.ErrorMessage));
+
+            DBSession.Save(physicalAddress);
+            CommitChanges();
+
+            return CreatedAtAction(nameof(Get), new {id = physicalAddress.Id},
+                new DTOs.PhysicalAddress.Get(physicalAddress));
         }
     }
 }

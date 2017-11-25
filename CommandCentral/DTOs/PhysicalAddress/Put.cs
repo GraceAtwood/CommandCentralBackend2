@@ -8,6 +8,6 @@
         public string ZipCode { get; set; }
         public string Country { get; set; }
         public bool IsHomeAddress { get; set; }
-        public bool IsReleaseableOutsideCoC { get; set; }
+        public bool IsReleasableOutsideCoC { get; set; }
     }
 }

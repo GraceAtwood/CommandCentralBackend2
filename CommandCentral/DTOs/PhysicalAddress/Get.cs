@@ -14,7 +14,7 @@ namespace CommandCentral.DTOs.PhysicalAddress
             City = item.City;
             Country = item.Country;
             IsHomeAddress = item.IsHomeAddress;
-            IsReleaseableOutsideCoC = item.IsReleasableOutsideCoC;
+            IsReleasableOutsideCoC = item.IsReleasableOutsideCoC;
             State = item.State;
             ZipCode = item.ZipCode;
         }
