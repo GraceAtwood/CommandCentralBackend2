@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CommandCentral.Entities.CollateralDutyTracking;
 using CommandCentral.Entities.ReferenceLists;
 using FluentNHibernate.Mapping;
 using FluentValidation;
@@ -221,6 +222,11 @@ namespace CommandCentral.Entities
         #region Account
 
         /// <summary>
+        /// The collection of all the col duty rules this person has.
+        /// </summary>
+        public IList<CollateralDutyMembership> CollateralDutyMemberships { get; set; }
+
+        /// <summary>
         /// A list of the submodules this person can access.
         /// </summary>
         public IList<SpecialPermissions> SpecialPermissions { get; set; }
@@ -368,6 +374,7 @@ namespace CommandCentral.Entities
                 Map(x => x.DutyStatus).Not.Nullable();
                 Map(x => x.BilletAssignment);
 
+                HasMany(x => x.CollateralDutyMemberships).Cascade.All();
                 HasMany(x => x.NECs).Cascade.All();
                 HasMany(x => x.AccountHistory).Cascade.All();
                 HasMany(x => x.Changes).Cascade.All().Inverse();
