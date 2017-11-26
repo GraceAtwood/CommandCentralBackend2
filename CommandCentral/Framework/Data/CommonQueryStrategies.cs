@@ -13,7 +13,7 @@ namespace CommandCentral.Framework.Data
 {
     public static class CommonQueryStrategies
     {
-        public static Expression<Func<T, bool>> GetIsPersonInChainOfCommandExpression<T>(
+        /*public static Expression<Func<T, bool>> GetIsPersonInChainOfCommandExpression<T>(
             Expression<Func<T, Person>> selector, Person person, params ChainsOfCommand[] chainsOfCommands)
         {
             if (chainsOfCommands == null)
@@ -44,7 +44,7 @@ namespace CommandCentral.Framework.Data
                         selector.Invoke(x).Division.Department == person.Division.Department ||
                         selector.Invoke(x).PermissionGroups.Any(y => divisionLevelGroups.Contains(y.Name)) &&
                         selector.Invoke(x).Division == person.Division;
-        }
+        }*/
 
         public static Expression<Func<Person, bool>> GetPersonsSubscribedToEventForPersonExpression(
             SubscribableEvents subscribableEvent, Person person)

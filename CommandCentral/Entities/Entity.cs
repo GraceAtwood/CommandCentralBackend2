@@ -1,5 +1,4 @@
-﻿using CommandCentral.Authorization.Rules;
-using FluentValidation.Results;
+﻿using FluentValidation.Results;
 using System;
 
 namespace CommandCentral.Entities
@@ -12,7 +11,6 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The id of this entity.  This is the primary key.
         /// </summary>
-        [CanNeverEdit]
         public virtual Guid Id { get; set; }
         
         /// <summary>

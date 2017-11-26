@@ -1,5 +1,4 @@
 ﻿using CommandCentral.Utilities.Types;
-using CommandCentral.Authorization;
 using System;
 using System.Collections.Generic;
 using CommandCentral.Enums;

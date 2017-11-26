@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentValidation.Results;
 using CommandCentral.Framework;
-using CommandCentral.Authorization;
 using CommandCentral.Enums;
 
 namespace CommandCentral.Entities.Correspondence

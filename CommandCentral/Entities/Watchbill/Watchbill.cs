@@ -5,7 +5,6 @@ using CommandCentral.Framework;
 using FluentNHibernate.Mapping;
 using FluentValidation;
 using FluentValidation.Results;
-using Itenso.TimePeriod;
 
 namespace CommandCentral.Entities.Watchbill
 {

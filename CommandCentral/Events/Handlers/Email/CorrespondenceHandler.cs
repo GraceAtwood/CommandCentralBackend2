@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿/*using System.Linq;
 using CommandCentral.Authorization;
 using CommandCentral.Email;
 using CommandCentral.Email.Models;
@@ -380,4 +380,4 @@ namespace CommandCentral.Events.Handlers.Email
             }
         }
     }
-}
+}*/

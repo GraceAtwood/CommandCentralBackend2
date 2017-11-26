@@ -48,7 +48,6 @@ namespace CommandCentral.Framework.Data
                     .Cache(x => x.UseSecondLevelCache().UseQueryCache()
                     .ProviderClass<SysCacheProvider>())
                     .Mappings(x => x.FluentMappings.AddFromAssembly(Assembly.GetExecutingAssembly()))
-                    .ExposeConfiguration(x => x.EventListeners.PostLoadEventListeners = new[] { new MyPostLoadListener() })
                     .BuildConfiguration();
 
                 Schema = new SchemaExport(_config);
