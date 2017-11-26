@@ -21,12 +21,28 @@ namespace CommandCentral.Authorization
             return PropertyGroups.Last();
         }
 
+        public bool CanEditAnyProperty(Person editor, T subject)
+        {
+            var group = PropertyGroups.FirstOrDefault() ??
+                        throw new Exception("Unable to find a group.");
+
+            return group.CanEditRule(editor, subject);
+        }
+        
         public bool CanEditProperty(Person editor, T subject, Expression<Func<T, object>> propertySelector)
         {
             var group = PropertyGroups.SingleOrDefault(x => x.Properties.Contains(propertySelector.GetProperty())) ??
                         throw new Exception("Unable to find that property!");
 
             return group.CanEditRule(editor, subject);
+        }
+        
+        public bool CanReturnAnyProperty(Person editor, T subject)
+        {
+            var group = PropertyGroups.FirstOrDefault() ??
+                        throw new Exception("Unable to find a group.");
+
+            return group.CanReturnRule(editor, subject);
         }
 
         public bool CanReturnProperty(Person editor, T subject, Expression<Func<T, object>> propertySelector)

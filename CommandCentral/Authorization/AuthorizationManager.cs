@@ -48,6 +48,38 @@ namespace CommandCentral.Authorization
         }
 
         /// <summary>
+        /// Determines if this person can edit ANY property of  the given entity.
+        /// </summary>
+        /// <param name="person">The person for whom to check permissions.</param>
+        /// <param name="entity">The entity against whicch to check permissions.</param>
+        /// <typeparam name="T">Any type that derives from <seealso cref="Entities.Entity"/></typeparam>
+        /// <returns></returns>
+        /// <exception cref="Exception">If a rules contract for the type T is not found.</exception>
+        public static bool CanEdit<T>(this Person person, T entity) where T : Entity
+        {
+            if (!ContractsByType.TryGetValue(typeof(T), out var contract))
+                throw new Exception("No contract found.");
+
+            return ((RulesContract<T>) contract).CanEditAnyProperty(person, entity);
+        }
+        
+        /// <summary>
+        /// Determines if this person can return ANY property of  the given entity.
+        /// </summary>
+        /// <param name="person">The person for whom to check permissions.</param>
+        /// <param name="entity">The entity against whicch to check permissions.</param>
+        /// <typeparam name="T">Any type that derives from <seealso cref="Entities.Entity"/></typeparam>
+        /// <returns></returns>
+        /// <exception cref="Exception">If a rules contract for the type T is not found.</exception>
+        public static bool CanReturn<T>(this Person person, T entity) where T : Entity
+        {
+            if (!ContractsByType.TryGetValue(typeof(T), out var contract))
+                throw new Exception("No contract found.");
+
+            return ((RulesContract<T>) contract).CanReturnAnyProperty(person, entity);
+        }
+
+        /// <summary>
         /// Determines if this person can return the given property of the given entity.
         /// </summary>
         /// <param name="editor">The person for whom to check permissions.</param>
