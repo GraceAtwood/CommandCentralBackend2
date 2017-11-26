@@ -73,7 +73,7 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
             if (dto == null)
                 return BadRequestDTONull();
 
-            if (!User.CanAccessSubmodules(SubModules.AdminTools))
+            if (!User.CanAccessSubmodules(SpecialPermissions.AdminTools))
                 return Forbid();
 
             var item = new CollateralDuty
@@ -107,7 +107,7 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
             if (dto == null)
                 return BadRequestDTONull();
 
-            if (!User.CanAccessSubmodules(SubModules.AdminTools))
+            if (!User.CanAccessSubmodules(SpecialPermissions.AdminTools))
                 return Forbid();
 
             var item = DBSession.Get<CollateralDuty>(id);
@@ -134,7 +134,7 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
         [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
         {
-            if (!User.CanAccessSubmodules(SubModules.AdminTools))
+            if (!User.CanAccessSubmodules(SpecialPermissions.AdminTools))
                 return Forbid();
 
             var item = DBSession.Get<CollateralDuty>(id);

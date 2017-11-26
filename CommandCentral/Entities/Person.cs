@@ -221,14 +221,9 @@ namespace CommandCentral.Entities
         #region Account
 
         /// <summary>
-        /// A dictionary describing the levels of access a person has.
-        /// </summary>
-        public IDictionary<ChainsOfCommand, ChainOfCommandLevels> AccessLevels { get; set; }
-
-        /// <summary>
         /// A list of the submodules this person can access.
         /// </summary>
-        public IList<SubModules> AccessibleSubModules { get; set; }
+        public IList<SpecialPermissions> SpecialPermissions { get; set; }
 
         /// <summary>
         /// A list containing account history events, these are events that track things like login, password reset, etc.

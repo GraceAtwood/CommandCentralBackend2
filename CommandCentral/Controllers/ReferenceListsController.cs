@@ -119,7 +119,7 @@ namespace CommandCentral.Controllers
             if (dto == null)
                 return BadRequestDTONull();
 
-            if (!User.CanAccessSubmodules(SubModules.AdminTools))
+            if (!User.CanAccessSubmodules(SpecialPermissions.AdminTools))
                 return Forbid();
 
             if (!_referenceListNamesToType.TryGetValue(dto.Type, out var type))
@@ -154,7 +154,7 @@ namespace CommandCentral.Controllers
             if (dto == null)
                 return BadRequestDTONull();
 
-            if (!User.CanAccessSubmodules(SubModules.AdminTools))
+            if (!User.CanAccessSubmodules(SpecialPermissions.AdminTools))
                 return Forbid();
 
             var item = DBSession.Get<ReferenceListItemBase>(id);
@@ -182,7 +182,7 @@ namespace CommandCentral.Controllers
         [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
         {
-            if (!User.CanAccessSubmodules(SubModules.AdminTools))
+            if (!User.CanAccessSubmodules(SpecialPermissions.AdminTools))
                 return Forbid();
 
             var item = DBSession.Get<ReferenceListItemBase>(id);

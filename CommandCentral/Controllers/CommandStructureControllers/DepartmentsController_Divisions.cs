@@ -62,7 +62,7 @@ namespace CommandCentral.Controllers.CommandStructureControllers
             if (dto == null)
                 return BadRequestDTONull();
 
-            if (!User.CanAccessSubmodules(SubModules.AdminTools))
+            if (!User.CanAccessSubmodules(SpecialPermissions.AdminTools))
                 return Forbid();
 
             var department = DBSession.Get<Department>(departmentId);
@@ -102,7 +102,7 @@ namespace CommandCentral.Controllers.CommandStructureControllers
             if (dto == null)
                 return BadRequestDTONull();
 
-            if (!User.CanAccessSubmodules(SubModules.AdminTools))
+            if (!User.CanAccessSubmodules(SpecialPermissions.AdminTools))
                 return Forbid();
 
             var division = DBSession.Query<Division>()

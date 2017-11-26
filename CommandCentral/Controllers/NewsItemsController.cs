@@ -38,7 +38,7 @@ namespace CommandCentral.Controllers
             if (dto == null)
                 return BadRequestDTONull();
 
-            if (!User.CanAccessSubmodules(SubModules.EditNews))
+            if (!User.CanAccessSubmodules(SpecialPermissions.EditNews))
                 return Forbid();
 
             var item = new NewsItem
@@ -68,7 +68,7 @@ namespace CommandCentral.Controllers
             if (dto == null)
                 return BadRequestDTONull();
             
-            if (!User.CanAccessSubmodules(SubModules.EditNews))
+            if (!User.CanAccessSubmodules(SpecialPermissions.EditNews))
                 return Forbid();
 
             var item = DBSession.Get<NewsItem>(id);
@@ -91,7 +91,7 @@ namespace CommandCentral.Controllers
         [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
         {
-            if (!User.CanAccessSubmodules(SubModules.EditNews))
+            if (!User.CanAccessSubmodules(SpecialPermissions.EditNews))
                 return Forbid();
 
             var item = DBSession.Get<NewsItem>(id);

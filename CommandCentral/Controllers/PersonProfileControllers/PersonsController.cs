@@ -198,7 +198,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (dto == null)
                 return BadRequestDTONull();
 
-            if (!User.CanAccessSubmodules(SubModules.CreatePerson))
+            if (!User.CanAccessSubmodules(SpecialPermissions.CreatePerson))
                 return Forbid("You must have access to the Create Persons sub module to create a person.");
 
             var uic = DBSession.Get<UIC>(dto.UIC);

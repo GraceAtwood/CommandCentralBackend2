@@ -106,7 +106,7 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
             if (duty == null)
                 return NotFoundParameter(dto.CollateralDuty, nameof(dto.CollateralDuty));
 
-            if (!User.CanAccessSubmodules(SubModules.AdminTools))
+            if (!User.CanAccessSubmodules(SpecialPermissions.AdminTools))
             {
                 var clientMembership = DBSession.Query<CollateralDutyMembership>().SingleOrDefault(x =>
                     x.CollateralDuty.Id == dto.CollateralDuty && x.Person == User &&
@@ -179,7 +179,7 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
                 x.CollateralDuty == membership.CollateralDuty && x.Person == User &&
                 (x.Role == CollateralRoles.Primary || x.Role == CollateralRoles.Secondary));
 
-            if (!User.CanAccessSubmodules(SubModules.AdminTools) || clientMembership == null)
+            if (!User.CanAccessSubmodules(SpecialPermissions.AdminTools) || clientMembership == null)
                 return Forbid(
                     "In order to modify the membership of a collateral duty, you must either have access to " +
                     "the admin tools or be in the Primary or Secondary level of the collateral duty in question.");
@@ -222,7 +222,7 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
                 x.CollateralDuty == membership.CollateralDuty && x.Person == User &&
                 (x.Role == CollateralRoles.Primary || x.Role == CollateralRoles.Secondary));
 
-            if (!User.CanAccessSubmodules(SubModules.AdminTools) || clientMembership == null)
+            if (!User.CanAccessSubmodules(SpecialPermissions.AdminTools) || clientMembership == null)
                 return Forbid(
                     "In order to modify the membership of a collateral duty, you must either have access to " +
                     "the admin tools or be in the Primary or Secondary level of the collateral duty in question.");

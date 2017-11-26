@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using CommandCentral.Enums;
 using CommandCentral.Framework;
 using CommandCentral.Framework.Data;
 using FluentNHibernate.Mapping;
@@ -20,6 +21,11 @@ namespace CommandCentral.Entities.CollateralDutyTracking
         /// The name of this collateral duty.
         /// </summary>
         public virtual string Name { get; set; }
+
+        /// <summary>
+        /// The chain of command that this collateral duty represents.
+        /// </summary>
+        public virtual ChainsOfCommand ChainOfCommand { get; set; }
 
         /// <summary>
         /// The command at which this collateral duty exists.

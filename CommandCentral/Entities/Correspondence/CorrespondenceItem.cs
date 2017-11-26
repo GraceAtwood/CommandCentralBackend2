@@ -138,7 +138,7 @@ namespace CommandCentral.Entities.Correspondence
         /// <returns></returns>
         public virtual bool CanPersonEditItem(Person person)
         {
-            if (person.CanAccessSubmodules(SubModules.AdminTools))
+            if (person.CanAccessSubmodules(SpecialPermissions.AdminTools))
                 return true;
 
             if (SubmittedBy == person || SubmittedFor == person ||

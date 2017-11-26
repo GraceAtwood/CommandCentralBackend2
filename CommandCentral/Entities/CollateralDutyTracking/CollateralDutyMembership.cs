@@ -12,7 +12,7 @@ namespace CommandCentral.Entities.CollateralDutyTracking
     /// <summary>
     /// A coll duty membership grants the associated person membership in the referenced collateral duty at a certain level and role.
     /// </summary>
-    public class CollateralDutyMembership : Entity, IHazAttachments
+    public class CollateralDutyMembership : Entity
     {
         #region Properties
 
@@ -34,17 +34,7 @@ namespace CommandCentral.Entities.CollateralDutyTracking
         /// <summary>
         /// The level this collateral is at.
         /// </summary>
-        public virtual CollateralLevels Level { get; set; }
-
-        /// <summary>
-        /// The list of file attachments on this membership.  This can be used to post a designation letter for the given position.
-        /// </summary>
-        public virtual IList<FileAttachment> Attachments { get; set; }
-
-        /// <summary>
-        /// Indicates that a designation letter has been received for this membership.
-        /// </summary>
-        public virtual bool HasDesignationLetter { get; set; }
+        public virtual ChainOfCommandLevels Level { get; set; }
 
         #endregion
 
@@ -64,7 +54,7 @@ namespace CommandCentral.Entities.CollateralDutyTracking
         /// <returns></returns>
         public virtual bool CanPersonAccessAttachments(Person person)
         {
-            return person.CanAccessSubmodules(SubModules.AdminTools) ||
+            return person.CanAccessSubmodules(SpecialPermissions.AdminTools) ||
                    SessionManager.GetCurrentSession().Query<CollateralDutyMembership>().Count(x =>
                        x.CollateralDuty == CollateralDuty &&
                        (x.Role == CollateralRoles.Primary || x.Role == CollateralRoles.Secondary) &&
@@ -83,17 +73,11 @@ namespace CommandCentral.Entities.CollateralDutyTracking
             {
                 Id(x => x.Id).GeneratedBy.Assigned();
 
-                Map(x => x.Level).Not.Nullable().CustomType<GenericEnumMapper<CollateralLevels>>();
+                Map(x => x.Level).Not.Nullable().CustomType<GenericEnumMapper<ChainOfCommandLevels>>();
                 Map(x => x.Role).Not.Nullable().CustomType<GenericEnumMapper<CollateralRoles>>();
-                Map(x => x.HasDesignationLetter).Not.Nullable().Default(false.ToString());
 
                 References(x => x.Person).Not.Nullable();
                 References(x => x.CollateralDuty).Nullable();
-
-                HasMany(x => x.Attachments)
-                    .Cascade.AllDeleteOrphan()
-                    .KeyColumn("OwningEntity_id")
-                    .ForeignKeyConstraintName("none");
             }
         }
 

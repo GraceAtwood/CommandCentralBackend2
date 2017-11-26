@@ -15,7 +15,7 @@ namespace CommandCentral.DTOs.Authorization
         public Dictionary<ChainsOfCommand, ChainOfCommandLevels> HighestLevels { get; set; }
         public Dictionary<ChainsOfCommand, bool> IsInChainOfCommand { get; set; }
         public List<string> EditablePermissionGroups { get; set; }
-        public List<SubModules> AccessibleSubmodules { get; set; }
+        public List<SpecialPermissions> AccessibleSubmodules { get; set; }
 
         public class PropertyPermissionsDTO
         {
