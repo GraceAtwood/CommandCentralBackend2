@@ -69,8 +69,8 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (address == null)
                 return NotFoundParameter(id, nameof(id));
 
-            if (!address.IsReleasableOutsideCoC && !User.IsInChainOfCommand(address.Person))
-                address.Address = "REDACTED";
+            if (!User.CanReturn(address))
+                return Forbid("You may not return this email address.");
 
             return Ok(new DTOs.EmailAddress.Get(address));
         }
