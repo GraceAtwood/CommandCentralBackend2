@@ -28,7 +28,7 @@ namespace CommandCentral.Authorization
 
             return group.CanEditRule(editor, subject);
         }
-        
+
         public bool CanEditProperty(Person editor, T subject, Expression<Func<T, object>> propertySelector)
         {
             var group = PropertyGroups.SingleOrDefault(x => x.Properties.Contains(propertySelector.GetProperty())) ??
@@ -37,6 +37,15 @@ namespace CommandCentral.Authorization
             return group.CanEditRule(editor, subject);
         }
         
+        public bool CanEditProperty(Person editor, T subject, string propertyName)
+        {
+            var group = PropertyGroups.SingleOrDefault(propGroup =>
+                            propGroup.Properties.Any(property => property.Name == propertyName)) ??
+                        throw new Exception("Unable to find that property!");
+
+            return group.CanEditRule(editor, subject);
+        }
+
         public bool CanReturnAnyProperty(Person editor, T subject)
         {
             var group = PropertyGroups.FirstOrDefault() ??
@@ -48,6 +57,15 @@ namespace CommandCentral.Authorization
         public bool CanReturnProperty(Person editor, T subject, Expression<Func<T, object>> propertySelector)
         {
             var group = PropertyGroups.SingleOrDefault(x => x.Properties.Contains(propertySelector.GetProperty())) ??
+                        throw new Exception("Unable to find that property!");
+
+            return group.CanReturnRule(editor, subject);
+        }
+
+        public bool CanReturnProperty(Person editor, T subject, string propertyName)
+        {
+            var group = PropertyGroups.SingleOrDefault(propGroup =>
+                            propGroup.Properties.Any(property => property.Name == propertyName)) ??
                         throw new Exception("Unable to find that property!");
 
             return group.CanReturnRule(editor, subject);

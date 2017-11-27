@@ -43,28 +43,15 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 .AddNullableBoolQueryExpression(x => x.IsPreferred, isPreferred)
                 .AddNullableBoolQueryExpression(x => x.IsReleasableOutsideCoC, isReleasableOutsideCoC);
 
-            var emailAddresses = DBSession.Query<EmailAddress>()
+            var results = DBSession.Query<EmailAddress>()
                 .AsExpandable()
                 .NullSafeWhere(predicate)
                 .Take(limit)
+                .ToList()
+                .Where(x => User.CanReturn(x))
+                .Select(x => new DTOs.EmailAddress.Get(x))
                 .ToList();
 
-            var checkedPersons = new Dictionary<Person, bool>();
-            foreach (var emailAddress in emailAddresses.Where(x => !x.IsReleasableOutsideCoC))
-            {
-                if (!checkedPersons.TryGetValue(emailAddress.Person, out var canView))
-                {
-                    checkedPersons[emailAddress.Person] = User.IsInChainOfCommand(emailAddress.Person);
-                    canView = checkedPersons[emailAddress.Person];
-                }
-
-                if (!canView)
-                    emailAddress.Address = "REDACTED";
-            }
-
-            //Now that we've scrubbed out all the values we don't want to expose to the client, 
-            //we're ready to send the results out.
-            var results = emailAddresses.Select(x => new DTOs.EmailAddress.Get(x)).ToList();
             return Ok(results);
         }
 
@@ -104,7 +91,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (person == null)
                 return NotFoundParameter(dto.Person, nameof(dto.Person));
 
-            if (!User.GetFieldPermissions<Person>(person).CanEdit(x => x.EmailAddresses))
+            if (!User.CanEdit(person, x => x.EmailAddresses))
                 return Forbid("You may not modify the email addresses collection for this person.");
 
             var emailAddress = new EmailAddress
@@ -151,7 +138,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (emailAddress == null)
                 return NotFoundParameter(id, nameof(id));
 
-            if (!User.GetFieldPermissions<Person>(emailAddress.Person).CanEdit(x => x.EmailAddresses))
+            if (!User.CanEdit(emailAddress))
                 return Forbid("You may not modify the email addresses collection for this person");
 
             emailAddress.Address = dto.Address;
@@ -188,7 +175,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (emailAddress == null)
                 return NotFoundParameter(id, nameof(id));
 
-            if (!User.GetFieldPermissions<Person>(emailAddress.Person).CanEdit(x => x.EmailAddresses))
+            if (!User.CanEdit(emailAddress))
                 return Forbid("You may not modify the email addresses collection for this person");
 
             DBSession.Delete(emailAddress);

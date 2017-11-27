@@ -102,7 +102,7 @@ namespace CommandCentral.Controllers.MusterControllers
             if (dto == null)
                 return BadRequestDTONull();
 
-            if (!User.CanAccessSubmodules(SpecialPermissions.AdminTools))
+            if (!User.SpecialPermissions.Contains(SpecialPermissions.AdminTools))
                 return Forbid();
 
             var musterCycle = DBSession.Get<MusterCycle>(id);

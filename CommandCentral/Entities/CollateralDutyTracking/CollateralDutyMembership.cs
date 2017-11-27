@@ -54,11 +54,11 @@ namespace CommandCentral.Entities.CollateralDutyTracking
         /// <returns></returns>
         public virtual bool CanPersonAccessAttachments(Person person)
         {
-            return person.CanAccessSubmodules(SpecialPermissions.AdminTools) ||
+            return person.SpecialPermissions.Contains(SpecialPermissions.AdminTools) ||
                    SessionManager.GetCurrentSession().Query<CollateralDutyMembership>().Count(x =>
                        x.CollateralDuty == CollateralDuty &&
                        (x.Role == CollateralRoles.Primary || x.Role == CollateralRoles.Secondary) &&
-                       x.Level == CollateralLevels.Command && x.Person == person) == 1;
+                       x.Level == ChainOfCommandLevels.Command && x.Person == person) == 1;
         }
 
         /// <summary>

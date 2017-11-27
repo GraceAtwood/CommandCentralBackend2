@@ -77,7 +77,7 @@ namespace CommandCentral.Controllers
 
             var dto = new DTOs.Authorization.Get
             {
-                AccessibleSubmodules = ((SpecialPermissions[])Enum.GetValues(typeof(SpecialPermissions))).Where(x => User.CanAccessSubmodules(x)).ToList(),
+                AccessibleSubmodules = ((SpecialPermissions[])Enum.GetValues(typeof(SpecialPermissions))).Where(x => User.SpecialPermissions.Contains(x)).ToList(),
                 EditablePermissionGroups = PermissionsCache.PermissionGroupsCache.Values.Where(x => User.CanEditPermissionGroups(x)).Select(x => x.ToString()).ToList(),
                 FieldPermissions = PermissionsCache.PermissionTypesCache.ToDictionary(x => x.Key.Name, x =>
                 {

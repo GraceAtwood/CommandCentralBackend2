@@ -1,6 +1,7 @@
 ﻿using CommandCentral.Utilities.Types;
 using System;
 using System.Collections.Generic;
+using CommandCentral.Authorization;
 using CommandCentral.Enums;
 using FluentValidation.Results;
 using FluentNHibernate.Mapping;
@@ -71,7 +72,7 @@ namespace CommandCentral.Entities.Muster
         /// <returns></returns>
         public virtual bool CanPersonAccessComments(Person person)
         {
-            return person.GetFieldPermissions<Person>(Person).CanReturn(x => x.StatusPeriods);
+            return person.CanReturn(this);
         }
 
         /// <summary>

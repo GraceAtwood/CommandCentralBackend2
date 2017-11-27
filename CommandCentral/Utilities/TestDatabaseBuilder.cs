@@ -204,8 +204,8 @@ namespace CommandCentral.Utilities
         private static readonly Dictionary<string, int> _emailAddresses = new Dictionary<string, int>();
 
         private static Person CreatePerson(Guid id, Division division,
-            UIC uic, string lastName, string username, IEnumerable<PermissionGroup> permissionGroups,
-            IEnumerable<WatchQualifications> watchQuals, Paygrades paygrade, Designation designation)
+            UIC uic, string lastName, string username, IEnumerable<WatchQualifications> watchQuals, Paygrades paygrade,
+            Designation designation)
         {
             var person = new Person
             {
@@ -228,7 +228,6 @@ namespace CommandCentral.Utilities
                 Paygrade = paygrade,
                 DutyStatus = Random.GetRandomEnumValue<DutyStatuses>(),
                 WatchQualifications = watchQuals.ToList(),
-                PermissionGroups = permissionGroups.ToList(),
                 Designation = designation
             };
 
@@ -287,10 +286,8 @@ namespace CommandCentral.Utilities
                 var uic = SessionManager.GetCurrentSession().Query<UIC>().ToList().Shuffle().First();
 
                 var person = CreatePerson(Guid.Parse("b2db659d-4998-40a2-8962-e6eb05326ea5"), division, uic,
-                    "developer", "dev", new[] {PermissionsCache.PermissionGroupsCache["Developers"]},
-                    (WatchQualifications[]) Enum.GetValues(typeof(WatchQualifications)),
-                    Paygrades.E5,
-                    SessionManager.GetCurrentSession().Query<Designation>().ToList().Shuffle().First());
+                    "developer", "dev", (WatchQualifications[]) Enum.GetValues(typeof(WatchQualifications)),
+                    Paygrades.E5, SessionManager.GetCurrentSession().Query<Designation>().ToList().Shuffle().First());
 
                 SessionManager.GetCurrentSession().Save(person);
 
@@ -304,16 +301,6 @@ namespace CommandCentral.Utilities
             using (var transaction = SessionManager.GetCurrentSession().BeginTransaction())
             {
                 var paygrades = PaygradeUtilities.EnlistedPaygrades;
-
-                var divPermGroups = PermissionsCache.PermissionGroupsCache.Values
-                    .Where(x => x.AccessLevels.Values.Any(y => y == ChainOfCommandLevels.Division) &&
-                                x.IsMemberOfChainOfCommand).ToList();
-                var depPermGroups = PermissionsCache.PermissionGroupsCache.Values
-                    .Where(x => x.AccessLevels.Values.Any(y => y == ChainOfCommandLevels.Department) &&
-                                x.IsMemberOfChainOfCommand).ToList();
-                var comPermGroups = PermissionsCache.PermissionGroupsCache.Values
-                    .Where(x => x.AccessLevels.Values.Any(y => y == ChainOfCommandLevels.Command) &&
-                                x.IsMemberOfChainOfCommand).ToList();
 
                 foreach (var command in SessionManager.GetCurrentSession().Query<Command>())
                 {
@@ -329,39 +316,6 @@ namespace CommandCentral.Utilities
 
                                 var quals = ((WatchQualifications[]) Enum.GetValues(typeof(WatchQualifications)))
                                     .ToList();
-                                var permGroups = new List<PermissionGroup>();
-
-                                var permChance = Random.GetRandomNumber(0, 100);
-
-                                if (!paygrade.IsCivilianPaygrade())
-                                {
-                                    if (permChance >= 0 && permChance < 60)
-                                    {
-                                        //Users
-                                    }
-                                    else if (permChance >= 60 && permChance < 80)
-                                    {
-                                        //Division leadership
-                                        permGroups.AddRange(divPermGroups.Shuffle()
-                                            .Take(Random.GetRandomNumber(1, divPermGroups.Count)));
-                                    }
-                                    else if (permChance >= 80 && permChance < 90)
-                                    {
-                                        //Dep leadership
-                                        permGroups.AddRange(depPermGroups.Shuffle()
-                                            .Take(Random.GetRandomNumber(1, depPermGroups.Count)));
-                                    }
-                                    else if (permChance >= 90 && permChance < 95)
-                                    {
-                                        //Com leadership
-                                        permGroups.AddRange(comPermGroups.Shuffle()
-                                            .Take(Random.GetRandomNumber(1, comPermGroups.Count)));
-                                    }
-                                    else if (permChance >= 95 && permChance <= 100)
-                                    {
-                                        permGroups.Add(PermissionsCache.PermissionGroupsCache["Admin"]);
-                                    }
-                                }
 
                                 if (paygrade.IsOfficerPaygrade())
                                 {
@@ -399,8 +353,8 @@ namespace CommandCentral.Utilities
                                     throw new Exception($"An unknown paygrade was found! {paygrade}");
                                 }
 
-                                var person = CreatePerson(Guid.NewGuid(), division, uic, "user" + created, "user" + created, permGroups,
-                                    quals, paygrade,
+                                var person = CreatePerson(Guid.NewGuid(), division, uic, "user" + created,
+                                    "user" + created, quals, paygrade,
                                     SessionManager.GetCurrentSession().Query<Designation>().ToList().Shuffle().First());
 
                                 SessionManager.GetCurrentSession().Save(person);

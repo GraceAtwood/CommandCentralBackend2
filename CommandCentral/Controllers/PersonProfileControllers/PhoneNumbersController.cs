@@ -40,28 +40,15 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 .AddNullableBoolQueryExpression(x => x.IsReleasableOutsideCoC, isReleasableOutsideCoC)
                 .AddExactEnumQueryExpression(x => x.PhoneType, phoneType);
 
-            var phoneNumbers = DBSession.Query<PhoneNumber>()
+            var results = DBSession.Query<PhoneNumber>()
                 .AsExpandable()
                 .NullSafeWhere(predicate)
                 .Take(limit)
+                .ToList()
+                .Where(x => User.CanReturn(x))
+                .Select(x => new DTOs.PhoneNumber.Get(x))
                 .ToList();
 
-            var checkedPersons = new Dictionary<Person, bool>();
-            foreach (var phoneNumber in phoneNumbers.Where(x => !x.IsReleasableOutsideCoC))
-            {
-                if (!checkedPersons.TryGetValue(phoneNumber.Person, out var canView))
-                {
-                    checkedPersons[phoneNumber.Person] = User.IsInChainOfCommand(phoneNumber.Person);
-                    canView = checkedPersons[phoneNumber.Person];
-                }
-
-                if (!canView)
-                    phoneNumber.Number = "REDACTED";
-            }
-
-            //Now that we've scrubbed out all the values we don't want to expose to the client, 
-            //we're ready to send the results out.
-            var results = phoneNumbers.Select(x => new DTOs.PhoneNumber.Get(x)).ToList();
             return Ok(results);
         }
         
@@ -79,8 +66,8 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (phoneNumber == null)
                 return NotFoundParameter(id, nameof(id));
 
-            if (!phoneNumber.IsReleasableOutsideCoC && !User.IsInChainOfCommand(phoneNumber.Person))
-                phoneNumber.Number = "REDACTED";
+            if (!User.CanReturn(phoneNumber))
+                return Forbid("You are not allowed to view this phone number.");
 
             return Ok(new DTOs.PhoneNumber.Get(phoneNumber));
         }
@@ -101,7 +88,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (person == null)
                 return NotFoundParameter(dto.Person, nameof(dto.Person));
 
-            if (!User.GetFieldPermissions<Person>(person).CanEdit(x => x.PhoneNumbers))
+            if (!User.CanEdit(person, x => x.PhoneNumbers))
                 return Forbid("You may not modify the phone numbers collection for this person.");
 
             var phoneNumber = new PhoneNumber
@@ -149,7 +136,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (phoneNumber == null)
                 return NotFoundParameter(id, nameof(id));
 
-            if (!User.GetFieldPermissions<Person>(phoneNumber.Person).CanEdit(x => x.PhoneNumbers))
+            if (!User.CanEdit(phoneNumber))
                 return Forbid("You may not modify the phone numbers collection for this person");
 
             phoneNumber.Number = dto.Number;
@@ -187,7 +174,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (phoneNumber == null)
                 return NotFoundParameter(id, nameof(id));
 
-            if (!User.GetFieldPermissions<Person>(phoneNumber.Person).CanEdit(x => x.PhoneNumbers))
+            if (!User.CanEdit(phoneNumber))
                 return Forbid("You may not modify the phone numbers collection for this person");
 
             DBSession.Delete(phoneNumber);

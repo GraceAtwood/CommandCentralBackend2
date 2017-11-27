@@ -4,6 +4,7 @@ using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CommandCentral.Authorization;
 using FluentValidation.Results;
 using CommandCentral.Framework;
 using CommandCentral.Enums;
@@ -122,13 +123,7 @@ namespace CommandCentral.Entities.Correspondence
         /// <returns></returns>
         public virtual bool CanPersonViewItem(Person person)
         {
-            if (CanPersonEditItem(person))
-                return true;
-
-            if (person.IsInChainOfCommand(SubmittedFor))
-                return true;
-
-            return false;
+            return CanPersonEditItem(person) || person.IsInChainOfCommand(SubmittedFor);
         }
 
         /// <summary>
@@ -138,14 +133,9 @@ namespace CommandCentral.Entities.Correspondence
         /// <returns></returns>
         public virtual bool CanPersonEditItem(Person person)
         {
-            if (person.CanAccessSubmodules(SpecialPermissions.AdminTools))
-                return true;
-
-            if (SubmittedBy == person || SubmittedFor == person ||
-                Reviews.Any(y => y.Reviewer == person || y.ReviewedBy == person) || SharedWith.Contains(person))
-                return true;
-
-            return false;
+            return person.SpecialPermissions.Contains(SpecialPermissions.AdminTools) ||
+                   (SubmittedBy == person || SubmittedFor == person ||
+                    Reviews.Any(y => y.Reviewer == person || y.ReviewedBy == person) || SharedWith.Contains(person));
         }
 
         /// <summary>

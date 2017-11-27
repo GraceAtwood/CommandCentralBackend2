@@ -137,7 +137,7 @@ namespace CommandCentral.Controllers
             if (item == null)
                 return NotFoundParameter(id, nameof(id));
 
-            if (item.Creator != User || !User.CanAccessSubmodules(SpecialPermissions.AdminTools))
+            if (item.Creator != User || !User.SpecialPermissions.Contains(SpecialPermissions.AdminTools))
                 return Forbid();
 
             item.Body = dto.Body;
@@ -164,7 +164,7 @@ namespace CommandCentral.Controllers
             if (item == null)
                 return NotFoundParameter(id, nameof(id));
 
-            if (item.Creator != User || !User.CanAccessSubmodules(SpecialPermissions.AdminTools))
+            if (item.Creator != User || !User.SpecialPermissions.Contains(SpecialPermissions.AdminTools))
                 return Forbid();
 
             DBSession.Delete(item);

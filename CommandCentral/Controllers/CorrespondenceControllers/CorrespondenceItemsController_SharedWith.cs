@@ -28,8 +28,7 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
             if (!item.CanPersonViewItem(User))
                 return Forbid();
 
-            var result = item.SharedWith.Select(person =>
-                    new DTOs.Person.Get(person, User.GetFieldPermissions<Person>(person)))
+            var result = item.SharedWith.Select(person => new DTOs.Person.Get(User, person))
                 .ToList();
 
             return Ok(result);
@@ -84,11 +83,7 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
             }, this);
 
             return CreatedAtAction(nameof(GetSharedWith), new {correspondenceItemId = item.Id},
-                item.SharedWith.Select(person =>
-                {
-                    var permissions = User.GetFieldPermissions<Person>(person);
-                    return new DTOs.Person.Get(person, permissions);
-                }).ToList());
+                item.SharedWith.Select(person => new DTOs.Person.Get(User, person)).ToList());
         }
     }
 }

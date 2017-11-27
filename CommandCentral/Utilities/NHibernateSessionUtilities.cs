@@ -62,37 +62,19 @@ namespace CommandCentral.Utilities
             var indices = persister.FindDirty(currentState.ToArray(), entityEntry.LoadedState, entity,
                 session.GetSessionImplementation());
 
-            if (indices != null)
+            if (indices == null) 
+                yield break;
+            
+            foreach (var index in indices)
             {
-                foreach (var index in indices)
+                yield return new Change
                 {
-                    yield return new Change
-                    {
-                        NewValue = currentState[index]?.ToString(),
-                        OldValue = entityEntry.LoadedState[index]?.ToString(),
-                        PropertyName = persister.PropertyNames[index],
-                        Id = Guid.NewGuid()
-                    };
-                }
-            }
-
-            //Here we walk through the collections ourselves in order to determine what has changed.
-            for (var x = 0; x < persister.PropertyTypes.Length; x++)
-            {
-                if (!(persister.PropertyTypes[x] is CollectionType))
-                    continue;
-
-                if (!CollectionUtilities.ScrambledEquals((dynamic) currentState[x],
-                    (dynamic) entityEntry.LoadedState[x]))
-                {
-                    yield return new Change
-                    {
-                        Id = Guid.NewGuid(),
-                        NewValue = String.Join(", ", (dynamic) currentState[x]),
-                        OldValue = String.Join(", ", (dynamic) entityEntry.LoadedState[x]),
-                        PropertyName = persister.PropertyNames[x]
-                    };
-                }
+                    NewValue = currentState[index]?.ToString(),
+                    OldValue = entityEntry.LoadedState[index]?.ToString(),
+                    PropertyPath = persister.PropertyNames[index],
+                    Entity = entity,
+                    Id = Guid.NewGuid()
+                };
             }
         }
 

@@ -145,11 +145,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 .OrderBy(orderBySelector)
                 .Take(limit)
                 .ToList()
-                .Select(person =>
-                {
-                    var perms = User.GetFieldPermissions<Person>(person);
-                    return new DTOs.Person.Get(person, perms);
-                })
+                .Select(person => new DTOs.Person.Get(User, person))
                 .ToList();
 
             return Ok(result);
@@ -163,9 +159,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         [ProducesResponseType(200, Type = typeof(DTOs.Person.Get))]
         public IActionResult GetMe()
         {
-            var perms = User.GetFieldPermissions<Person>(User);
-
-            return Ok(new DTOs.Person.Get(User, perms));
+            return Ok(new DTOs.Person.Get(User, User));
         }
 
         /// <summary>
@@ -181,9 +175,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (person == null)
                 return NotFoundParameter(id, nameof(id));
 
-            var perms = User.GetFieldPermissions<Person>(person);
-
-            return Ok(new DTOs.Person.Get(person, perms));
+            return Ok(new DTOs.Person.Get(User, person));
         }
 
         /// <summary>
@@ -198,7 +190,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (dto == null)
                 return BadRequestDTONull();
 
-            if (!User.CanAccessSubmodules(SpecialPermissions.CreatePerson))
+            if (!User.SpecialPermissions.Contains(SpecialPermissions.CreatePerson))
                 return Forbid("You must have access to the Create Persons sub module to create a person.");
 
             var uic = DBSession.Get<UIC>(dto.UIC);
@@ -212,7 +204,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             var designation = DBSession.Get<Designation>(dto.Designation);
             if (designation == null)
                 return NotFoundParameter(dto.Designation, nameof(dto.Designation));
-            
+
             var person = new Person
             {
                 Id = Guid.NewGuid(),
@@ -243,8 +235,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 Person = person
             }, this);
 
-            return CreatedAtAction(nameof(Get), new {id = person.Id},
-                new DTOs.Person.Get(person, User.GetFieldPermissions<Person>(person)));
+            return CreatedAtAction(nameof(Get), new {id = person.Id}, new DTOs.Person.Get(User, person));
         }
     }
 }

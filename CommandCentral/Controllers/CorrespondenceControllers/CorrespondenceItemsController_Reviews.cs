@@ -149,7 +149,7 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
                 return Conflict(
                     "The correspondence item to which this review belongs has been completed.  Further modifications of it and its reviews is no longer allowed.");
 
-            if (!User.CanAccessSubmodules(SpecialPermissions.AdminTools) && User != review.Reviewer)
+            if (!User.SpecialPermissions.Contains(SpecialPermissions.AdminTools) && User != review.Reviewer)
                 return Forbid();
 
             if (review.IsReviewed && !dto.IsRecommended.HasValue)

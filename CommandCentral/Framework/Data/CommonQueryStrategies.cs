@@ -18,7 +18,7 @@ namespace CommandCentral.Framework.Data
         {
             if (chainsOfCommands == null)
                 throw new ArgumentException("Must not be empty.  Omit the argument instead.", nameof(chainsOfCommands));
-            
+
             var divisionLevelGroups = PermissionsCache.PermissionGroupsCache.Values
                 .Where(x => x.AccessLevels.Any(y => y.Value == ChainOfCommandLevels.Division))
                 .Where(x => !chainsOfCommands.Any() ||
@@ -192,6 +192,26 @@ namespace CommandCentral.Framework.Data
                     (current1, subPredicate) => current1.NullSafeOr(subPredicate));
         }
 
+        public static Expression<Func<T, bool>> AddEntityIdQueryExpression<T>(this Expression<Func<T, bool>> initial,
+            Expression<Func<T, Entity>> selector, string searchValue)
+        {
+            if (String.IsNullOrWhiteSpace(searchValue))
+                return initial;
+
+            var predicate = searchValue.SplitByOr()
+                .Select(phrase =>
+                {
+                    return Guid.TryParse(phrase, out var id)
+                        ? ((Expression<Func<T, bool>>) null).NullSafeAnd(x => selector.Invoke(x).Id == id)
+                        : null;
+                })
+                .Where(x => x != null)
+                .Aggregate<Expression<Func<T, bool>>, Expression<Func<T, bool>>>(null,
+                    (current, subPredicate) => current.NullSafeOr(subPredicate));
+
+            return initial.NullSafeAnd(predicate);
+        }
+
         public static Expression<Func<T, bool>> AddDateTimeQueryExpression<T>(this Expression<Func<T, bool>> initial,
             Expression<Func<T, DateTime?>> selector, DTOs.DateTimeRangeQuery range)
         {
@@ -303,7 +323,7 @@ namespace CommandCentral.Framework.Data
         {
             if (String.IsNullOrWhiteSpace(searchValue))
                 return initial;
-            
+
             var predicate = searchValue.SplitByOr()
                 .Select(phrase =>
                 {
@@ -312,7 +332,7 @@ namespace CommandCentral.Framework.Data
 
                     return phrase.SplitByAnd()
                         .Aggregate((Expression<Func<T, bool>>) null,
-                            (current, term) => current.And(x => selector.Invoke(x).Name.Contains(term))); 
+                            (current, term) => current.And(x => selector.Invoke(x).Name.Contains(term)));
                 })
                 .Aggregate<Expression<Func<T, bool>>, Expression<Func<T, bool>>>(null,
                     (current1, subPredicate) => current1.NullSafeOr(subPredicate));

@@ -96,6 +96,24 @@ namespace CommandCentral.Authorization
 
             return ((RulesContract<T>) contract).CanReturnProperty(editor, entity, propertySelector);
         }
+        
+        /// <summary>
+        /// Determines if this person can return the given property of the given entity.
+        /// </summary>
+        /// <param name="editor">The person for whom to check permissions.</param>
+        /// <param name="entity">The entity against which to check permissions.</param>
+        /// <param name="propertyName">The name of the property this person wishes to return.</param>
+        /// <typeparam name="T">Any type that derives from <seealso cref="Entities.Entity"/></typeparam>
+        /// <returns></returns>
+        /// <exception cref="Exception">If a rules contract for the type T is not found.</exception>
+        public static bool CanReturn<T>(this Person editor, T entity, string propertyName)
+            where T : Entity
+        {
+            if (!ContractsByType.TryGetValue(typeof(T), out var contract))
+                throw new Exception("No contract found.");
+
+            return ((RulesContract<T>) contract).CanReturnProperty(editor, entity, propertyName);
+        }
 
         /// <summary>
         /// Returns the highest levels at which this person can access the given chains of command.

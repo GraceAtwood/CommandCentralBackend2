@@ -24,37 +24,39 @@ namespace CommandCentral.DTOs.Person
         public DateTime? DateOfDeparture { get; set; }
         public BilletAssignments BilletAssignment { get; set; }
 
-        public Get(Entities.Person person, TypePermissionsDescriptor<Entities.Person> perms)
+        public Get(Entities.Person user, Entities.Person person)
         {
-            Age = perms.GetSafeReturnValue(person, x => x.Age);
-            BilletAssignment = perms.GetSafeReturnValue(person, x => x.BilletAssignment);
-            Command = perms.GetSafeReturnValue(person, x => x.Command).Id;
-            DateOfArrival = perms.GetSafeReturnValue(person, x => x.DateOfArrival);
-            DateOfBirth = perms.GetSafeReturnValue(person, x => x.DateOfBirth);
-            DateOfDeparture = perms.GetSafeReturnValue(person, x => x.DateOfDeparture);
-            Department = perms.GetSafeReturnValue(person, x => x.Department).Id;
-            Designation = perms.GetSafeReturnValue(person, x => x.Designation).Id;
-            Division = perms.GetSafeReturnValue(person, x => x.Division).Id;
-            DoDId = perms.GetSafeReturnValue(person, x => x.DoDId);
-            DutyStatus = perms.GetSafeReturnValue(person, x => x.DutyStatus);
-            EAOS = perms.GetSafeReturnValue(person, x => x.EAOS);
-            Ethnicity = perms.GetSafeReturnValue(person, x => x.Ethnicity)?.Id;
-            FirstName = perms.GetSafeReturnValue(person, x => x.FirstName);
-            Id = perms.GetSafeReturnValue(person, x => x.Id);
-            JobTitle = perms.GetSafeReturnValue(person, x => x.JobTitle);
-            LastName = perms.GetSafeReturnValue(person, x => x.LastName);
-            MiddleName = perms.GetSafeReturnValue(person, x => x.MiddleName);
-            Paygrade = perms.GetSafeReturnValue(person, x => x.Paygrade);
-            PRD = perms.GetSafeReturnValue(person, x => x.PRD);
-            ReligiousPreference = perms.GetSafeReturnValue(person, x => x.ReligiousPreference)?.Id;
-            Sex = perms.GetSafeReturnValue(person, x => x.Sex);
-            Shift = perms.GetSafeReturnValue(person, x => x.Shift);
-            SSN = perms.GetSafeReturnValue(person, x => x.SSN);
-            Suffix = perms.GetSafeReturnValue(person, x => x.Suffix);
-            Supervisor = perms.GetSafeReturnValue(person, x => x.Supervisor);
-            UIC = perms.GetSafeReturnValue(person, x => x.UIC).Id;
-            WorkCenter = perms.GetSafeReturnValue(person, x => x.WorkCenter);
-            WorkRoom = perms.GetSafeReturnValue(person, x => x.WorkRoom);
+            Age = user.CanReturn(person, x => x.Age) ? person.Age : default;
+            BilletAssignment = user.CanReturn(person, x => x.BilletAssignment) ? person.BilletAssignment : default;
+            Command = user.CanReturn(person, x => x.Command) ? person.Command.Id : default;
+            DateOfArrival = user.CanReturn(person, x => x.DateOfArrival) ? person.DateOfArrival : default;
+            DateOfBirth = user.CanReturn(person, x => x.DateOfBirth) ? person.DateOfBirth : default;
+            DateOfDeparture = user.CanReturn(person, x => x.DateOfDeparture) ? person.DateOfDeparture : default;
+            Department = user.CanReturn(person, x => x.Department) ? person.Department.Id : default;
+            Designation = user.CanReturn(person, x => x.Designation) ? person.Designation.Id : default;
+            Division = user.CanReturn(person, x => x.Division) ? person.Division.Id : default;
+            DoDId = user.CanReturn(person, x => x.DoDId) ? person.DoDId : default;
+            DutyStatus = user.CanReturn(person, x => x.DutyStatus) ? person.DutyStatus : default;
+            EAOS = user.CanReturn(person, x => x.EAOS) ? person.EAOS : default;
+            Ethnicity = user.CanReturn(person, x => x.Ethnicity) ? person.Ethnicity?.Id : default;
+            FirstName = user.CanReturn(person, x => x.FirstName) ? person.FirstName : default;
+            Id = user.CanReturn(person, x => x.Id) ? person.Id : default;
+            JobTitle = user.CanReturn(person, x => x.JobTitle) ? person.JobTitle : default;
+            LastName = user.CanReturn(person, x => x.LastName) ? person.LastName : default;
+            MiddleName = user.CanReturn(person, x => x.MiddleName) ? person.MiddleName : default;
+            Paygrade = user.CanReturn(person, x => x.Paygrade) ? person.Paygrade : default;
+            PRD = user.CanReturn(person, x => x.PRD) ? person.PRD : default;
+            ReligiousPreference = user.CanReturn(person, x => x.ReligiousPreference)
+                ? person.ReligiousPreference?.Id
+                : default;
+            Sex = user.CanReturn(person, x => x.Sex) ? person.Sex : default;
+            Shift = user.CanReturn(person, x => x.Shift) ? person.Shift : default;
+            SSN = user.CanReturn(person, x => x.SSN) ? person.SSN : default;
+            Suffix = user.CanReturn(person, x => x.Suffix) ? person.Suffix : default;
+            Supervisor = user.CanReturn(person, x => x.Supervisor) ? person.Supervisor : default;
+            UIC = user.CanReturn(person, x => x.UIC) ? person.UIC.Id : default;
+            WorkCenter = user.CanReturn(person, x => x.WorkCenter) ? person.WorkCenter : default;
+            WorkRoom = user.CanReturn(person, x => x.WorkRoom) ? person.WorkRoom : default;
         }
     }
 }
