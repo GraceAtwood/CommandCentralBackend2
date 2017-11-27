@@ -19,7 +19,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
     /// <summary>
     /// The person object is the central entry to a person's profile.  Permissions for each field can be attained from the /authorization controller.
     /// </summary>
-    public partial class PersonsController : CommandCentralController
+    public class PersonsController : CommandCentralController
     {
         /// <summary>
         /// Queries the persons collection.  Results are passed through a permissions filter prior to serving them to the client.  
