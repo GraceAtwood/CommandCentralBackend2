@@ -318,14 +318,16 @@ namespace CommandCentral.Utilities
 
                 foreach (var duty in SessionManager.GetCurrentSession().Query<CollateralDuty>().Where(x => x.Command == person.Division.Department.Command))
                 {
-                    person.CollateralDutyMemberships.Add(new CollateralDutyMembership
+                    var membership = new CollateralDutyMembership
                     {
                         CollateralDuty = duty,
                         Id = Guid.NewGuid(),
                         Level = ChainOfCommandLevels.Command,
                         Person = person,
                         Role = CollateralRoles.Primary
-                    });
+                    };
+
+                    SessionManager.GetCurrentSession().Save(membership);
                 }
                 
                 SessionManager.GetCurrentSession().Save(person);
