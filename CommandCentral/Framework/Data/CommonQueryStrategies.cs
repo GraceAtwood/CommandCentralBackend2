@@ -8,42 +8,30 @@ using System.Linq;
 using System.Linq.Expressions;
 using CommandCentral.Authorization;
 using CommandCentral.Enums;
+using FluentNHibernate.Utils;
 
 namespace CommandCentral.Framework.Data
 {
     public static class CommonQueryStrategies
     {
         public static Expression<Func<T, bool>> GetIsPersonInChainOfCommandExpression<T>(
-            Expression<Func<T, Person>> selector, Person person, params ChainsOfCommand[] chainsOfCommands)
+            Expression<Func<T, Person>> selector, Person user, params ChainsOfCommand[] chainsOfCommands)
         {
             if (chainsOfCommands == null)
                 throw new ArgumentException("Must not be empty.  Omit the argument instead.", nameof(chainsOfCommands));
 
-            var divisionLevelGroups = PermissionsCache.PermissionGroupsCache.Values
-                .Where(x => x.AccessLevels.Any(y => y.Value == ChainOfCommandLevels.Division))
-                .Where(x => !chainsOfCommands.Any() ||
-                            chainsOfCommands.Any(chainOfCommand => x.AccessLevels.ContainsKey(chainOfCommand)))
-                .Select(x => x.Name)
-                .ToList();
-            var departmentLevelGroups = PermissionsCache.PermissionGroupsCache.Values
-                .Where(x => x.AccessLevels.Any(y => y.Value == ChainOfCommandLevels.Department))
-                .Where(x => !chainsOfCommands.Any() ||
-                            chainsOfCommands.Any(chainOfCommand => x.AccessLevels.ContainsKey(chainOfCommand)))
-                .Select(x => x.Name)
-                .ToList();
-            var commandLevelGroups = PermissionsCache.PermissionGroupsCache.Values
-                .Where(x => x.AccessLevels.Any(y => y.Value == ChainOfCommandLevels.Command))
-                .Where(x => !chainsOfCommands.Any() ||
-                            chainsOfCommands.Any(chainOfCommand => x.AccessLevels.ContainsKey(chainOfCommand)))
-                .Select(x => x.Name)
-                .ToList();
+            if (!chainsOfCommands.Any())
+                chainsOfCommands = (ChainsOfCommand[]) Enum.GetValues(typeof(ChainsOfCommand));
 
-            return x => selector.Invoke(x).PermissionGroups.Any(y => commandLevelGroups.Contains(y.Name)) &&
-                        selector.Invoke(x).Division.Department.Command == person.Division.Department.Command ||
-                        selector.Invoke(x).PermissionGroups.Any(y => departmentLevelGroups.Contains(y.Name)) &&
-                        selector.Invoke(x).Division.Department == person.Division.Department ||
-                        selector.Invoke(x).PermissionGroups.Any(y => divisionLevelGroups.Contains(y.Name)) &&
-                        selector.Invoke(x).Division == person.Division;
+            return x => selector.Invoke(x).CollateralDutyMemberships.Any(membership =>
+                chainsOfCommands.Contains(membership.CollateralDuty.ChainOfCommand) && membership.Level !=
+                ChainOfCommandLevels.None &&
+                (membership.Level == ChainOfCommandLevels.Command &&
+                 user.Division.Department.Command == selector.Invoke(x).Division.Department.Command ||
+                 membership.Level == ChainOfCommandLevels.Department &&
+                 user.Division.Department == selector.Invoke(x).Division.Department ||
+                 membership.Level == ChainOfCommandLevels.Division &&
+                 user.Division == selector.Invoke(x).Division));
         }
 
         public static Expression<Func<Person, bool>> GetPersonsSubscribedToEventForPersonExpression(
