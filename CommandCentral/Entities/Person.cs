@@ -17,7 +17,7 @@ namespace CommandCentral.Entities
     /// <summary>
     /// Describes a single person and all their properties and data access methods.
     /// </summary>
-    public sealed class Person : Entity, IHazComments
+    public class Person : Entity, IHazComments
     {
         #region Properties
 
@@ -26,42 +26,42 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The person's last name.
         /// </summary>
-        public string LastName { get; set; }
+        public virtual string LastName { get; set; }
 
         /// <summary>
         /// The person's first name.
         /// </summary>
-        public string FirstName { get; set; }
+        public virtual string FirstName { get; set; }
 
         /// <summary>
         /// The person's middle name.
         /// </summary>
-        public string MiddleName { get; set; }
+        public virtual string MiddleName { get; set; }
 
         /// <summary>
         /// The person's SSN.
         /// </summary>
-        public string SSN { get; set; }
+        public virtual string SSN { get; set; }
 
         /// <summary>
         /// The person's DoD Id which allows us to communicate with other systems about this person.
         /// </summary>
-        public string DoDId { get; set; }
+        public virtual string DoDId { get; set; }
 
         /// <summary>
         /// The person's suffix.
         /// </summary>
-        public string Suffix { get; set; }
+        public virtual string Suffix { get; set; }
 
         /// <summary>
         /// The person's date of birth.
         /// </summary>
-        public DateTime DateOfBirth { get; set; }
+        public virtual DateTime DateOfBirth { get; set; }
 
         /// <summary>
         /// The person's age.  0 if the date of birth isn't set.
         /// </summary>
-        public int Age
+        public virtual int Age
         {
             get
             {
@@ -82,42 +82,42 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The person's sex.
         /// </summary>
-        public Sexes Sex { get; set; }
+        public virtual Sexes Sex { get; set; }
 
         /// <summary>
         /// Stores the person's ethnicity.
         /// </summary>
-        public Ethnicity Ethnicity { get; set; }
+        public virtual Ethnicity Ethnicity { get; set; }
 
         /// <summary>
         /// The person's religious preference
         /// </summary>
-        public ReligiousPreference ReligiousPreference { get; set; }
+        public virtual ReligiousPreference ReligiousPreference { get; set; }
 
         /// <summary>
         /// The person's paygrade (e5, O1, O5, CWO2, GS1,  etc.)
         /// </summary>
-        public Paygrades Paygrade { get; set; }
+        public virtual Paygrades Paygrade { get; set; }
 
         /// <summary>
         /// The person's Designation (CTI2, CTR1, 1114, Job title)
         /// </summary>
-        public Designation Designation { get; set; }
+        public virtual Designation Designation { get; set; }
 
         /// <summary>
         /// The person's division
         /// </summary>
-        public Division Division { get; set; }
+        public virtual Division Division { get; set; }
 
         /// <summary>
         /// Readonly. Returns Division.Department
         /// </summary>
-        public Department Department => Division?.Department;
+        public virtual Department Department => Division?.Department;
 
         /// <summary>
         /// Readonly. Returns Department.Command
         /// </summary>
-        public Command Command => Department?.Command;
+        public virtual Command Command => Department?.Command;
 
         #endregion
 
@@ -126,77 +126,77 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The person's NECs.
         /// </summary>
-        public IList<NECInfo> NECs { get; set; } = new List<NECInfo>();
+        public virtual IList<NECInfo> NECs { get; set; } = new List<NECInfo>();
 
         /// <summary>
         /// The person's supervisor
         /// </summary>
-        public string Supervisor { get; set; }
+        public virtual string Supervisor { get; set; }
 
         /// <summary>
         /// The person's work center.
         /// </summary>
-        public string WorkCenter { get; set; }
+        public virtual string WorkCenter { get; set; }
 
         /// <summary>
         /// The room in which the person works.
         /// </summary>
-        public string WorkRoom { get; set; }
+        public virtual string WorkRoom { get; set; }
 
         /// <summary>
         /// A free form text field intended to let the client store the shift of a person - however the client wants to do that.
         /// </summary>
-        public string Shift { get; set; }
+        public virtual string Shift { get; set; }
 
         /// <summary>
         /// The person's duty status
         /// </summary>
-        public DutyStatuses DutyStatus { get; set; }
+        public virtual DutyStatuses DutyStatus { get; set; }
 
         /// <summary>
         /// The person's UIC
         /// </summary>
-        public UIC UIC { get; set; }
+        public virtual UIC UIC { get; set; }
 
         /// <summary>
         /// The date/time that the person arrived at the command.
         /// </summary>
-        public DateTime DateOfArrival { get; set; }
+        public virtual DateTime DateOfArrival { get; set; }
 
         /// <summary>
         /// The client's job title.
         /// </summary>
-        public string JobTitle { get; set; }
+        public virtual string JobTitle { get; set; }
 
         /// <summary>
         /// The date/time of the end of active obligatory service (EAOS) for the person.
         /// </summary>
-        public DateTime? EAOS { get; set; }
+        public virtual DateTime? EAOS { get; set; }
 
         /// <summary>
         /// The member's projected rotation date.
         /// </summary>
-        public DateTime? PRD { get; set; }
+        public virtual DateTime? PRD { get; set; }
 
         /// <summary>
         /// The date/time that the client left/will leave the command.
         /// </summary>
-        public DateTime? DateOfDeparture { get; set; }
+        public virtual DateTime? DateOfDeparture { get; set; }
 
         /// <summary>
         /// The person's watch qualification.
         /// </summary>
-        public IList<WatchQualifications> WatchQualifications { get; set; }
+        public virtual IList<WatchQualifications> WatchQualifications { get; set; }
 
         /// <summary>
         /// The person's status periods which describe projected locations and duty locations.
         /// </summary>
-        public IList<StatusPeriod> StatusPeriods { get; set; }
+        public virtual IList<StatusPeriod> StatusPeriods { get; set; }
 
         /// <summary>
         /// The type of billet this person is assigned to.
         /// </summary>
-        public BilletAssignments BilletAssignment { get; set; }
+        public virtual BilletAssignments BilletAssignment { get; set; }
 
         #endregion
 
@@ -205,17 +205,17 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The email addresses of this person.
         /// </summary>
-        public IList<EmailAddress> EmailAddresses { get; set; }
+        public virtual IList<EmailAddress> EmailAddresses { get; set; }
 
         /// <summary>
         /// The Phone Numbers of this person.
         /// </summary>
-        public IList<PhoneNumber> PhoneNumbers { get; set; }
+        public virtual IList<PhoneNumber> PhoneNumbers { get; set; }
 
         /// <summary>
         /// The Physical Addresses of this person
         /// </summary>
-        public IList<PhysicalAddress> PhysicalAddresses { get; set; }
+        public virtual IList<PhysicalAddress> PhysicalAddresses { get; set; }
 
         #endregion
 
@@ -224,32 +224,32 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The collection of all the col duty rules this person has.
         /// </summary>
-        public IList<CollateralDutyMembership> CollateralDutyMemberships { get; set; }
+        public virtual IList<CollateralDutyMembership> CollateralDutyMemberships { get; set; }
 
         /// <summary>
         /// A list of the submodules this person can access.
         /// </summary>
-        public IList<SpecialPermissions> SpecialPermissions { get; set; }
+        public virtual IList<SpecialPermissions> SpecialPermissions { get; set; }
 
         /// <summary>
         /// A list containing account history events, these are events that track things like login, password reset, etc.
         /// </summary>
-        public IList<AccountHistoryEvent> AccountHistory { get; set; }
+        public virtual IList<AccountHistoryEvent> AccountHistory { get; set; }
 
         /// <summary>
         /// A list containing all changes that have ever occurred to the profile.
         /// </summary>
-        public IList<Change> Changes { get; set; }
+        public virtual IList<Change> Changes { get; set; }
 
         /// <summary>
         /// The list of those events to which this person is subscribed.
         /// </summary>
-        public IDictionary<SubscribableEvents, ChainOfCommandLevels> SubscribedEvents { get; set; }
+        public virtual IDictionary<SubscribableEvents, ChainOfCommandLevels> SubscribedEvents { get; set; }
 
         /// <summary>
         /// The list of comments.
         /// </summary>
-        public IList<Comment> Comments { get; set; }
+        public virtual IList<Comment> Comments { get; set; }
 
         #endregion
 
@@ -270,7 +270,7 @@ namespace CommandCentral.Entities
 
         #region Helper Methods
 
-        public Dictionary<ChainsOfCommand, Dictionary<ChainOfCommandLevels, List<Person>>> GetChainOfCommand()
+        public virtual Dictionary<ChainsOfCommand, Dictionary<ChainOfCommandLevels, List<Person>>> GetChainOfCommand()
         {
             throw new NotImplementedException();
         }
@@ -280,7 +280,7 @@ namespace CommandCentral.Entities
         /// </summary>
         /// <param name="person"></param>
         /// <returns></returns>
-        public bool IsInSameCommandAs(Person person)
+        public virtual bool IsInSameCommandAs(Person person)
         {
             if (person == null || Division.Department.Command == null || person.Division.Department.Command == null)
                 return false;
@@ -293,7 +293,7 @@ namespace CommandCentral.Entities
         /// </summary>
         /// <param name="person"></param>
         /// <returns></returns>
-        public bool IsInSameDepartmentAs(Person person)
+        public virtual bool IsInSameDepartmentAs(Person person)
         {
             if (person == null || Department == null || person.Department == null)
                 return false;
@@ -306,7 +306,7 @@ namespace CommandCentral.Entities
         /// </summary>
         /// <param name="person"></param>
         /// <returns></returns>
-        public bool IsInSameDivisionAs(Person person)
+        public virtual bool IsInSameDivisionAs(Person person)
         {
             if (person == null || Division == null || person.Division == null)
                 return false;
@@ -319,7 +319,7 @@ namespace CommandCentral.Entities
         /// </summary>
         /// <param name="person"></param>
         /// <returns></returns>
-        public bool CanPersonAccessComments(Person person)
+        public virtual bool CanPersonAccessComments(Person person)
         {
             return true;
         }

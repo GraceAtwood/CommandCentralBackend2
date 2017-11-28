@@ -11,6 +11,7 @@ using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CommandCentral.Entities.CollateralDutyTracking;
 using NHibernate.Linq;
 
 namespace CommandCentral.Utilities
@@ -45,8 +46,34 @@ namespace CommandCentral.Utilities
             CreateDepartments(departmentsPerCommand);
             CreateDivisions(divisionsPerDepartment);
 
+            CreateCollateralDuties();
+            
             CreateDeveloper();
             CreateUsers(personsPerDivision);
+        }
+
+        private static void CreateCollateralDuties()
+        {
+            using (var transaction = SessionManager.GetCurrentSession().BeginTransaction())
+            {
+                foreach (var command in SessionManager.GetCurrentSession().Query<Command>())
+                {
+                    foreach (var chainOfCommand in (ChainsOfCommand[]) Enum.GetValues(typeof(ChainsOfCommand)))
+                    {
+                        var duty = new CollateralDuty
+                        {
+                            ChainOfCommand = chainOfCommand,
+                            Command = command,
+                            Id = Guid.NewGuid(),
+                            Name = chainOfCommand.ToString()
+                        };
+
+                        SessionManager.GetCurrentSession().Save(duty);
+                    }
+                }
+                
+                transaction.Commit();
+            }
         }
 
         private static void AddAPIKey()
@@ -289,6 +316,18 @@ namespace CommandCentral.Utilities
                     "developer", "dev", (WatchQualifications[]) Enum.GetValues(typeof(WatchQualifications)),
                     Paygrades.E5, SessionManager.GetCurrentSession().Query<Designation>().ToList().Shuffle().First());
 
+                foreach (var duty in SessionManager.GetCurrentSession().Query<CollateralDuty>().Where(x => x.Command == person.Division.Department.Command))
+                {
+                    person.CollateralDutyMemberships.Add(new CollateralDutyMembership
+                    {
+                        CollateralDuty = duty,
+                        Id = Guid.NewGuid(),
+                        Level = ChainOfCommandLevels.Command,
+                        Person = person,
+                        Role = CollateralRoles.Primary
+                    });
+                }
+                
                 SessionManager.GetCurrentSession().Save(person);
 
                 transaction.Commit();

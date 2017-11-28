@@ -16,17 +16,34 @@ namespace CommandCentral.Authorization
     /// </summary>
     public static class AuthorizationManager
     {
-        private static ConcurrentDictionary<Type, BaseRulesContract> ContractsByType { get; }
+        private static ConcurrentDictionary<Type, BaseRulesContract> ContractsByType { get; } =
+            new ConcurrentDictionary<Type, BaseRulesContract>();
+
+        private static HashSet<Type> UnactivatedTypes { get; }
 
         static AuthorizationManager()
         {
-            ContractsByType = new ConcurrentDictionary<Type, BaseRulesContract>(
+            UnactivatedTypes = new HashSet<Type>(
                 Assembly
                     .GetExecutingAssembly()
                     .GetTypes()
                     .Where(type => typeof(BaseRulesContract).IsAssignableFrom(type) &&
-                                   type != typeof(BaseRulesContract))
-                    .ToDictionary(type => type, type => (BaseRulesContract) Activator.CreateInstance(type)));
+                                   type != typeof(BaseRulesContract)));
+        }
+
+        private static RulesContract<T> GetContract<T>() where T : Entity
+        {
+            if (ContractsByType.TryGetValue(typeof(T), out var contract))
+                return (RulesContract<T>) contract;
+
+            if (!UnactivatedTypes.Contains(typeof(T)))
+                throw new Exception("Contract could not be found.");
+
+            UnactivatedTypes.Remove(typeof(T));
+            contract = (BaseRulesContract) Activator.CreateInstance(typeof(RulesContract<T>));
+            ContractsByType.AddOrUpdate(typeof(T), contract, (key, value) => value);
+
+            return (RulesContract<T>) contract;
         }
 
         /// <summary>
@@ -41,10 +58,7 @@ namespace CommandCentral.Authorization
         public static bool CanEdit<T>(this Person editor, T entity, Expression<Func<T, object>> propertySelector)
             where T : Entity
         {
-            if (!ContractsByType.TryGetValue(typeof(T), out var contract))
-                throw new Exception("No contract found.");
-
-            return ((RulesContract<T>) contract).CanEditProperty(editor, entity, propertySelector);
+            return GetContract<T>().CanEditProperty(editor, entity, propertySelector);
         }
 
         /// <summary>
@@ -57,12 +71,9 @@ namespace CommandCentral.Authorization
         /// <exception cref="Exception">If a rules contract for the type T is not found.</exception>
         public static bool CanEdit<T>(this Person person, T entity) where T : Entity
         {
-            if (!ContractsByType.TryGetValue(typeof(T), out var contract))
-                throw new Exception("No contract found.");
-
-            return ((RulesContract<T>) contract).CanEditAnyProperty(person, entity);
+            return GetContract<T>().CanEditAnyProperty(person, entity);
         }
-        
+
         /// <summary>
         /// Determines if this person can return ANY property of  the given entity.
         /// </summary>
@@ -73,10 +84,7 @@ namespace CommandCentral.Authorization
         /// <exception cref="Exception">If a rules contract for the type T is not found.</exception>
         public static bool CanReturn<T>(this Person person, T entity) where T : Entity
         {
-            if (!ContractsByType.TryGetValue(typeof(T), out var contract))
-                throw new Exception("No contract found.");
-
-            return ((RulesContract<T>) contract).CanReturnAnyProperty(person, entity);
+            return GetContract<T>().CanReturnAnyProperty(person, entity);
         }
 
         /// <summary>
@@ -91,12 +99,9 @@ namespace CommandCentral.Authorization
         public static bool CanReturn<T>(this Person editor, T entity, Expression<Func<T, object>> propertySelector)
             where T : Entity
         {
-            if (!ContractsByType.TryGetValue(typeof(T), out var contract))
-                throw new Exception("No contract found.");
-
-            return ((RulesContract<T>) contract).CanReturnProperty(editor, entity, propertySelector);
+            return GetContract<T>().CanReturnProperty(editor, entity, propertySelector);
         }
-        
+
         /// <summary>
         /// Determines if this person can return the given property of the given entity.
         /// </summary>
@@ -109,10 +114,7 @@ namespace CommandCentral.Authorization
         public static bool CanReturn<T>(this Person editor, T entity, string propertyName)
             where T : Entity
         {
-            if (!ContractsByType.TryGetValue(typeof(T), out var contract))
-                throw new Exception("No contract found.");
-
-            return ((RulesContract<T>) contract).CanReturnProperty(editor, entity, propertyName);
+            return GetContract<T>().CanReturnProperty(editor, entity, propertyName);
         }
 
         /// <summary>
