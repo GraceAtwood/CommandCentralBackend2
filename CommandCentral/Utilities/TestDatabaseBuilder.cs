@@ -317,6 +317,9 @@ namespace CommandCentral.Utilities
                 
                 SessionManager.GetCurrentSession().Save(person);
 
+                person.SpecialPermissions =
+                    ((SpecialPermissions[]) Enum.GetValues(typeof(SpecialPermissions))).ToList();
+
                 foreach (var duty in SessionManager.GetCurrentSession().Query<CollateralDuty>().Where(x => x.Command == person.Division.Department.Command))
                 {
                     var membership = new CollateralDutyMembership

@@ -2,6 +2,7 @@
 {
     public enum Sexes
     {
+        NULL,
         Male,
         Female
     }

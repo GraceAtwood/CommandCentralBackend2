@@ -2,6 +2,7 @@
 {
     public enum DutyStatuses
     {
+        NULL,
         Active,
         Reserves,
         Contractor,

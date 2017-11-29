@@ -216,7 +216,7 @@ namespace CommandCentral.Entities
         /// <summary>
         /// A list of the submodules this person can access.
         /// </summary>
-        public virtual IList<SpecialPermissions> SpecialPermissions { get; set; }
+        public virtual IList<SpecialPermissions> SpecialPermissions { get; set; } = new List<SpecialPermissions>();
 
         /// <summary>
         /// A list containing account history events, these are events that track things like login, password reset, etc.
@@ -358,6 +358,11 @@ namespace CommandCentral.Entities
                         index.Column("ChangeEvent").Type<GenericEnumMapper<SubscribableEvents>>(), element =>
                         element.Column("Level").Type<GenericEnumMapper<ChainOfCommandLevels>>())
                     .Cascade.All();
+
+                HasMany(x => x.SpecialPermissions)
+                    .Cascade.All()
+                    .Table("specialpermissionstopersons")
+                    .Element("SpecialPermission");
             }
         }
 
