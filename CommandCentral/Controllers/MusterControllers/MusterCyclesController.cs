@@ -70,7 +70,7 @@ namespace CommandCentral.Controllers.MusterControllers
         [ProducesResponseType(200, Type = typeof(DTOs.MusterCycle.Get))]
         public IActionResult GetCurrent()
         {
-            return Ok(new DTOs.MusterCycle.Get(User.Command.CurrentMusterCycle));
+            return Ok(new DTOs.MusterCycle.Get(User.Division.Department.Command.CurrentMusterCycle));
         }
 
         /// <summary>

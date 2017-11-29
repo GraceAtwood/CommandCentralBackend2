@@ -12,7 +12,7 @@ namespace CommandCentral.Entities.Watchbill
     /// A quarterdeck watchbill is used to encapsulate all the shifts and assignments that make up the schedule 
     /// for one month of watch standing.
     /// </summary>
-    public class Watchbill : Entity, IHazComments
+    public class Watchbill : CommentableEntity
     {
         /// <summary>
         /// The title of this watchbill
@@ -43,11 +43,6 @@ namespace CommandCentral.Entities.Watchbill
         /// The current phase of the watchbill
         /// </summary>
         public virtual WatchbillPhases Phase { get; set; }
-
-        /// <summary>
-        /// Any comments made on this watchbill
-        /// </summary>
-        public virtual IList<Comment> Comments { get; set; }
 
         /// <summary>
         /// The person who created this watchbill.

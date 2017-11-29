@@ -14,7 +14,7 @@ namespace CommandCentral.Entities.Correspondence
     /// <summary>
     /// A correspondence item describes and tracks the routing of paperwork either physically or digitally.
     /// </summary>
-    public class CorrespondenceItem : Entity, IHazAttachments, IHazComments
+    public class CorrespondenceItem : CommentableEntity, IHazAttachments
     {
         #region Properties
 
@@ -42,11 +42,6 @@ namespace CommandCentral.Entities.Correspondence
         /// The list of all attachments included in this correspondence.
         /// </summary>
         public virtual IList<FileAttachment> Attachments { get; set; } = new List<FileAttachment>();
-
-        /// <summary>
-        /// The list of comments for this item.
-        /// </summary>
-        public virtual IList<Comment> Comments { get; set; } = new List<Comment>();
 
         /// <summary>
         /// The list of all reviews that have been submitted for this correspondence.

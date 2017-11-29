@@ -10,7 +10,7 @@ namespace CommandCentral.Entities
     /// <summary>
     /// Describes a single News Item and its members, including its DB access members.
     /// </summary>
-    public class NewsItem : Entity, IHazComments
+    public class NewsItem : CommentableEntity
     {
         #region Properties
         
@@ -34,11 +34,6 @@ namespace CommandCentral.Entities
         /// </summary>
         public virtual DateTime CreationTime { get; set; }
 
-        /// <summary>
-        /// Comments for this news item.
-        /// </summary>
-        public virtual IList<Comment> Comments { get; set; }
-        
         #endregion
 
         /// <summary>

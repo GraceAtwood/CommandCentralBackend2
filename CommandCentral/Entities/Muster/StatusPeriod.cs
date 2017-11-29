@@ -14,7 +14,7 @@ namespace CommandCentral.Entities.Muster
     /// <summary>
     /// Represents a status period which is used to indicate a person will be something other than present for a given period of time.
     /// </summary>
-    public class StatusPeriod : Entity, IHazComments
+    public class StatusPeriod : CommentableEntity
     {
         #region Properties
 
@@ -57,11 +57,6 @@ namespace CommandCentral.Entities.Muster
         /// The <seealso cref="AccountabilityTypes"/> for this status period.
         /// </summary>
         public virtual AccountabilityTypes AccountabilityType { get; set; }
-
-        /// <summary>
-        /// Comments on this status period.
-        /// </summary>
-        public virtual IList<Comment> Comments { get; set; }
 
         #endregion
 

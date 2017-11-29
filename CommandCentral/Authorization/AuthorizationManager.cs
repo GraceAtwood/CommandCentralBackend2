@@ -16,32 +16,26 @@ namespace CommandCentral.Authorization
     /// </summary>
     public static class AuthorizationManager
     {
-        private static ConcurrentDictionary<Type, BaseRulesContract> ContractsByType { get; } =
-            new ConcurrentDictionary<Type, BaseRulesContract>();
-
-        private static HashSet<Type> UnactivatedTypes { get; }
+        private static ConcurrentDictionary<Type, BaseRulesContract> ContractsByType { get; }
 
         static AuthorizationManager()
         {
-            UnactivatedTypes = new HashSet<Type>(
+            ContractsByType = new ConcurrentDictionary<Type, BaseRulesContract>(
                 Assembly
                     .GetExecutingAssembly()
                     .GetTypes()
-                    .Where(type => typeof(BaseRulesContract).IsAssignableFrom(type) &&
-                                   type != typeof(BaseRulesContract)));
+                    .Where(type => (typeof(BaseRulesContract).IsAssignableFrom(type) || type.GetInterfaces().Any(x =>
+                                        x.IsGenericType && x.GetGenericTypeDefinition() == typeof(BaseRulesContract))
+                                   ) && type != typeof(RulesContract<>) && type != typeof(BaseRulesContract))
+                    .ToDictionary(type => type.BaseType.GenericTypeArguments.First(),
+                        type =>
+                            Activator.CreateInstance(type) as BaseRulesContract));
         }
 
         private static RulesContract<T> GetContract<T>() where T : Entity
         {
-            if (ContractsByType.TryGetValue(typeof(T), out var contract))
-                return (RulesContract<T>) contract;
-
-            if (!UnactivatedTypes.Contains(typeof(T)))
-                throw new Exception("Contract could not be found.");
-
-            UnactivatedTypes.Remove(typeof(T));
-            contract = (BaseRulesContract) Activator.CreateInstance(typeof(RulesContract<T>));
-            ContractsByType.AddOrUpdate(typeof(T), contract, (key, value) => value);
+            if (!ContractsByType.TryGetValue(typeof(T), out var contract))
+                throw new Exception("shit");
 
             return (RulesContract<T>) contract;
         }
@@ -159,14 +153,14 @@ namespace CommandCentral.Authorization
                 {
                     case ChainOfCommandLevels.Command:
                     {
-                        if (person.Command == other.Command)
+                        if (person.Division.Department.Command == other.Division.Department.Command)
                             return true;
 
                         break;
                     }
                     case ChainOfCommandLevels.Department:
                     {
-                        if (person.Department == other.Department)
+                        if (person.Division.Department == other.Division.Department)
                             return true;
 
                         break;

@@ -53,7 +53,7 @@ namespace CommandCentral.Controllers
                 .OrderByDescending(x => x.TimeCreated)
                 .Take(limit)
                 .ToList()
-                .Where(item => item.OwningEntity.CanPersonAccessComments(User))
+                .Where(item => User.CanReturn(item.OwningEntity, x => x.Comments))
                 .Select(item => new DTOs.Comment.Get(item))
                 .ToList();
 
@@ -73,7 +73,7 @@ namespace CommandCentral.Controllers
             if (item == null)
                 return NotFoundParameter(id, nameof(id));
 
-            if (!item.OwningEntity.CanPersonAccessComments(User))
+            if (!User.CanReturn(item.OwningEntity, x => x.Comments))
                 return Forbid();
 
             return Ok(new DTOs.Comment.Get(item));
@@ -91,13 +91,13 @@ namespace CommandCentral.Controllers
             if (dto == null)
                 return BadRequestDTONull();
 
-            var owningEntity = DBSession.Query<IHazComments>()
+            var owningEntity = DBSession.Query<CommentableEntity>()
                 .SingleOrDefault(x => x.Id == dto.OwningEntity);
 
             if (owningEntity == null)
                 return NotFoundParameter(dto.OwningEntity, nameof(dto.OwningEntity));
 
-            if (!owningEntity.CanPersonAccessComments(User))
+            if (!User.CanEdit(owningEntity, x => x.Comments))
                 return Forbid();
 
             var item = new Comment

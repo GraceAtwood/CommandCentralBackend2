@@ -1,4 +1,6 @@
 ﻿using System;
+using CommandCentral.Authorization;
+using CommandCentral.Enums;
 using FluentNHibernate.Mapping;
 using NHibernate.Type;
 using FluentValidation.Results;
@@ -37,21 +39,12 @@ namespace CommandCentral.Entities
         #region Helper Methods
         
         /// <summary>
-        /// Returns a timespan indicating for how much longer this profile lock is valid.
-        /// </summary>
-        /// <returns></returns>
-        public virtual TimeSpan GetTimeRemaining()
-        {
-            return DateTime.UtcNow.Subtract(SubmitTime);
-        }
-
-        /// <summary>
         /// Returns a booleans indicating if the current ProfileLock is valid - compares against the max age found in the config.
         /// </summary>
         /// <returns></returns>
-        public virtual bool IsValid()
+        public virtual bool IsExpired()
         {
-            return DateTime.UtcNow.Subtract(SubmitTime) < MaxAge;
+            return DateTime.UtcNow.Subtract(SubmitTime) >= MaxAge;
         }
 
         #endregion
@@ -81,6 +74,28 @@ namespace CommandCentral.Entities
                 References(x => x.LockedPerson).Not.Nullable().Unique();
 
                 Map(x => x.SubmitTime).Not.Nullable().CustomType<UtcDateTimeType>();
+            }
+        }
+        
+        public class Contract : RulesContract<ProfileLock>
+        {
+            public Contract()
+            {
+                RulesFor()
+                    .CanEdit((person, profileLock) =>
+                    {
+                        if (person.SpecialPermissions.Contains(SpecialPermissions.AdminTools))
+                            return true;
+
+                        if (profileLock.Owner == person)
+                            return true;
+
+                        if (profileLock.IsExpired())
+                            return true;
+
+                        return false;
+                    })
+                    .CanReturn((person, profileLock) => true);
             }
         }
     }

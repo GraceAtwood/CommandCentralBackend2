@@ -78,7 +78,7 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
 
             var item = new CollateralDuty
             {
-                Command = User.Command,
+                Command = User.Division.Department.Command,
                 Id = Guid.NewGuid(),
                 Name = dto.Name
             };

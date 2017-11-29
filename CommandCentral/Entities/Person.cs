@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
+using CommandCentral.Authorization;
 using CommandCentral.Entities.CollateralDutyTracking;
 using CommandCentral.Entities.ReferenceLists;
 using FluentNHibernate.Mapping;
@@ -17,7 +19,7 @@ namespace CommandCentral.Entities
     /// <summary>
     /// Describes a single person and all their properties and data access methods.
     /// </summary>
-    public class Person : Entity, IHazComments
+    public class Person : CommentableEntity
     {
         #region Properties
 
@@ -37,11 +39,6 @@ namespace CommandCentral.Entities
         /// The person's middle name.
         /// </summary>
         public virtual string MiddleName { get; set; }
-
-        /// <summary>
-        /// The person's SSN.
-        /// </summary>
-        public virtual string SSN { get; set; }
 
         /// <summary>
         /// The person's DoD Id which allows us to communicate with other systems about this person.
@@ -108,16 +105,6 @@ namespace CommandCentral.Entities
         /// The person's division
         /// </summary>
         public virtual Division Division { get; set; }
-
-        /// <summary>
-        /// Readonly. Returns Division.Department
-        /// </summary>
-        public virtual Department Department => Division?.Department;
-
-        /// <summary>
-        /// Readonly. Returns Department.Command
-        /// </summary>
-        public virtual Command Command => Department?.Command;
 
         #endregion
 
@@ -246,11 +233,6 @@ namespace CommandCentral.Entities
         /// </summary>
         public virtual IDictionary<SubscribableEvents, ChainOfCommandLevels> SubscribedEvents { get; set; }
 
-        /// <summary>
-        /// The list of comments.
-        /// </summary>
-        public virtual IList<Comment> Comments { get; set; }
-
         #endregion
 
         #endregion
@@ -270,11 +252,6 @@ namespace CommandCentral.Entities
 
         #region Helper Methods
 
-        public virtual Dictionary<ChainsOfCommand, Dictionary<ChainOfCommandLevels, List<Person>>> GetChainOfCommand()
-        {
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         /// Returns a boolean indicating if this person is in the same command as the given person.
         /// </summary>
@@ -285,7 +262,7 @@ namespace CommandCentral.Entities
             if (person == null || Division.Department.Command == null || person.Division.Department.Command == null)
                 return false;
 
-            return Command.Id == person.Command.Id;
+            return Division.Department.Command.Id == person.Division.Department.Command.Id;
         }
 
         /// <summary>
@@ -295,10 +272,10 @@ namespace CommandCentral.Entities
         /// <returns></returns>
         public virtual bool IsInSameDepartmentAs(Person person)
         {
-            if (person == null || Department == null || person.Department == null)
+            if (person == null || Division.Department == null || person.Division.Department == null)
                 return false;
 
-            return IsInSameCommandAs(person) && Department.Id == person.Department.Id;
+            return IsInSameCommandAs(person) && Division.Department.Id == person.Division.Department.Id;
         }
 
         /// <summary>
@@ -312,16 +289,6 @@ namespace CommandCentral.Entities
                 return false;
 
             return IsInSameDepartmentAs(person) && Division.Id == person.Division.Id;
-        }
-
-        /// <summary>
-        /// Determines if a person can access comments.
-        /// </summary>
-        /// <param name="person"></param>
-        /// <returns></returns>
-        public virtual bool CanPersonAccessComments(Person person)
-        {
-            return true;
         }
 
         #endregion
@@ -356,7 +323,6 @@ namespace CommandCentral.Entities
                 Map(x => x.LastName).Not.Nullable();
                 Map(x => x.FirstName).Not.Nullable();
                 Map(x => x.MiddleName);
-                Map(x => x.SSN).Not.Nullable().Unique();
                 Map(x => x.DoDId).Not.Nullable().Unique();
                 Map(x => x.DateOfBirth).Not.Nullable();
                 Map(x => x.Supervisor);
@@ -414,27 +380,22 @@ namespace CommandCentral.Entities
                     .WithMessage("The middle name must not exceed 255 characters.");
                 RuleFor(x => x.Suffix).Length(0, 255)
                     .WithMessage("The suffix must not exceed 255 characters.");
-                RuleFor(x => x.SSN).NotEmpty()
-                    .Must(x => System.Text.RegularExpressions.Regex.IsMatch(x, @"^(?!\b(\d)\1+-(\d)\1+-(\d)\1+\b)(?!123-45-6789|219-09-9999|078-05-1120)(?!666|000|9\d{2})\d{3}(?!00)\d{2}(?!0{4})\d{4}$"))
-                        .WithMessage("The SSN must be valid and contain only numbers.")
-                    .Must((person, ssn) => SessionManager.GetCurrentSession().Query<Person>().Count(x => x.SSN == ssn && x.Id != person.Id) == 0)
-                        .WithMessage("That ssn exists on another profile.  SSNs must be unique.");
                 RuleFor(x => x.DoDId).NotEmpty().Length(10)
                     .Must(x => x.All(Char.IsDigit))
-                        .WithMessage("All characters of a DoD id must be digits.")
-                    .Must((person, dodId) => SessionManager.GetCurrentSession().Query<Person>().Count(x => x.DoDId == dodId && x.Id != person.Id) == 0)
-                        .WithMessage("That DoD id exists on another profile.  DoD Ids must be unique.");
+                    .WithMessage("All characters of a DoD id must be digits.")
+                    .Must((person, dodId) =>
+                        SessionManager.GetCurrentSession().Query<Person>()
+                            .Count(x => x.DoDId == dodId && x.Id != person.Id) == 0)
+                    .WithMessage("That DoD id exists on another profile.  DoD Ids must be unique.");
                 RuleFor(x => x.DateOfBirth).NotEmpty()
                     .WithMessage("The DOB must not be left blank.");
                 RuleFor(x => x.Sex).NotEmpty()
                     .WithMessage("The sex must not be left blank.");
-                RuleFor(x => x.Command).NotEmpty()
-                    .WithMessage("A person must have a command.  If you are trying to indicate this person left the command, please set his or her duty status to 'LOSS'.");
-                RuleFor(x => x.Department).NotEmpty()
-                    .WithMessage("A person must have a department.  If you are trying to indicate this person left the command, please set his or her duty status to 'LOSS'.");
                 RuleFor(x => x.Division).NotEmpty()
-                    .WithMessage("A person must have a division.  If you are trying to indicate this person left the command, please set his or her duty status to 'LOSS'.");
-                RuleFor(x => x.Division).Must(x => SessionManager.GetCurrentSession().Query<Division>().Count(div => div.Id == x.Id) == 1)
+                    .WithMessage("A person must have a division.  If you are trying to indicate this person left " +
+                                 "the command, please set his or her duty status to 'LOSS'.");
+                RuleFor(x => x.Division).Must(x =>
+                        SessionManager.GetCurrentSession().Query<Division>().Count(div => div.Id == x.Id) == 1)
                     .WithMessage("Your division was not found.");
                 RuleFor(x => x.Supervisor).Length(0, 255)
                     .WithMessage("The supervisor field may not be longer than 255 characters.");
@@ -446,7 +407,7 @@ namespace CommandCentral.Entities
                     .WithMessage("The shift field may not be longer than 255 characters.");
                 RuleFor(x => x.JobTitle).Length(0, 255)
                     .WithMessage("The job title may not be longer than 255 characters.");
-                
+
                 // If you add more EmailAddresses Rules, it may be necessary to call Person validation in the
                 // EmailAddress POST and PUT endpoints. Right now, this rule is covered in logic just before the
                 // transaction, so validation isn't called, as it's pointless extra effort.
@@ -455,6 +416,100 @@ namespace CommandCentral.Entities
                     RuleFor(x => x.EmailAddresses).Must(x => x.Count(y => y.IsPreferred) <= 1)
                         .WithMessage("Only one email address may be marked as 'Preferred'.");
                 });
+            }
+        }
+
+        public class Contract : RulesContract<Person>
+        {
+            public Contract()
+            {
+                //Can edit if in chain of command or self, everyone can return.
+                RulesFor(
+                        x => x.FirstName,
+                        x => x.LastName,
+                        x => x.MiddleName,
+                        x => x.Ethnicity,
+                        x => x.ReligiousPreference,
+                        x => x.JobTitle,
+                        x => x.Supervisor,
+                        x => x.Suffix,
+                        x => x.WorkCenter,
+                        x => x.WorkRoom,
+                        x => x.Sex,
+                        x => x.Shift)
+                    .CanEdit((editor, subject) =>
+                        editor.IsInChainOfCommand(subject, ChainsOfCommand.Main) || editor == subject)
+                    .CanReturn((editor, subject) => true);
+
+                //Can edit if in chain of command, everyone can return.
+                RulesFor(
+                        x => x.DateOfArrival,
+                        x => x.DateOfBirth,
+                        x => x.DateOfDeparture,
+                        x => x.BilletAssignment,
+                        x => x.Designation,
+                        x => x.DutyStatus,
+                        x => x.EAOS,
+                        x => x.NECs,
+                        x => x.Paygrade,
+                        x => x.PRD,
+                        x => x.UIC)
+                    .CanEdit((editor, subject) => editor.IsInChainOfCommand(subject, ChainsOfCommand.Main))
+                    .CanReturn((editor, subjecct) => true);
+
+                //Can edit if in chain of command, everyone can return.
+                RulesFor(x => x.Division)
+                    .CanEdit((editor, subject) =>
+                        editor.IsInChainOfCommand(subject, ChainsOfCommand.Main, ChainsOfCommand.Muster))
+                    .CanReturn((editor, subject) => true);
+
+                //Can edit if in chain of command, everyone can return.
+                RulesFor(x => x.StatusPeriods)
+                    .CanEdit((editor, subject) =>
+                        editor.IsInChainOfCommand(subject, ChainsOfCommand.Main, ChainsOfCommand.Muster,
+                            ChainsOfCommand.QuarterdeckWatchbill))
+                    .CanReturn((editor, subject) => true);
+                
+                //Can edit if in chain of command, everyone can return.
+                RulesFor(x => x.WatchQualifications)
+                    .CanEdit((editor, subject) =>
+                        editor.IsInChainOfCommand(subject, ChainsOfCommand.Main, ChainsOfCommand.QuarterdeckWatchbill))
+                    .CanReturn((editor, subject) => true);
+
+                //can edit if in chain of command, can see if in coc or self.
+                RulesFor(
+                        x => x.DoDId)
+                    .CanEdit((editor, subject) => editor.IsInChainOfCommand(subject, ChainsOfCommand.Main))
+                    .CanReturn((editor, subject) =>
+                        editor.IsInChainOfCommand(subject, ChainsOfCommand.Main) || editor == subject);
+
+                //No one can edit, everyone can see
+                RulesFor(
+                        x => x.AccountHistory,
+                        x => x.Age,
+                        x => x.Changes,
+                        x => x.Id)
+                    .CanEdit((editor, subject) => false)
+                    .CanReturn((editor, subject) => true);
+
+                RulesFor(
+                        x => x.EmailAddresses,
+                        x => x.PhoneNumbers,
+                        x => x.PhysicalAddresses)
+                    .CanEdit((editor, subject) =>
+                        editor.IsInChainOfCommand(subject, ChainsOfCommand.Main) || editor == subject)
+                    .CanReturn((editor, subject) =>
+                        throw new NotImplementedException("Return is controlled by inidividual objects."));
+
+                //Not supported edit, all can see
+                RulesFor(
+                        x => x.CollateralDutyMemberships,
+                        x => x.Comments
+                    )
+                    .CanEdit((editor, subject) =>
+                        throw new NotImplementedException(
+                            "The edit rules for this property are implemented in their controllers or elsewhere due to logic that the rules contracts can not support."))
+                    .CanReturn((editor, subject) => true);
             }
         }
     }

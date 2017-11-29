@@ -241,7 +241,6 @@ namespace CommandCentral.Utilities
                 MiddleName = division.Name,
                 Division = division,
                 UIC = uic,
-                SSN = Random.GenerateSSN(),
                 DoDId = Random.GenerateDoDId(),
                 Sex = Random.GetRandomEnumValue<Sexes>(),
                 DateOfBirth = new DateTime(Random.GetRandomNumber(1970, 2000), Random.GetRandomNumber(1, 12),
@@ -315,6 +314,8 @@ namespace CommandCentral.Utilities
                 var person = CreatePerson(Guid.Parse("b2db659d-4998-40a2-8962-e6eb05326ea5"), division, uic,
                     "developer", "dev", (WatchQualifications[]) Enum.GetValues(typeof(WatchQualifications)),
                     Paygrades.E5, SessionManager.GetCurrentSession().Query<Designation>().ToList().Shuffle().First());
+                
+                SessionManager.GetCurrentSession().Save(person);
 
                 foreach (var duty in SessionManager.GetCurrentSession().Query<CollateralDuty>().Where(x => x.Command == person.Division.Department.Command))
                 {
@@ -330,8 +331,6 @@ namespace CommandCentral.Utilities
                     SessionManager.GetCurrentSession().Save(membership);
                 }
                 
-                SessionManager.GetCurrentSession().Save(person);
-
                 transaction.Commit();
             }
         }

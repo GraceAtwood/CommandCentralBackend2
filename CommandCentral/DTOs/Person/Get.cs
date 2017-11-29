@@ -28,11 +28,13 @@ namespace CommandCentral.DTOs.Person
         {
             Age = user.CanReturn(person, x => x.Age) ? person.Age : default;
             BilletAssignment = user.CanReturn(person, x => x.BilletAssignment) ? person.BilletAssignment : default;
-            Command = user.CanReturn(person, x => x.Command) ? person.Command.Id : default;
+            Command = user.CanReturn(person, x => x.Division.Department.Command)
+                ? person.Division.Department.Command.Id
+                : default;
             DateOfArrival = user.CanReturn(person, x => x.DateOfArrival) ? person.DateOfArrival : default;
             DateOfBirth = user.CanReturn(person, x => x.DateOfBirth) ? person.DateOfBirth : default;
             DateOfDeparture = user.CanReturn(person, x => x.DateOfDeparture) ? person.DateOfDeparture : default;
-            Department = user.CanReturn(person, x => x.Department) ? person.Department.Id : default;
+            Department = user.CanReturn(person, x => x.Division.Department) ? person.Division.Department.Id : default;
             Designation = user.CanReturn(person, x => x.Designation) ? person.Designation.Id : default;
             Division = user.CanReturn(person, x => x.Division) ? person.Division.Id : default;
             DoDId = user.CanReturn(person, x => x.DoDId) ? person.DoDId : default;
@@ -51,7 +53,6 @@ namespace CommandCentral.DTOs.Person
                 : default;
             Sex = user.CanReturn(person, x => x.Sex) ? person.Sex : default;
             Shift = user.CanReturn(person, x => x.Shift) ? person.Shift : default;
-            SSN = user.CanReturn(person, x => x.SSN) ? person.SSN : default;
             Suffix = user.CanReturn(person, x => x.Suffix) ? person.Suffix : default;
             Supervisor = user.CanReturn(person, x => x.Supervisor) ? person.Supervisor : default;
             UIC = user.CanReturn(person, x => x.UIC) ? person.UIC.Id : default;

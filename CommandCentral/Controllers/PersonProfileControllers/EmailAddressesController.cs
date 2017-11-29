@@ -102,7 +102,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 IsReleasableOutsideCoC = dto.IsReleasableOutsideCoC,
                 Person = person
             };
-            
+
             if (emailAddress.IsPreferred)
             {
                 foreach (var address in emailAddress.Person.EmailAddresses)
@@ -144,7 +144,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             emailAddress.Address = dto.Address;
             emailAddress.IsPreferred = dto.IsPreferred;
             emailAddress.IsReleasableOutsideCoC = dto.IsReleasableOutsideCoC;
-            
+
             if (emailAddress.IsPreferred)
             {
                 foreach (var address in emailAddress.Person.EmailAddresses)
@@ -152,13 +152,13 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                     address.IsPreferred = false;
                 }
             }
-            
+
             var results = emailAddress.Validate();
             if (!results.IsValid)
                 return BadRequest(results.Errors.Select(x => x.ErrorMessage));
 
             CommitChanges();
-            
+
             return CreatedAtAction(nameof(Get), new {id = emailAddress.Id}, new DTOs.EmailAddress.Get(emailAddress));
         }
 

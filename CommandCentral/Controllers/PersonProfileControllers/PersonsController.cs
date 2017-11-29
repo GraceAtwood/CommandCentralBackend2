@@ -58,7 +58,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Person.Get>))]
         public IActionResult Get([FromQuery] string firstName, [FromQuery] string lastName,
-            [FromQuery] string middleName, [FromQuery] string ssn, [FromQuery] string dodId,
+            [FromQuery] string middleName, [FromQuery] string dodId,
             [FromQuery] string supervisor, [FromQuery] string workCenter, [FromQuery] string workRoom,
             [FromQuery] string shift, [FromQuery] string jobTitle, [FromQuery] string designation,
             [FromQuery] string dutyStatus, [FromQuery] string uic, [FromQuery] string sex, [FromQuery] string ethnicity,
@@ -78,7 +78,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 .AddStringQueryExpression(x => x.FirstName, firstName)
                 .AddStringQueryExpression(x => x.LastName, lastName)
                 .AddStringQueryExpression(x => x.MiddleName, middleName)
-                .AddStringQueryExpression(x => x.SSN, ssn)
                 .AddStringQueryExpression(x => x.DoDId, dodId)
                 .AddStringQueryExpression(x => x.Supervisor, supervisor)
                 .AddStringQueryExpression(x => x.WorkCenter, workCenter)
@@ -215,7 +214,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 Paygrade = dto.Paygrade,
                 Division = division,
                 DoDId = dto.DoDId,
-                SSN = dto.SSN,
                 LastName = dto.LastName,
                 FirstName = dto.FirstName,
                 Sex = dto.Sex,

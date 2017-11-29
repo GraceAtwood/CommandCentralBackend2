@@ -13,7 +13,7 @@ namespace CommandCentral.Entities.CollateralDutyTracking
     /// A collateral duty such as FHD, watchbill coordinator, etc.  
     /// Not intended to replace the permissions system and its groups.
     /// </summary>
-    public class CollateralDuty : Entity, IHazComments
+    public class CollateralDuty : CommentableEntity
     {
         #region Properties
 
@@ -37,11 +37,6 @@ namespace CommandCentral.Entities.CollateralDutyTracking
         /// </summary>
         public virtual IList<CollateralDutyMembership> Membership { get; set; }
         
-        /// <summary>
-        /// The comments on this duty.
-        /// </summary>
-        public virtual IList<Comment> Comments { get; set; }
-
         #endregion
 
         /// <summary>
