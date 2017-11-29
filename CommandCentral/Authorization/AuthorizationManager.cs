@@ -7,6 +7,7 @@ using System.Reflection;
 using CommandCentral.Entities;
 using CommandCentral.Entities.CollateralDutyTracking;
 using CommandCentral.Enums;
+using CommandCentral.Framework;
 using CommandCentral.Framework.Data;
 
 namespace CommandCentral.Authorization
@@ -46,7 +47,7 @@ namespace CommandCentral.Authorization
         /// <param name="editor">The person for whom to check permissions.</param>
         /// <param name="entity">The entity against which to check permissions.</param>
         /// <param name="propertySelector">A selector for the property this person wishes to edit.</param>
-        /// <typeparam name="T">Any type that derives from <seealso cref="Entities.Entity"/></typeparam>
+        /// <typeparam name="T">Any type that derives from <seealso cref="Entity"/></typeparam>
         /// <returns></returns>
         /// <exception cref="Exception">If a rules contract for the type T is not found.</exception>
         public static bool CanEdit<T>(this Person editor, T entity, Expression<Func<T, object>> propertySelector)
@@ -60,7 +61,7 @@ namespace CommandCentral.Authorization
         /// </summary>
         /// <param name="person">The person for whom to check permissions.</param>
         /// <param name="entity">The entity against whicch to check permissions.</param>
-        /// <typeparam name="T">Any type that derives from <seealso cref="Entities.Entity"/></typeparam>
+        /// <typeparam name="T">Any type that derives from <seealso cref="Entity"/></typeparam>
         /// <returns></returns>
         /// <exception cref="Exception">If a rules contract for the type T is not found.</exception>
         public static bool CanEdit<T>(this Person person, T entity) where T : Entity
@@ -73,7 +74,7 @@ namespace CommandCentral.Authorization
         /// </summary>
         /// <param name="person">The person for whom to check permissions.</param>
         /// <param name="entity">The entity against whicch to check permissions.</param>
-        /// <typeparam name="T">Any type that derives from <seealso cref="Entities.Entity"/></typeparam>
+        /// <typeparam name="T">Any type that derives from <seealso cref="Entity"/></typeparam>
         /// <returns></returns>
         /// <exception cref="Exception">If a rules contract for the type T is not found.</exception>
         public static bool CanReturn<T>(this Person person, T entity) where T : Entity
@@ -87,7 +88,7 @@ namespace CommandCentral.Authorization
         /// <param name="editor">The person for whom to check permissions.</param>
         /// <param name="entity">The entity against which to check permissions.</param>
         /// <param name="propertySelector">A selector for the property this person wishes to return.</param>
-        /// <typeparam name="T">Any type that derives from <seealso cref="Entities.Entity"/></typeparam>
+        /// <typeparam name="T">Any type that derives from <seealso cref="Entity"/></typeparam>
         /// <returns></returns>
         /// <exception cref="Exception">If a rules contract for the type T is not found.</exception>
         public static bool CanReturn<T>(this Person editor, T entity, Expression<Func<T, object>> propertySelector)
@@ -102,7 +103,7 @@ namespace CommandCentral.Authorization
         /// <param name="editor">The person for whom to check permissions.</param>
         /// <param name="entity">The entity against which to check permissions.</param>
         /// <param name="propertyName">The name of the property this person wishes to return.</param>
-        /// <typeparam name="T">Any type that derives from <seealso cref="Entities.Entity"/></typeparam>
+        /// <typeparam name="T">Any type that derives from <seealso cref="Entity"/></typeparam>
         /// <returns></returns>
         /// <exception cref="Exception">If a rules contract for the type T is not found.</exception>
         public static bool CanReturn<T>(this Person editor, T entity, string propertyName)

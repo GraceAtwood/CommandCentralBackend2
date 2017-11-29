@@ -3,6 +3,7 @@ using FluentValidation;
 using System.Linq;
 using CommandCentral.Authorization;
 using CommandCentral.Enums;
+using CommandCentral.Framework;
 using FluentValidation.Results;
 
 namespace CommandCentral.Entities

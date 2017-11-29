@@ -3,6 +3,7 @@ using FluentNHibernate.Mapping;
 using NHibernate.Type;
 using FluentValidation.Results;
 using CommandCentral.Enums;
+using CommandCentral.Framework;
 
 namespace CommandCentral.Entities
 {

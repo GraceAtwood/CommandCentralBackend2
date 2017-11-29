@@ -7,6 +7,7 @@ using System.Linq;
 using CommandCentral.Entities;
 using NHibernate.Type;
 using System.Linq.Expressions;
+using CommandCentral.Framework;
 
 namespace CommandCentral.Utilities
 {

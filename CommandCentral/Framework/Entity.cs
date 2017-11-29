@@ -1,7 +1,7 @@
-﻿using FluentValidation.Results;
-using System;
+﻿using System;
+using FluentValidation.Results;
 
-namespace CommandCentral.Entities
+namespace CommandCentral.Framework
 {
     /// <summary>
     /// Domain objects should implement this class.

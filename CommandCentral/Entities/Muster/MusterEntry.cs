@@ -2,6 +2,7 @@
 using FluentValidation;
 using System;
 using CommandCentral.Enums;
+using CommandCentral.Framework;
 using FluentValidation.Results;
 
 namespace CommandCentral.Entities.Muster

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net.Mail;
 using CommandCentral.Authorization;
+using CommandCentral.Framework;
 using FluentNHibernate.Mapping;
 using FluentValidation;
 using CommandCentral.Utilities;

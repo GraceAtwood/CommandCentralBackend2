@@ -2,6 +2,7 @@
 using FluentNHibernate.Mapping;
 using FluentValidation;
 using CommandCentral.Entities.ReferenceLists;
+using CommandCentral.Framework;
 
 namespace CommandCentral.Entities
 {

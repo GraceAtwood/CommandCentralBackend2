@@ -6,6 +6,7 @@ using FluentValidation.Results;
 using CommandCentral.Utilities.Types;
 using CommandCentral.Events;
 using CommandCentral.Events.Args;
+using CommandCentral.Framework;
 
 namespace CommandCentral.Entities
 {

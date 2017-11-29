@@ -37,16 +37,6 @@ namespace CommandCentral.Entities
         #endregion
 
         /// <summary>
-        /// Determine if a person can access the comments.  For news item, everyone can.
-        /// </summary>
-        /// <param name="person"></param>
-        /// <returns></returns>
-        public virtual bool CanPersonAccessComments(Person person)
-        {
-            return true;
-        }
-
-        /// <summary>
         /// Validates this object.
         /// </summary>
         /// <returns></returns>

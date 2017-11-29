@@ -1,4 +1,5 @@
 ﻿using System;
+using CommandCentral.Framework;
 using FluentNHibernate.Mapping;
 using NHibernate.Type;
 using FluentValidation.Results;

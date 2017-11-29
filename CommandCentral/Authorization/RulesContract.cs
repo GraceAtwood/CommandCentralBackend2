@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using CommandCentral.Entities;
+using CommandCentral.Framework;
 using CommandCentral.Utilities;
 
 namespace CommandCentral.Authorization
 {
-    public abstract class RulesContract<T> : BaseRulesContract where T : Entities.Entity
+    public abstract class RulesContract<T> : BaseRulesContract where T : Entity
     {
         public List<PropertyGroup<T>> PropertyGroups { get; set; } = new List<PropertyGroup<T>>();
 
