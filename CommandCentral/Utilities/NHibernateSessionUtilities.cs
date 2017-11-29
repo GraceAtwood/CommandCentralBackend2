@@ -39,9 +39,7 @@ namespace CommandCentral.Utilities
         }
 
         /// <summary>
-        /// Returns a collection of properties that are dirty along with their new and old values.
-        /// <para />
-        /// This has only been tested on the Person object, but technically it should work on anything.
+        /// Returns a collection of properties that are dirty along with their new and old values.  Only works on non-collection properties.
         /// </summary>
         /// <param name="session"></param>
         /// <param name="entity"></param>

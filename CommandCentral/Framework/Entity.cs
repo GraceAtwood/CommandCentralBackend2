@@ -1,5 +1,6 @@
 ﻿using System;
 using FluentValidation.Results;
+using NHibernate.Id.Insert;
 
 namespace CommandCentral.Framework
 {
@@ -12,7 +13,12 @@ namespace CommandCentral.Framework
         /// The id of this entity.  This is the primary key.
         /// </summary>
         public virtual Guid Id { get; set; }
-        
+
+        /// <summary>
+        /// Returns the type of this entity.
+        /// </summary>
+        public virtual Type GetTypeUnproxied() => GetType();
+
         /// <summary>
         /// Performs Id based equality on two objects.
         /// </summary>

@@ -9,6 +9,7 @@ using CommandCentral.Entities.CollateralDutyTracking;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
 using CommandCentral.Framework.Data;
+using CommandCentral.Utilities;
 
 namespace CommandCentral.Authorization
 {
@@ -33,10 +34,10 @@ namespace CommandCentral.Authorization
                             Activator.CreateInstance(type) as BaseRulesContract));
         }
 
-        private static RulesContract<T> GetContract<T>() where T : Entity
+        private static RulesContract<T> GetContract<T>(Type entityType) where T : Entity
         {
-            if (!ContractsByType.TryGetValue(typeof(T), out var contract))
-                throw new Exception("shit");
+            if (!ContractsByType.TryGetValue(entityType, out var contract))
+                throw new Exception($"No contract for type: {entityType.Name}");
 
             return (RulesContract<T>) contract;
         }
@@ -53,7 +54,7 @@ namespace CommandCentral.Authorization
         public static bool CanEdit<T>(this Person editor, T entity, Expression<Func<T, object>> propertySelector)
             where T : Entity
         {
-            return GetContract<T>().CanEditProperty(editor, entity, propertySelector);
+            return GetContract<T>(entity.GetTypeUnproxied()).CanEditProperty(editor, entity, propertySelector);
         }
 
         /// <summary>
@@ -66,7 +67,7 @@ namespace CommandCentral.Authorization
         /// <exception cref="Exception">If a rules contract for the type T is not found.</exception>
         public static bool CanEdit<T>(this Person person, T entity) where T : Entity
         {
-            return GetContract<T>().CanEditAnyProperty(person, entity);
+            return GetContract<T>(entity.GetTypeUnproxied()).CanEditAnyProperty(person, entity);
         }
 
         /// <summary>
@@ -79,7 +80,7 @@ namespace CommandCentral.Authorization
         /// <exception cref="Exception">If a rules contract for the type T is not found.</exception>
         public static bool CanReturn<T>(this Person person, T entity) where T : Entity
         {
-            return GetContract<T>().CanReturnAnyProperty(person, entity);
+            return GetContract<T>(entity.GetTypeUnproxied()).CanReturnAnyProperty(person, entity);
         }
 
         /// <summary>
@@ -94,7 +95,7 @@ namespace CommandCentral.Authorization
         public static bool CanReturn<T>(this Person editor, T entity, Expression<Func<T, object>> propertySelector)
             where T : Entity
         {
-            return GetContract<T>().CanReturnProperty(editor, entity, propertySelector);
+            return GetContract<T>(entity.GetTypeUnproxied()).CanReturnProperty(editor, entity, propertySelector);
         }
 
         /// <summary>
@@ -109,7 +110,7 @@ namespace CommandCentral.Authorization
         public static bool CanReturn<T>(this Person editor, T entity, string propertyName)
             where T : Entity
         {
-            return GetContract<T>().CanReturnProperty(editor, entity, propertyName);
+            return GetContract<T>(entity.GetTypeUnproxied()).CanReturnProperty(editor, entity, propertyName);
         }
 
         /// <summary>

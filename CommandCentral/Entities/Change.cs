@@ -1,4 +1,5 @@
 ﻿using System;
+using CommandCentral.Enums;
 using CommandCentral.Framework;
 using FluentNHibernate.Mapping;
 using NHibernate.Type;
@@ -43,6 +44,11 @@ namespace CommandCentral.Entities
         /// </summary>
         public virtual DateTime ChangeTime { get; set; }
 
+        /// <summary>
+        /// The type of change.
+        /// </summary>
+        public virtual ChangeTypes ChangeType { get; set; }
+
         #endregion
 
         /// <summary>
@@ -72,9 +78,11 @@ namespace CommandCentral.Entities
                 Map(x => x.PropertyPath).Not.Nullable();
                 Map(x => x.OldValue);
                 Map(x => x.NewValue);
+                Map(x => x.ChangeType);
                 
                 ReferencesAny(x => x.Entity)
                     .AddMetaValue<NewsItem>(typeof(NewsItem).Name)
+                    .AddMetaValue<EmailAddress>(typeof(EmailAddress).Name)
                     .IdentityType<Guid>()
                     .EntityTypeColumn("Entity_Type")
                     .EntityIdentifierColumn("Entity_id")

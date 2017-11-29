@@ -116,6 +116,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 return BadRequest(results.Errors.Select(x => x.ErrorMessage));
 
             DBSession.Save(emailAddress);
+            LogEntityCreation(emailAddress);
             CommitChanges();
 
             return CreatedAtAction(nameof(Get), new {id = emailAddress.Id}, new DTOs.EmailAddress.Get(emailAddress));
@@ -145,11 +146,14 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             emailAddress.IsPreferred = dto.IsPreferred;
             emailAddress.IsReleasableOutsideCoC = dto.IsReleasableOutsideCoC;
 
+            LogEntityModification(emailAddress);
+            
             if (emailAddress.IsPreferred)
             {
                 foreach (var address in emailAddress.Person.EmailAddresses)
                 {
                     address.IsPreferred = false;
+                    LogEntityModification(address);
                 }
             }
 
@@ -179,6 +183,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 return Forbid("You may not modify the email addresses collection for this person");
 
             DBSession.Delete(emailAddress);
+            LogEntityDeletion(emailAddress);
             CommitChanges();
 
             return NoContent();
