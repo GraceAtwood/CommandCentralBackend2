@@ -30,7 +30,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         /// <param name="firstName">A string quuery for the first name of a person.</param>
         /// <param name="lastName">A string query for the last name of a person.</param>
         /// <param name="middleName">A string query for the middle name of a person.</param>
-        /// <param name="ssn">A string query for the ssn of a person.</param>
         /// <param name="dodId">A string query for the dod id of a person.</param>
         /// <param name="supervisor">A string query for a person's supervisor.</param>
         /// <param name="workCenter">A string query for a person's work center.</param>
