@@ -1,7 +1,9 @@
 ﻿using FluentNHibernate.Mapping;
 using FluentValidation;
 using System.Linq;
+using CommandCentral.Authorization;
 using CommandCentral.Enums;
+using CommandCentral.Framework;
 using FluentValidation.Results;
 
 namespace CommandCentral.Entities
@@ -88,6 +90,21 @@ namespace CommandCentral.Entities
                     .WithMessage("The phone number type must not be left blank.");
             }
         }
+        
+        public class Contract : RulesContract<PhoneNumber>
+        {
+            public Contract()
+            {
+                RulesFor()
+                    .CanEdit((person, number) => person.IsInChainOfCommand(number.Person) || person == number.Person)
+                    .CanReturn((editor, number) =>
+                    {
+                        if (number.IsReleasableOutsideCoC)
+                            return true;
 
+                        return editor.IsInChainOfCommand(number.Person) || editor == number.Person;
+                    });
+            }
+        }
     }
 }

@@ -23,7 +23,7 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The entity that owns this object.
         /// </summary>
-        public virtual IHazComments OwningEntity { get; set; }
+        public virtual CommentableEntity OwningEntity { get; set; }
 
         /// <summary>
         /// This is the text of the comment.

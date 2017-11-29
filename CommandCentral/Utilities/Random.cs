@@ -25,14 +25,6 @@ namespace CommandCentral.Utilities
             return result;
         }
 
-        public static string GenerateSSN(string delimiter = "")
-        {
-            var iThree = GetRandomNumber(132, 921);
-            var iTwo = GetRandomNumber(12, 83);
-            var iFour = GetRandomNumber(1423, 9211);
-            return iThree + delimiter + iTwo + delimiter + iFour;
-        }
-
         public static int GetRandomNumber(int min, int max)
         {
             return Instance.Next(min, max);

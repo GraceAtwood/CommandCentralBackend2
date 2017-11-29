@@ -79,7 +79,7 @@ namespace CommandCentral.Controllers.WatchbillControllers
             if (watchShift == null)
                 return NotFoundParameter(dto.Watchshift, nameof(dto.Watchshift));
 
-            if (watchShift.Watchbill.Command != User.Command)
+            if (watchShift.Watchbill.Command != User.Division.Department.Command)
                 return Forbid("You may not modify a watchbill outside of your command.");
 
             var personAssigned = DBSession.Get<Person>(dto.PersonAssigned);
@@ -213,13 +213,13 @@ namespace CommandCentral.Controllers.WatchbillControllers
             {
                 case ChainOfCommandLevels.Command:
                 {
-                    if (User.Command != assignment.WatchShift.DivisionAssignedTo.Department.Command)
+                    if (User.Division.Department.Command != assignment.WatchShift.DivisionAssignedTo.Department.Command)
                         return Forbid("You may not delete a watch assignment.");
                     break;
                 }
                 case ChainOfCommandLevels.Department:
                 {
-                    if (User.Department != assignment.WatchShift.DivisionAssignedTo.Department)
+                    if (User.Division.Department != assignment.WatchShift.DivisionAssignedTo.Department)
                         return Forbid("You may not delete a watch assignment.");
 
                     if (assignment.WatchShift.Watchbill.Phase != WatchbillPhases.Assignment)

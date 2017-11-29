@@ -67,7 +67,7 @@ namespace CommandCentral.Controllers
             var result = query
                 .Take(limit)
                 .ToList()
-                .Where(statusPeriod => User.GetFieldPermissions<Person>(statusPeriod.Person).CanReturn(x => x.StatusPeriods))
+                .Where(statusPeriod => User.CanReturn(statusPeriod))
                 .Select(item => new DTOs.StatusPeriod.Get(item));
 
             return Ok(result.ToList());
@@ -86,7 +86,7 @@ namespace CommandCentral.Controllers
             if (item == null)
                 return NotFoundParameter(id, nameof(id));
 
-            if (!User.GetFieldPermissions<Person>(item.Person).CanReturn(x => x.StatusPeriods))
+            if (!User.CanReturn(item))
                 return Forbid();
 
             return Ok(new DTOs.StatusPeriod.Get(item));
@@ -111,7 +111,7 @@ namespace CommandCentral.Controllers
             if (dto.ExemptsFromWatch && !User.IsInChainOfCommand(person, ChainsOfCommand.QuarterdeckWatchbill))
                 return Forbid("Must be in the Watchbill chain of command to exempt a person from watch.");
 
-            if (!User.GetFieldPermissions<Person>(person).CanEdit(x => x.StatusPeriods))
+            if (!User.CanEdit(person, x => x.StatusPeriods))
                 return Forbid("Can not submit a status period for this person.");
 
             var item = new StatusPeriod
@@ -132,7 +132,6 @@ namespace CommandCentral.Controllers
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
             DBSession.Save(item);
-            
             CommitChanges();
 
             return CreatedAtAction(nameof(Get), new { id = item.Id }, new DTOs.StatusPeriod.Get(item));
@@ -158,7 +157,7 @@ namespace CommandCentral.Controllers
             if (item.ExemptsFromWatch && !User.IsInChainOfCommand(item.Person, ChainsOfCommand.QuarterdeckWatchbill))
                 return Forbid("Must be in the Watchbill chain of command to modify a status period that exempts a person from watch.");
 
-            if (!User.GetFieldPermissions<Person>(item.Person).CanEdit(x => x.StatusPeriods))
+            if (!User.CanEdit(item))
                 return Forbid();
 
             item.ExemptsFromWatch = dto.ExemptsFromWatch;
@@ -192,14 +191,13 @@ namespace CommandCentral.Controllers
             if (item.ExemptsFromWatch && !User.IsInChainOfCommand(item.Person, ChainsOfCommand.QuarterdeckWatchbill))
                 return Forbid("Must be in the Watchbill chain of command to delete a status period that exempts a person from watch.");
 
-            if (!User.GetFieldPermissions<Person>(item.Person).CanEdit(x => x.StatusPeriods))
+            if (!User.CanEdit(item))
                 return Forbid();
 
             if (item.Range.Start <= DateTime.UtcNow)
                 return Conflict("You may not delete a status period whose time range has already started.  You may only modify its ending time.");
 
             DBSession.Delete(item);
-            
             CommitChanges();
 
             return NoContent();

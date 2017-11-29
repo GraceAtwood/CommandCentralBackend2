@@ -70,7 +70,7 @@ namespace CommandCentral.Controllers.MusterControllers
         [ProducesResponseType(200, Type = typeof(DTOs.MusterCycle.Get))]
         public IActionResult GetCurrent()
         {
-            return Ok(new DTOs.MusterCycle.Get(User.Command.CurrentMusterCycle));
+            return Ok(new DTOs.MusterCycle.Get(User.Division.Department.Command.CurrentMusterCycle));
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace CommandCentral.Controllers.MusterControllers
             if (dto == null)
                 return BadRequestDTONull();
 
-            if (!User.CanAccessSubmodules(SubModules.AdminTools))
+            if (!User.SpecialPermissions.Contains(SpecialPermissions.AdminTools))
                 return Forbid();
 
             var musterCycle = DBSession.Get<MusterCycle>(id);

@@ -1,7 +1,7 @@
 ﻿using CommandCentral.Utilities.Types;
-using CommandCentral.Authorization;
 using System;
 using System.Collections.Generic;
+using CommandCentral.Authorization;
 using CommandCentral.Enums;
 using FluentValidation.Results;
 using FluentNHibernate.Mapping;
@@ -14,7 +14,7 @@ namespace CommandCentral.Entities.Muster
     /// <summary>
     /// Represents a status period which is used to indicate a person will be something other than present for a given period of time.
     /// </summary>
-    public class StatusPeriod : Entity, IHazComments
+    public class StatusPeriod : CommentableEntity
     {
         #region Properties
 
@@ -58,11 +58,6 @@ namespace CommandCentral.Entities.Muster
         /// </summary>
         public virtual AccountabilityTypes AccountabilityType { get; set; }
 
-        /// <summary>
-        /// Comments on this status period.
-        /// </summary>
-        public virtual IList<Comment> Comments { get; set; }
-
         #endregion
 
         /// <summary>
@@ -72,7 +67,7 @@ namespace CommandCentral.Entities.Muster
         /// <returns></returns>
         public virtual bool CanPersonAccessComments(Person person)
         {
-            return person.GetFieldPermissions<Person>(Person).CanReturn(x => x.StatusPeriods);
+            return person.CanReturn(this);
         }
 
         /// <summary>

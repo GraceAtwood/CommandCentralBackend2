@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Mail;
+using CommandCentral.Authorization;
+using CommandCentral.Framework;
 using FluentNHibernate.Mapping;
 using FluentValidation;
 using CommandCentral.Utilities;
@@ -14,7 +16,6 @@ namespace CommandCentral.Entities
     /// </summary>
     public class EmailAddress : Entity
     {
-
         #region Properties
 
         /// <summary>
@@ -54,7 +55,7 @@ namespace CommandCentral.Entities
         /// <returns></returns>
         public virtual bool IsDoDEmailAddress()
         {
-            var elements = Address.Split(new[] { "@" }, StringSplitOptions.RemoveEmptyEntries);
+            var elements = Address.Split(new[] {"@"}, StringSplitOptions.RemoveEmptyEntries);
             return elements.Any() && elements.Last().InsensitiveEquals("mail.mil");
         }
 
@@ -74,7 +75,7 @@ namespace CommandCentral.Entities
         {
             return new MailAddress(Address, GetDisplayName());
         }
-        
+
         /// <summary>
         /// Maps an email address to the database.
         /// </summary>
@@ -106,11 +107,27 @@ namespace CommandCentral.Entities
             public Validator()
             {
                 RuleFor(x => x.Address).EmailAddress().Must((item, address) =>
-                {
-                    return SessionManager.GetCurrentSession().Query<EmailAddress>().Count(x => x.Id != item.Id && x.Address == address) == 0;
-                })
-                .WithMessage("Email addresses must be unique.");
-                
+                    {
+                        return SessionManager.GetCurrentSession().Query<EmailAddress>()
+                                   .Count(x => x.Id != item.Id && x.Address == address) == 0;
+                    })
+                    .WithMessage("Email addresses must be unique.");
+            }
+        }
+
+        public class Contract : RulesContract<EmailAddress>
+        {
+            public Contract()
+            {
+                RulesFor()
+                    .CanEdit((person, address) => person.IsInChainOfCommand(address.Person) || person == address.Person)
+                    .CanReturn((editor, address) =>
+                    {
+                        if (address.IsReleasableOutsideCoC)
+                            return true;
+
+                        return editor.IsInChainOfCommand(address.Person) || editor == address.Person;
+                    });
             }
         }
     }

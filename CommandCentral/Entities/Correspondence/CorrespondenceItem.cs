@@ -4,9 +4,9 @@ using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CommandCentral.Authorization;
 using FluentValidation.Results;
 using CommandCentral.Framework;
-using CommandCentral.Authorization;
 using CommandCentral.Enums;
 
 namespace CommandCentral.Entities.Correspondence
@@ -14,7 +14,7 @@ namespace CommandCentral.Entities.Correspondence
     /// <summary>
     /// A correspondence item describes and tracks the routing of paperwork either physically or digitally.
     /// </summary>
-    public class CorrespondenceItem : Entity, IHazAttachments, IHazComments
+    public class CorrespondenceItem : CommentableEntity, IHazAttachments
     {
         #region Properties
 
@@ -42,11 +42,6 @@ namespace CommandCentral.Entities.Correspondence
         /// The list of all attachments included in this correspondence.
         /// </summary>
         public virtual IList<FileAttachment> Attachments { get; set; } = new List<FileAttachment>();
-
-        /// <summary>
-        /// The list of comments for this item.
-        /// </summary>
-        public virtual IList<Comment> Comments { get; set; } = new List<Comment>();
 
         /// <summary>
         /// The list of all reviews that have been submitted for this correspondence.
@@ -123,13 +118,7 @@ namespace CommandCentral.Entities.Correspondence
         /// <returns></returns>
         public virtual bool CanPersonViewItem(Person person)
         {
-            if (CanPersonEditItem(person))
-                return true;
-
-            if (person.IsInChainOfCommand(SubmittedFor))
-                return true;
-
-            return false;
+            return CanPersonEditItem(person) || person.IsInChainOfCommand(SubmittedFor);
         }
 
         /// <summary>
@@ -139,14 +128,9 @@ namespace CommandCentral.Entities.Correspondence
         /// <returns></returns>
         public virtual bool CanPersonEditItem(Person person)
         {
-            if (person.CanAccessSubmodules(SubModules.AdminTools))
-                return true;
-
-            if (SubmittedBy == person || SubmittedFor == person ||
-                Reviews.Any(y => y.Reviewer == person || y.ReviewedBy == person) || SharedWith.Contains(person))
-                return true;
-
-            return false;
+            return person.SpecialPermissions.Contains(SpecialPermissions.AdminTools) ||
+                   (SubmittedBy == person || SubmittedFor == person ||
+                    Reviews.Any(y => y.Reviewer == person || y.ReviewedBy == person) || SharedWith.Contains(person));
         }
 
         /// <summary>

@@ -6,8 +6,8 @@ namespace CommandCentral.DTOs.Change
     {
         public Guid Id { get; set; }
         public Guid Editor { get; set; }
-        public Guid Person { get; set; }
-        public string PropertyName { get; set; }
+        public Guid Entity { get; set; }
+        public string PropertyPath { get; set; }
         public string OldValue { get; set; }
         public string NewValue { get; set; }
         public DateTime ChangeTime { get; set; }
@@ -16,8 +16,8 @@ namespace CommandCentral.DTOs.Change
         {
             Id = change.Id;
             Editor = change.Editor.Id;
-            Person = change.Person.Id;
-            PropertyName = change.PropertyName;
+            Entity = change.Entity.Id;
+            PropertyPath = change.PropertyPath;
             OldValue = change.OldValue;
             NewValue = change.NewValue;
             ChangeTime = change.ChangeTime;

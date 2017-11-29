@@ -2,8 +2,9 @@
 {
     public enum WatchQualifications
     {
-        JOOD,
-        OOD,
-        CDO
+        NULL = 0,
+        JOOD = 1,
+        OOD = 2,
+        CDO = 3
     }
 }

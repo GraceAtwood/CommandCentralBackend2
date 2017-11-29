@@ -2,9 +2,10 @@
 {
     public enum CorrespondenceItemPriorityLevels
     {
-        Critical,
-        High,
+        NULL,
+        Low,
         Medium,
-        Low
+        High,
+        Critical
     }
 }

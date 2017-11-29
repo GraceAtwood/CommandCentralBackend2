@@ -8,6 +8,7 @@ using CommandCentral.Authentication;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
+using CommandCentral.Enums;
 using CommandCentral.Utilities;
 
 namespace CommandCentral.Framework
@@ -61,44 +62,63 @@ namespace CommandCentral.Framework
 
             DBSession.Clear();
         }
+        
+        #region Change Tracking
 
         /// <summary>
-        /// The logging instance that should be used for logging... things.
+        /// Call this method on a created entity after saving it to register it with change tracking.
         /// </summary>
-        private static ILogger Logger => Log.LoggerInstance;
-
-        #region Logging
-
-        /// <summary>
-        /// Logs an exception.
-        /// </summary>
-        /// <param name="e"></param>
-        [NonAction]
-        public void LogException(Exception e)
+        /// <param name="entity"></param>
+        /// <typeparam name="T"></typeparam>
+        public void LogEntityCreation<T>(T entity) where T : Entity
         {
-            Logger.LogError(new EventId(), e, e.ToString());
+            var change = new Change
+            {
+                ChangeTime = CallTime,
+                Editor = User,
+                Entity = entity,
+                Id = Guid.NewGuid(),
+                ChangeType = ChangeTypes.Create,
+                PropertyPath = ""
+            };
+
+            DBSession.Save(change);
         }
 
         /// <summary>
-        /// Logs information.
+        /// Call this method on the deletion of an entity to register that deletion with change tracking.
         /// </summary>
-        /// <param name="message"></param>
-        [NonAction]
-        public void LogInformation(string message)
+        /// <param name="entity"></param>
+        /// <typeparam name="T"></typeparam>
+        public void LogEntityDeletion<T>(T entity) where T : Entity
         {
-            Logger.LogInformation(message);
+            DBSession.Save(new Change
+            {
+                ChangeTime = CallTime,
+                Editor = User,
+                Entity = entity,
+                Id = Guid.NewGuid(),
+                ChangeType = ChangeTypes.Delete,
+                PropertyPath = ""
+            });
         }
 
         /// <summary>
-        /// Logs a debug message.
+        /// Call this method after making changes to your entity to register the changes with change tracking.
         /// </summary>
-        /// <param name="message"></param>
-        [NonAction]
-        public void LogDebug(string message)
+        /// <param name="entity"></param>
+        /// <typeparam name="T"></typeparam>
+        public void LogEntityModification<T>(T entity) where T : Entity
         {
-            Logger.LogDebug(message);
+            foreach (var change in DBSession.GetChangesFromDirtyProperties(entity))
+            {
+                change.Editor = User;
+                change.ChangeTime = CallTime;
+                change.ChangeType = ChangeTypes.Modify;
+                DBSession.Save(change);
+            }
         }
-
+        
         #endregion
 
         #region Return Actions
@@ -165,7 +185,9 @@ namespace CommandCentral.Framework
             string childParameterName)
         {
             return NotFound(
-                $"An object with Id '{childId}' identified by your parameter '{childParameterName}', child of an object with Id '{parentId}' identified by your parameter '{childParameterName},' could not be found.");
+                $"An object with Id '{childId}' identified by your parameter '{childParameterName}', child of an " +
+                $"object with Id '{parentId}' identified by your parameter '{childParameterName},' " +
+                $"could not be found.");
         }
 
         /// <summary>

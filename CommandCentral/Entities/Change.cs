@@ -1,4 +1,6 @@
 ﻿using System;
+using CommandCentral.Enums;
+using CommandCentral.Framework;
 using FluentNHibernate.Mapping;
 using NHibernate.Type;
 using FluentValidation.Results;
@@ -6,7 +8,7 @@ using FluentValidation.Results;
 namespace CommandCentral.Entities
 {
     /// <summary>
-    /// Describes a single change
+    /// Describes a single change.
     /// </summary>
     public class Change : Entity
     {
@@ -18,14 +20,14 @@ namespace CommandCentral.Entities
         public virtual Person Editor { get; set; }
 
         /// <summary>
-        /// The person who was edited.
+        /// The entity on which the property was modified.
         /// </summary>
-        public virtual Person Person { get; set; }
+        public virtual Entity Entity { get; set; }
 
         /// <summary>
-        /// The name of the property of the object that changed.
+        /// The path to the property that was modified.
         /// </summary>
-        public virtual string PropertyName { get; set; }
+        public virtual string PropertyPath { get; set; }
 
         /// <summary>
         /// The value prior to the update or change.
@@ -42,18 +44,10 @@ namespace CommandCentral.Entities
         /// </summary>
         public virtual DateTime ChangeTime { get; set; }
 
-        #endregion
-
-        #region Overrides
-
         /// <summary>
-        /// Casts the
+        /// The type of change.
         /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return $"The property '{PropertyName}' changed from '{OldValue}' to '{NewValue}'.";
-        }
+        public virtual ChangeTypes ChangeType { get; set; }
 
         #endregion
 
@@ -79,12 +73,20 @@ namespace CommandCentral.Entities
                 Id(x => x.Id).GeneratedBy.Assigned();
 
                 References(x => x.Editor).Not.Nullable();
-                References(x => x.Person).Not.Nullable();
 
                 Map(x => x.ChangeTime).Not.Nullable().CustomType<UtcDateTimeType>();
-                Map(x => x.PropertyName).Not.Nullable();
+                Map(x => x.PropertyPath).Not.Nullable();
                 Map(x => x.OldValue);
                 Map(x => x.NewValue);
+                Map(x => x.ChangeType);
+                
+                ReferencesAny(x => x.Entity)
+                    .AddMetaValue<NewsItem>(typeof(NewsItem).Name)
+                    .AddMetaValue<EmailAddress>(typeof(EmailAddress).Name)
+                    .IdentityType<Guid>()
+                    .EntityTypeColumn("Entity_Type")
+                    .EntityIdentifierColumn("Entity_id")
+                    .MetaType<string>();
             }
         }
 

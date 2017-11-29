@@ -19,7 +19,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
     /// <summary>
     /// The person object is the central entry to a person's profile.  Permissions for each field can be attained from the /authorization controller.
     /// </summary>
-    public partial class PersonsController : CommandCentralController
+    public class PersonsController : CommandCentralController
     {
         /// <summary>
         /// Queries the persons collection.  Results are passed through a permissions filter prior to serving them to the client.  
@@ -30,7 +30,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         /// <param name="firstName">A string quuery for the first name of a person.</param>
         /// <param name="lastName">A string query for the last name of a person.</param>
         /// <param name="middleName">A string query for the middle name of a person.</param>
-        /// <param name="ssn">A string query for the ssn of a person.</param>
         /// <param name="dodId">A string query for the dod id of a person.</param>
         /// <param name="supervisor">A string query for a person's supervisor.</param>
         /// <param name="workCenter">A string query for a person's work center.</param>
@@ -58,7 +57,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Person.Get>))]
         public IActionResult Get([FromQuery] string firstName, [FromQuery] string lastName,
-            [FromQuery] string middleName, [FromQuery] string ssn, [FromQuery] string dodId,
+            [FromQuery] string middleName, [FromQuery] string dodId,
             [FromQuery] string supervisor, [FromQuery] string workCenter, [FromQuery] string workRoom,
             [FromQuery] string shift, [FromQuery] string jobTitle, [FromQuery] string designation,
             [FromQuery] string dutyStatus, [FromQuery] string uic, [FromQuery] string sex, [FromQuery] string ethnicity,
@@ -78,7 +77,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 .AddStringQueryExpression(x => x.FirstName, firstName)
                 .AddStringQueryExpression(x => x.LastName, lastName)
                 .AddStringQueryExpression(x => x.MiddleName, middleName)
-                .AddStringQueryExpression(x => x.SSN, ssn)
                 .AddStringQueryExpression(x => x.DoDId, dodId)
                 .AddStringQueryExpression(x => x.Supervisor, supervisor)
                 .AddStringQueryExpression(x => x.WorkCenter, workCenter)
@@ -145,11 +143,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 .OrderBy(orderBySelector)
                 .Take(limit)
                 .ToList()
-                .Select(person =>
-                {
-                    var perms = User.GetFieldPermissions<Person>(person);
-                    return new DTOs.Person.Get(person, perms);
-                })
+                .Select(person => new DTOs.Person.Get(User, person))
                 .ToList();
 
             return Ok(result);
@@ -163,9 +157,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         [ProducesResponseType(200, Type = typeof(DTOs.Person.Get))]
         public IActionResult GetMe()
         {
-            var perms = User.GetFieldPermissions<Person>(User);
-
-            return Ok(new DTOs.Person.Get(User, perms));
+            return Ok(new DTOs.Person.Get(User, User));
         }
 
         /// <summary>
@@ -181,9 +173,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (person == null)
                 return NotFoundParameter(id, nameof(id));
 
-            var perms = User.GetFieldPermissions<Person>(person);
-
-            return Ok(new DTOs.Person.Get(person, perms));
+            return Ok(new DTOs.Person.Get(User, person));
         }
 
         /// <summary>
@@ -198,7 +188,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (dto == null)
                 return BadRequestDTONull();
 
-            if (!User.CanAccessSubmodules(SubModules.CreatePerson))
+            if (!User.SpecialPermissions.Contains(SpecialPermissions.CreatePerson))
                 return Forbid("You must have access to the Create Persons sub module to create a person.");
 
             var uic = DBSession.Get<UIC>(dto.UIC);
@@ -212,7 +202,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             var designation = DBSession.Get<Designation>(dto.Designation);
             if (designation == null)
                 return NotFoundParameter(dto.Designation, nameof(dto.Designation));
-            
+
             var person = new Person
             {
                 Id = Guid.NewGuid(),
@@ -223,7 +213,6 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 Paygrade = dto.Paygrade,
                 Division = division,
                 DoDId = dto.DoDId,
-                SSN = dto.SSN,
                 LastName = dto.LastName,
                 FirstName = dto.FirstName,
                 Sex = dto.Sex,
@@ -243,8 +232,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 Person = person
             }, this);
 
-            return CreatedAtAction(nameof(Get), new {id = person.Id},
-                new DTOs.Person.Get(person, User.GetFieldPermissions<Person>(person)));
+            return CreatedAtAction(nameof(Get), new {id = person.Id}, new DTOs.Person.Get(User, person));
         }
     }
 }

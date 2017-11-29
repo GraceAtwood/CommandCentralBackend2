@@ -88,7 +88,7 @@ namespace CommandCentral.Controllers.MusterControllers
         [ProducesResponseType(200, Type = typeof(DTOs.MusterEntry.Get))]
         public IActionResult GetCurrent()
         {
-            var entries = User.Command.CurrentMusterCycle.MusterEntries
+            var entries = User.Division.Department.Command.CurrentMusterCycle.MusterEntries
                 .Select(entry => new DTOs.MusterEntry.Get(entry))
                 .ToList();
 
@@ -132,7 +132,7 @@ namespace CommandCentral.Controllers.MusterControllers
             if (!User.IsInChainOfCommand(person, ChainsOfCommand.Muster))
                 return Forbid();
 
-            var musterCycle = person.Command.CurrentMusterCycle;
+            var musterCycle = person.Division.Department.Command.CurrentMusterCycle;
 
             var existingEntry = DBSession.Query<MusterEntry>()
                 .FirstOrDefault(x => x.MusterCycle == musterCycle && x.Person == person);

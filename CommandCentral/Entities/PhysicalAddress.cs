@@ -1,4 +1,6 @@
-﻿using FluentNHibernate.Mapping;
+﻿using CommandCentral.Authorization;
+using CommandCentral.Framework;
+using FluentNHibernate.Mapping;
 using FluentValidation;
 using FluentValidation.Results;
 
@@ -132,6 +134,21 @@ namespace CommandCentral.Entities
                     .Matches(@"^\d{5}(?:[-\s]\d{4})?$").WithMessage("Your zip code was not valid.");
             }
         }
-        
+
+        public class Contract : RulesContract<PhysicalAddress>
+        {
+            public Contract()
+            {
+                RulesFor()
+                    .CanEdit((person, address) => person.IsInChainOfCommand(address.Person) || person == address.Person)
+                    .CanReturn((editor, address) =>
+                    {
+                        if (address.IsReleasableOutsideCoC)
+                            return true;
+
+                        return editor.IsInChainOfCommand(address.Person) || editor == address.Person;
+                    });
+            }
+        }
     }
 }

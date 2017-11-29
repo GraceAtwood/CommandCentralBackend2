@@ -9,7 +9,7 @@ using CommandCentral.Framework.Data;
 
 namespace CommandCentral.Events.Handlers.Email
 {
-    public class CollateralDutyTrackingHandler : IEventHandler
+    /*public class CollateralDutyTrackingHandler : IEventHandler
     {
         public CollateralDutyTrackingHandler()
         {
@@ -94,5 +94,5 @@ namespace CommandCentral.Events.Handlers.Email
                     .Send();
             }
         }
-    }
+    }*/
 }

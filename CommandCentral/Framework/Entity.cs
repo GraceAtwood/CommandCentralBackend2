@@ -1,8 +1,8 @@
-﻿using CommandCentral.Authorization.Rules;
+﻿using System;
 using FluentValidation.Results;
-using System;
+using NHibernate.Id.Insert;
 
-namespace CommandCentral.Entities
+namespace CommandCentral.Framework
 {
     /// <summary>
     /// Domain objects should implement this class.
@@ -12,9 +12,13 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The id of this entity.  This is the primary key.
         /// </summary>
-        [CanNeverEdit]
         public virtual Guid Id { get; set; }
-        
+
+        /// <summary>
+        /// Returns the type of this entity.
+        /// </summary>
+        public virtual Type GetTypeUnproxied() => GetType();
+
         /// <summary>
         /// Performs Id based equality on two objects.
         /// </summary>

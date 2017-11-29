@@ -12,7 +12,6 @@ namespace CommandCentral.DTOs.Person
         public Sexes Sex { get; set; }
         public string LastName { get; set; }
         public string FirstName { get; set; }
-        public string SSN { get; set; }
         public string DoDId { get; set; }
         public DateTime DateOfBirth { get; set; }
         public DateTime DateOfArrival { get; set; }

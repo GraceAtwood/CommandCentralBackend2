@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
+using CommandCentral.Authorization;
+using CommandCentral.Entities.CollateralDutyTracking;
 using CommandCentral.Entities.ReferenceLists;
 using FluentNHibernate.Mapping;
 using FluentValidation;
@@ -8,8 +11,6 @@ using NHibernate.Type;
 using CommandCentral.Framework.Data;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
-using CommandCentral.Authorization;
-using CommandCentral.Authorization.Rules;
 using FluentValidation.Results;
 using CommandCentral.Entities.Muster;
 
@@ -18,10 +19,8 @@ namespace CommandCentral.Entities
     /// <summary>
     /// Describes a single person and all their properties and data access methods.
     /// </summary>
-    [HasPermissions]
-    public class Person : Entity, IHazComments
+    public class Person : CommentableEntity
     {
-
         #region Properties
 
         #region Main Properties
@@ -29,60 +28,36 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The person's last name.
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        [CanEditIfSelf]
         public virtual string LastName { get; set; }
 
         /// <summary>
         /// The person's first name.
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        [CanEditIfSelf]
         public virtual string FirstName { get; set; }
 
         /// <summary>
         /// The person's middle name.
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        [CanEditIfSelf]
         public virtual string MiddleName { get; set; }
-
-        /// <summary>
-        /// The person's SSN.
-        /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        [CanReturnIfSelf]
-        [CanReturnIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        public virtual string SSN { get; set; }
 
         /// <summary>
         /// The person's DoD Id which allows us to communicate with other systems about this person.
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        [CanReturnIfSelf]
-        [CanReturnIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual string DoDId { get; set; }
 
         /// <summary>
         /// The person's suffix.
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        [CanEditIfSelf]
         public virtual string Suffix { get; set; }
 
         /// <summary>
         /// The person's date of birth.
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        [CanEditIfSelf]
-        [CanReturnIfSelf]
-        [CanReturnIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual DateTime DateOfBirth { get; set; }
 
         /// <summary>
         /// The person's age.  0 if the date of birth isn't set.
         /// </summary>
-        [CanNeverEdit]
         public virtual int Age
         {
             get
@@ -104,53 +79,32 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The person's sex.
         /// </summary>
-        [CanEditIfSelf]
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual Sexes Sex { get; set; }
 
         /// <summary>
         /// Stores the person's ethnicity.
         /// </summary>
-        [CanEditIfSelf]
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual Ethnicity Ethnicity { get; set; }
 
         /// <summary>
         /// The person's religious preference
         /// </summary>
-        [CanEditIfSelf]
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        [CanReturnIfSelf]
-        [CanReturnIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual ReligiousPreference ReligiousPreference { get; set; }
 
         /// <summary>
         /// The person's paygrade (e5, O1, O5, CWO2, GS1,  etc.)
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual Paygrades Paygrade { get; set; }
 
         /// <summary>
         /// The person's Designation (CTI2, CTR1, 1114, Job title)
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual Designation Designation { get; set; }
 
         /// <summary>
         /// The person's division
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual Division Division { get; set; }
-
-        /// <summary>
-        /// Readonly. Returns Division.Department
-        /// </summary>
-        public virtual Department Department => Division?.Department;
-
-        /// <summary>
-        /// Readonly. Returns Department.Command
-        /// </summary>
-        public virtual Command Command => Department?.Command;
 
         #endregion
 
@@ -159,99 +113,76 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The person's NECs.
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual IList<NECInfo> NECs { get; set; } = new List<NECInfo>();
 
         /// <summary>
         /// The person's supervisor
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        [CanEditIfSelf]
         public virtual string Supervisor { get; set; }
 
         /// <summary>
         /// The person's work center.
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        [CanEditIfSelf]
         public virtual string WorkCenter { get; set; }
 
         /// <summary>
         /// The room in which the person works.
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        [CanEditIfSelf]
         public virtual string WorkRoom { get; set; }
 
         /// <summary>
         /// A free form text field intended to let the client store the shift of a person - however the client wants to do that.
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        [CanEditIfSelf]
         public virtual string Shift { get; set; }
 
         /// <summary>
         /// The person's duty status
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual DutyStatuses DutyStatus { get; set; }
 
         /// <summary>
         /// The person's UIC
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual UIC UIC { get; set; }
 
         /// <summary>
         /// The date/time that the person arrived at the command.
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual DateTime DateOfArrival { get; set; }
 
         /// <summary>
         /// The client's job title.
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        [CanEditIfSelf]
         public virtual string JobTitle { get; set; }
 
         /// <summary>
         /// The date/time of the end of active obligatory service (EAOS) for the person.
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual DateTime? EAOS { get; set; }
 
         /// <summary>
         /// The member's projected rotation date.
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual DateTime? PRD { get; set; }
 
         /// <summary>
         /// The date/time that the client left/will leave the command.
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual DateTime? DateOfDeparture { get; set; }
 
         /// <summary>
         /// The person's watch qualification.
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        [CanEditIfInChainOfCommand(ChainsOfCommand.QuarterdeckWatchbill, ChainOfCommandLevels.Division)]
         public virtual IList<WatchQualifications> WatchQualifications { get; set; }
 
         /// <summary>
         /// The person's status periods which describe projected locations and duty locations.
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        [CanEditIfInChainOfCommand(ChainsOfCommand.QuarterdeckWatchbill, ChainOfCommandLevels.Division)]
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Muster, ChainOfCommandLevels.Division)]
         public virtual IList<StatusPeriod> StatusPeriods { get; set; }
 
         /// <summary>
         /// The type of billet this person is assigned to.
         /// </summary>
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual BilletAssignments BilletAssignment { get; set; }
 
         #endregion
@@ -261,8 +192,6 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The email addresses of this person.
         /// </summary>
-        [CanEditIfSelf]
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
         public virtual IList<EmailAddress> EmailAddresses { get; set; }
 
         /// <summary>
@@ -280,38 +209,29 @@ namespace CommandCentral.Entities
         #region Account
 
         /// <summary>
-        /// The list of the person's permissions.  This is not persisted in the database.  Only the names are.
+        /// The collection of all the col duty rules this person has.
         /// </summary>
-        [HiddenFromPermissions]
-        public virtual IList<PermissionGroup> PermissionGroups { get; set; } = new List<PermissionGroup>();
+        public virtual IList<CollateralDutyMembership> CollateralDutyMemberships { get; set; }
+
+        /// <summary>
+        /// A list of the submodules this person can access.
+        /// </summary>
+        public virtual IList<SpecialPermissions> SpecialPermissions { get; set; } = new List<SpecialPermissions>();
 
         /// <summary>
         /// A list containing account history events, these are events that track things like login, password reset, etc.
         /// </summary>
-        [CanReturnIfSelf]
-        [CanNeverEdit]
-        [CanReturnIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Command)]
         public virtual IList<AccountHistoryEvent> AccountHistory { get; set; }
 
         /// <summary>
         /// A list containing all changes that have ever occurred to the profile.
         /// </summary>
-        [CanNeverEdit]
         public virtual IList<Change> Changes { get; set; }
 
         /// <summary>
         /// The list of those events to which this person is subscribed.
         /// </summary>
-        [CanEditIfSelf]
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Main, ChainOfCommandLevels.Division)]
-        [CanEditIfInChainOfCommand(ChainsOfCommand.QuarterdeckWatchbill, ChainOfCommandLevels.Division)]
-        [CanEditIfInChainOfCommand(ChainsOfCommand.Muster, ChainOfCommandLevels.Division)]
         public virtual IDictionary<SubscribableEvents, ChainOfCommandLevels> SubscribedEvents { get; set; }
-
-        /// <summary>
-        /// The list of comments.
-        /// </summary>
-        public virtual IList<Comment> Comments { get; set; }
 
         #endregion
 
@@ -332,11 +252,6 @@ namespace CommandCentral.Entities
 
         #region Helper Methods
 
-        public virtual Dictionary<ChainsOfCommand, Dictionary<ChainOfCommandLevels, List<Person>>> GetChainOfCommand()
-        {
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         /// Returns a boolean indicating if this person is in the same command as the given person.
         /// </summary>
@@ -347,7 +262,7 @@ namespace CommandCentral.Entities
             if (person == null || Division.Department.Command == null || person.Division.Department.Command == null)
                 return false;
 
-            return Command.Id == person.Command.Id;
+            return Division.Department.Command.Id == person.Division.Department.Command.Id;
         }
 
         /// <summary>
@@ -357,10 +272,10 @@ namespace CommandCentral.Entities
         /// <returns></returns>
         public virtual bool IsInSameDepartmentAs(Person person)
         {
-            if (person == null || Department == null || person.Department == null)
+            if (person == null || Division.Department == null || person.Division.Department == null)
                 return false;
 
-            return IsInSameCommandAs(person) && Department.Id == person.Department.Id;
+            return IsInSameCommandAs(person) && Division.Department.Id == person.Division.Department.Id;
         }
 
         /// <summary>
@@ -374,16 +289,6 @@ namespace CommandCentral.Entities
                 return false;
 
             return IsInSameDepartmentAs(person) && Division.Id == person.Division.Id;
-        }
-
-        /// <summary>
-        /// Determines if a person can access comments.
-        /// </summary>
-        /// <param name="person"></param>
-        /// <returns></returns>
-        public virtual bool CanPersonAccessComments(Person person)
-        {
-            return true;
         }
 
         #endregion
@@ -418,7 +323,6 @@ namespace CommandCentral.Entities
                 Map(x => x.LastName).Not.Nullable();
                 Map(x => x.FirstName).Not.Nullable();
                 Map(x => x.MiddleName);
-                Map(x => x.SSN).Not.Nullable().Unique();
                 Map(x => x.DoDId).Not.Nullable().Unique();
                 Map(x => x.DateOfBirth).Not.Nullable();
                 Map(x => x.Supervisor);
@@ -436,6 +340,7 @@ namespace CommandCentral.Entities
                 Map(x => x.DutyStatus).Not.Nullable();
                 Map(x => x.BilletAssignment);
 
+                HasMany(x => x.CollateralDutyMemberships).Cascade.All();
                 HasMany(x => x.NECs).Cascade.All();
                 HasMany(x => x.AccountHistory).Cascade.All();
                 HasMany(x => x.Changes).Cascade.All().Inverse();
@@ -454,10 +359,10 @@ namespace CommandCentral.Entities
                         element.Column("Level").Type<GenericEnumMapper<ChainOfCommandLevels>>())
                     .Cascade.All();
 
-                HasMany(x => x.PermissionGroups).Table("persontopermissiongroups").Component(x =>
-                {
-                    x.Map(y => y.Name);
-                });
+                HasMany(x => x.SpecialPermissions)
+                    .Cascade.All()
+                    .Table("specialpermissionstopersons")
+                    .Element("SpecialPermission");
             }
         }
 
@@ -480,27 +385,22 @@ namespace CommandCentral.Entities
                     .WithMessage("The middle name must not exceed 255 characters.");
                 RuleFor(x => x.Suffix).Length(0, 255)
                     .WithMessage("The suffix must not exceed 255 characters.");
-                RuleFor(x => x.SSN).NotEmpty()
-                    .Must(x => System.Text.RegularExpressions.Regex.IsMatch(x, @"^(?!\b(\d)\1+-(\d)\1+-(\d)\1+\b)(?!123-45-6789|219-09-9999|078-05-1120)(?!666|000|9\d{2})\d{3}(?!00)\d{2}(?!0{4})\d{4}$"))
-                        .WithMessage("The SSN must be valid and contain only numbers.")
-                    .Must((person, ssn) => SessionManager.GetCurrentSession().Query<Person>().Count(x => x.SSN == ssn && x.Id != person.Id) == 0)
-                        .WithMessage("That ssn exists on another profile.  SSNs must be unique.");
                 RuleFor(x => x.DoDId).NotEmpty().Length(10)
                     .Must(x => x.All(Char.IsDigit))
-                        .WithMessage("All characters of a DoD id must be digits.")
-                    .Must((person, dodId) => SessionManager.GetCurrentSession().Query<Person>().Count(x => x.DoDId == dodId && x.Id != person.Id) == 0)
-                        .WithMessage("That DoD id exists on another profile.  DoD Ids must be unique.");
+                    .WithMessage("All characters of a DoD id must be digits.")
+                    .Must((person, dodId) =>
+                        SessionManager.GetCurrentSession().Query<Person>()
+                            .Count(x => x.DoDId == dodId && x.Id != person.Id) == 0)
+                    .WithMessage("That DoD id exists on another profile.  DoD Ids must be unique.");
                 RuleFor(x => x.DateOfBirth).NotEmpty()
                     .WithMessage("The DOB must not be left blank.");
                 RuleFor(x => x.Sex).NotEmpty()
                     .WithMessage("The sex must not be left blank.");
-                RuleFor(x => x.Command).NotEmpty()
-                    .WithMessage("A person must have a command.  If you are trying to indicate this person left the command, please set his or her duty status to 'LOSS'.");
-                RuleFor(x => x.Department).NotEmpty()
-                    .WithMessage("A person must have a department.  If you are trying to indicate this person left the command, please set his or her duty status to 'LOSS'.");
                 RuleFor(x => x.Division).NotEmpty()
-                    .WithMessage("A person must have a division.  If you are trying to indicate this person left the command, please set his or her duty status to 'LOSS'.");
-                RuleFor(x => x.Division).Must(x => SessionManager.GetCurrentSession().Query<Division>().Count(div => div.Id == x.Id) == 1)
+                    .WithMessage("A person must have a division.  If you are trying to indicate this person left " +
+                                 "the command, please set his or her duty status to 'LOSS'.");
+                RuleFor(x => x.Division).Must(x =>
+                        SessionManager.GetCurrentSession().Query<Division>().Count(div => div.Id == x.Id) == 1)
                     .WithMessage("Your division was not found.");
                 RuleFor(x => x.Supervisor).Length(0, 255)
                     .WithMessage("The supervisor field may not be longer than 255 characters.");
@@ -512,7 +412,7 @@ namespace CommandCentral.Entities
                     .WithMessage("The shift field may not be longer than 255 characters.");
                 RuleFor(x => x.JobTitle).Length(0, 255)
                     .WithMessage("The job title may not be longer than 255 characters.");
-                
+
                 // If you add more EmailAddresses Rules, it may be necessary to call Person validation in the
                 // EmailAddress POST and PUT endpoints. Right now, this rule is covered in logic just before the
                 // transaction, so validation isn't called, as it's pointless extra effort.
@@ -521,6 +421,100 @@ namespace CommandCentral.Entities
                     RuleFor(x => x.EmailAddresses).Must(x => x.Count(y => y.IsPreferred) <= 1)
                         .WithMessage("Only one email address may be marked as 'Preferred'.");
                 });
+            }
+        }
+
+        public class Contract : RulesContract<Person>
+        {
+            public Contract()
+            {
+                //Can edit if in chain of command or self, everyone can return.
+                RulesFor(
+                        x => x.FirstName,
+                        x => x.LastName,
+                        x => x.MiddleName,
+                        x => x.Ethnicity,
+                        x => x.ReligiousPreference,
+                        x => x.JobTitle,
+                        x => x.Supervisor,
+                        x => x.Suffix,
+                        x => x.WorkCenter,
+                        x => x.WorkRoom,
+                        x => x.Sex,
+                        x => x.Shift)
+                    .CanEdit((editor, subject) =>
+                        editor.IsInChainOfCommand(subject, ChainsOfCommand.Main) || editor == subject)
+                    .CanReturn((editor, subject) => true);
+
+                //Can edit if in chain of command, everyone can return.
+                RulesFor(
+                        x => x.DateOfArrival,
+                        x => x.DateOfBirth,
+                        x => x.DateOfDeparture,
+                        x => x.BilletAssignment,
+                        x => x.Designation,
+                        x => x.DutyStatus,
+                        x => x.EAOS,
+                        x => x.NECs,
+                        x => x.Paygrade,
+                        x => x.PRD,
+                        x => x.UIC)
+                    .CanEdit((editor, subject) => editor.IsInChainOfCommand(subject, ChainsOfCommand.Main))
+                    .CanReturn((editor, subjecct) => true);
+
+                //Can edit if in chain of command, everyone can return.
+                RulesFor(x => x.Division)
+                    .CanEdit((editor, subject) =>
+                        editor.IsInChainOfCommand(subject, ChainsOfCommand.Main, ChainsOfCommand.Muster))
+                    .CanReturn((editor, subject) => true);
+
+                //Can edit if in chain of command, everyone can return.
+                RulesFor(x => x.StatusPeriods)
+                    .CanEdit((editor, subject) =>
+                        editor.IsInChainOfCommand(subject, ChainsOfCommand.Main, ChainsOfCommand.Muster,
+                            ChainsOfCommand.QuarterdeckWatchbill))
+                    .CanReturn((editor, subject) => true);
+                
+                //Can edit if in chain of command, everyone can return.
+                RulesFor(x => x.WatchQualifications)
+                    .CanEdit((editor, subject) =>
+                        editor.IsInChainOfCommand(subject, ChainsOfCommand.Main, ChainsOfCommand.QuarterdeckWatchbill))
+                    .CanReturn((editor, subject) => true);
+
+                //can edit if in chain of command, can see if in coc or self.
+                RulesFor(
+                        x => x.DoDId)
+                    .CanEdit((editor, subject) => editor.IsInChainOfCommand(subject, ChainsOfCommand.Main))
+                    .CanReturn((editor, subject) =>
+                        editor.IsInChainOfCommand(subject, ChainsOfCommand.Main) || editor == subject);
+
+                //No one can edit, everyone can see
+                RulesFor(
+                        x => x.AccountHistory,
+                        x => x.Age,
+                        x => x.Changes,
+                        x => x.Id)
+                    .CanEdit((editor, subject) => false)
+                    .CanReturn((editor, subject) => true);
+
+                RulesFor(
+                        x => x.EmailAddresses,
+                        x => x.PhoneNumbers,
+                        x => x.PhysicalAddresses)
+                    .CanEdit((editor, subject) =>
+                        editor.IsInChainOfCommand(subject, ChainsOfCommand.Main) || editor == subject)
+                    .CanReturn((editor, subject) =>
+                        throw new NotImplementedException("Return is controlled by inidividual objects."));
+
+                //Not supported edit, all can see
+                RulesFor(
+                        x => x.CollateralDutyMemberships,
+                        x => x.Comments
+                    )
+                    .CanEdit((editor, subject) =>
+                        throw new NotImplementedException(
+                            "The edit rules for this property are implemented in their controllers or elsewhere due to logic that the rules contracts can not support."))
+                    .CanReturn((editor, subject) => true);
             }
         }
     }

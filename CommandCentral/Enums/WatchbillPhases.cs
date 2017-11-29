@@ -2,9 +2,10 @@
 {
     public enum WatchbillPhases
     {
-        Initial = 0,
-        Assignment = 1,
-        Review = 2,
-        Publish = 3
+        NULL = 0,
+        Initial = 1,
+        Assignment = 2,
+        Review = 3,
+        Publish = 4
     }
 }

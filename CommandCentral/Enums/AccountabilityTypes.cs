@@ -2,6 +2,7 @@
 {
     public enum AccountabilityTypes
     {
+        NULL,
         Present,
         TerminalLeave,
         Leave,

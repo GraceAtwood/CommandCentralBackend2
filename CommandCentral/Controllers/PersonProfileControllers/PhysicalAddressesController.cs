@@ -46,34 +46,15 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 .AddNullableBoolQueryExpression(x => x.IsHomeAddress, isHomeAddress)
                 .AddNullableBoolQueryExpression(x => x.IsReleasableOutsideCoC, isReleasableOutsideCoC);
 
-            var physicalAddresses = DBSession.Query<PhysicalAddress>()
+            var results = DBSession.Query<PhysicalAddress>()
                 .AsExpandable()
                 .NullSafeWhere(predicate)
                 .Take(limit)
+                .ToList()
+                .Where(x => User.CanReturn(x))
+                .Select(x => new DTOs.PhysicalAddress.Get(x))
                 .ToList();
 
-            var checkedPersons = new Dictionary<Person, bool>();
-            foreach (var physicalAddress in physicalAddresses.Where(x => !x.IsReleasableOutsideCoC))
-            {
-                if (!checkedPersons.TryGetValue(physicalAddress.Person, out var canView))
-                {
-                    checkedPersons[physicalAddress.Person] = User.IsInChainOfCommand(physicalAddress.Person);
-                    canView = checkedPersons[physicalAddress.Person];
-                }
-
-                if (!canView)
-                {
-                    physicalAddress.Address = "REDACTED";
-                    physicalAddress.State = "REDACTED";
-                    physicalAddress.City = "REDACTED";
-                    physicalAddress.Country = "REDACTED";
-                    physicalAddress.ZipCode = "REDACTED";
-                }
-            }
-
-            //Now that we've scrubbed out all the values we don't want to expose to the client, 
-            //we're ready to send the results out.
-            var results = physicalAddresses.Select(x => new DTOs.PhysicalAddress.Get(x)).ToList();
             return Ok(results);
         }
 
@@ -91,15 +72,9 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (physicalAddress == null)
                 return NotFoundParameter(id, nameof(id));
 
-            if (!physicalAddress.IsReleasableOutsideCoC && !User.IsInChainOfCommand(physicalAddress.Person))
-            {
-                physicalAddress.Address = "REDACTED";
-                physicalAddress.State = "REDACTED";
-                physicalAddress.City = "REDACTED";
-                physicalAddress.Country = "REDACTED";
-                physicalAddress.ZipCode = "REDACTED";
-            }
-
+            if (!User.CanReturn(physicalAddress))
+                return Forbid("You can not request this physical address.");
+            
             return Ok(new DTOs.PhysicalAddress.Get(physicalAddress));
         }
 
@@ -119,7 +94,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (person == null)
                 return NotFoundParameter(dto.Person, nameof(dto.Person));
 
-            if (!User.GetFieldPermissions<Person>(person).CanEdit(x => x.PhysicalAddresses))
+            if (!User.CanEdit(person, x => x.PhysicalAddresses))
                 return Forbid("You may not modify the physical addresses collection for this person.");
 
             var physicalAddress = new PhysicalAddress
@@ -171,7 +146,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (physicalAddress == null)
                 return NotFoundParameter(id, nameof(id));
 
-            if (!User.GetFieldPermissions<Person>(physicalAddress.Person).CanEdit(x => x.PhysicalAddresses))
+            if (!User.CanEdit(physicalAddress))
                 return Forbid("You may not modify the physical addresses collection for this person");
 
             physicalAddress.IsReleasableOutsideCoC = dto.IsReleasableOutsideCoC;
@@ -213,7 +188,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (physicalAddress == null)
                 return NotFoundParameter(id, nameof(id));
 
-            if (!User.GetFieldPermissions<Person>(physicalAddress.Person).CanEdit(x => x.PhysicalAddresses))
+            if (!User.CanEdit(physicalAddress))
                 return Forbid("You may not modify the physical addresses collection for this person");
 
             DBSession.Delete(physicalAddress);

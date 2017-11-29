@@ -2,8 +2,6 @@
 {
     public enum AccountHistoryTypes
     {
-        Created,
-        Login,
-        FailedLogin,
+        Created
     }
 }

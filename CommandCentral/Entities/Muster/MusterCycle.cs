@@ -4,6 +4,7 @@ using FluentValidation;
 using NHibernate.Type;
 using System;
 using System.Collections.Generic;
+using CommandCentral.Framework;
 using FluentValidation.Results;
 
 namespace CommandCentral.Entities.Muster

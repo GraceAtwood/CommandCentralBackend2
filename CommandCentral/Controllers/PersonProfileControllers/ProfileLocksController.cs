@@ -27,7 +27,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         [ProducesResponseType(200, Type = typeof(DTOs.ProfileLock.Get))]
         public IActionResult Get(Guid id)
         {
-            if (!User.CanAccessSubmodules(SubModules.AdminTools))
+            if (!User.SpecialPermissions.Contains(SpecialPermissions.AdminTools))
                 return Forbid();
 
             var profileLock = DBSession.Get<ProfileLock>(id);

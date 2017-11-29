@@ -1,6 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using FluentValidation;
 using System;
+using CommandCentral.Framework;
 using FluentValidation.Results;
 
 namespace CommandCentral.Entities.Correspondence

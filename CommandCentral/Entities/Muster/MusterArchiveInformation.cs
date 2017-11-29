@@ -1,4 +1,5 @@
 ﻿using System;
+using CommandCentral.Framework;
 using FluentValidation.Results;
 using FluentNHibernate.Mapping;
 using FluentValidation;
@@ -64,8 +65,8 @@ namespace CommandCentral.Entities.Muster
             if (person == null)
                 throw new ArgumentNullException(nameof(person));
 
-            Command = person.Command?.Name;
-            Department = person.Department?.Name;
+            Command = person.Division.Department.Command?.Name;
+            Department = person.Division.Department?.Name;
             Designation = person.Designation?.Value;
             Division = person.Division?.Name;
             Id = Guid.NewGuid();

@@ -2,6 +2,7 @@
 {
     public enum Paygrades
     {
+        NULL,
         E1,
         E2,
         E3,

@@ -27,19 +27,17 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
         /// <param name="level">An exact enum query for the level of a membership.</param>
         /// <param name="role">An exact enum query for the role of a membership.</param>
         /// <param name="person">A person query for the person of a membership.</param>
-        /// <param name="hasDesignationLetter">A boolean query for whether or not a membership has an associated designation letter.</param>
         /// <param name="collateralDuty">A string query for the name of the collateral duty associated with a membership.</param>
         /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(List<DTOs.CollateralDutyMembership.Get>))]
         public IActionResult Get([FromQuery] string level, [FromQuery] string role, [FromQuery] string person,
-            [FromQuery] bool? hasDesignationLetter, [FromQuery] string collateralDuty)
+            [FromQuery] string collateralDuty)
         {
             var predicate = ((Expression<Func<CollateralDutyMembership, bool>>) null)
                 .AddExactEnumQueryExpression(x => x.Level, level)
                 .AddExactEnumQueryExpression(x => x.Role, role)
-                .AddPersonQueryExpression(x => x.Person, person)
-                .AddNullableBoolQueryExpression(x => x.HasDesignationLetter, hasDesignationLetter);
+                .AddPersonQueryExpression(x => x.Person, person);
 
             //Add a null safe AND phrase containing a disjunction for the name of the collateral duty or the id.
             if (!String.IsNullOrWhiteSpace(collateralDuty))
@@ -106,7 +104,7 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
             if (duty == null)
                 return NotFoundParameter(dto.CollateralDuty, nameof(dto.CollateralDuty));
 
-            if (!User.CanAccessSubmodules(SubModules.AdminTools))
+            if (!User.SpecialPermissions.Contains(SpecialPermissions.AdminTools))
             {
                 var clientMembership = DBSession.Query<CollateralDutyMembership>().SingleOrDefault(x =>
                     x.CollateralDuty.Id == dto.CollateralDuty && x.Person == User &&
@@ -146,14 +144,13 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
             DBSession.Save(membership);
-
             CommitChanges();
 
             EventManager.OnCollateralDutyMembershipCreated(new CollateralDutyMembershipEventArgs
             {
                 CollateralDutyMembership = membership
             }, this);
-            
+
             return CreatedAtAction(nameof(Get), new {id = membership.Id},
                 new DTOs.CollateralDutyMembership.Get(membership));
         }
@@ -179,7 +176,7 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
                 x.CollateralDuty == membership.CollateralDuty && x.Person == User &&
                 (x.Role == CollateralRoles.Primary || x.Role == CollateralRoles.Secondary));
 
-            if (!User.CanAccessSubmodules(SubModules.AdminTools) || clientMembership == null)
+            if (!User.SpecialPermissions.Contains(SpecialPermissions.AdminTools) || clientMembership == null)
                 return Forbid(
                     "In order to modify the membership of a collateral duty, you must either have access to " +
                     "the admin tools or be in the Primary or Secondary level of the collateral duty in question.");
@@ -192,7 +189,7 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
 
             membership.Level = dto.Level;
             membership.Role = dto.Role;
-            
+
             var result = membership.Validate();
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
@@ -222,7 +219,7 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
                 x.CollateralDuty == membership.CollateralDuty && x.Person == User &&
                 (x.Role == CollateralRoles.Primary || x.Role == CollateralRoles.Secondary));
 
-            if (!User.CanAccessSubmodules(SubModules.AdminTools) || clientMembership == null)
+            if (!User.SpecialPermissions.Contains(SpecialPermissions.AdminTools) || clientMembership == null)
                 return Forbid(
                     "In order to modify the membership of a collateral duty, you must either have access to " +
                     "the admin tools or be in the Primary or Secondary level of the collateral duty in question.");
