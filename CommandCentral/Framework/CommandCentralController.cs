@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using CommandCentral.Entities;
 using NHibernate;
 using CommandCentral.Authentication;
-using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using CommandCentral.Enums;

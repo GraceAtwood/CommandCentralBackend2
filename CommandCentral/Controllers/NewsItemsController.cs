@@ -4,7 +4,6 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using CommandCentral.Framework;
 using CommandCentral.Entities;
-using CommandCentral.Authorization;
 using CommandCentral.Enums;
 
 namespace CommandCentral.Controllers

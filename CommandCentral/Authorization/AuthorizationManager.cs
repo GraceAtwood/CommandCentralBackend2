@@ -9,7 +9,6 @@ using CommandCentral.Entities.CollateralDutyTracking;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
 using CommandCentral.Framework.Data;
-using CommandCentral.Utilities;
 
 namespace CommandCentral.Authorization
 {
@@ -133,6 +132,19 @@ namespace CommandCentral.Authorization
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Determines if this person can access the given chain of command at or above the given level.
+        /// </summary>
+        /// <param name="person"></param>
+        /// <param name="chainOfCommand"></param>
+        /// <param name="level"></param>
+        /// <returns></returns>
+        public static bool IsInChainOfCommandAtLevel(this Person person, ChainsOfCommand chainOfCommand,
+            ChainOfCommandLevels level)
+        {
+            return person.GetHighestAccessLevels()[chainOfCommand] >= level;
         }
 
         /// <summary>

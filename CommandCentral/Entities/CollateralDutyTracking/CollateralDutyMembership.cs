@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
 using CommandCentral.Framework.Data;

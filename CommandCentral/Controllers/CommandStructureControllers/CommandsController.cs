@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CommandCentral.Authorization;
 using CommandCentral.Entities;
 using CommandCentral.Entities.Muster;
 using CommandCentral.Enums;

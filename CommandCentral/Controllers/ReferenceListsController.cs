@@ -6,7 +6,6 @@ using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using CommandCentral.Framework;
 using CommandCentral.Entities.ReferenceLists;
-using CommandCentral.Authorization;
 using CommandCentral.Enums;
 using CommandCentral.Utilities;
 using NHibernate.Criterion;

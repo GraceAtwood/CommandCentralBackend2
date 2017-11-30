@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using CommandCentral.Authorization;
 using CommandCentral.DTOs;
 using CommandCentral.Entities;
 using CommandCentral.Entities.Muster;

@@ -1,5 +1,4 @@
 ﻿using System;
-using CommandCentral.Utilities.Types;
 
 namespace CommandCentral.DTOs.WatchAssignments
 {

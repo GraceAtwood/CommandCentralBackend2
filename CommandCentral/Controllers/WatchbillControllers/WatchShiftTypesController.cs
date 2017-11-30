@@ -6,7 +6,6 @@ using CommandCentral.Entities.Watchbill;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
 using Microsoft.AspNetCore.Mvc;
-using NHibernate.Linq;
 
 namespace CommandCentral.Controllers.WatchbillControllers
 {

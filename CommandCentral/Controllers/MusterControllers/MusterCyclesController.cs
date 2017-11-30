@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using CommandCentral.Authorization;
 using CommandCentral.Entities.Muster;
 using CommandCentral.Enums;
 using CommandCentral.Framework;

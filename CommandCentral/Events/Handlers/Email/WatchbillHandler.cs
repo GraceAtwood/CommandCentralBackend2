@@ -1,5 +1,4 @@
-﻿using System;
-using CommandCentral.Events.Args;
+﻿using CommandCentral.Events.Args;
 
 namespace CommandCentral.Events.Handlers.Email
 {

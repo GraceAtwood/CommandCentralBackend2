@@ -1,6 +1,5 @@
 ﻿using System;
 using FluentValidation.Results;
-using NHibernate.Id.Insert;
 
 namespace CommandCentral.Framework
 {

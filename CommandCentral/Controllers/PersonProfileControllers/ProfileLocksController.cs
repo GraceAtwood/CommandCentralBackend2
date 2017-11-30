@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using CommandCentral.Authorization;
 using CommandCentral.Entities;
 using CommandCentral.Enums;
 using CommandCentral.Framework;

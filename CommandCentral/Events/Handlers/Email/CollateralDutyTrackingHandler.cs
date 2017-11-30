@@ -1,13 +1,4 @@
-﻿using System;
-using System.Linq;
-using CommandCentral.Email;
-using CommandCentral.Email.Models;
-using CommandCentral.Entities.CollateralDutyTracking;
-using CommandCentral.Enums;
-using CommandCentral.Events.Args;
-using CommandCentral.Framework.Data;
-
-namespace CommandCentral.Events.Handlers.Email
+﻿namespace CommandCentral.Events.Handlers.Email
 {
     /*public class CollateralDutyTrackingHandler : IEventHandler
     {

@@ -5,6 +5,7 @@
         Main,
         Muster,
         QuarterdeckWatchbill,
-        CommandFinancialSpecialist
+        CommandFinancialSpecialist,
+        BEQ
     }
 }

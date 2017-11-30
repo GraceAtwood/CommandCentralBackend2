@@ -1,6 +1,5 @@
 ﻿using CommandCentral.Utilities.Types;
 using System;
-using System.Collections.Generic;
 using CommandCentral.Authorization;
 using CommandCentral.Enums;
 using FluentValidation.Results;

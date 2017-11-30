@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using FluentNHibernate.Mapping;
 using FluentValidation;
 using FluentValidation.Results;

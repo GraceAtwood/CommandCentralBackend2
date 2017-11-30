@@ -9,10 +9,8 @@ using CommandCentral.Entities.CFS;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
 using CommandCentral.Framework.Data;
-using CommandCentral.Utilities.Types;
 using LinqKit;
 using Microsoft.AspNetCore.Mvc;
-using NHibernate.Linq;
 
 namespace CommandCentral.Controllers.CFS
 {

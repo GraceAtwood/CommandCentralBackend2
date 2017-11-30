@@ -6,9 +6,7 @@ using LinqKit;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using CommandCentral.Authorization;
 using CommandCentral.Enums;
-using FluentNHibernate.Utils;
 
 namespace CommandCentral.Framework.Data
 {
