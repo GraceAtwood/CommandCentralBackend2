@@ -14,6 +14,16 @@ namespace CommandCentral.Controllers.BEQ
 {
     public class RoomInspectionsController : CommandCentralController
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="time"></param>
+        /// <param name="room"></param>
+        /// <param name="person"></param>
+        /// <param name="inspectedBy"></param>
+        /// <param name="score"></param>
+        /// <param name="limit"></param>
+        /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(List<DTOs.RoomInspection.Get>))]
         public IActionResult Get([FromQuery] DTOs.DateTimeRangeQuery time, [FromQuery] string room,

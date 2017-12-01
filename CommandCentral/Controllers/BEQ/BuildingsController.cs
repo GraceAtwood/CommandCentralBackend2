@@ -14,6 +14,13 @@ namespace CommandCentral.Controllers.BEQ
 {
     public class BuildingsController : CommandCentralController
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="description"></param>
+        /// <param name="name"></param>
+        /// <param name="command"></param>
+        /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Building.Get>))]
         public IActionResult Get([FromQuery] string description, [FromQuery] string name, [FromQuery] string command)

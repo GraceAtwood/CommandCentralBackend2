@@ -15,6 +15,14 @@ namespace CommandCentral.Controllers.BEQ
 {
     public class RoomsController : CommandCentralController
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="level"></param>
+        /// <param name="number"></param>
+        /// <param name="personAssigned"></param>
+        /// <param name="building"></param>
+        /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Room.Get>))]
         public IActionResult Get([FromQuery] string level, [FromQuery] string number, [FromQuery] string personAssigned,
