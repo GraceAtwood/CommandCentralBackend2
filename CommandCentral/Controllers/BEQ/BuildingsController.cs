@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CommandCentral.Controllers.BEQ
 {
-    public class BuildingController : CommandCentralController
+    public class BuildingsController : CommandCentralController
     {
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(List<DTOs.Building.Get>))]
@@ -28,6 +28,7 @@ namespace CommandCentral.Controllers.BEQ
                 .NullSafeWhere(predicate)
                 .ToList()
                 .Where(x => User.CanReturn(x))
+                .Select(x => new DTOs.Building.Get(x))
                 .ToList();
 
             return Ok(results);
@@ -68,6 +69,10 @@ namespace CommandCentral.Controllers.BEQ
 
             if (!User.CanEdit(building))
                 return Forbid("You can't add buildings.");
+            
+            var results = building.Validate();
+            if (!results.IsValid)
+                return BadRequest(results.Errors.Select(x => x.ErrorMessage));
 
             DBSession.Save(building);
             LogEntityCreation(building);
@@ -92,6 +97,10 @@ namespace CommandCentral.Controllers.BEQ
 
             building.Description = dto.Description;
             building.Name = dto.Name;
+            
+            var results = building.Validate();
+            if (!results.IsValid)
+                return BadRequest(results.Errors.Select(x => x.ErrorMessage));
 
             LogEntityModification(building);
             CommitChanges();
