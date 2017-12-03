@@ -86,7 +86,7 @@ namespace CommandCentral.Utilities
         /// <param name="selector"></param>
         /// <returns></returns>
         public static TProperty GetLoadedPropertyValue<T, TProperty>(this ISession session, T entity,
-            Expression<Func<T, TProperty>> selector) where T : class
+            Expression<Func<T, TProperty>> selector) where T : Entity
         {
             var entityName = session.GetSessionImplementation().Factory.TryGetGuessEntityName(typeof(T)) ??
                              throw new Exception($"We attempted to find the entity name for a non-entity: {typeof(T)}");
