@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using CommandCentral.Authorization;
+using CommandCentral.Entities;
 using CommandCentral.Entities.BEQ;
 using CommandCentral.Framework;
 using CommandCentral.Framework.Data;
@@ -101,7 +102,88 @@ namespace CommandCentral.Controllers.BEQ
             if (dto == null)
                 return BadRequestDTONull();
             
-            throw new NotImplementedException();
+            List<Person> inspectedByList = new List<Person>();
+            foreach (var inspectedById in dto.InspectedBy)
+            {
+                var inspectedBy = DBSession.Get<Person>(inspectedById);
+                if (inspectedBy == null)
+                    return NotFoundParameter(dto.InspectedBy, nameof(dto.InspectedBy));
+
+                inspectedByList.Add(inspectedBy);
+            }
+
+            var person = DBSession.Get<Person>(dto.Person);
+            if (person == null)
+                return NotFoundParameter(dto.Person, nameof(dto.Person));
+
+            var room = DBSession.Get<Room>(dto.Room);
+            if (room == null)
+                return NotFoundParameter(dto.Room, nameof(dto.Room));
+
+            var roomInspection = new RoomInspection
+            {
+                Id = Guid.NewGuid(),
+                InspectedBy = inspectedByList,
+                Person = person,
+                Room = room,
+                Score = dto.Score,
+                Time = dto.Time
+            };
+
+            if (!User.CanEdit(roomInspection))
+                return Forbid("You can't add a room inspection.");
+
+            var results = roomInspection.Validate();
+            if (!results.IsValid)
+                return BadRequest(results.Errors.Select(x => x.ErrorMessage));
+
+            DBSession.Save(roomInspection);
+            LogEntityCreation(roomInspection);
+            CommitChanges();
+
+            return CreatedAtAction(nameof(Get), new {id = roomInspection.Id},
+                new DTOs.RoomInspection.Get(roomInspection));
+        }
+
+        [HttpPut("{id}")]
+        [ProducesResponseType(201, Type = typeof(DTOs.RoomInspection.Get))]
+        public IActionResult Put(Guid id, [FromBody] DTOs.RoomInspection.Put dto)
+        {
+            if (dto == null)
+                return BadRequestDTONull();
+
+            var roomInspection = DBSession.Get<RoomInspection>(id);
+            if (roomInspection == null)
+                return NotFoundParameter(id, nameof(id));
+
+            if (!User.CanEdit(roomInspection))
+                return Forbid("You can't edit this room inspection.");
+
+            roomInspection.Score = dto.Score;
+
+            LogEntityModification(roomInspection);
+            CommitChanges();
+            
+            return CreatedAtAction(nameof(Get), new {id = roomInspection.Id},
+                new DTOs.RoomInspection.Get(roomInspection));
+        }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        public IActionResult Delete(Guid id)
+        {
+            var roomInspection = DBSession.Get<RoomInspection>(id);
+            if (roomInspection == null)
+                return NotFoundParameter(id, nameof(id));
+
+            if (!User.CanEdit(roomInspection))
+                return Forbid("You can't edit this room inspection.");
+
+            DBSession.Delete(roomInspection);
+            LogEntityDeletion(roomInspection);
+            CommitChanges();
+
+            return NoContent();
         }
     }
 }
