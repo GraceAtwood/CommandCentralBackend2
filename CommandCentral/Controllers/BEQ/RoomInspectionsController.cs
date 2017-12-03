@@ -16,14 +16,14 @@ namespace CommandCentral.Controllers.BEQ
     public class RoomInspectionsController : CommandCentralController
     {
         /// <summary>
-        /// 
+        /// Queries the room inspections collection.  Requires the BEQ chain of command in most cases.
         /// </summary>
-        /// <param name="time"></param>
-        /// <param name="room"></param>
-        /// <param name="person"></param>
-        /// <param name="inspectedBy"></param>
-        /// <param name="score"></param>
-        /// <param name="limit"></param>
+        /// <param name="time">A time range query for the time the room inspection was conducted.</param>
+        /// <param name="room">An entity query for the room.</param>
+        /// <param name="person">A person query for the person for whom the inspection was conducted.</param>
+        /// <param name="inspectedBy">A person query for the collection of persons who conducted the inspection.</param>
+        /// <param name="score">An integer query for the score given to the room inspection.</param>
+        /// <param name="limit">[Optional][Default = 1000] Instructs the service to return no more than this number of results.</param>
         /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(List<DTOs.RoomInspection.Get>))]
@@ -37,21 +37,8 @@ namespace CommandCentral.Controllers.BEQ
             var predicate = ((Expression<Func<RoomInspection, bool>>) null)
                 .AddDateTimeQueryExpression(x => x.Time, time)
                 .AddPersonQueryExpression(x => x.Person, person)
-                .AddIntQueryExpression(x => x.Score, score);
-
-            if (!String.IsNullOrWhiteSpace(room))
-            {
-                predicate.NullSafeAnd(room.SplitByOr().Select(phrase =>
-                    {
-                        if (Guid.TryParse(phrase, out var id))
-                            return ((Expression<Func<RoomInspection, bool>>) null).NullSafeAnd(x => x.Room.Id == id);
-
-                        return null;
-                    })
-                    .Where(x => x != null)
-                    .Aggregate<Expression<Func<RoomInspection, bool>>, Expression<Func<RoomInspection, bool>>>(null,
-                        (current, subPredicate) => current.NullSafeOr(subPredicate)));
-            }
+                .AddIntQueryExpression(x => x.Score, score)
+                .AddEntityIdQueryExpression(x => x.Room, room);
 
             if (!String.IsNullOrWhiteSpace(inspectedBy))
             {
@@ -81,6 +68,11 @@ namespace CommandCentral.Controllers.BEQ
             return Ok(results);
         }
 
+        /// <summary>
+        /// Retrieves a room inspection with the given id.
+        /// </summary>
+        /// <param name="id">The id of the room inspection to retrieve.</param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         [ProducesResponseType(200, Type = typeof(DTOs.RoomInspection.Get))]
         public IActionResult Get(Guid id)
@@ -95,6 +87,11 @@ namespace CommandCentral.Controllers.BEQ
             return Ok(new DTOs.RoomInspection.Get(roomInspection));
         }
 
+        /// <summary>
+        /// Creates a new room inspection.
+        /// </summary>
+        /// <param name="dto">A dto containing the information needed to create a room inspection.</param>
+        /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(200, Type = typeof(DTOs.RoomInspection.Get))]
         public IActionResult Post([FromBody] DTOs.RoomInspection.Post dto)
@@ -102,7 +99,7 @@ namespace CommandCentral.Controllers.BEQ
             if (dto == null)
                 return BadRequestDTONull();
             
-            List<Person> inspectedByList = new List<Person>();
+            var inspectedByList = new List<Person>();
             foreach (var inspectedById in dto.InspectedBy)
             {
                 var inspectedBy = DBSession.Get<Person>(inspectedById);
@@ -145,6 +142,12 @@ namespace CommandCentral.Controllers.BEQ
                 new DTOs.RoomInspection.Get(roomInspection));
         }
 
+        /// <summary>
+        /// Modifies a room inspection.
+        /// </summary>
+        /// <param name="id">Id of the room inspection to modify.</param>
+        /// <param name="dto">A dto containing all of the information needed to modify a room inspection.</param>
+        /// <returns></returns>
         [HttpPut("{id}")]
         [ProducesResponseType(201, Type = typeof(DTOs.RoomInspection.Get))]
         public IActionResult Put(Guid id, [FromBody] DTOs.RoomInspection.Put dto)
@@ -168,6 +171,11 @@ namespace CommandCentral.Controllers.BEQ
                 new DTOs.RoomInspection.Get(roomInspection));
         }
 
+        /// <summary>
+        /// Deletes a room inspection.
+        /// </summary>
+        /// <param name="id">The id of the room inspection to delete.</param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
