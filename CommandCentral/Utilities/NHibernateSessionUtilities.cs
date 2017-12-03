@@ -56,7 +56,7 @@ namespace CommandCentral.Utilities
 
             var currentState = persister.GetPropertyValues(entity);
 
-            //Find dirty will give us all the properties that are dirty, but because of some grade A NHibernate level bullshit, it won't look at collection for us.
+            //Find dirty will give us all the properties that are dirty, but because of some grade A NHibernate level bullshit, it won't look at collections for us.
             var indices = persister.FindDirty(currentState.ToArray(), entityEntry.LoadedState, entity,
                 session.GetSessionImplementation());
 
