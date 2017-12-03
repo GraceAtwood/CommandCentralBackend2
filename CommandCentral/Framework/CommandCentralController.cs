@@ -61,7 +61,7 @@ namespace CommandCentral.Framework
 
             DBSession.Clear();
         }
-        
+
         #region Change Tracking
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace CommandCentral.Framework
                 DBSession.Save(change);
             }
         }
-        
+
         #endregion
 
         #region Return Actions
@@ -184,9 +184,7 @@ namespace CommandCentral.Framework
             string childParameterName)
         {
             return NotFound(
-                $"An object with Id '{childId}' identified by your parameter '{childParameterName}', child of an " +
-                $"object with Id '{parentId}' identified by your parameter '{childParameterName},' " +
-                $"could not be found.");
+                $"An object with Id '{childId}' identified by your parameter '{childParameterName}', child of an object with Id '{parentId}' identified by your parameter '{childParameterName},' could not be found.");
         }
 
         /// <summary>
