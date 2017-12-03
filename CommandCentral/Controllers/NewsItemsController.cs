@@ -1,22 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Microsoft.AspNetCore.Mvc;
 using CommandCentral.Framework;
 using CommandCentral.Entities;
 using CommandCentral.Enums;
+using CommandCentral.Framework.Data;
+using LinqKit;
 
 namespace CommandCentral.Controllers
 {
+    /// <summary>
+    /// Provides access to the news items collection.
+    /// </summary>
     public class NewsItemsController : CommandCentralController
     {
         [HttpGet]
-        [ProducesResponseType(200, Type = typeof(List<DTOs.NewsItem.Get>))]
-        public IActionResult Get()
+        [ProducesResponseType(typeof(List<DTOs.NewsItem.Get>), 200)]
+        public IActionResult Get([FromQuery] string creator, [FromQuery] string title, [FromQuery] string body,
+            [FromQuery] DTOs.DateTimeRangeQuery creationTime, [FromQuery] int limit = 1000)
         {
-            var items = DBSession.Query<NewsItem>().ToList();
+            if (limit <= 0)
+                return BadRequestLimit(limit, nameof(limit));
+            
+            var predicate = ((Expression<Func<NewsItem, bool>>) null)
+                .AddStringQueryExpression(x => x.Body, body)
+                .AddStringQueryExpression(x => x.Title, title)
+                .AddPersonQueryExpression(x => x.Creator, creator)
+                .AddDateTimeQueryExpression(x => x.CreationTime, creationTime);
 
-            return Ok(items.Select(x => new DTOs.NewsItem.Get(x)));
+            var results = DBSession.Query<NewsItem>()
+                .AsExpandable()
+                .NullSafeWhere(predicate)
+                .OrderByDescending(x => x.CreationTime)
+                .Take(limit)
+                .ToList()
+                .Select(x => new DTOs.NewsItem.Get(x))
+                .ToList();
+
+            return Ok(results);
         }
 
         [HttpGet("{id}")]
@@ -32,7 +55,7 @@ namespace CommandCentral.Controllers
 
         [HttpPost]
         [ProducesResponseType(201, Type = typeof(DTOs.NewsItem.Get))]
-        public IActionResult Post([FromBody]DTOs.NewsItem.Update dto)
+        public IActionResult Post([FromBody] DTOs.NewsItem.Update dto)
         {
             if (dto == null)
                 return BadRequestDTONull();
@@ -54,19 +77,19 @@ namespace CommandCentral.Controllers
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
             DBSession.Save(item);
-            
+
             CommitChanges();
 
-            return CreatedAtAction(nameof(Get), new { id = item.Id }, new DTOs.NewsItem.Get(item));
+            return CreatedAtAction(nameof(Get), new {id = item.Id}, new DTOs.NewsItem.Get(item));
         }
 
         [HttpPut("{id}")]
         [ProducesResponseType(201, Type = typeof(DTOs.NewsItem.Get))]
-        public IActionResult Put(Guid id, [FromBody]DTOs.NewsItem.Update dto)
+        public IActionResult Put(Guid id, [FromBody] DTOs.NewsItem.Update dto)
         {
             if (dto == null)
                 return BadRequestDTONull();
-            
+
             if (!User.SpecialPermissions.Contains(SpecialPermissions.EditNews))
                 return Forbid();
 
@@ -83,7 +106,7 @@ namespace CommandCentral.Controllers
 
             CommitChanges();
 
-            return CreatedAtAction(nameof(Put), new { id = item.Id }, new DTOs.NewsItem.Get(item));
+            return CreatedAtAction(nameof(Put), new {id = item.Id}, new DTOs.NewsItem.Get(item));
         }
 
         [HttpDelete("{id}")]
@@ -98,7 +121,7 @@ namespace CommandCentral.Controllers
                 return NotFoundParameter(id, nameof(id));
 
             DBSession.Delete(item);
-            
+
             CommitChanges();
 
             return NoContent();
