@@ -5,6 +5,8 @@ namespace CommandCentral.DTOs.WorkOrder
     public class Get : Update
     {
         public Guid Id { get; set; }
+        public Guid SubmittedBy { get; set; }
+        public DateTime TimeSubmitted { get; set; }
 
         public Get(Entities.BEQ.WorkOrder workOrder)
         {
@@ -12,6 +14,8 @@ namespace CommandCentral.DTOs.WorkOrder
             Body = workOrder.Body;
             Location = workOrder.Location;
             RoomLocation = workOrder.RoomLocation?.Id;
+            SubmittedBy = workOrder.SubmittedBy.Id;
+            TimeSubmitted = workOrder.TimeSubmitted;
         }
     }
 }
