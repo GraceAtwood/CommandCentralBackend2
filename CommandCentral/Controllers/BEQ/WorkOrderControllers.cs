@@ -55,5 +55,111 @@ namespace CommandCentral.Controllers.BEQ
 
             return Ok(results);
         }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(DTOs.WorkOrder.Get), 200)]
+        public IActionResult Get(Guid id)
+        {
+            var workOrder = DBSession.Get<WorkOrder>(id);
+            if (workOrder == null)
+                return NotFoundParameter(id, nameof(id));
+
+            if (!User.CanReturn(workOrder))
+                return Forbid("You can't view this work order.");
+
+            return Ok(new DTOs.WorkOrder.Get(workOrder));
+        }
+        
+        [HttpPost]
+        [ProducesResponseType(200, Type = typeof(DTOs.WorkOrder.Get))]
+        public IActionResult Post([FromBody] DTOs.WorkOrder.Update dto)
+        {
+            if (dto == null)
+                return BadRequestDTONull();
+            
+            Room roomLocation = null;
+            if (dto.RoomLocation.HasValue)
+            {
+                roomLocation = DBSession.Get<Room>(dto.RoomLocation.Value);
+                if (roomLocation == null)
+                    return NotFoundParameter(dto.RoomLocation.Value, nameof(dto.RoomLocation));
+            }
+            
+            var workOrder = new WorkOrder
+            {
+                Body = dto.Body,
+                Id = Guid.NewGuid(),
+                Location = dto.Location,
+                RoomLocation = roomLocation,
+                SubmittedBy = User,
+                TimeSubmitted = CallTime
+            };
+
+            if (!User.CanEdit(workOrder))
+                return Forbid("You can't add a work order.");
+
+            var results = workOrder.Validate();
+            if (!results.IsValid)
+                return BadRequest(results.Errors.Select(x => x.ErrorMessage));
+
+            DBSession.Save(workOrder);
+            LogEntityCreation(workOrder);
+            CommitChanges();
+
+            return CreatedAtAction(nameof(Get), new {id = workOrder.Id},
+                new DTOs.WorkOrder.Get(workOrder));
+        }
+        
+        [HttpPut("{id}")]
+        [ProducesResponseType(201, Type = typeof(DTOs.WorkOrder.Get))]
+        public IActionResult Put(Guid id, [FromBody] DTOs.WorkOrder.Update dto)
+        {
+            if (dto == null)
+                return BadRequestDTONull();
+
+            var workOrder = DBSession.Get<WorkOrder>(id);
+            if (workOrder == null)
+                return NotFoundParameter(id, nameof(id));
+
+            if (!User.CanEdit(workOrder))
+                return Forbid("You can't edit this work order.");
+
+            workOrder.Body = dto.Body;
+            workOrder.Location = dto.Location;
+            
+            Room roomLocation = null;
+            if (dto.RoomLocation.HasValue)
+            {
+                roomLocation = DBSession.Get<Room>(dto.RoomLocation.Value);
+                if (roomLocation == null)
+                    return NotFoundParameter(dto.RoomLocation.Value, nameof(dto.RoomLocation));
+
+                workOrder.RoomLocation = roomLocation;
+            }
+            
+            LogEntityModification(workOrder);
+            CommitChanges();
+            
+            return CreatedAtAction(nameof(Get), new {id = workOrder.Id},
+                new DTOs.WorkOrder.Get(workOrder));
+        }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        public IActionResult Delete(Guid id)
+        {
+            var workOrder = DBSession.Get<WorkOrder>(id);
+            if (workOrder == null)
+                return NotFoundParameter(id, nameof(id));
+
+            if (!User.CanEdit(workOrder))
+                return Forbid("You can't edit this work order.");
+
+            DBSession.Delete(workOrder);
+            LogEntityDeletion(workOrder);
+            CommitChanges();
+
+            return NoContent();
+        }
     }
 }
