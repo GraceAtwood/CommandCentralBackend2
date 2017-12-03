@@ -13,6 +13,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CommandCentral.Controllers.BEQ
 {
+    /// <summary>
+    /// Provides access to the room inspections collection.  Requires access to the BEQ chain of command in most cases.
+    /// </summary>
     public class RoomInspectionsController : CommandCentralController
     {
         /// <summary>
@@ -98,7 +101,7 @@ namespace CommandCentral.Controllers.BEQ
         {
             if (dto == null)
                 return BadRequestDTONull();
-            
+
             var inspectedByList = new List<Person>();
             foreach (var inspectedById in dto.InspectedBy)
             {
@@ -166,7 +169,7 @@ namespace CommandCentral.Controllers.BEQ
 
             LogEntityModification(roomInspection);
             CommitChanges();
-            
+
             return CreatedAtAction(nameof(Get), new {id = roomInspection.Id},
                 new DTOs.RoomInspection.Get(roomInspection));
         }
