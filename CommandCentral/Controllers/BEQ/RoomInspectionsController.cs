@@ -42,9 +42,15 @@ namespace CommandCentral.Controllers.BEQ
                 .AddPersonQueryExpression(x => x.Person, person)
                 .AddIntQueryExpression(x => x.Score, score)
                 .AddEntityIdQueryExpression(x => x.Room, room);
+            
 
             if (!String.IsNullOrWhiteSpace(inspectedBy))
             {
+                predicate.NullSafeAnd(x =>
+                    x.InspectedBy.Any(CommonQueryStrategies.GetPersonQueryExpression<Person>(y => y, inspectedBy)
+                        .Compile()));
+                //The above should work but I've never tried it before.
+                /*
                 predicate.NullSafeAnd(inspectedBy.SplitByOr().Select(phrase =>
                     {
                         if (Guid.TryParse(phrase, out var id))
@@ -55,7 +61,7 @@ namespace CommandCentral.Controllers.BEQ
                     })
                     .Where(x => x != null)
                     .Aggregate<Expression<Func<RoomInspection, bool>>, Expression<Func<RoomInspection, bool>>>(null,
-                        (current, subPredicate) => current.NullSafeOr(subPredicate)));
+                        (current, subPredicate) => current.NullSafeOr(subPredicate)));*/
             }
 
             var results = DBSession.Query<RoomInspection>()

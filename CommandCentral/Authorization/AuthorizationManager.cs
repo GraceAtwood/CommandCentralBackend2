@@ -55,6 +55,21 @@ namespace CommandCentral.Authorization
         {
             return GetContract<T>(entity.GetTypeUnproxied()).CanEditProperty(editor, entity, propertySelector);
         }
+        
+        /// <summary>
+        /// Determines if this person can edit the given property of the given entity.
+        /// </summary>
+        /// <param name="editor">The person for whom to check permissions.</param>
+        /// <param name="entity">The entity against which to check permissions.</param>
+        /// <param name="propertyName">The property this person wishes to edit.</param>
+        /// <typeparam name="T">Any type that derives from <seealso cref="Entity"/></typeparam>
+        /// <returns></returns>
+        /// <exception cref="Exception">If a rules contract for the type T is not found.</exception>
+        public static bool CanEdit<T>(this Person editor, T entity, string propertyName)
+            where T : Entity
+        {
+            return GetContract<T>(entity.GetTypeUnproxied()).CanEditProperty(editor, entity, propertyName);
+        }
 
         /// <summary>
         /// Determines if this person can edit ANY property of  the given entity.

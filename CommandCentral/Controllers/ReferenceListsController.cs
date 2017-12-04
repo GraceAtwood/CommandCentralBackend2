@@ -75,9 +75,10 @@ namespace CommandCentral.Controllers
 
             var results = query
                 .List()
-                .GroupBy(x => x.GetEntityType(DBSession.GetSessionImplementation().PersistenceContext))
+                .GroupBy(x => x.GetType(DBSession.GetSessionImplementation().PersistenceContext))
                 .Select(x => new DTOs.ReferenceList.GetList(x, x.Key))
                 .ToList();
+            
             //Insert an empty list for all queries types that returned no results.
             foreach (var type in queriedTypes)
             {

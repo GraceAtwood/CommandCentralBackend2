@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using CommandCentral.Authorization;
 using CommandCentral.DTOs;
 using CommandCentral.Entities;
 using CommandCentral.Entities.Muster;
@@ -223,6 +224,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
             DBSession.Save(person);
+            LogEntityCreation(person);
             CommitChanges();
 
             Events.EventManager.OnPersonCreated(new Events.Args.PersonCreatedEventArgs
@@ -231,6 +233,84 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 Person = person
             }, this);
 
+            return CreatedAtAction(nameof(Get), new {id = person.Id}, new DTOs.Person.Get(User, person));
+        }
+
+        /// <summary>
+        /// Modifes a person.
+        /// </summary>
+        /// <param name="id">The id of the person to modify.</param>
+        /// <param name="dto">A dto containing all the information needed to modify a person.</param>
+        /// <returns></returns>
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(DTOs.Person.Get), 201)]
+        public IActionResult Put(Guid id, [FromBody] DTOs.Person.Put dto)
+        {
+            if (dto == null)
+                return BadRequestDTONull();
+
+            if (!TryGet(id, out Person person))
+                return NotFoundParameter(id, nameof(id));
+
+            if (!TryGet(dto.Ethnicity, out Ethnicity ethnicity))
+                return NotFoundParameter(dto.Ethnicity, nameof(dto.Ethnicity));
+
+            if (!TryGet(dto.ReligiousPreference, out ReligiousPreference religiousPreference))
+                return NotFoundParameter(dto.ReligiousPreference, nameof(dto.ReligiousPreference));
+
+            if (!TryGet(dto.Designation, out Designation designation))
+                return NotFoundParameter(dto.Designation, nameof(dto.Designation));
+
+            if (!TryGet(dto.Division, out Division division))
+                return NotFoundParameter(dto.Division, nameof(dto.Division));
+
+            if (!TryGet(dto.UIC, out UIC uic))
+                return NotFoundParameter(dto.UIC, nameof(dto.UIC));
+
+            person.BilletAssignment = dto.BilletAssignment;
+            person.DateOfArrival = dto.DateOfArrival;
+            person.DateOfBirth = dto.DateOfBirth;
+            person.DateOfDeparture = dto.DateOfDeparture;
+            person.Designation = designation;
+            person.Division = division;
+            person.DoDId = dto.DoDId;
+            person.DutyStatus = dto.DutyStatus;
+            person.EAOS = dto.EAOS;
+            person.Ethnicity = ethnicity;
+            person.FirstName = dto.FirstName;
+            person.JobTitle = dto.JobTitle;
+            person.LastName = dto.LastName;
+            person.MiddleName = dto.MiddleName;
+            person.Paygrade = dto.Paygrade;
+            person.PRD = dto.PRD;
+            person.ReligiousPreference = religiousPreference;
+            person.Sex = dto.Sex;
+            person.Shift = dto.Shift;
+            person.Suffix = dto.Suffix;
+            person.Supervisor = dto.Supervisor;
+            person.UIC = uic;
+            person.WorkCenter = dto.WorkCenter;
+            person.WorkRoom = dto.WorkRoom;
+
+            var results = person.Validate();
+            if (!results.IsValid)
+                return BadRequestWithValidationErrors(results);
+
+            var failedProperties = new List<string>();
+            foreach (var change in GetEntityChanges(person))
+            {
+                if (!User.CanEdit(person, change.PropertyPath))
+                    failedProperties.Add(change.PropertyPath);
+
+                Save(change);
+            }
+
+            if (failedProperties.Any())
+                return Forbid(
+                    $"You were not allowed to edit the following properties: {String.Join(", ", failedProperties)}");
+            
+            CommitChanges();
+            
             return CreatedAtAction(nameof(Get), new {id = person.Id}, new DTOs.Person.Get(User, person));
         }
     }

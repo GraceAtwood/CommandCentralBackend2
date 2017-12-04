@@ -21,7 +21,7 @@ namespace CommandCentral.Utilities
         /// NHibernate Proxy object, and not a real object. This method will return the real
         /// Entity-type, doing a full initialization if necessary.
         /// </summary>
-        public static Type GetEntityType(this Entity entity, IPersistenceContext persistenceContext)
+        public static Type GetType(this Entity entity, IPersistenceContext persistenceContext)
         {
             if (!(entity is INHibernateProxy))
                 return entity.GetType();

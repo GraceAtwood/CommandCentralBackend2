@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.Filters;
 using CommandCentral.Entities;
@@ -9,6 +10,7 @@ using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using CommandCentral.Enums;
 using CommandCentral.Utilities;
+using FluentValidation.Results;
 
 namespace CommandCentral.Framework
 {
@@ -34,6 +36,8 @@ namespace CommandCentral.Framework
         /// </summary>
         public DateTime CallTime => (DateTime) HttpContext.Items["CallTime"];
 
+        #region NHibernate Session Members
+        
         /// <summary>
         /// Represents a database session for this web request session.
         /// </summary>
@@ -61,6 +65,53 @@ namespace CommandCentral.Framework
 
             DBSession.Clear();
         }
+
+        /// <summary>
+        /// Attempts to retireve an entity identified by the given id.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="entity"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public bool TryGet<T>(Guid id, out T entity) where T : Entity
+        {
+            entity = DBSession.Get<T>(id);
+            
+            return entity != null;
+        }
+        
+        /// <summary>
+        /// Attempts to retireve an entity identified by the given id.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="entity"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public bool TryGet<T>(Guid? id, out T entity) where T : Entity
+        {
+            if (!id.HasValue)
+            {
+                entity = null;
+                return true;
+            }
+
+            entity = DBSession.Get<T>(id);
+            
+            return entity != null;
+        }
+
+        /// <summary>
+        /// Shortcut for DBSession.Save()
+        /// </summary>
+        /// <param name="entity"></param>
+        public void Save<T>(T entity) where T : Entity
+        {
+            DBSession.Save(entity);
+        }
+        
+        
+        
+        #endregion
 
         #region Change Tracking
 
@@ -109,12 +160,26 @@ namespace CommandCentral.Framework
         /// <typeparam name="T"></typeparam>
         public void LogEntityModification<T>(T entity) where T : Entity
         {
+            foreach (var change in GetEntityChanges(entity))
+            {
+                DBSession.Save(change);
+            }
+        }
+
+        /// <summary>
+        /// Retrieves a sequence of change objects that indicate which properties were changed.
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public IEnumerable<Change> GetEntityChanges<T>(T entity) where T : Entity
+        {
             foreach (var change in DBSession.GetChangesFromDirtyProperties(entity))
             {
                 change.Editor = User;
                 change.ChangeTime = CallTime;
                 change.ChangeType = ChangeTypes.Modify;
-                DBSession.Save(change);
+                yield return change;
             }
         }
 
@@ -122,6 +187,17 @@ namespace CommandCentral.Framework
 
         #region Return Actions
 
+        /// <summary>
+        /// Returns a bad request with the error messages included in the body of the request.
+        /// </summary>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        [NonAction]
+        public BadRequestObjectResult BadRequestWithValidationErrors(ValidationResult result)
+        {
+            return BadRequest(result.Errors.Select(x => x.ErrorMessage).ToList());
+        }
+        
         /// <summary>
         /// Returns a 422 Unprocessable entity result, indicating The server understands the content type of the request entity 
         /// (hence a 415 Unsupported Media Type status code is inappropriate), and the syntax of the request entity is correct 
