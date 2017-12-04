@@ -231,68 +231,88 @@ namespace CommandCentral.Controllers.WatchbillControllers
                 .Where(x => x.ExemptsFromWatch &&
                             x.Person.Division.Department.Command == watchbill.Command &&
                             x.Person.DutyStatus == DutyStatuses.Active &&
+                            x.Person.WatchQualifications.Any() &&
                             (x.Range.Start >= watchbill.GetFirstDay() && x.Range.Start <= watchbill.GetLastDay() ||
                              x.Range.End >= watchbill.GetFirstDay() && x.Range.End <= watchbill.GetLastDay()))
                 .ToFuture()
                 .GroupBy(x => x.Person)
                 .ToDictionary(x => x.Key, x => x.ToList());
 
+            var personsByDivisionByShiftType = session.Query<Person>()
+                .Where(x => x.DutyStatus == DutyStatuses.Active && x.WatchQualifications.Any())
+                .ToList()
+                .GroupBy(x =>
+                {
+                    if (x.WatchQualifications.Contains(WatchQualifications.CDO))
+                        return WatchQualifications.CDO;
+
+                    if (x.WatchQualifications.Contains(WatchQualifications.OOD))
+                        return WatchQualifications.OOD;
+
+                    if (x.WatchQualifications.Contains(WatchQualifications.JOOD))
+                        return WatchQualifications.JOOD;
+
+                    throw new Exception(
+                        $"{x.ToString()} has an unsupported watch qual in the division assignment method.");
+                })
+                .ToDictionary(x => x.Key, x => x.GroupBy(y => y.Division));
+
             var divisionByTotalAvailableMinutes = new Dictionary<Division, double>();
             var totalAvailableMinutes = 0D;
             var totalMinutesInMonth = (watchbill.GetLastDay() - watchbill.GetFirstDay()).TotalMinutes;
-
-            var personsByDivision = session.Query<Person>()
-                .Where(x => x.DutyStatus == DutyStatuses.Active && x.WatchQualifications.Any())
-                .GroupBy(x => x.Division)
-                .ToList();
-
             var watchbillRange = new TimeRange(watchbill.GetFirstDay(), watchbill.GetLastDay());
-            foreach (var divisionGroup in personsByDivision)
+
+            foreach (var shiftTypeGroup in personsByDivisionByShiftType)
             {
-                var divisionTotalAvailableMinutes = 0D;
-
-                foreach (var person in divisionGroup)
+                foreach (var divisionGroup in shiftTypeGroup.Value)
                 {
-                    if (!statusPeriodsByPerson.TryGetValue(person, out var statusPeriods))
-                        statusPeriods = new List<StatusPeriod>();
+                    var divisionTotalAvailableMinutes = 0D;
 
-                    var statusPeriodsRangeCollection =
-                        new TimePeriodCollection(statusPeriods.Select(x => new TimeRange(x.Range.Start, x.Range.End)));
+                    foreach (var person in divisionGroup)
+                    {
+                        if (!statusPeriodsByPerson.TryGetValue(person, out var statusPeriods))
+                            statusPeriods = new List<StatusPeriod>();
 
-                    var combinedPeriods =
-                        new TimePeriodCombiner<TimeRange>().CombinePeriods(statusPeriodsRangeCollection);
+                        var statusPeriodsRangeCollection =
+                            new TimePeriodCollection(
+                                statusPeriods.Select(x => new TimeRange(x.Range.Start, x.Range.End)));
 
-                    var totalUnavailableMinutes = combinedPeriods.Sum(period =>
-                        watchbillRange.GetIntersection(period).Duration.TotalMinutes);
+                        var combinedPeriods =
+                            new TimePeriodCombiner<TimeRange>().CombinePeriods(statusPeriodsRangeCollection);
 
-                    divisionTotalAvailableMinutes += totalMinutesInMonth - totalUnavailableMinutes;
-                    totalAvailableMinutes += totalMinutesInMonth - totalUnavailableMinutes;
+                        var totalUnavailableMinutes = combinedPeriods.Sum(period =>
+                            watchbillRange.GetIntersection(period).Duration.TotalMinutes);
+
+                        divisionTotalAvailableMinutes += totalMinutesInMonth - totalUnavailableMinutes;
+                        totalAvailableMinutes += totalMinutesInMonth - totalUnavailableMinutes;
+                    }
+
+                    divisionByTotalAvailableMinutes[divisionGroup.Key] = divisionTotalAvailableMinutes;
                 }
 
-                divisionByTotalAvailableMinutes[divisionGroup.Key] = divisionTotalAvailableMinutes;
-            }
+                var shiftsToAssignEachDivision = divisionByTotalAvailableMinutes
+                    .ToDictionary(x => x.Key, x => x.Value / totalAvailableMinutes * watchbill.WatchShifts.Count)
+                    .OrderByDescending(x => x.Value - Math.Truncate(x.Value))
+                    .ToList();
 
-            var shiftsToAssignEachDivision = divisionByTotalAvailableMinutes
-                .ToDictionary(x => x.Key, x => x.Value / totalAvailableMinutes * watchbill.WatchShifts.Count)
-                .OrderByDescending(x => x.Value - Math.Truncate(x.Value))
-                .ToList();
+                var startIndex = 0;
+                var shifts = watchbill.WatchShifts
+                    .Where(x => x.ShiftType.Qualification == shiftTypeGroup.Key).Shuffle();
 
-            var startIndex = 0;
-            var shifts = watchbill.WatchShifts.Shuffle();
-
-            foreach (var pair in shiftsToAssignEachDivision)
-            {
-                for (var x = startIndex; x < startIndex + (int) pair.Value; x++)
+                foreach (var pair in shiftsToAssignEachDivision)
                 {
-                    shifts[x].DivisionAssignedTo = pair.Key;
+                    for (var x = startIndex; x < startIndex + (int) pair.Value; x++)
+                    {
+                        shifts[x].DivisionAssignedTo = pair.Key;
+                    }
+
+                    startIndex += (int) pair.Value;
                 }
 
-                startIndex += (int) pair.Value;
-            }
-
-            for (var x = 0; x < shifts.Count - startIndex; x++)
-            {
-                shifts[shifts.Count - 1 - x].DivisionAssignedTo = shiftsToAssignEachDivision[x].Key;
+                for (var x = 0; x < shifts.Count - startIndex; x++)
+                {
+                    shifts[shifts.Count - 1 - x].DivisionAssignedTo = shiftsToAssignEachDivision[x].Key;
+                }
             }
         }
 
