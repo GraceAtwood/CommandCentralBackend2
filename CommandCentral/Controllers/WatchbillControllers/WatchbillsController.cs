@@ -13,6 +13,7 @@ using CommandCentral.Events.Args;
 using CommandCentral.Framework;
 using CommandCentral.Framework.Data;
 using CommandCentral.Utilities;
+using Itenso.TimePeriod;
 using LinqKit;
 using Microsoft.AspNetCore.Mvc;
 using NHibernate;
@@ -82,24 +83,19 @@ namespace CommandCentral.Controllers.WatchbillControllers
         /// <param name="dto">A dto containing all of the required information to create a watchbill.</param>
         /// <returns></returns>
         [HttpPost]
-        [ProducesResponseType(201, Type = typeof(DTOs.Watchbill.Get))]
+        [ProducesResponseType(typeof(DTOs.Watchbill.Get), 201)]
         public IActionResult Post([FromBody] DTOs.Watchbill.Post dto)
         {
             if (dto == null)
                 return BadRequestDTONull();
 
-            if (User.GetHighestAccessLevels()[ChainsOfCommand.QuarterdeckWatchbill] !=
-                ChainOfCommandLevels.Command)
-                return Forbid("You must be in the command level of the watchbill chain of command.");
-
-            var command = DBSession.Get<Command>(dto.Command);
-            if (command == null)
+            if (!TryGet(dto.Command, out Command command))
                 return NotFoundParameter(dto.Command, nameof(dto.Command));
 
             if (DBSession.Query<Watchbill>()
                     .Count(x => x.Command == command && x.Month == dto.Month && x.Year == dto.Year) != 0)
                 return Conflict("A watchbill already exists for the given command, month, and year combination.  " +
-                                "Please considering using that one or deleting it.");
+                                "Please consider using that one or deleting it.");
 
             var watchbill = new Watchbill
             {
@@ -112,31 +108,34 @@ namespace CommandCentral.Controllers.WatchbillControllers
                 CreatedBy = User
             };
 
+            if (!User.CanEdit(watchbill))
+                return Forbid("You can't create a new watchbill.");
+
             var result = watchbill.Validate();
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
-            DBSession.Save(watchbill);
+            Save(watchbill);
+            LogEntityCreation(watchbill);
             CommitChanges();
 
-            return CreatedAtAction(nameof(Get),
-                new {id = watchbill.Id},
-                new DTOs.Watchbill.Get(watchbill));
+            return CreatedAtAction(nameof(Get), new {id = watchbill.Id}, new DTOs.Watchbill.Get(watchbill));
         }
 
+        /// <summary>
+        /// Modifies a watchbill.
+        /// </summary>
+        /// <param name="id">The id of the watchbill to modify.</param>
+        /// <param name="dto">A dto containing the information needed to modify a watchbill.</param>
+        /// <returns></returns>
         [HttpPut("{id}")]
-        [ProducesResponseType(201, Type = typeof(DTOs.Watchbill.Get))]
+        [ProducesResponseType(typeof(DTOs.Watchbill.Get), 201)]
         public IActionResult Put(Guid id, [FromBody] DTOs.Watchbill.Put dto)
         {
             if (dto == null)
                 return BadRequestDTONull();
 
-            if (User.GetHighestAccessLevels()[ChainsOfCommand.QuarterdeckWatchbill] !=
-                ChainOfCommandLevels.Command)
-                return Forbid("You must be in the command level of the watchbill chain of command.");
-
-            var watchbill = DBSession.Get<Watchbill>(id);
-            if (watchbill == null)
+            if (!TryGet(id, out Watchbill watchbill))
                 return NotFoundParameter(id, nameof(id));
 
             var phaseWasUpdated = false;
@@ -159,6 +158,10 @@ namespace CommandCentral.Controllers.WatchbillControllers
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
+            if (!User.CanEdit(watchbill))
+                return Forbid("You can't modify this watchbill.");
+
+            LogEntityModification(watchbill);
             CommitChanges();
 
             if (phaseWasUpdated)
@@ -210,9 +213,11 @@ namespace CommandCentral.Controllers.WatchbillControllers
                         EventManager.OnWatchbillPublished(new WatchbillEventArgs {Watchbill = watchbill}, null);
                         break;
                     }
+                    case WatchbillPhases.NULL:
+                        throw new NotImplementedException("Hit the null watchbill phase.");
                     default:
-                        throw new Exception("An unknown phase fell to the default case in the " +
-                                            $"switch in the method {nameof(HandleWatchbillPhaseUpdate)}");
+                        throw new NotImplementedException("An unknown phase fell to the default case in the " +
+                                                          $"switch in the method {nameof(HandleWatchbillPhaseUpdate)}");
                 }
 
                 transaction.Commit();
@@ -222,26 +227,53 @@ namespace CommandCentral.Controllers.WatchbillControllers
         private static void AssignShiftsToDivisions(Watchbill watchbill, ISession session)
         {
             //First, we're going to need all the status period inputs for the watchbill's time range.
-            var statusPeriodsByDivision = session.Query<StatusPeriod>()
+            var statusPeriodsByPerson = session.Query<StatusPeriod>()
                 .Where(x => x.ExemptsFromWatch &&
                             x.Person.Division.Department.Command == watchbill.Command &&
                             x.Person.DutyStatus == DutyStatuses.Active &&
-                            x.Range.Start >= watchbill.GetFirstDay() && x.Range.End <= watchbill.GetLastDay())
+                            (x.Range.Start >= watchbill.GetFirstDay() && x.Range.Start <= watchbill.GetLastDay() ||
+                             x.Range.End >= watchbill.GetFirstDay() && x.Range.End <= watchbill.GetLastDay()))
                 .ToFuture()
-                .GroupBy(x => x.Person.Division);
+                .GroupBy(x => x.Person)
+                .ToDictionary(x => x.Key, x => x.ToList());
 
             var divisionByTotalAvailableMinutes = new Dictionary<Division, double>();
             var totalAvailableMinutes = 0D;
+            var totalMinutesInMonth = (watchbill.GetLastDay() - watchbill.GetFirstDay()).TotalMinutes;
 
-            foreach (var divisionGroup in statusPeriodsByDivision)
+            var personsByDivision = session.Query<Person>()
+                .Where(x => x.DutyStatus == DutyStatuses.Active && x.WatchQualifications.Any())
+                .GroupBy(x => x.Division)
+                .ToList();
+
+            var watchbillRange = new TimeRange(watchbill.GetFirstDay(), watchbill.GetLastDay());
+            foreach (var divisionGroup in personsByDivision)
             {
-                var total = divisionGroup.Sum(statusPeriod => statusPeriod.Range.GetTotalMinutes());
-                divisionByTotalAvailableMinutes[divisionGroup.Key] = total;
-                totalAvailableMinutes += total;
+                var divisionTotalAvailableMinutes = 0D;
+
+                foreach (var person in divisionGroup)
+                {
+                    if (!statusPeriodsByPerson.TryGetValue(person, out var statusPeriods))
+                        statusPeriods = new List<StatusPeriod>();
+
+                    var statusPeriodsRangeCollection =
+                        new TimePeriodCollection(statusPeriods.Select(x => new TimeRange(x.Range.Start, x.Range.End)));
+
+                    var combinedPeriods =
+                        new TimePeriodCombiner<TimeRange>().CombinePeriods(statusPeriodsRangeCollection);
+
+                    var totalUnavailableMinutes = combinedPeriods.Sum(period =>
+                        watchbillRange.GetIntersection(period).Duration.TotalMinutes);
+
+                    divisionTotalAvailableMinutes += totalMinutesInMonth - totalUnavailableMinutes;
+                    totalAvailableMinutes += totalMinutesInMonth - totalUnavailableMinutes;
+                }
+
+                divisionByTotalAvailableMinutes[divisionGroup.Key] = divisionTotalAvailableMinutes;
             }
 
             var shiftsToAssignEachDivision = divisionByTotalAvailableMinutes
-                .ToDictionary(x => x.Key, x => (x.Value / totalAvailableMinutes) * watchbill.WatchShifts.Count)
+                .ToDictionary(x => x.Key, x => x.Value / totalAvailableMinutes * watchbill.WatchShifts.Count)
                 .OrderByDescending(x => x.Value - Math.Truncate(x.Value))
                 .ToList();
 
