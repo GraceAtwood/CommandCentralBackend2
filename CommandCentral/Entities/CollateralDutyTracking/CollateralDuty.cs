@@ -68,6 +68,7 @@ namespace CommandCentral.Entities.CollateralDutyTracking
                 Id(x => x.Id).GeneratedBy.Assigned();
 
                 Map(x => x.Name).Not.Nullable();
+                Map(x => x.ChainOfCommand).Not.Nullable();
 
                 References(x => x.Command).Not.Nullable();
 

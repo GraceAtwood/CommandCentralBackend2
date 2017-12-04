@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CommandCentral.Authorization;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
 using FluentNHibernate.Mapping;
@@ -48,16 +49,14 @@ namespace CommandCentral.Entities.Watchbill
         /// The person who created this watchbill.
         /// </summary>
         public virtual Person CreatedBy { get; set; }
-
+        
         /// <summary>
-        /// Indicates if the given person can see the comments on this watchbill.
+        /// Validates this object.
         /// </summary>
-        /// <param name="person"></param>
         /// <returns></returns>
-        public virtual bool CanPersonAccessComments(Person person)
+        public override ValidationResult Validate()
         {
-            //All persons are allowed to see the comments on a watchbill.
-            return true;
+            return new Validator().Validate(this);
         }
 
         /// <summary>
@@ -106,15 +105,6 @@ namespace CommandCentral.Entities.Watchbill
         }
 
         /// <summary>
-        /// Validates this object.
-        /// </summary>
-        /// <returns></returns>
-        public override ValidationResult Validate()
-        {
-            return new Validator().Validate(this);
-        }
-
-        /// <summary>
         /// Validates the watchbill
         /// </summary>
         public class Validator : AbstractValidator<Watchbill>
@@ -129,6 +119,28 @@ namespace CommandCentral.Entities.Watchbill
                 RuleFor(x => x.Year).NotEmpty().GreaterThan(2016);
                 RuleFor(x => x.Command).NotEmpty();
                 RuleFor(x => x.CreatedBy).NotEmpty();
+            }
+        }
+
+        /// <summary>
+        /// Declares authorization rules for this object.
+        /// </summary>
+        public class Contract : RulesContract<Watchbill>
+        {
+            /// <summary>
+            /// Declares authorization rules for this object.
+            /// </summary>
+            public Contract()
+            {
+                RulesFor()
+                    .CanEdit((person, watchbill) =>
+                        person.Division.Department.Command == watchbill.Command &&
+                        person.IsInChainOfCommandAtLevel(ChainsOfCommand.QuarterdeckWatchbill,
+                            ChainOfCommandLevels.Command))
+                    .CanReturn((person, watchbill) =>
+                        person.Division.Department.Command == watchbill.Command &&
+                        person.IsInChainOfCommandAtLevel(ChainsOfCommand.QuarterdeckWatchbill,
+                            ChainOfCommandLevels.Command));
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using CommandCentral.Entities.Watchbill;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
 using FluentNHibernate.Mapping;
@@ -81,14 +82,14 @@ namespace CommandCentral.Entities
                 Map(x => x.ChangeType);
                 
                 ReferencesAny(x => x.Entity)
-                    .AddMetaValue<NewsItem>(typeof(NewsItem).Name)
-                    .AddMetaValue<EmailAddress>(typeof(EmailAddress).Name)
+                    .AddMetaValue<NewsItem>(nameof(NewsItem))
+                    .AddMetaValue<EmailAddress>(nameof(EmailAddress))
+                    .AddMetaValue<Watchbill.Watchbill>(nameof(Watchbill.Watchbill))
                     .IdentityType<Guid>()
                     .EntityTypeColumn("Entity_Type")
                     .EntityIdentifierColumn("Entity_id")
                     .MetaType<string>();
             }
         }
-
     }
 }
