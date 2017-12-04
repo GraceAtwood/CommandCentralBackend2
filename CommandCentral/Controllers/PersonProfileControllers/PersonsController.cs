@@ -134,7 +134,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                     break;
                 }
                 default:
-                    return BadRequest("We do not support that property as an order by parameter.");
+                    return BadRequest($"We do not support that property as an order by parameter. Property: {orderBy}");
             }
 
             var result = DBSession.Query<Person>()
@@ -191,16 +191,13 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (!User.SpecialPermissions.Contains(SpecialPermissions.CreatePerson))
                 return Forbid("You must have access to the Create Persons sub module to create a person.");
 
-            var uic = DBSession.Get<UIC>(dto.UIC);
-            if (uic == null)
+            if (!TryGet(dto.UIC, out UIC uic))
                 return NotFoundParameter(dto.UIC, nameof(dto.UIC));
-
-            var division = DBSession.Get<Division>(dto.Division);
-            if (division == null)
+            
+            if (!TryGet(dto.Division, out Division division))
                 return NotFoundParameter(dto.Division, nameof(dto.Division));
-
-            var designation = DBSession.Get<Designation>(dto.Designation);
-            if (designation == null)
+            
+            if (!TryGet(dto.Designation, out Designation designation))
                 return NotFoundParameter(dto.Designation, nameof(dto.Designation));
 
             var person = new Person
@@ -221,9 +218,9 @@ namespace CommandCentral.Controllers.PersonProfileControllers
 
             var result = person.Validate();
             if (!result.IsValid)
-                return BadRequest(result.Errors.Select(x => x.ErrorMessage));
+                return BadRequestWithValidationErrors(result);
 
-            DBSession.Save(person);
+            Save(person);
             LogEntityCreation(person);
             CommitChanges();
 
