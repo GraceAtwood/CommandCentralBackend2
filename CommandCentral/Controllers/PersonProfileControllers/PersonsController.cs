@@ -55,7 +55,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         /// rather, it is meant to be used in conjunction with the limit parameter to get only those results the client desires.</param>
         /// <returns></returns>
         [HttpGet]
-        [ProducesResponseType(200, Type = typeof(List<DTOs.Person.Get>))]
+        [ProducesResponseType(typeof(List<DTOs.Person.Get>), 200)]
         public IActionResult Get([FromQuery] string firstName, [FromQuery] string lastName,
             [FromQuery] string middleName, [FromQuery] string dodId,
             [FromQuery] string supervisor, [FromQuery] string workCenter, [FromQuery] string workRoom,
@@ -154,7 +154,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("me")]
-        [ProducesResponseType(200, Type = typeof(DTOs.Person.Get))]
+        [ProducesResponseType(typeof(DTOs.Person.Get), 200)]
         public IActionResult GetMe()
         {
             return Ok(new DTOs.Person.Get(User, User));
@@ -166,7 +166,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [ProducesResponseType(200, Type = typeof(DTOs.Person.Get))]
+        [ProducesResponseType(typeof(DTOs.Person.Get), 200)]
         public IActionResult Get(Guid id)
         {
             var person = DBSession.Get<Person>(id);
@@ -182,7 +182,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         /// <param name="dto">The dto containing all of the information needed to create a person.</param>
         /// <returns></returns>
         [HttpPost]
-        [ProducesResponseType(201, Type = typeof(DTOs.Person.Get))]
+        [ProducesResponseType(typeof(DTOs.Person.Get), 201)]
         public IActionResult Post([FromBody] DTOs.Person.Post dto)
         {
             if (dto == null)
