@@ -325,17 +325,15 @@ namespace CommandCentral.Controllers.WatchbillControllers
         [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
         {
-            if (User.GetHighestAccessLevels()[ChainsOfCommand.QuarterdeckWatchbill] !=
-                ChainOfCommandLevels.Command)
-                return Forbid("You must be in the command level of the watchbill chain of command.");
-
-            var watchbill = DBSession.Get<Watchbill>(id);
-            if (watchbill == null)
+            if (!TryGet(id, out Watchbill watchbill))
                 return NotFoundParameter(id, nameof(id));
 
             var tempDate = new DateTime(watchbill.Year, watchbill.Month, 1);
             if (tempDate < DateTime.UtcNow)
                 return BadRequest("You may not delete a watchbill whose first day has already passed.");
+
+            if (!User.CanEdit(watchbill))
+                return Forbid("You can't delete this watchbill.");
 
             DBSession.Delete(watchbill);
             CommitChanges();
