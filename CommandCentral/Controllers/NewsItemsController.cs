@@ -16,6 +16,15 @@ namespace CommandCentral.Controllers
     /// </summary>
     public class NewsItemsController : CommandCentralController
     {
+        /// <summary>
+        /// Queries the news items collection.
+        /// </summary>
+        /// <param name="creator"></param>
+        /// <param name="title"></param>
+        /// <param name="body"></param>
+        /// <param name="creationTime"></param>
+        /// <param name="limit"></param>
+        /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(typeof(List<DTOs.NewsItem.Get>), 200)]
         public IActionResult Get([FromQuery] string creator, [FromQuery] string title, [FromQuery] string body,
