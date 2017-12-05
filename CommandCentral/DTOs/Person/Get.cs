@@ -43,5 +43,9 @@ namespace CommandCentral.DTOs.Person
             WorkCenter = user.CanReturn(person, x => x.WorkCenter) ? person.WorkCenter : default;
             WorkRoom = user.CanReturn(person, x => x.WorkRoom) ? person.WorkRoom : default;
         }
+
+        public Get()
+        {
+        }
     }
 }

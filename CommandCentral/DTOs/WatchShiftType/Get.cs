@@ -13,5 +13,9 @@ namespace CommandCentral.DTOs.WatchShiftType
             Description = item.Description;
             Qualification = item.Qualification;
         }
+
+        public Get()
+        {
+        }
     }
 }
