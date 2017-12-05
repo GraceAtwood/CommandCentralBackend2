@@ -109,8 +109,6 @@ namespace CommandCentral.Framework
             DBSession.Save(entity);
         }
         
-        
-        
         #endregion
 
         #region Change Tracking
