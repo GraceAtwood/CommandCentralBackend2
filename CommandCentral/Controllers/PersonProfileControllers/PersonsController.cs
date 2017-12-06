@@ -151,7 +151,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
 
         /// <summary>
         /// Queries the persons collection using the simple search algorithm, optionally constraining the results by duty status and command.    
-        /// All parameters are optional except for the search value.
+        /// If you omit everything, it'll load every person in the database.
         /// </summary>
         /// <param name="searchValue">The value to search for.  Example: e5 40533 cti will find all those sailors.  
         /// First name, last name, dod id, division, uic, designation, and paygrade will all be searched using a wild card contains search.</param>
