@@ -54,7 +54,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         /// Not all properties are supported.  This parameter is not meant to offload ordering work to the API; 
         /// rather, it is meant to be used in conjunction with the limit parameter to get only those results the client desires.</param>
         /// <returns></returns>
-        [HttpGet]
+        [HttpGet("advanced")]
         [ProducesResponseType(typeof(List<DTOs.Person.Get>), 200)]
         public IActionResult Get([FromQuery] string firstName, [FromQuery] string lastName,
             [FromQuery] string middleName, [FromQuery] string dodId,
@@ -150,6 +150,93 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         }
 
         /// <summary>
+        /// Queries the persons collection using the simple search algorithm, optionally constraining the results by duty status and command.    
+        /// All parameters are optional except for the search value.
+        /// </summary>
+        /// <param name="searchValue">The value to search for.  Example: e5 40533 cti will find all those sailors.  
+        /// First name, last name, dod id, division, uic, designation, and paygrade will all be searched using a wild card contains search.</param>
+        /// <param name="dutyStatus">An exact enum query for the duty status of a person.</param>
+        /// <param name="command">A command query for the command of a person.</param>
+        /// <param name="limit">[Default = 1000] Instructs the service to return no more than this many results.</param>
+        /// <param name="orderBy">[Default = LastName] Instructs the service to order the results by the given parameter.</param>
+        /// <returns></returns>
+        [HttpGet("simple")]
+        [ProducesResponseType(typeof(List<DTOs.Person.Get>), 200)]
+        public IActionResult Get([FromQuery] string searchValue, [FromQuery] string dutyStatus,
+            [FromQuery] string command, [FromQuery] int limit = 1000,
+            [FromQuery] string orderBy = nameof(Person.LastName))
+        {
+            if (limit <= 0)
+                return BadRequestLimit(limit, nameof(limit));
+
+            Expression<Func<Person, bool>> predicate = null;
+
+            foreach (var term in searchValue.SplitByOr())
+            {
+                var matchedPaygrades = EnumUtilities.GetPartialValueMatches<Paygrades>(term).ToList();
+
+                predicate = predicate.NullSafeAnd(x =>
+                    x.FirstName.Contains(term) || x.LastName.Contains(term) || x.DoDId == term ||
+                    x.Division.Name.Contains(term) || x.UIC.Value.Contains(term) ||
+                    x.Designation.Value.Contains(term) || matchedPaygrades.Contains(x.Paygrade));
+            }
+
+            predicate = predicate
+                .AddExactEnumQueryExpression(x => x.DutyStatus, dutyStatus)
+                .AddCommandQueryExpression(x => x.Division.Department.Command, command);
+
+            Expression<Func<Person, object>> orderBySelector;
+
+            if (String.IsNullOrWhiteSpace(orderBy))
+                return BadRequest("The order by parameter may not be empty.  " +
+                                  "You may omit the parameter but do not send an empty string.");
+
+            switch (orderBy)
+            {
+                case nameof(Person.LastName):
+                {
+                    orderBySelector = x => x.LastName;
+                    break;
+                }
+                case nameof(Person.DateOfDeparture):
+                {
+                    orderBySelector = x => x.DateOfDeparture;
+                    break;
+                }
+                case nameof(Person.DateOfArrival):
+                {
+                    orderBySelector = x => x.DateOfArrival;
+                    break;
+                }
+                case nameof(Person.DateOfBirth):
+                case nameof(Person.Age):
+                {
+                    orderBySelector = x => x.DateOfBirth;
+                    break;
+                }
+                case nameof(Person.EAOS):
+                {
+                    orderBySelector = x => x.EAOS;
+                    break;
+                }
+                default:
+                    return BadRequest($"We do not support that property as an order by parameter. Property: {orderBy}");
+            }
+
+            var result = DBSession.Query<Person>()
+                .AsExpandable()
+                .NullSafeWhere(predicate)
+                .OrderBy(orderBySelector)
+                .Take(limit)
+                .ToList()
+                .Select(person => new DTOs.Person.Get(User, person))
+                .ToList();
+
+            return Ok(result);
+        }
+
+
+        /// <summary>
         /// Retrieves the person identified by the current login session.
         /// </summary>
         /// <returns></returns>
@@ -193,10 +280,10 @@ namespace CommandCentral.Controllers.PersonProfileControllers
 
             if (!TryGet(dto.UIC, out UIC uic))
                 return NotFoundParameter(dto.UIC, nameof(dto.UIC));
-            
+
             if (!TryGet(dto.Division, out Division division))
                 return NotFoundParameter(dto.Division, nameof(dto.Division));
-            
+
             if (!TryGet(dto.Designation, out Designation designation))
                 return NotFoundParameter(dto.Designation, nameof(dto.Designation));
 
@@ -305,9 +392,9 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (failedProperties.Any())
                 return Forbid(
                     $"You were not allowed to edit the following properties: {String.Join(", ", failedProperties)}");
-            
+
             CommitChanges();
-            
+
             return CreatedAtAction(nameof(Get), new {id = person.Id}, new DTOs.Person.Get(User, person));
         }
     }
