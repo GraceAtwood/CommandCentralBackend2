@@ -1,4 +1,5 @@
 ﻿using System;
+using CommandCentral.Authorization;
 using FluentNHibernate.Mapping;
 using FluentValidation;
 using NHibernate.Type;
@@ -12,9 +13,8 @@ namespace CommandCentral.Entities
     /// </summary>
     public class Comment : Entity
     {
-
         #region Properties
-        
+
         /// <summary>
         /// The person who created this comment.
         /// </summary>
@@ -88,6 +88,22 @@ namespace CommandCentral.Entities
                 RuleFor(x => x.Body).NotEmpty().Length(1, 1000);
                 RuleFor(x => x.TimeCreated).NotEmpty();
                 RuleFor(x => x.OwningEntity).NotEmpty();
+            }
+        }
+
+        /// <summary>
+        /// Rules for this object.
+        /// </summary>
+        public class Contract : RulesContract<Comment>
+        {
+            /// <summary>
+            /// Rules for this object.
+            /// </summary>
+            public Contract()
+            {
+                RulesFor()
+                    .CanEdit((person, comment) => person.CanEdit(comment.OwningEntity, entity => entity.Comments))
+                    .CanReturn((person, comment) => person.CanReturn(comment.OwningEntity, entity => entity.Comments));
             }
         }
     }

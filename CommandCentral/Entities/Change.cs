@@ -1,8 +1,10 @@
 ﻿using System;
+using CommandCentral.Authorization;
 using CommandCentral.Entities.Watchbill;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
 using FluentNHibernate.Mapping;
+using FluentValidation;
 using NHibernate.Type;
 using FluentValidation.Results;
 
@@ -58,7 +60,7 @@ namespace CommandCentral.Entities
         /// <returns></returns>
         public override ValidationResult Validate()
         {
-            throw new NotImplementedException();
+            return new Validator().Validate(this);
         }
 
         /// <summary>
@@ -80,7 +82,7 @@ namespace CommandCentral.Entities
                 Map(x => x.OldValue);
                 Map(x => x.NewValue);
                 Map(x => x.ChangeType);
-                
+
                 ReferencesAny(x => x.Entity)
                     .AddMetaValue<NewsItem>(nameof(NewsItem))
                     .AddMetaValue<EmailAddress>(nameof(EmailAddress))
@@ -89,6 +91,42 @@ namespace CommandCentral.Entities
                     .EntityTypeColumn("Entity_Type")
                     .EntityIdentifierColumn("Entity_id")
                     .MetaType<string>();
+            }
+        }
+
+        /// <summary>
+        /// Validates this object.
+        /// </summary>
+        public class Validator : AbstractValidator<Change>
+        {
+            /// <summary>
+            /// Validates this object.
+            /// </summary>
+            public Validator()
+            {
+                RuleFor(x => x.ChangeTime).NotEmpty();
+                RuleFor(x => x.Editor).NotEmpty();
+                RuleFor(x => x.Entity).NotEmpty();
+                RuleFor(x => x).Must(x => !Equals(x.NewValue, x.OldValue))
+                    .WithMessage("New and old values must be different.");
+                RuleFor(x => x.PropertyPath).NotEmpty();
+                RuleFor(x => x.Id).NotEmpty();
+            }
+        }
+
+        /// <summary>
+        /// Rules for this object.
+        /// </summary>
+        public class Contract : RulesContract<Change>
+        {
+            /// <summary>
+            /// Rules for this object.
+            /// </summary>
+            public Contract()
+            {
+                RulesFor()
+                    .CanEdit((person, change) => person.CanEdit(change.Entity, change.PropertyPath))
+                    .CanReturn((person, change) => person.CanReturn(change.Entity, change.PropertyPath));
             }
         }
     }

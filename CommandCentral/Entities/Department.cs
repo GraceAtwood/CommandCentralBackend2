@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using CommandCentral.Authorization;
+using CommandCentral.Enums;
 using CommandCentral.Framework;
 using FluentNHibernate.Mapping;
 using FluentValidation;
@@ -86,6 +88,22 @@ namespace CommandCentral.Entities
                     .WithMessage("The description of a department must be no more than 255 characters.");
                 RuleFor(x => x.Name).NotEmpty()
                     .WithMessage("The value must not be empty.");
+            }
+        }
+        
+        /// <summary>
+        /// Rules for this object.
+        /// </summary>
+        public class Contract : RulesContract<Department>
+        {
+            /// <summary>
+            /// Rules for this object.
+            /// </summary>
+            public Contract()
+            {
+                RulesFor()
+                    .CanEdit((person, department) => person.SpecialPermissions.Contains(SpecialPermissions.AdminTools))
+                    .CanReturn((person, department) => true);
             }
         }
     }

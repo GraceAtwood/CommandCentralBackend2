@@ -1,4 +1,6 @@
-﻿using CommandCentral.Framework;
+﻿using CommandCentral.Authorization;
+using CommandCentral.Enums;
+using CommandCentral.Framework;
 using FluentNHibernate.Mapping;
 using FluentValidation;
 using FluentValidation.Results;
@@ -78,6 +80,22 @@ namespace CommandCentral.Entities
                     .WithMessage("The description of a Department must be no more than 255 characters.");
                 RuleFor(x => x.Name).NotEmpty()
                     .WithMessage("The value must not be empty");
+            }
+        }
+
+        /// <summary>
+        /// Rules for this object.
+        /// </summary>
+        public class Contract : RulesContract<Division>
+        {
+            /// <summary>
+            /// Rules for this object.
+            /// </summary>
+            public Contract()
+            {
+                RulesFor()
+                    .CanEdit((person, division) => person.SpecialPermissions.Contains(SpecialPermissions.AdminTools))
+                    .CanReturn((person, division) => true);
             }
         }
     }

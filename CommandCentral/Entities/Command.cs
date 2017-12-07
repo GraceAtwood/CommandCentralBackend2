@@ -1,6 +1,8 @@
 ﻿using FluentNHibernate.Mapping;
 using System;
 using System.Collections.Generic;
+using CommandCentral.Authorization;
+using CommandCentral.Enums;
 using FluentValidation;
 using FluentValidation.Results;
 using CommandCentral.Utilities.Types;
@@ -60,7 +62,7 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The command's current muster cycle.
         /// </summary>
-        public virtual Muster.MusterCycle CurrentMusterCycle { get; set; } 
+        public virtual Muster.MusterCycle CurrentMusterCycle { get; set; }
 
         /// <summary>
         /// The hour of the day at which the muster begins.  This is also the same hour that, after 24 hours, the muster will rollover and finalize if it hasn't already been.
@@ -91,7 +93,7 @@ namespace CommandCentral.Entities
         {
             return TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId);
         }
-        
+
         #region Muster Handling
 
         /// <summary>
@@ -110,9 +112,8 @@ namespace CommandCentral.Entities
                 }, this);
             }
 
-            DateTime startTime;
-            startTime = DateTime.UtcNow.Hour < MusterStartHour 
-                ? DateTime.UtcNow.Date.AddDays(-1).AddHours(MusterStartHour) 
+            var startTime = DateTime.UtcNow.Hour < MusterStartHour
+                ? DateTime.UtcNow.Date.AddDays(-1).AddHours(MusterStartHour)
                 : DateTime.UtcNow.Date.AddHours(MusterStartHour);
 
             CurrentMusterCycle = new Muster.MusterCycle
@@ -192,6 +193,22 @@ namespace CommandCentral.Entities
                         return false;
                     }
                 });
+            }
+        }
+        
+        /// <summary>
+        /// Rules for this object.
+        /// </summary>
+        public class Contract : RulesContract<Command>
+        {
+            /// <summary>
+            /// Rules for this object.
+            /// </summary>
+            public Contract()
+            {
+                RulesFor()
+                    .CanEdit((person, command) => person.SpecialPermissions.Contains(SpecialPermissions.AdminTools))
+                    .CanReturn((person, command) => true);
             }
         }
     }
