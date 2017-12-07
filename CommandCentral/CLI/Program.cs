@@ -105,7 +105,7 @@ namespace CommandCentral.CLI
 
                     testDataCommand.OnExecute(() =>
                     {
-                        var commands = 4;
+                        var commands = 1;
                         if (commandsOption.HasValue())
                             Int32.TryParse(commandsOption.Value(), out commands);
                         if (commands <= 0)
