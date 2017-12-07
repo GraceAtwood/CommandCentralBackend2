@@ -1,4 +1,6 @@
 ﻿using System;
+using CommandCentral.Authorization;
+using CommandCentral.Enums;
 using FluentNHibernate.Mapping;
 using FluentValidation;
 using FluentValidation.Results;
@@ -84,6 +86,22 @@ namespace CommandCentral.Entities
                 RuleFor(x => x.Id).NotEmpty();
                 RuleFor(x => x.Body).NotEmpty().Length(10, 3500);
                 RuleFor(x => x.Title).NotEmpty().Length(3, 50);
+            }
+        }
+        
+        /// <summary>
+        /// Defines the rules contract for this object.
+        /// </summary>
+        public class Contract : RulesContract<NewsItem>
+        {
+            /// <summary>
+            /// Defines the rules contract for this object.
+            /// </summary>
+            public Contract()
+            {
+                RulesFor()
+                    .CanEdit((person, item) => person.SpecialPermissions.Contains(SpecialPermissions.EditNews))
+                    .CanReturn((person, item) => true);
             }
         }
     }
