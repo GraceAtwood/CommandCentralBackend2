@@ -334,7 +334,7 @@ namespace CommandCentral.Entities
                 Map(x => x.PRD).CustomType<UtcDateTimeType>();
                 Map(x => x.DateOfDeparture).CustomType<UtcDateTimeType>();
                 Map(x => x.Suffix);
-                Map(x => x.Paygrade).Not.Nullable();
+                Map(x => x.Paygrade).Not.Nullable().CustomType<GenericEnumMapper<Paygrades>>();
                 Map(x => x.Sex).Not.Nullable();
                 Map(x => x.DutyStatus).Not.Nullable();
                 Map(x => x.BilletAssignment);

@@ -173,7 +173,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
 
             foreach (var term in searchValue.SplitByOr())
             {
-                var matchedPaygrades = EnumUtilities.GetPartialValueMatches<Paygrades>(term).ToList();
+                var matchedPaygrades = EnumUtilities.GetPartialValueMatches<Paygrades>(term).ToArray();
 
                 predicate = predicate.NullSafeAnd(x =>
                     x.FirstName.Contains(term) || x.LastName.Contains(term) || x.DoDId == term ||
