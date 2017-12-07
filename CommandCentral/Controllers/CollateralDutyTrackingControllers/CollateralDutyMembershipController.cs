@@ -223,7 +223,7 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
                     "In order to modify the membership of a collateral duty, you must either have access to " +
                     "the admin tools or be in the Primary or Secondary level of the collateral duty in question.");
 
-            DBSession.Delete(membership);
+            Delete(membership);
 
             //TODO: Add an event here for membership modified.
 

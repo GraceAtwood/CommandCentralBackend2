@@ -155,7 +155,7 @@ namespace CommandCentral.Controllers
             if (!User.CanEdit(item))
                 return Forbid("You can't modify this news item.");
 
-            DBSession.Delete(item);
+            Delete(item);
             CommitChanges();
 
             return NoContent();

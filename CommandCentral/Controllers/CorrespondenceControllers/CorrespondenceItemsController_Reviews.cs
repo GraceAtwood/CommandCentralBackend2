@@ -218,7 +218,7 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
             if (!review.CorrespondenceItem.CanPersonEditItem(User))
                 return Forbid();
 
-            DBSession.Delete(review);
+            Delete(review);
 
             CommitChanges();
 

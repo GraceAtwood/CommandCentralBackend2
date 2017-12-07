@@ -189,7 +189,7 @@ namespace CommandCentral.Controllers
             if (item == null)
                 return NotFoundParameter(id, nameof(id));
 
-            DBSession.Delete(item);
+            Delete(item);
             
             CommitChanges();
 

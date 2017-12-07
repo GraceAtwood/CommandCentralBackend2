@@ -109,6 +109,15 @@ namespace CommandCentral.Framework
             DBSession.Save(entity);
         }
         
+        /// <summary>
+        /// Shortcut for ()
+        /// </summary>
+        /// <param name="entity"></param>
+        public void Delete<T>(T entity) where T : Entity
+        {
+            DBSession.Delete(entity);
+        }
+        
         #endregion
 
         #region Change Tracking

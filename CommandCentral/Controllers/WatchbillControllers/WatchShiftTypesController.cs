@@ -70,7 +70,7 @@ namespace CommandCentral.Controllers.WatchbillControllers
             if (shiftType == null)
                 return NotFoundParameter(id, nameof(id));
 
-            DBSession.Delete(shiftType);
+            Delete(shiftType);
             CommitChanges();
 
             return NoContent();

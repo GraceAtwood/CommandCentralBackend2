@@ -335,7 +335,7 @@ namespace CommandCentral.Controllers.WatchbillControllers
             if (!User.CanEdit(watchbill))
                 return Forbid("You can't delete this watchbill.");
 
-            DBSession.Delete(watchbill);
+            Delete(watchbill);
             CommitChanges();
 
             return NoContent();

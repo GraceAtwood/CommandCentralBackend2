@@ -271,7 +271,7 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
             if (!item.CanPersonEditItem(User))
                 return Forbid();
 
-            DBSession.Delete(item);
+            Delete(item);
 
             CommitChanges();
 

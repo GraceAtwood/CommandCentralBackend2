@@ -79,7 +79,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
 
             if (ownedProfileLock != null)
             {
-                DBSession.Delete(ownedProfileLock);
+                Delete(ownedProfileLock);
             }
 
             DBSession.Save(profileLock);
@@ -101,7 +101,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (item.Owner.Id != User.Id)
                 return Forbid();
 
-            DBSession.Delete(item);
+            Delete(item);
 
             CommitChanges();
 

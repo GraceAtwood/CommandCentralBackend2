@@ -140,7 +140,7 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
             if (item == null)
                 return NotFoundParameter(id, nameof(id));
 
-            DBSession.Delete(item);
+            Delete(item);
 
 
             EventManager.OnCollateralDutyDeleted(new CollateralDutyEventArgs

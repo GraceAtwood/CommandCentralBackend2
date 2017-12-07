@@ -190,7 +190,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (!User.CanEdit(physicalAddress))
                 return Forbid("You may not modify the physical addresses collection for this person");
 
-            DBSession.Delete(physicalAddress);
+            Delete(physicalAddress);
             CommitChanges();
 
             return NoContent();

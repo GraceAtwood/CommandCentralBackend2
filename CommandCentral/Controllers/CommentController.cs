@@ -113,8 +113,7 @@ namespace CommandCentral.Controllers
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
-            DBSession.Save(item);
-            
+            Save(item);
             CommitChanges();
 
             return CreatedAtAction(nameof(Get), new { id = item.Id }, new DTOs.Comment.Get(item));
@@ -167,8 +166,7 @@ namespace CommandCentral.Controllers
             if (item.Creator != User || !User.SpecialPermissions.Contains(SpecialPermissions.AdminTools))
                 return Forbid();
 
-            DBSession.Delete(item);
-            
+            Delete(item);
             CommitChanges();
 
             return NoContent();

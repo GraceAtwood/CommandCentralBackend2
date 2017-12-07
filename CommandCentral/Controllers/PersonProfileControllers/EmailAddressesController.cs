@@ -181,7 +181,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (!User.CanEdit(emailAddress))
                 return Forbid("You may not modify the email addresses collection for this person");
 
-            DBSession.Delete(emailAddress);
+            Delete(emailAddress);
             LogEntityDeletion(emailAddress);
             CommitChanges();
 

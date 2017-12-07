@@ -124,7 +124,7 @@ namespace CommandCentral.Controllers.CFS
             if (!User.IsInChainOfCommand(item.Person, ChainsOfCommand.CommandFinancialSpecialist))
                 return Forbid("You must be in this person's CFS chain of command.");
 
-            DBSession.Delete(item);
+            Delete(item);
             CommitChanges();
 
             return NoContent();

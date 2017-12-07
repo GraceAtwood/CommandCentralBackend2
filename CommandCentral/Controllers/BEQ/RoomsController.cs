@@ -157,7 +157,7 @@ namespace CommandCentral.Controllers.BEQ
             if (!User.CanEdit(room))
                 return Forbid("You can't edit this room.");
 
-            DBSession.Delete(room);
+            Delete(room);
             LogEntityDeletion(room);
             CommitChanges();
 

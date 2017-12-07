@@ -150,7 +150,7 @@ namespace CommandCentral.Controllers.BEQ
             if (!User.CanEdit(building))
                 return Forbid("You can't edit this building.");
 
-            DBSession.Delete(building);
+            Delete(building);
             LogEntityDeletion(building);
             CommitChanges();
 

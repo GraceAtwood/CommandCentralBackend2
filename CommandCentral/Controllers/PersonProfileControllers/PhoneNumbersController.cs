@@ -176,7 +176,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
             if (!User.CanEdit(phoneNumber))
                 return Forbid("You may not modify the phone numbers collection for this person");
 
-            DBSession.Delete(phoneNumber);
+            Delete(phoneNumber);
             CommitChanges();
 
             return NoContent();

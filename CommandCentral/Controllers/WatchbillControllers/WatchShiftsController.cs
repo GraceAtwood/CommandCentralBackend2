@@ -180,7 +180,7 @@ namespace CommandCentral.Controllers.WatchbillControllers
             if (shift.Watchbill.Phase != WatchbillPhases.Initial)
                 return Conflict("You may not modify a shift of a watchbill whose phase is not initial.");
 
-            DBSession.Delete(shift);
+            Delete(shift);
             CommitChanges();
 
             return NoContent();

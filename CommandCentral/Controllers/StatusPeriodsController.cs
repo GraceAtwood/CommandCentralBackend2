@@ -197,7 +197,7 @@ namespace CommandCentral.Controllers
             if (item.Range.Start <= DateTime.UtcNow)
                 return Conflict("You may not delete a status period whose time range has already started.  You may only modify its ending time.");
 
-            DBSession.Delete(item);
+            Delete(item);
             CommitChanges();
 
             return NoContent();

@@ -119,7 +119,7 @@ namespace CommandCentral.Controllers.MusterControllers
                 //Also clean out all the muster information entries since we don't need them anymore.
                 foreach (var entry in musterCycle.MusterEntries)
                 {
-                    DBSession.Delete(entry.ArchiveInformation);
+                    Delete(entry.ArchiveInformation);
                     entry.ArchiveInformation = null;
                 }
 

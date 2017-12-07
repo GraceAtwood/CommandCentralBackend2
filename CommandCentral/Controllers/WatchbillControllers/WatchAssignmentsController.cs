@@ -244,7 +244,7 @@ namespace CommandCentral.Controllers.WatchbillControllers
                     throw new NotImplementedException("Fell to switch in DELETE of watch assignments.");
             }
 
-            DBSession.Delete(assignment);
+            Delete(assignment);
             CommitChanges();
 
             return NoContent();

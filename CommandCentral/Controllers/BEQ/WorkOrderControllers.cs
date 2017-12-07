@@ -155,7 +155,7 @@ namespace CommandCentral.Controllers.BEQ
             if (!User.CanEdit(workOrder))
                 return Forbid("You can't edit this work order.");
 
-            DBSession.Delete(workOrder);
+            Delete(workOrder);
             LogEntityDeletion(workOrder);
             CommitChanges();
 

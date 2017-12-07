@@ -206,7 +206,7 @@ namespace CommandCentral.Controllers.MusterControllers
             if (!User.IsInChainOfCommand(entry.Person, ChainsOfCommand.Muster))
                 return Forbid();
 
-            DBSession.Delete(entry);
+            Delete(entry);
 
             CommitChanges();
 
