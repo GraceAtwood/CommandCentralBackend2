@@ -142,7 +142,6 @@ namespace CommandCentral.Controllers.CollateralDutyTrackingControllers
 
             Delete(item);
 
-
             EventManager.OnCollateralDutyDeleted(new CollateralDutyEventArgs
             {
                 CollateralDuty = item

@@ -1,9 +1,11 @@
 ﻿using System;
+using CommandCentral.Authorization;
 using FluentNHibernate.Mapping;
 using NHibernate.Type;
 using FluentValidation.Results;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
+using FluentValidation;
 
 namespace CommandCentral.Entities
 {
@@ -12,7 +14,6 @@ namespace CommandCentral.Entities
     /// </summary>
     public class AccountHistoryEvent : Entity
     {
-
         #region Properties
         
         /// <summary>
@@ -46,12 +47,12 @@ namespace CommandCentral.Entities
         #endregion
 
         /// <summary>
-        /// Not implemented
+        /// Validates this object.
         /// </summary>
         /// <returns></returns>
         public override ValidationResult Validate()
         {
-            throw new NotImplementedException();
+            return new Validator().Validate(this);
         }
 
         /// <summary>
@@ -70,6 +71,38 @@ namespace CommandCentral.Entities
                 Map(x => x.AccountHistoryEventType).Not.Nullable();
 
                 References(x => x.Person).Not.Nullable();
+            }
+        }
+
+        /// <summary>
+        /// Validates this object.
+        /// </summary>
+        public class Validator : AbstractValidator<AccountHistoryEvent>
+        {
+            /// <summary>
+            /// Validates this object.
+            /// </summary>
+            public Validator()
+            {
+                RuleFor(x => x.Id).NotEmpty();
+                RuleFor(x => x.EventTime).NotEmpty();
+                RuleFor(x => x.Person).NotEmpty();
+            }
+        }
+
+        /// <summary>
+        /// Rules for this object.
+        /// </summary>
+        public class Contract : RulesContract<AccountHistoryEvent>
+        {
+            /// <summary>
+            /// Rules for this ojbect.
+            /// </summary>
+            public Contract()
+            {
+                RulesFor()
+                    .CanEdit((person, @event) => false)
+                    .CanReturn((person, @event) => true);
             }
         }
     }
