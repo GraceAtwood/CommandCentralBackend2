@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net.Http.Formatting;
+using CommandCentral.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using CommandCentral.Framework;
 using CommandCentral.Entities;
@@ -32,7 +34,7 @@ namespace CommandCentral.Controllers
         {
             if (limit <= 0)
                 return BadRequestLimit(limit, nameof(limit));
-            
+
             var predicate = ((Expression<Func<NewsItem, bool>>) null)
                 .AddStringQueryExpression(x => x.Body, body)
                 .AddStringQueryExpression(x => x.Title, title)
@@ -45,6 +47,7 @@ namespace CommandCentral.Controllers
                 .OrderByDescending(x => x.CreationTime)
                 .Take(limit)
                 .ToList()
+                .Where(x => User.CanReturn(x))
                 .Select(x => new DTOs.NewsItem.Get(x))
                 .ToList();
 
@@ -64,6 +67,9 @@ namespace CommandCentral.Controllers
             if (item == null)
                 return NotFoundParameter(id, nameof(id));
 
+            if (!User.CanReturn(item))
+                return Forbid("You can't view this item.");
+
             return Ok(new DTOs.NewsItem.Get(item));
         }
 
@@ -79,9 +85,6 @@ namespace CommandCentral.Controllers
             if (dto == null)
                 return BadRequestDTONull();
 
-            if (!User.SpecialPermissions.Contains(SpecialPermissions.EditNews))
-                return Forbid();
-
             var item = new NewsItem
             {
                 Id = Guid.NewGuid(),
@@ -95,8 +98,10 @@ namespace CommandCentral.Controllers
             if (!result.IsValid)
                 return BadRequest(result.Errors.Select(x => x.ErrorMessage));
 
-            DBSession.Save(item);
+            if (!User.CanEdit(item))
+                return Forbid("You can't modify this news item.");
 
+            DBSession.Save(item);
             CommitChanges();
 
             return CreatedAtAction(nameof(Get), new {id = item.Id}, new DTOs.NewsItem.Get(item));
@@ -115,12 +120,12 @@ namespace CommandCentral.Controllers
             if (dto == null)
                 return BadRequestDTONull();
 
-            if (!User.SpecialPermissions.Contains(SpecialPermissions.EditNews))
-                return Forbid();
-
             var item = DBSession.Get<NewsItem>(id);
             if (item == null)
                 return NotFoundParameter(id, nameof(id));
+
+            if (!User.CanEdit(item))
+                return Forbid("You can't modify this news item.");
 
             item.Body = dto.Body;
             item.Title = dto.Title;
@@ -143,15 +148,14 @@ namespace CommandCentral.Controllers
         [ProducesResponseType(204)]
         public IActionResult Delete(Guid id)
         {
-            if (!User.SpecialPermissions.Contains(SpecialPermissions.EditNews))
-                return Forbid();
-
             var item = DBSession.Get<NewsItem>(id);
             if (item == null)
                 return NotFoundParameter(id, nameof(id));
 
-            DBSession.Delete(item);
+            if (!User.CanEdit(item))
+                return Forbid("You can't modify this news item.");
 
+            DBSession.Delete(item);
             CommitChanges();
 
             return NoContent();
