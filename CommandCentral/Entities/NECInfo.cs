@@ -1,7 +1,9 @@
-﻿using FluentValidation.Results;
+﻿using CommandCentral.Authorization;
+using FluentValidation.Results;
 using FluentNHibernate.Mapping;
 using FluentValidation;
 using CommandCentral.Entities.ReferenceLists;
+using CommandCentral.Enums;
 using CommandCentral.Framework;
 
 namespace CommandCentral.Entities
@@ -21,7 +23,7 @@ namespace CommandCentral.Entities
         /// <summary>
         /// The NEC itself.
         /// </summary>
-        public virtual NEC Nec { get; set; }
+        public virtual NEC NEC { get; set; }
 
         /// <summary>
         /// The person to whom this nec info belongs.
@@ -38,7 +40,7 @@ namespace CommandCentral.Entities
         /// <returns></returns>
         public override string ToString()
         {
-            return $"({(IsPrimary ? "Primary" : "Secondary")}) {Nec}";
+            return $"({(IsPrimary ? "Primary" : "Secondary")}) {NEC}";
         }
 
         #endregion
@@ -65,7 +67,7 @@ namespace CommandCentral.Entities
 
                 Map(x => x.IsPrimary).Not.Nullable();
 
-                References(x => x.Nec).Not.Nullable();
+                References(x => x.NEC).Not.Nullable();
                 References(x => x.Person).Not.Nullable();
             }
         }
@@ -82,6 +84,22 @@ namespace CommandCentral.Entities
             {
                 RuleFor(x => x.Id).NotEmpty();
                 RuleFor(x => x.Person).NotEmpty();
+            }
+        }
+        
+        /// <summary>
+        /// Describes access rules for this object.
+        /// </summary>
+        public class Contract : RulesContract<NECInfo>
+        {
+            /// <summary>
+            /// Describes access rules for this object.
+            /// </summary>
+            public Contract()
+            {
+                RulesFor()
+                    .CanEdit((person, info) => person.CanReturn(info.Person, person1 => person1.NECs))
+                    .CanReturn((person, info) => true);
             }
         }
     }
