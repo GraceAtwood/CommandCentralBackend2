@@ -118,7 +118,7 @@ namespace CommandCentral.Controllers.WatchbillControllers
 
             var result = assignment.Validate();
             if (!result.IsValid)
-                return BadRequest(result.Errors.Select(x => x.ErrorMessage));
+                return BadRequestWithValidationErrors(result);
 
             DBSession.Save(assignment);
             CommitChanges();
@@ -177,6 +177,7 @@ namespace CommandCentral.Controllers.WatchbillControllers
                 assignment.DateAssigned = CallTime;
                 assignment.NumberOfAlertsSent = 0;
             }
+            
             //Does the client want to unassign the watch? (set it to no one?)
             else if (!dto.PersonAssigned.HasValue && assignment.PersonAssigned != null)
             {

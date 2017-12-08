@@ -12,6 +12,8 @@ namespace CommandCentral.Test
     {
         static RestClient client = new RestClient("https://localhost:1113/api");
         static List<DTOs.WatchShiftType.Get> shiftTypes = new List<DTOs.WatchShiftType.Get>();
+
+        private static DTOs.Person.Get developer = null;
         
         public static void StartTest()
         {
@@ -20,7 +22,7 @@ namespace CommandCentral.Test
 
 
             var request = TestUtils.CreateRequest("persons/me", Method.GET);
-            var developer = client.Execute<DTOs.Person.Get>(request).Data;
+            developer = client.Execute<DTOs.Person.Get>(request).Data;
             
             AddShiftTypes();
 
@@ -40,11 +42,12 @@ namespace CommandCentral.Test
         private static DTOs.WatchShiftType.Get AddShiftType(string name, WatchQualifications qual)
         {
             var request = TestUtils.CreateRequest("watchshifttypes", Method.POST);
-            request.AddJsonBody(new DTOs.WatchShiftType.Update
+            request.AddJsonBody(new DTOs.WatchShiftType.Post
             {
                 Description = name,
                 Name = name,
-                Qualification = qual
+                Qualification = qual,
+                Command = developer.Command
             });
             return client.Execute<DTOs.WatchShiftType.Get>(request).Data;
         }

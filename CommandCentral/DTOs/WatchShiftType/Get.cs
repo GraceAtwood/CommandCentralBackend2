@@ -2,7 +2,7 @@
 
 namespace CommandCentral.DTOs.WatchShiftType
 {
-    public class Get : Update
+    public class Get : Post
     {
         public Guid Id { get; set; }
 
@@ -12,6 +12,7 @@ namespace CommandCentral.DTOs.WatchShiftType
             Name = item.Name;
             Description = item.Description;
             Qualification = item.Qualification;
+            Command = item.Command.Id;
         }
 
         public Get()

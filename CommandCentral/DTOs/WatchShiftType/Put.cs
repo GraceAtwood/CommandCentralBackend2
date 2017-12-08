@@ -2,7 +2,7 @@
 
 namespace CommandCentral.DTOs.WatchShiftType
 {
-    public class Update
+    public class Put
     {
         public string Name { get; set; }
         public string Description { get; set; }
