@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -81,7 +82,7 @@ namespace CommandCentral.Authorization
         /// <exception cref="Exception">If a rules contract for the type T is not found.</exception>
         public static bool CanEdit<T>(this Person person, T entity) where T : Entity
         {
-            return GetContract<T>(entity.GetTypeUnproxied()).CanEditAnyProperty(person, entity);
+            return GetContract<T>(entity.GetTypeUnproxied()).CanEditRuleOverride(person, entity);
         }
 
         /// <summary>
@@ -94,7 +95,7 @@ namespace CommandCentral.Authorization
         /// <exception cref="Exception">If a rules contract for the type T is not found.</exception>
         public static bool CanReturn<T>(this Person person, T entity) where T : Entity
         {
-            return GetContract<T>(entity.GetTypeUnproxied()).CanReturnAnyProperty(person, entity);
+            return GetContract<T>(entity.GetTypeUnproxied()).CanReturnRuleOverride(person, entity);
         }
 
         /// <summary>
@@ -125,6 +126,30 @@ namespace CommandCentral.Authorization
             where T : Entity
         {
             return GetContract<T>(entity.GetTypeUnproxied()).CanReturnProperty(editor, entity, propertyName);
+        }
+
+        /// <summary>
+        /// Determines if this person can delete the given objecct.
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="entity"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool CanDelete<T>(this Person editor, T entity) where T : Entity
+        {
+            return GetContract<T>(entity.GetTypeUnproxied()).CanDeleteRule(editor, entity);
+        }
+
+        /// <summary>
+        /// Determines if this person can create the given object (persist it in the database).
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="entity"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool CanCreate<T>(this Person editor, T entity) where T : Entity
+        {
+            return GetContract<T>(entity.GetTypeUnproxied()).CanCreateRule(editor, entity);
         }
 
         /// <summary>
