@@ -243,7 +243,7 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
 
             CommitChanges();
 
-            Events.EventManager.OnCorrespondenceModified(new Events.Args.CorrespondenceItemEventArgs
+            Events.EventManager.OnCorrespondenceModified(new CorrespondenceItemEventArgs
             {
                 Item = item
             }, this);
@@ -275,7 +275,7 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
 
             CommitChanges();
 
-            Events.EventManager.OnCorrespondenceDeleted(new Events.Args.CorrespondenceItemEventArgs
+            Events.EventManager.OnCorrespondenceDeleted(new CorrespondenceItemEventArgs
             {
                 Item = item
             }, this);

@@ -366,6 +366,7 @@ namespace CommandCentral.Framework
         /// </summary>
         /// <param name="context"></param>
         public override void OnActionExecuting(ActionExecutingContext context)
+        
         {
             HttpContext.Items["CallTime"] = DateTime.UtcNow;
 
@@ -380,7 +381,7 @@ namespace CommandCentral.Framework
             }
             else
             {
-                apiKey = Utilities.TestDatabaseBuilder.UnknownApplicationApiKey;
+                apiKey = TestDatabaseBuilder.UnknownApplicationApiKey;
             }
 
             HttpContext.Items["APIKey"] = apiKey;
