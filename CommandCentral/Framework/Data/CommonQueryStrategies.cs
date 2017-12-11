@@ -221,7 +221,7 @@ namespace CommandCentral.Framework.Data
                 return initial;
 
             if (range.HasFromNotTo())
-                return initial.NullSafeAnd(x => selector.Invoke(x) >= range.From);
+                return initial.NullSafeAnd(x => selector.Invoke(x) >= range.From.Value);
 
             return range.HasToNotFrom()
                 ? initial.NullSafeAnd(x => selector.Invoke(x) <= range.To)

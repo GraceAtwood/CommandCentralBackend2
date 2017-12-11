@@ -7,6 +7,7 @@ using CommandCentral.Entities;
 using NHibernate;
 using CommandCentral.Authentication;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using CommandCentral.Enums;
 using CommandCentral.Utilities;
@@ -37,7 +38,7 @@ namespace CommandCentral.Framework
         public DateTime CallTime => (DateTime) HttpContext.Items["CallTime"];
 
         #region NHibernate Session Members
-        
+
         /// <summary>
         /// Represents a database session for this web request session.
         /// </summary>
@@ -76,10 +77,10 @@ namespace CommandCentral.Framework
         public bool TryGet<T>(Guid id, out T entity) where T : Entity
         {
             entity = DBSession.Get<T>(id);
-            
+
             return entity != null;
         }
-        
+
         /// <summary>
         /// Attempts to retireve an entity identified by the given id.
         /// </summary>
@@ -96,7 +97,7 @@ namespace CommandCentral.Framework
             }
 
             entity = DBSession.Get<T>(id);
-            
+
             return entity != null;
         }
 
@@ -108,7 +109,7 @@ namespace CommandCentral.Framework
         {
             DBSession.Save(entity);
         }
-        
+
         /// <summary>
         /// Shortcut for ()
         /// </summary>
@@ -117,7 +118,7 @@ namespace CommandCentral.Framework
         {
             DBSession.Delete(entity);
         }
-        
+
         #endregion
 
         #region Change Tracking
@@ -204,7 +205,7 @@ namespace CommandCentral.Framework
         {
             return BadRequest(result.Errors.Select(x => x.ErrorMessage).ToList());
         }
-        
+
         /// <summary>
         /// Returns a 422 Unprocessable entity result, indicating The server understands the content type of the request entity 
         /// (hence a 415 Unsupported Media Type status code is inappropriate), and the syntax of the request entity is correct 
@@ -327,6 +328,43 @@ namespace CommandCentral.Framework
 
         #region On Actions
 
+        private bool TryGetPersonFromCert(X509Certificate2 cert, ActionExecutingContext context, out Person person)
+        {
+            person = null;
+
+            if (cert == null)
+                return false;
+
+            var isCertificateValid = new X509Chain
+            {
+                ChainPolicy =
+                {
+                    UrlRetrievalTimeout = TimeSpan.MaxValue,
+                    RevocationMode = X509RevocationMode.Online,
+                    RevocationFlag = X509RevocationFlag.EntireChain,
+                    VerificationFlags = X509VerificationFlags.NoFlag
+                }
+            }.Build(cert);
+
+            if (!isCertificateValid)
+            {
+                context.Result = Unauthorized("The passed certificate was invalid.");
+                return false;
+            }
+
+            var temp = cert.Subject.Substring(0, cert.Subject.Length - cert.Subject.IndexOf(','));
+            var dodId = temp.Substring(temp.LastIndexOf('.') + 1, temp.Length - temp.IndexOf(',') - 1);
+
+            person = DBSession.Query<Person>().SingleOrDefault(x => x.DoDId == dodId);
+            if (person != null) 
+                return true;
+            
+            context.Result =
+                NotFound("We were unable to find a user in the database with your DoD Id!  " +
+                         "Please communicate with admin to have someone update or create your profile.");
+            return false;
+        }
+
         /// <summary>
         /// Executes when the http session request is just about to handed to the controller.
         /// </summary>
@@ -335,82 +373,58 @@ namespace CommandCentral.Framework
         {
             HttpContext.Items["CallTime"] = DateTime.UtcNow;
 
-            //Pull out the api key too.
-            if (!Request.Headers.TryGetValue("X-Api-Key", out var apiKeyHeader)
-                || !Guid.TryParse(apiKeyHeader.FirstOrDefault(), out var apiKey)
-                || DBSession.Get<APIKey>(apiKey) == null)
+            //Pull out the api key too.  I'm not doing anything with it yet :/
+            APIKey apiKey;
+            if (Request.Headers.TryGetValue("X-Api-Key", out var apiKeyHeader) &&
+                Guid.TryParse(apiKeyHeader.FirstOrDefault(), out var apiKeyId))
             {
-                context.Result = Unauthorized(
-                    "Your api key was not valid or was not provided.  You must provide an api key (Guid) in the header 'X-Api-Key'.  " +
-                    "If you do not have an api key for your application, please contact the development team and we'll hook you up.");
-                return;
-            }
-
-            //Handle Authentication.  Do we require authentication?  If we're in debug mode, then we can allow the client
-            //to "impersonate" any user they want.  Otherwise, we need to validate the client certificate and read the DoD Id.
-            if (ConfigurationUtility.InDebugMode &&
-                Request.Headers.TryGetValue("X-Impersonate-Person-Id", out var impersonatePersonIdHeader))
-            {
-                if (!Guid.TryParse(impersonatePersonIdHeader.FirstOrDefault(), out var impersonatePersonId))
-                {
-                    context.Result = BadRequest("You passed a 'X-Impersonate-Person-Id' header; however, " +
-                                                "it could not be parsed to a person id.");
-                    return;
-                }
-
-                var impersonatedPerson = DBSession.Get<Person>(impersonatePersonId);
-                if (impersonatedPerson == null)
-                {
-                    context.Result = NotFoundParameter(impersonatePersonId, "X-Impersonate-Person-Id");
-                    return;
-                }
-
-                HttpContext.Items["User"] = impersonatedPerson;
+                apiKey = DBSession.Get<APIKey>(apiKeyId);
+                if (apiKey == null)
+                    context.Result = BadRequest($"The api key ({apiKeyId}) you provided was not valid.");
             }
             else
             {
-                var cert = HttpContext.Connection.ClientCertificate;
-
-                if (cert == null)
-                {
-                    context.Result = Unauthorized(
-                        "If the service is not in debug mode or it is and you do not send an " +
-                        "'X-Impersonate-Person-Id' header', you must send a client certificate " +
-                        "for authentication.  Did you forget the impersonate header?");
-                    return;
-                }
-
-                var isCertificateValid = new X509Chain
-                {
-                    ChainPolicy =
-                    {
-                        UrlRetrievalTimeout = TimeSpan.MaxValue,
-                        RevocationMode = X509RevocationMode.Online,
-                        RevocationFlag = X509RevocationFlag.EntireChain,
-                        VerificationFlags = X509VerificationFlags.NoFlag
-                    }
-                }.Build(cert);
-
-                if (!isCertificateValid)
-                {
-                    context.Result = Unauthorized("The passed certificate was invalid.");
-                    return;
-                }
-
-                var temp = cert.Subject.Substring(0, cert.Subject.Length - cert.Subject.IndexOf(','));
-                var dodId = temp.Substring(temp.LastIndexOf('.') + 1, temp.Length - temp.IndexOf(',') - 1);
-
-                var client = DBSession.Query<Person>().SingleOrDefault(x => x.DoDId == dodId);
-                if (client == null)
-                {
-                    context.Result =
-                        NotFound("We were unable to find a user in the database with your DoD Id!  " +
-                                 "Please communicate with admin to have someone update or create your profile.");
-                    return;
-                }
-
-                HttpContext.Items["User"] = client;
+                apiKey = Utilities.TestDatabaseBuilder.UnknownApplicationApiKey;
             }
+
+            var cert = HttpContext.Connection.ClientCertificate;
+            Person user;
+
+            //We're in debug, and there's no impersonate header or cert.  assume the developer.
+            if (ConfigurationUtility.InDebugMode)
+            {
+                if (!TryGetPersonFromCert(cert, context, out user))
+                {
+                    if (Request.Headers.TryGetValue("X-Impersonate-Person-Id", out var impersonatePersonIdHeader))
+                    {
+                        user = DBSession.Get<Person>(impersonatePersonIdHeader);
+                        if (user == null)
+                        {
+                            context.Result = BadRequest("Your person identified by the  'X-Impersonate-Person-Id' " +
+                                                        "header was not found in the database.");
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        user = DBSession.Get<Person>(TestDatabaseBuilder.DeveloperId);
+                        if (user == null)
+                        {
+                            context.Result = BadRequest("You must send either a 'X-Impersonate-Person-Id' header or " +
+                                                        "a client certificate because the developer id was not recognized.");
+                            return;
+                        }
+                    }
+
+                }
+            }
+            else
+            {
+                if (!TryGetPersonFromCert(cert, context, out user))
+                    return;
+            }
+
+            HttpContext.Items["User"] = user;
 
             base.OnActionExecuting(context);
         }
