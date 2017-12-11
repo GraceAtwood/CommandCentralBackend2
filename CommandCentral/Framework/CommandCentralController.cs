@@ -356,10 +356,7 @@ namespace CommandCentral.Framework
                 return false;
             }
 
-            var temp = cert.Subject.Substring(0, cert.Subject.Length - cert.Subject.IndexOf(','));
-            var dodId = temp.Substring(temp.LastIndexOf('.') + 1, temp.Length - temp.IndexOf(',') - 1);
-
-            person = DBSession.Query<Person>().SingleOrDefault(x => x.DoDId == dodId);
+            person = DBSession.Query<Person>().SingleOrDefault(x => x.DoDId == cert.GetDoDIdFromCAC());
             
             return person != null;
         }
