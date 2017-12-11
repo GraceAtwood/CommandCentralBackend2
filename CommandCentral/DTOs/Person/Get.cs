@@ -1,6 +1,5 @@
 ﻿using CommandCentral.Authorization;
 using System;
-using CommandCentral.Enums;
 
 namespace CommandCentral.DTOs.Person
 {

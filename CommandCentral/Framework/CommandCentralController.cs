@@ -7,7 +7,6 @@ using CommandCentral.Entities;
 using NHibernate;
 using CommandCentral.Authentication;
 using System.Net;
-using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using CommandCentral.Enums;
 using CommandCentral.Utilities;

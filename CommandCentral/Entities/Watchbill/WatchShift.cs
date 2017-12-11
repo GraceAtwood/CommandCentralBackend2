@@ -1,6 +1,4 @@
-﻿using CommandCentral.Authorization;
-using CommandCentral.Enums;
-using CommandCentral.Framework;
+﻿using CommandCentral.Framework;
 using CommandCentral.Utilities.Types;
 using FluentNHibernate.Mapping;
 using FluentValidation;

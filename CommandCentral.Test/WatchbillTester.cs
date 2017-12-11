@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using CommandCentral.Entities;
 using CommandCentral.Enums;
-using CommandCentral.Utilities;
 using RestSharp;
 
 namespace CommandCentral.Test
