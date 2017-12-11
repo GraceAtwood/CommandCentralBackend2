@@ -348,7 +348,6 @@ namespace CommandCentral.Framework
 
             if (!isCertificateValid)
             {
-                context.Result = Unauthorized("The passed certificate was invalid.");
                 return false;
             }
 
@@ -359,9 +358,6 @@ namespace CommandCentral.Framework
             if (person != null) 
                 return true;
             
-            context.Result =
-                NotFound("We were unable to find a user in the database with your DoD Id!  " +
-                         "Please communicate with admin to have someone update or create your profile.");
             return false;
         }
 
@@ -421,7 +417,10 @@ namespace CommandCentral.Framework
             else
             {
                 if (!TryGetPersonFromCert(cert, context, out user))
+                {
+                    context.Result = BadRequest("Your certificate was invalid.");
                     return;
+                }
             }
 
             HttpContext.Items["User"] = user;
