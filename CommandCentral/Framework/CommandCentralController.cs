@@ -37,6 +37,11 @@ namespace CommandCentral.Framework
         /// </summary>
         public DateTime CallTime => (DateTime) HttpContext.Items["CallTime"];
 
+        /// <summary>
+        /// The api key that represents the application that made this call.
+        /// </summary>
+        public APIKey ApiKey => (APIKey) HttpContext.Items["APIKey"];
+
         #region NHibernate Session Members
 
         /// <summary>
@@ -355,10 +360,8 @@ namespace CommandCentral.Framework
             var dodId = temp.Substring(temp.LastIndexOf('.') + 1, temp.Length - temp.IndexOf(',') - 1);
 
             person = DBSession.Query<Person>().SingleOrDefault(x => x.DoDId == dodId);
-            if (person != null) 
-                return true;
             
-            return false;
+            return person != null;
         }
 
         /// <summary>
@@ -382,6 +385,8 @@ namespace CommandCentral.Framework
             {
                 apiKey = Utilities.TestDatabaseBuilder.UnknownApplicationApiKey;
             }
+
+            HttpContext.Items["APIKey"] = apiKey;
 
             var cert = HttpContext.Connection.ClientCertificate;
             Person user;
