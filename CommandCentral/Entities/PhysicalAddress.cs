@@ -139,15 +139,14 @@ namespace CommandCentral.Entities
         {
             public Contract()
             {
-                RulesFor()
-                    .CanEdit((person, address) => person.IsInChainOfCommand(address.Person) || person == address.Person)
-                    .CanReturn((editor, address) =>
-                    {
-                        if (address.IsReleasableOutsideCoC)
-                            return true;
+                CanEditRuleOverride = (person, address) => person.IsInChainOfCommand(address.Person) || person == address.Person;
+                CanReturnRuleOverride = (person, address) =>
+                {
+                    if (address.IsReleasableOutsideCoC)
+                        return true;
 
-                        return editor.IsInChainOfCommand(address.Person) || editor == address.Person;
-                    });
+                    return person.IsInChainOfCommand(address.Person) || person == address.Person;
+                };
             }
         }
     }

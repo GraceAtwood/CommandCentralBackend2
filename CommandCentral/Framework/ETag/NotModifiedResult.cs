@@ -20,12 +20,11 @@ namespace CommandCentral.Framework.ETag
         /// <param name="actionName">The name of the action to use for generating the URL.</param>
         /// <param name="controllerName">The name of the controller to use for generating the URL.</param>
         /// <param name="routeValues">The route data to use for generating the URL.</param>
-        /// <param name="value">The value to format in the entity body.</param>
         /// <param name="date">The date at which the cache was created.</param>
         /// <param name="eTag">The ETag representing the cached resource version.</param>
-        public NotModifiedResult(string actionName, string controllerName, object routeValues, object value,
-            DateTime date, string eTag)
-            : base(value)
+        public NotModifiedResult(string actionName, string controllerName, object routeValues, DateTime date,
+            string eTag)
+            : base(null)
         {
             ActionName = actionName;
             ControllerName = controllerName;

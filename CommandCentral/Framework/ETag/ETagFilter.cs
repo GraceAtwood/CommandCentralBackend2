@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace CommandCentral.Framework.ETag
@@ -11,11 +13,20 @@ namespace CommandCentral.Framework.ETag
         {
             if (context.HttpContext.Request.Method == "GET")
             {
-                if (context.HttpContext.Request.Headers.TryGetValue("If-None-Match", out var value))
+                if (context.HttpContext.Request.Headers.TryGetValue("If-None-Match", out var eTagCollection))
                 {
-                    if (value.Any(eTag => ETagCache.TryGetCachedEntityDescriptor(eTag, out var cachedEntityDescriptor)))
+                    foreach (var eTag in eTagCollection)
                     {
-                        
+                        if (ETagCache.TryGetCachedEntityDescriptor(eTag, out var cachedEntityDescriptor))
+                        {
+                            var controllerName = ((ControllerActionDescriptor) context.ActionDescriptor).ControllerName;
+
+                            context.Result = new NotModifiedResult("GET", controllerName,
+                                new {id = cachedEntityDescriptor.EntityId}, cachedEntityDescriptor.DateTime,
+                                cachedEntityDescriptor.ETag);
+
+                            return;
+                        }
                     }
                 }
             }
@@ -23,16 +34,6 @@ namespace CommandCentral.Framework.ETag
 
         public void OnActionExecuted(ActionExecutedContext context)
         {
-            throw new NotImplementedException();
-        }
-
-        private NotModifiedResult CreateNotModifiedResult(ActionContext context,
-            CachedEntityDescriptor cachedEntityDescriptor)
-        {
-            return new NotModifiedResult("GET",
-                ((Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor) context.ActionDescriptor)
-                .ControllerName, new {id = cachedEntityDescriptor.EntityId},
-                cachedEntityDescriptor.DateTime, cachedEntityDescriptor.ETag);
         }
     }
 }

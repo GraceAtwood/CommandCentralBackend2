@@ -95,15 +95,16 @@ namespace CommandCentral.Entities
         {
             public Contract()
             {
-                RulesFor()
-                    .CanEdit((person, number) => person.IsInChainOfCommand(number.Person) || person == number.Person)
-                    .CanReturn((editor, number) =>
-                    {
-                        if (number.IsReleasableOutsideCoC)
-                            return true;
+                CanEditRuleOverride = (person, number) =>
+                    person.IsInChainOfCommand(number.Person) || person == number.Person;
 
-                        return editor.IsInChainOfCommand(number.Person) || editor == number.Person;
-                    });
+                CanReturnRuleOverride = (person, number) =>
+                {
+                    if (number.IsReleasableOutsideCoC)
+                        return true;
+
+                    return person.IsInChainOfCommand(number.Person) || person == number.Person;
+                }; 
             }
         }
     }

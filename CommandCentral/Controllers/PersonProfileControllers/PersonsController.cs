@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using CommandCentral.Authorization;
-using CommandCentral.DTOs;
 using CommandCentral.DTOs.Custom;
 using CommandCentral.Entities;
 using CommandCentral.Entities.Muster;
@@ -11,6 +10,7 @@ using CommandCentral.Entities.ReferenceLists;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
 using CommandCentral.Framework.Data;
+using CommandCentral.Framework.ETag;
 using CommandCentral.Utilities;
 using LinqKit;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +20,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
     /// <summary>
     /// The person object is the central entry to a person's profile.  Permissions for each field can be attained from the /authorization controller.
     /// </summary>
+    [ETagFilter]
     public class PersonsController : CommandCentralController
     {
         /// <summary>
@@ -256,7 +257,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         /// <summary>
         /// Retrieves the person identified by the given Id.
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">The id to retrieve.</param>
         /// <returns></returns>
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(DTOs.Person.Get), 200)]

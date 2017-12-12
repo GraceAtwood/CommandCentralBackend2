@@ -9,6 +9,7 @@ using CommandCentral.Authentication;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using CommandCentral.Enums;
+using CommandCentral.Framework.ETag;
 using CommandCentral.Utilities;
 using FluentValidation.Results;
 
@@ -40,6 +41,16 @@ namespace CommandCentral.Framework
         /// The api key that represents the application that made this call.
         /// </summary>
         public APIKey ApiKey => (APIKey) HttpContext.Items["APIKey"];
+
+        /// <summary>
+        /// Adds the message body to the etags cache and adds the etag to the response headers.
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="messageBody"></param>
+        public void ETag(Entity entity, object messageBody)
+        {
+            HttpContext.Response.Headers["ETag"] = ETagCache.Add(entity, messageBody, CallTime); 
+        }
 
         #region NHibernate Session Members
 

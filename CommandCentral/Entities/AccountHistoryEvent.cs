@@ -100,9 +100,8 @@ namespace CommandCentral.Entities
             /// </summary>
             public Contract()
             {
-                RulesFor()
-                    .CanEdit((person, @event) => false)
-                    .CanReturn((person, @event) => true);
+                CanEditRuleOverride = (person, @event) => false;
+                CanReturnRuleOverride = (person, @event) => true; 
             }
         }
     }

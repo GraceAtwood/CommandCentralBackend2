@@ -12,5 +12,23 @@ namespace CommandCentral.Framework.ETag
         {
             return CachedEntityDescriptors.TryGetValue(eTag, out cachedEntityDescriptor);
         }
+
+        public static string Add(Entity entity, object messageBody, DateTime dateTime)
+        {
+            var etag = Utilities.Random.CreateCryptographicallySecureGuid().ToString();
+
+            var desc = new CachedEntityDescriptor
+            {
+                DateTime = dateTime,
+                Entity = messageBody,
+                EntityId = entity.Id,
+                ETag = etag
+            };
+            
+            if (!CachedEntityDescriptors.TryAdd(etag, desc))
+                throw new Exception("Failed to add etag...");
+
+            return etag;
+        }
     }
 }
