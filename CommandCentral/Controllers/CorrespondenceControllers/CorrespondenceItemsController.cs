@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using CommandCentral.DTOs.Custom;
 using CommandCentral.Entities;
 using CommandCentral.Entities.Correspondence;
 using CommandCentral.Entities.ReferenceLists;
@@ -55,7 +56,7 @@ namespace CommandCentral.Controllers.CorrespondenceControllers
         [ProducesResponseType(200, Type = typeof(List<DTOs.CorrespondenceItem.Get>))]
         public IActionResult Get([FromQuery] string seriesNumbers, [FromQuery] string submittedFor,
             [FromQuery] string submittedBy,
-            [FromQuery] DTOs.DateTimeRangeQuery timeSubmitted, [FromQuery] bool? hasAttachments,
+            [FromQuery] DateTimeRangeQuery timeSubmitted, [FromQuery] bool? hasAttachments,
             [FromQuery] string commentedBy,
             [FromQuery] bool? hasComments, [FromQuery] bool? hasReviews, [FromQuery] string reviewer,
             [FromQuery] string reviewedBy,

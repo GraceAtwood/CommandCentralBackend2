@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using CommandCentral.DTOs.Custom;
 using CommandCentral.Entities.Muster;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
@@ -36,7 +37,7 @@ namespace CommandCentral.Controllers.MusterControllers
         /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(List<DTOs.MusterCycle.Get>))]
-        public IActionResult Get([FromQuery] DTOs.DateTimeRangeQuery range, [FromQuery] bool? isFinalized, [FromQuery] bool? wasFinalizedBySystem,
+        public IActionResult Get([FromQuery] DateTimeRangeQuery range, [FromQuery] bool? isFinalized, [FromQuery] bool? wasFinalizedBySystem,
             [FromQuery] string finalizedBy, [FromQuery] string command, [FromQuery] int limit = 1000)
         {
             if (limit <= 0)

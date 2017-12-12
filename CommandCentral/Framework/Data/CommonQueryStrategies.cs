@@ -6,6 +6,7 @@ using LinqKit;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using CommandCentral.DTOs.Custom;
 using CommandCentral.Enums;
 
 namespace CommandCentral.Framework.Data
@@ -199,7 +200,7 @@ namespace CommandCentral.Framework.Data
         }
 
         public static Expression<Func<T, bool>> AddDateTimeQueryExpression<T>(this Expression<Func<T, bool>> initial,
-            Expression<Func<T, DateTime?>> selector, DTOs.DateTimeRangeQuery range)
+            Expression<Func<T, DateTime?>> selector, DateTimeRangeQuery range)
         {
             if (range == null || range.HasNeither())
                 return initial;
@@ -215,7 +216,7 @@ namespace CommandCentral.Framework.Data
         }
 
         public static Expression<Func<T, bool>> AddDateTimeQueryExpression<T>(this Expression<Func<T, bool>> initial,
-            Expression<Func<T, DateTime>> selector, DTOs.DateTimeRangeQuery range)
+            Expression<Func<T, DateTime>> selector, DateTimeRangeQuery range)
         {
             if (range == null || range.HasNeither())
                 return initial;
@@ -229,7 +230,7 @@ namespace CommandCentral.Framework.Data
         }
 
         public static Expression<Func<T, bool>> AddTimeRangeQueryExpression<T>(this Expression<Func<T, bool>> initial,
-            Expression<Func<T, TimeRange>> selector, DTOs.DateTimeRangeQuery range)
+            Expression<Func<T, TimeRange>> selector, DateTimeRangeQuery range)
         {
             var expression = GetTimeRangeQueryExpression(selector, range);
             return expression == null
@@ -238,7 +239,7 @@ namespace CommandCentral.Framework.Data
         }
 
         public static Expression<Func<T, bool>> GetTimeRangeQueryExpression<T>(Expression<Func<T, TimeRange>> selector,
-            DTOs.DateTimeRangeQuery range)
+            DateTimeRangeQuery range)
         {
             if (range == null || range.HasNeither())
                 return null;

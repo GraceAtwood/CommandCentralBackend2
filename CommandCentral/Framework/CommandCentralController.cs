@@ -51,6 +51,7 @@ namespace CommandCentral.Framework
         /// <summary>
         /// Flush the <seealso cref="DBSession"/> associated with this controller within a transaction.  Automatically rolls back any changes if an exception is thrown.
         /// </summary>
+        [NonAction]
         public void CommitChanges()
         {
             using (var transaction = DBSession.BeginTransaction())
@@ -62,6 +63,7 @@ namespace CommandCentral.Framework
         /// <para />
         /// NOTE: Entities associated with the session may reapply their changes after the session is reverted/cleared.  If it's absolutely necessary, consider using .Evict on an entity to disable NHibernate's tracking of that entity.
         /// </summary>
+        [NonAction]
         public void RevertChanges()
         {
             if (DBSession.Transaction.IsActive && !DBSession.Transaction.WasCommitted &&
@@ -78,6 +80,7 @@ namespace CommandCentral.Framework
         /// <param name="entity"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
+        [NonAction]
         public bool TryGet<T>(Guid id, out T entity) where T : Entity
         {
             entity = DBSession.Get<T>(id);
@@ -92,6 +95,7 @@ namespace CommandCentral.Framework
         /// <param name="entity"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
+        [NonAction]
         public bool TryGet<T>(Guid? id, out T entity) where T : Entity
         {
             if (!id.HasValue)
@@ -109,6 +113,7 @@ namespace CommandCentral.Framework
         /// Shortcut for DBSession.Save()
         /// </summary>
         /// <param name="entity"></param>
+        [NonAction]
         public void Save<T>(T entity) where T : Entity
         {
             DBSession.Save(entity);
@@ -118,6 +123,7 @@ namespace CommandCentral.Framework
         /// Shortcut for ()
         /// </summary>
         /// <param name="entity"></param>
+        [NonAction]
         public void Delete<T>(T entity) where T : Entity
         {
             DBSession.Delete(entity);
@@ -132,6 +138,7 @@ namespace CommandCentral.Framework
         /// </summary>
         /// <param name="entity"></param>
         /// <typeparam name="T"></typeparam>
+        [NonAction]
         public void LogEntityCreation<T>(T entity) where T : Entity
         {
             var change = new Change
@@ -152,6 +159,7 @@ namespace CommandCentral.Framework
         /// </summary>
         /// <param name="entity"></param>
         /// <typeparam name="T"></typeparam>
+        [NonAction]
         public void LogEntityDeletion<T>(T entity) where T : Entity
         {
             DBSession.Save(new Change
@@ -170,6 +178,7 @@ namespace CommandCentral.Framework
         /// </summary>
         /// <param name="entity"></param>
         /// <typeparam name="T"></typeparam>
+        [NonAction]
         public void LogEntityModification<T>(T entity) where T : Entity
         {
             foreach (var change in GetEntityChanges(entity))
@@ -184,6 +193,7 @@ namespace CommandCentral.Framework
         /// <param name="entity"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
+        [NonAction]
         public IEnumerable<Change> GetEntityChanges<T>(T entity) where T : Entity
         {
             foreach (var change in DBSession.GetChangesFromDirtyProperties(entity))

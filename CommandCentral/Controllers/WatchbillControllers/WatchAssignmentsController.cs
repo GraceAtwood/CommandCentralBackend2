@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using CommandCentral.Authorization;
 using CommandCentral.DTOs;
+using CommandCentral.DTOs.Custom;
 using CommandCentral.Entities;
 using CommandCentral.Entities.Watchbill;
 using CommandCentral.Enums;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using CommandCentral.Authorization;
+using CommandCentral.DTOs.Custom;
 using CommandCentral.Entities;
 using CommandCentral.Entities.CFS;
 using CommandCentral.Enums;
@@ -30,7 +31,7 @@ namespace CommandCentral.Controllers.CFS
         /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(List<DTOs.CFSMeeting.Get>))]
-        public IActionResult Get([FromQuery] DTOs.DateTimeRangeQuery range, [FromQuery] string person,
+        public IActionResult Get([FromQuery] DateTimeRangeQuery range, [FromQuery] string person,
             [FromQuery] string advisor, [FromQuery] string notes, [FromQuery] string request)
         {
             //If the client isn't in the CFS chain of command, they can only query for themselves by Id.

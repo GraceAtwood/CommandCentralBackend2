@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using CommandCentral.Authorization;
+using CommandCentral.DTOs.Custom;
 using CommandCentral.Entities;
 using CommandCentral.Entities.BEQ;
 using CommandCentral.Framework;
@@ -30,7 +31,7 @@ namespace CommandCentral.Controllers.BEQ
         /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(List<DTOs.RoomInspection.Get>))]
-        public IActionResult Get([FromQuery] DTOs.DateTimeRangeQuery time, [FromQuery] string room,
+        public IActionResult Get([FromQuery] DateTimeRangeQuery time, [FromQuery] string room,
             [FromQuery] string person, [FromQuery] string inspectedBy, [FromQuery] string score,
             [FromQuery] int limit = 1000)
         {

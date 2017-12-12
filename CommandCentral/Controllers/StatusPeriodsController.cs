@@ -9,6 +9,7 @@ using CommandCentral.Entities;
 using CommandCentral.Enums;
 using CommandCentral.Utilities.Types;
 using System.Linq.Expressions;
+using CommandCentral.DTOs.Custom;
 using CommandCentral.Framework.Data;
 using LinqKit;
 
@@ -40,7 +41,7 @@ namespace CommandCentral.Controllers
         /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(List<DTOs.StatusPeriod.Get>))]
-        public IActionResult Get([FromQuery] string person, [FromQuery] string submittedBy, [FromQuery] DTOs.DateTimeRangeQuery range, 
+        public IActionResult Get([FromQuery] string person, [FromQuery] string submittedBy, [FromQuery] DateTimeRangeQuery range, 
             [FromQuery] string accountabilityType, [FromQuery] bool? exemptsFromWatch, [FromQuery] int limit = 1000, [FromQuery] string orderBy = nameof(TimeRange.Start))
         {
             if (limit <= 0)

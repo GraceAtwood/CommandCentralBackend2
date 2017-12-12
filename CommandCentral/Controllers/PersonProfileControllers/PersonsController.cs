@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using CommandCentral.Authorization;
 using CommandCentral.DTOs;
+using CommandCentral.DTOs.Custom;
 using CommandCentral.Entities;
 using CommandCentral.Entities.Muster;
 using CommandCentral.Entities.ReferenceLists;
@@ -54,7 +55,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         /// Not all properties are supported.  This parameter is not meant to offload ordering work to the API; 
         /// rather, it is meant to be used in conjunction with the limit parameter to get only those results the client desires.</param>
         /// <returns></returns>
-        [HttpGet("advanced")]
+        [HttpGet("advanced"), HttpGet]
         [ProducesResponseType(typeof(List<DTOs.Person.Get>), 200)]
         public IActionResult Get([FromQuery] string firstName, [FromQuery] string lastName,
             [FromQuery] string middleName, [FromQuery] string dodId,

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using CommandCentral.Authorization;
+using CommandCentral.DTOs.Custom;
 using CommandCentral.Entities.Watchbill;
 using CommandCentral.Framework;
 using CommandCentral.Framework.Data;
@@ -31,7 +32,7 @@ namespace CommandCentral.Controllers.WatchbillControllers
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(List<DTOs.WatchShift.Get>))]
         public IActionResult Get([FromQuery] string watchbill, [FromQuery] string title,
-            [FromQuery] DTOs.DateTimeRangeQuery range, [FromQuery] bool? hasWatchAssignment,
+            [FromQuery] DateTimeRangeQuery range, [FromQuery] bool? hasWatchAssignment,
             [FromQuery] string shiftType, [FromQuery] string divisionAssignedTo, [FromQuery] int limit = 1000)
         {
             var predicate = ((Expression<Func<WatchShift, bool>>) null)
