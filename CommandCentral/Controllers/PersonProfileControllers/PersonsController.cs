@@ -97,8 +97,13 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 .AddDateTimeQueryExpression(x => x.EAOS, eaos)
                 .AddDateTimeQueryExpression(x => x.PRD, prd);
 
-            if (statusPeriod != null && statusPeriod.HasBoth())
-                predicate = predicate.NullSafeAnd(x => x.StatusPeriods.Any(statusPeriodSearch.Compile()));
+            if (statusPeriod != null)
+            {
+                if (statusPeriod.HasNeither())
+                    predicate = predicate.NullSafeAnd(x => x.StatusPeriods.Any());
+                else
+                    predicate = predicate.NullSafeAnd(x => x.StatusPeriods.Any(statusPeriodSearch.Compile()));
+            }
 
             Expression<Func<Person, object>> orderBySelector;
 
