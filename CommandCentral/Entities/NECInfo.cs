@@ -3,7 +3,6 @@ using FluentValidation.Results;
 using FluentNHibernate.Mapping;
 using FluentValidation;
 using CommandCentral.Entities.ReferenceLists;
-using CommandCentral.Enums;
 using CommandCentral.Framework;
 
 namespace CommandCentral.Entities

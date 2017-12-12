@@ -18,6 +18,11 @@ namespace CommandCentral.Framework
     public class Startup
     {
         /// <summary>
+        /// The date time format to be used throughout the application when parsing is required.
+        /// </summary>
+        public const string DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.fffZ";
+
+        /// <summary>
         /// The constructor for our class, which simply sets up Cron jobs.
         /// </summary>
         public Startup()
@@ -41,7 +46,7 @@ namespace CommandCentral.Framework
                 options.SerializerSettings.DateTimeZoneHandling = Newtonsoft.Json.DateTimeZoneHandling.Utc;
                 options.SerializerSettings.DateFormatHandling = Newtonsoft.Json.DateFormatHandling.IsoDateFormat;
                 options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
-                options.SerializerSettings.DateFormatString = "yyyy-MM-ddTHH:mm:ss.fffZ";
+                options.SerializerSettings.DateFormatString = DateTimeFormat;
                 options.SerializerSettings.Converters.Add(new StringEnumConverter { CamelCaseText = false });
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Error;
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();

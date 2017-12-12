@@ -76,6 +76,16 @@ namespace CommandCentral.Utilities
             }
         }
 
+        /// <summary>
+        /// The api key to be used for any called that does not send an api key.
+        /// </summary>
+        public static readonly APIKey UnknownApplicationApiKey = new APIKey
+        {
+
+            ApplicationName = "Unknown Application",
+            Id = Guid.Parse("70FF3C1A-5113-4EFC-A4D7-B469E1B2210E")
+        };
+
         private static void AddAPIKey()
         {
             using (var transaction = SessionManager.GetCurrentSession().BeginTransaction())
@@ -91,6 +101,8 @@ namespace CommandCentral.Utilities
                     ApplicationName = "Swagger Documentation Page",
                     Id = Guid.Parse("E28235AC-57A1-42AC-AA85-1547B755EA7E")
                 });
+                
+                SessionManager.GetCurrentSession().Save(UnknownApplicationApiKey);
 
                 transaction.Commit();
             }
@@ -300,6 +312,8 @@ namespace CommandCentral.Utilities
 
             return person;
         }
+        
+        public static Guid DeveloperId = Guid.Parse("b2db659d-4998-40a2-8962-e6eb05326ea5");
 
         private static void CreateDeveloper()
         {
@@ -311,7 +325,7 @@ namespace CommandCentral.Utilities
                 var division = department.Divisions.First();
                 var uic = SessionManager.GetCurrentSession().Query<UIC>().ToList().Shuffle().First();
 
-                var person = CreatePerson(Guid.Parse("b2db659d-4998-40a2-8962-e6eb05326ea5"), division, uic,
+                var person = CreatePerson(DeveloperId, division, uic,
                     "developer", "dev", (WatchQualifications[]) Enum.GetValues(typeof(WatchQualifications)),
                     Paygrades.E5, SessionManager.GetCurrentSession().Query<Designation>().ToList().Shuffle().First());
                 

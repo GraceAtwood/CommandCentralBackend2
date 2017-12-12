@@ -1,6 +1,5 @@
 ﻿using System;
 using CommandCentral.Authorization;
-using CommandCentral.Entities.Watchbill;
 using CommandCentral.Enums;
 using CommandCentral.Framework;
 using FluentNHibernate.Mapping;

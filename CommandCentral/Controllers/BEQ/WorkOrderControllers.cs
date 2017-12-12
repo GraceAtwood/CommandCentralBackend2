@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using CommandCentral.Authorization;
+using CommandCentral.DTOs.Custom;
 using CommandCentral.Entities.BEQ;
 using CommandCentral.Framework;
 using CommandCentral.Framework.Data;
@@ -17,7 +18,7 @@ namespace CommandCentral.Controllers.BEQ
         [HttpGet]
         [ProducesResponseType(typeof(List<DTOs.WorkOrder.Get>), 200)]
         public IActionResult Get([FromQuery] string body, [FromQuery] string location, [FromQuery] string room,
-            [FromQuery] DTOs.DateTimeRangeQuery timeSubmitted, [FromQuery] string submittedBy,
+            [FromQuery] DateTimeRangeQuery timeSubmitted, [FromQuery] string submittedBy,
             [FromQuery] int limit = 1000)
         {
             if (limit <= 0)

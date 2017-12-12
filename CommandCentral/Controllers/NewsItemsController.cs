@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Net.Http.Formatting;
 using CommandCentral.Authorization;
+using CommandCentral.DTOs.Custom;
 using Microsoft.AspNetCore.Mvc;
 using CommandCentral.Framework;
 using CommandCentral.Entities;
-using CommandCentral.Enums;
 using CommandCentral.Framework.Data;
 using LinqKit;
 
@@ -30,7 +29,7 @@ namespace CommandCentral.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(List<DTOs.NewsItem.Get>), 200)]
         public IActionResult Get([FromQuery] string creator, [FromQuery] string title, [FromQuery] string body,
-            [FromQuery] DTOs.DateTimeRangeQuery creationTime, [FromQuery] int limit = 1000)
+            [FromQuery] DateTimeRangeQuery creationTime, [FromQuery] int limit = 1000)
         {
             if (limit <= 0)
                 return BadRequestLimit(limit, nameof(limit));

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using CommandCentral.Authorization;
 using CommandCentral.DTOs;
+using CommandCentral.DTOs.Custom;
 using CommandCentral.Entities;
 using CommandCentral.Entities.Muster;
 using CommandCentral.Entities.ReferenceLists;
@@ -24,10 +25,10 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         /// <summary>
         /// Queries the persons collection.  Results are passed through a permissions filter prior to serving them to the client.  
         /// Large result sets could result in longer load times.  
-        /// Properties your client is not able to view (such as SSN, possibly) will be replaced with the default value for the type of that property (null in the case of SSN).  
+        /// Properties your client is not able to view will be replaced with the default value for the type of that property (null in the case of SSN).  
         /// You are responsible for knowing which properties your client can or can not view.  
         /// </summary>
-        /// <param name="firstName">A string quuery for the first name of a person.</param>
+        /// <param name="firstName">A string query for the first name of a person.</param>
         /// <param name="lastName">A string query for the last name of a person.</param>
         /// <param name="middleName">A string query for the middle name of a person.</param>
         /// <param name="dodId">A string query for the dod id of a person.</param>
@@ -54,7 +55,7 @@ namespace CommandCentral.Controllers.PersonProfileControllers
         /// Not all properties are supported.  This parameter is not meant to offload ordering work to the API; 
         /// rather, it is meant to be used in conjunction with the limit parameter to get only those results the client desires.</param>
         /// <returns></returns>
-        [HttpGet("advanced")]
+        [HttpGet("advanced"), HttpGet]
         [ProducesResponseType(typeof(List<DTOs.Person.Get>), 200)]
         public IActionResult Get([FromQuery] string firstName, [FromQuery] string lastName,
             [FromQuery] string middleName, [FromQuery] string dodId,
@@ -96,8 +97,13 @@ namespace CommandCentral.Controllers.PersonProfileControllers
                 .AddDateTimeQueryExpression(x => x.EAOS, eaos)
                 .AddDateTimeQueryExpression(x => x.PRD, prd);
 
-            if (statusPeriod != null && statusPeriod.HasBoth())
-                predicate = predicate.NullSafeAnd(x => x.StatusPeriods.Any(statusPeriodSearch.Compile()));
+            if (statusPeriod != null)
+            {
+                if (statusPeriod.HasNeither())
+                    predicate = predicate.NullSafeAnd(x => x.StatusPeriods.Any());
+                else
+                    predicate = predicate.NullSafeAnd(x => x.StatusPeriods.Any(statusPeriodSearch.Compile()));
+            }
 
             Expression<Func<Person, object>> orderBySelector;
 

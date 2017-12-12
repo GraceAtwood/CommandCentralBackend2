@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using CommandCentral.Authorization;
+using CommandCentral.DTOs.Custom;
 using CommandCentral.Entities;
 using CommandCentral.Entities.Muster;
 using CommandCentral.Enums;
@@ -37,7 +38,7 @@ namespace CommandCentral.Controllers.MusterControllers
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(List<DTOs.MusterEntry.Get>))]
         public IActionResult Get([FromQuery] string person, [FromQuery] string submittedBy,
-            [FromQuery] DTOs.DateTimeRangeQuery range, [FromQuery] string accountabilityType,
+            [FromQuery] DateTimeRangeQuery range, [FromQuery] string accountabilityType,
             [FromQuery] Guid? musterCycle, [FromQuery] Guid? statusPeriodSetBy, [FromQuery] bool? setByStatusPeriod,
             [FromQuery] int limit = 1000, [FromQuery] string orderBy = nameof(TimeRange.Start))
         {

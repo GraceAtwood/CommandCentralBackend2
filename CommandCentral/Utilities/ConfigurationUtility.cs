@@ -12,7 +12,7 @@ namespace CommandCentral.Utilities
         public static IConfigurationRoot Configuration { get; private set; }
 
         public static bool InDebugMode =>
-            Boolean.TryParse(ConfigurationUtility.Configuration["DebugMode"], out var debugMode) && debugMode;
+            Boolean.TryParse(Configuration["DebugMode"], out var debugMode) && debugMode;
 
         static ConfigurationUtility()
         {

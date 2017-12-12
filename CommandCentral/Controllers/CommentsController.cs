@@ -10,6 +10,7 @@ using CommandCentral.Utilities;
 using CommandCentral.Framework.Data;
 using LinqKit;
 using CommandCentral.Authorization;
+using CommandCentral.DTOs.Custom;
 using CommandCentral.Enums;
 
 namespace CommandCentral.Controllers
