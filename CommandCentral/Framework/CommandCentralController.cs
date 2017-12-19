@@ -405,7 +405,9 @@ namespace CommandCentral.Framework
                 {
                     if (Request.Headers.TryGetValue("X-Impersonate-Person-Id", out var impersonatePersonIdHeader))
                     {
-                        user = DBSession.Get<Person>(impersonatePersonIdHeader);
+                        if(!Guid.TryParse(impersonatePersonIdHeader, out var id))
+                            context.Result = BadRequest("No, go fuck yourself");
+                        user = DBSession.Get<Person>(id);
                         if (user == null)
                         {
                             context.Result = BadRequest("Your person identified by the  'X-Impersonate-Person-Id' " +
