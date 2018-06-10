@@ -75,7 +75,7 @@ namespace CommandCentral.Framework
                         Url = "http://commandcentral/"
                     },
                     Description = "The Command Central REST API provides common, standardized authentication, authorization, data access, and processing for U.S. Navy Sailor personnel and other administrative data.",
-                    License = new License { Name = "The please don't freaking sue me license, 2017" },
+                    License = new License { Name = "The please don't freaking sue me license, 2018" },
                     TermsOfService = "This API is provided pretty much as is even though it's my job to ensure it works."
                 });
 
